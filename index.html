@@ -530,6 +530,13 @@ body.cat-revealing #today-wrap-mob{visibility:hidden!important;pointer-events:no
   .ls-row{display:flex;gap:8px;width:100%}
   .ls-row .lb{flex:1}
 
+    #lb-import-btn{display:flex;align-items:center;gap:7px;padding:9px 16px;border-radius:10px;border:1px solid var(--br);background:var(--card);color:var(--tx);font-size:13px;font-weight:500;cursor:pointer;transition:all .2s;width:100%;justify-content:center;margin-bottom:10px;box-sizing:border-box}
+#lb-import-btn:hover{border-color:var(--bh);background:rgba(255,255,255,.07)}
+#lb-result{border-radius:10px;padding:10px 13px;font-size:12px;line-height:1.7;display:none;margin-bottom:10px;white-space:pre-line}
+#lb-result.ok{background:rgba(74,222,128,.07);border:1px solid rgba(74,222,128,.25);color:#4ade80}
+#lb-result.warn{background:rgba(251,191,36,.07);border:1px solid rgba(251,191,36,.25);color:#fbbf24}
+#lb-standby-box{font-size:11px;color:var(--td);margin-bottom:8px;display:none}
+#lb-standby-box b{color:rgba(251,191,36,.9)}
   </style></head>
 <body>
 <div id="deco"><span class="o1"></span><span class="b1"></span></div>
@@ -964,6 +971,10 @@ body.cat-revealing #today-wrap-mob{visibility:hidden!important;pointer-events:no
 <div id="vp" class="slide-panel">
   <div class="vph"><button class="vp-back" onclick="closeVisti()" data-i18n="back">← Torna</button><div class="vph-t"><h2 data-i18n="visti_h2">Segna i film già visti</h2><p data-i18n="visti_p">Aiuta Swainz a consigliarti sempre film mai visti</p></div></div>
   <div class="vpb">
+    <input type="file" id="lb-file-input" accept=".csv" style="display:none" onchange="importLetterboxd(this)">
+    <button id="lb-import-btn" onclick="document.getElementById('lb-file-input').click()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>&nbsp;<span data-i18n="lb_import_btn">Importa da Letterboxd</span></button>
+    <div id="lb-result"></div>
+    <div id="lb-standby-box"></div>
     <div class="sw"><span class="sw-ico">🔍</span><input type="text" id="vsrc" data-i18n-ph="search_ph" placeholder="Cerca per titolo, regista o attore..." oninput="searchV(this.value)" autocomplete="off"><div class="autocomplete-box" id="acbox" style="display:none"></div></div>
     <div class="vcnt" id="vcnt"></div>
     <div class="shr"><span class="sh" onclick="setQ('Christopher Nolan')">Christopher Nolan</span><span class="sh" onclick="setQ('Stanley Kubrick')">Stanley Kubrick</span><span class="sh" onclick="setQ('Quentin Tarantino')">Quentin Tarantino</span><span class="sh" onclick="setQ('Leonardo Di Caprio')">Leonardo Di Caprio</span><span class="sh" onclick="setQ('Martin Scorsese')">Martin Scorsese</span><span class="sh" onclick="setQ('David Lynch')">David Lynch</span></div>
@@ -1045,6 +1056,10 @@ function _supaFetchPage(page,step,resolve,reject,all){
   xhr.onerror=function(){resolve();};
   xhr.send();
 }
+var _authToken=null;
+var _refreshToken=null;
+var currentUser=null;
+
 var _dbReady=new Promise(function(resolve,reject){
   _supaFetchPage(0,500,resolve,reject,[]);
 });
@@ -1168,7 +1183,14 @@ function openTodayFilm(id){
   ['today-btn','today-btn-mob'].forEach(bid=>{const b=document.getElementById(bid);if(b)b.classList.remove('open');});
   showCard({f,mx:f.tags||[]},{hideMore:true});
 }
-async function saveSeen(){try{await window.storage.set('sw3_seen',JSON.stringify([...seenFilms]));}catch(e){}}
+async function saveSeen(){
+  try{await window.storage.set('sw3_seen',JSON.stringify([...seenFilms]));}catch(e){}
+  try{localStorage.setItem('sw3_seen',JSON.stringify([...seenFilms]));}catch(e){}
+  if(_authToken&&currentUser){
+    var ids=[...seenFilms];
+    _saveUserData({seen_film_ids:ids,updated_at:new Date().toISOString()});
+  }
+}
 async function loadFck(){try{const r=await window.storage.get('sw3_fck');if(r){fckAnswers=JSON.parse(r.value);applyFck(fckAnswers);}}catch(e){}}
 function closeExclModal(){document.getElementById('excl-modal').classList.remove('show');}
 
@@ -1773,6 +1795,7 @@ function startCountdown(){
 
 // ── VISTI ────────────────────────────────────────────────────────────────
 function openVisti(){
+  setTimeout(function(){try{checkLbStandby();}catch(ex){}},100);
   document.getElementById('vp').classList.add('on');
   document.getElementById('vsrc').value='';
   document.getElementById('vcnt').innerHTML=`<span>${seenFilms.size}</span>${t('seen_count')}`;
@@ -2346,7 +2369,7 @@ const T={
   it:{
     tagline:'Il tuo consigliere cinematografico felino',
     login_google:'Continua con Google',login_fb:'Continua con Facebook',
-    login_apple:'Continua con Apple',login_enter:'Accedi',login_register:'Registrati',login_pwd_ph:'Password',login_guest:'Entra come ospite',
+    login_apple:'Continua con Apple',lb_import_btn:'Importa da Letterboxd',logout_btn:'Esci dall\'account',login_enter:'Accedi',login_register:'Registrati',login_pwd_ph:'Password',login_guest:'Entra come ospite',
     login_sub:'3 consigli gratuiti al giorno · Nessuna carta richiesta',
     bdg_label:'Consigli rimasti',
     btn_visti:'👁\u00a0Segna i film già visti',
@@ -2413,7 +2436,7 @@ const T={
   en:{
     tagline:'Your feline film adviser',
     login_google:'Continue with Google',login_fb:'Continue with Facebook',
-    login_apple:'Continue with Apple',login_enter:'Sign in',login_register:'Register',login_pwd_ph:'Password',login_guest:'Enter as guest',
+    login_apple:'Continue with Apple',lb_import_btn:'Import from Letterboxd',logout_btn:'Sign out',login_enter:'Sign in',login_register:'Register',login_pwd_ph:'Password',login_guest:'Enter as guest',
     login_sub:'3 free recommendations a day · No card required',
     bdg_label:'Suggestions left',
     btn_visti:'👁\u00a0Mark watched films',
@@ -2637,8 +2660,17 @@ function setLang(l){
 }
 
 (async()=>{
+  // Load local prefs first
   try{const r=await window.storage.get('sw3_premium');if(r&&r.value==='1')isPremium=true;}catch(e){}
+  try{const lp=localStorage.getItem('sw3_premium');if(lp==='1')isPremium=true;}catch(e){}
   buildUI();loadSeen();loadFck();loadTodayRecs();loadAllRecs();if(window.innerWidth<=600){setLang(LANG);}
+  // Try to restore existing Supabase session → auto-login
+  _restoreSession(function(valid){
+    if(!valid)return;
+    _dbReady.then(function(){
+      _loadUserData(function(d){_applyUserData(d);buildUI();login();});
+    });
+  });
 })();
 
 // ── AUTH ────────────────────────────────────────────────────────────────
@@ -2654,54 +2686,274 @@ function _lsErr(msg) {
   if (el) el.textContent = msg;
 }
 
-function _lsAuth(endpoint, body, onOk) {
+function _lsSetBusy(busy) {
+  var btns = document.querySelectorAll('#ls .lb');
+  btns.forEach(function(b){ b.disabled = busy; });
   _lsErr('');
+}
+
+// ── SESSION HELPERS ─────────────────────────────────────────────────────────
+function _saveSession(res) {
+  _authToken = res.access_token;
+  _refreshToken = res.refresh_token;
+  currentUser = res.user;
+  var exp = Date.now() + (res.expires_in ? res.expires_in * 1000 : 3600000);
+  try {
+    localStorage.setItem('sw3_session', JSON.stringify({
+      access_token: res.access_token,
+      refresh_token: res.refresh_token,
+      user: res.user,
+      expires_at: exp
+    }));
+  } catch(e) {}
+}
+
+function _clearSession() {
+  _authToken = null; _refreshToken = null; currentUser = null;
+  try { localStorage.removeItem('sw3_session'); } catch(e) {}
+}
+
+function _supaXHR(method, path, body, token, cb) {
+  var xhr = new XMLHttpRequest();
+  xhr.open(method, SUPA_URL + path);
+  xhr.setRequestHeader('apikey', SUPA_KEY);
+  xhr.setRequestHeader('Content-Type', 'application/json');
+  xhr.setRequestHeader('Prefer', 'return=representation');
+  if (token) xhr.setRequestHeader('Authorization', 'Bearer ' + token);
+  xhr.timeout = 10000;
+  xhr.onload = function() {
+    var res = null;
+    try { res = JSON.parse(xhr.responseText); } catch(e) {}
+    cb(xhr.status, res);
+  };
+  xhr.ontimeout = xhr.onerror = function() { cb(0, null); };
+  xhr.send(body ? JSON.stringify(body) : null);
+}
+
+function _tryRefreshSession(cb) {
+  if (!_refreshToken) { cb(false); return; }
+  _supaXHR('POST', '/auth/v1/token?grant_type=refresh_token',
+    { refresh_token: _refreshToken }, null, function(status, res) {
+      if (status === 200 && res && res.access_token) {
+        _saveSession(res); cb(true);
+      } else { _clearSession(); cb(false); }
+  });
+}
+
+function _restoreSession(cb) {
+  var raw = null;
+  try { raw = localStorage.getItem('sw3_session'); } catch(e) {}
+  if (!raw) { cb(false); return; }
+  var s = null;
+  try { s = JSON.parse(raw); } catch(e) {}
+  if (!s || !s.access_token) { cb(false); return; }
+  // Check expiry (with 60s margin)
+  if (s.expires_at && Date.now() > s.expires_at - 60000) {
+    _refreshToken = s.refresh_token;
+    _tryRefreshSession(cb);
+  } else {
+    _authToken = s.access_token;
+    _refreshToken = s.refresh_token;
+    currentUser = s.user;
+    cb(true);
+  }
+}
+
+// ── USER DATA (Supabase table: user_data) ──────────────────────────────────
+function _saveUserData(patch) {
+  if (!_authToken || !currentUser) return;
+  var uid = currentUser.id;
+  _supaXHR('POST', '/rest/v1/user_data',
+    Object.assign({ user_id: uid }, patch), _authToken,
+    function(status, res) {
+      if (status === 409 || (Array.isArray(res) && res.length === 0)) {
+        // Row exists → PATCH
+        _supaXHR('PATCH', '/rest/v1/user_data?user_id=eq.' + uid,
+          patch, _authToken, function(){});
+      }
+  });
+}
+
+function _loadUserData(cb) {
+  if (!_authToken || !currentUser) { cb(null); return; }
+  _supaXHR('GET', '/rest/v1/user_data?user_id=eq.' + currentUser.id + '&select=*',
+    null, _authToken, function(status, res) {
+      cb((Array.isArray(res) && res.length) ? res[0] : null);
+  });
+}
+
+function _applyUserData(d) {
+  if (!d) return;
+  if (d.seen_film_ids && d.seen_film_ids.length) {
+    d.seen_film_ids.forEach(function(id){ seenFilms.add(id); });
+    try { localStorage.setItem('sw3_seen', JSON.stringify([...seenFilms])); } catch(e) {}
+  }
+  if (d.lb_standby) try { localStorage.setItem('sw3_lb_standby', JSON.stringify(d.lb_standby)); } catch(e) {}
+  if (d.fck_answers && Object.keys(d.fck_answers).length) {
+    fckAnswers = d.fck_answers;
+    applyFck(fckAnswers);
+    try { localStorage.setItem('sw3_fck', JSON.stringify(fckAnswers)); } catch(e) {}
+  }
+  if (d.is_premium) {
+    isPremium = true;
+    try { localStorage.setItem('sw3_premium', '1'); } catch(e) {}
+  }
+  if (d.profile) try { localStorage.setItem('sw3_prof', JSON.stringify(d.profile)); } catch(e) {}
+}
+
+// ── AUTH CALLS ──────────────────────────────────────────────────────────────
+function _lsAuth(endpoint, body, onOk) {
   var email = (document.getElementById('ls-email').value || '').trim();
   var pwd = document.getElementById('ls-pwd').value || '';
   if (!email || !pwd) { _lsErr(LANG === 'en' ? 'Enter email and password.' : 'Inserisci email e password.'); return; }
-  body.email = email;
-  body.password = pwd;
-
-  var xhr = new XMLHttpRequest();
-  xhr.open('POST', SUPA_URL + '/auth/v1/' + endpoint);
-  xhr.setRequestHeader('apikey', SUPA_KEY);
-  xhr.setRequestHeader('Content-Type', 'application/json');
-  xhr.timeout = 10000;
-  xhr.onload = function() {
-    var res = {};
-    try { res = JSON.parse(xhr.responseText); } catch(e) {}
-    if (xhr.status >= 200 && xhr.status < 300 && (res.access_token || res.user)) {
+  body.email = email; body.password = pwd;
+  _lsSetBusy(true);
+  _supaXHR('POST', '/auth/v1/' + endpoint, body, null, function(status, res) {
+    _lsSetBusy(false);
+    if (status >= 200 && status < 300 && res && (res.access_token || res.user)) {
       onOk(res);
     } else {
-      var msg = res.error_description || res.msg || res.message || (LANG === 'en' ? 'Error. Try again.' : 'Errore. Riprova.');
+      var msg = (res && (res.error_description || res.msg || res.message)) ||
+                (LANG === 'en' ? 'Error. Try again.' : 'Errore. Riprova.');
       _lsErr(msg);
     }
-  };
-  xhr.ontimeout = function() { _lsErr(LANG === 'en' ? 'Connection timeout.' : 'Timeout connessione.'); };
-  xhr.onerror = function() { _lsErr(LANG === 'en' ? 'Connection error.' : 'Errore di connessione.'); };
-  xhr.send(JSON.stringify(body));
+  });
 }
 
 function doLogin() {
   _lsAuth('token?grant_type=password', {}, function(res) {
-    login();
+    _saveSession(res);
+    _loadUserData(function(d){ _applyUserData(d); login(); });
   });
 }
 
 function doRegister() {
   _lsAuth('signup', {}, function(res) {
-    // If email confirmation is required, res.user.confirmed_at will be null
-    var confirmed = res.user && res.user.confirmed_at;
-    var session = res.access_token;
-    if (session || confirmed) {
+    if (res.access_token) {
+      _saveSession(res);
+      _saveUserData({}); // create row
       login();
     } else {
-      // Email confirmation required
       _lsErr(LANG === 'en' ? 'Check your email to confirm registration.' : 'Controlla la tua email per confermare la registrazione.');
     }
   });
 }
 
+function doLogout() {
+  if (_authToken) {
+    _supaXHR('POST', '/auth/v1/logout', {}, _authToken, function(){});
+  }
+  _clearSession();
+  location.reload();
+}
+
+
+// ── LETTERBOXD IMPORT ─────────────────────────────────────────────────────
+function _lbStore(key,val){try{localStorage.setItem(key,val);}catch(e){}}
+function _lbLoad(key){try{return localStorage.getItem(key);}catch(e){return null;}}
+
+function _lbNorm(s){
+  if(!s)return'';
+  return s.toLowerCase()
+    .replace(/['"()!?.:;,\-_]/g,' ')
+    .replace(/\b(the|a|an|il|la|le|i|gli|lo|l)\b/g,' ')
+    .replace(/\s+/g,' ').trim();
+}
+function _lbBuildIndex(){
+  var idx={};
+  DB.forEach(function(f){
+    var pairs=[];
+    if(f.title)pairs.push([_lbNorm(f.title),f.year]);
+    if(typeof TITLE_ORIG!=='undefined'&&TITLE_ORIG[f.id])pairs.push([_lbNorm(TITLE_ORIG[f.id]),f.year]);
+    pairs.forEach(function(p){
+      var t=p[0],y=p[1];if(!t)return;
+      var k=t+'|'+y;
+      if(!idx[k])idx[k]=[];idx[k].push(f.id);
+      if(!idx['~'+t])idx['~'+t]=[];idx['~'+t].push({id:f.id,year:y});
+    });
+  });
+  return idx;
+}
+function _lbMatch(name,year,idx){
+  var n=_lbNorm(name);
+  for(var dy=0;dy<=2;dy++){
+    var hit=idx[n+'|'+(year+dy)]||idx[n+'|'+(year-dy)];
+    if(hit&&hit.length)return hit[0];
+  }
+  var cands=idx['~'+n];
+  if(cands&&cands.length){
+    var best=null,bestD=99;
+    cands.forEach(function(c){var d=Math.abs(c.year-year);if(d<bestD){bestD=d;best=c.id;}});
+    if(bestD<=2)return best;
+  }
+  return null;
+}
+function _parseLbCSV(text){
+  var lines=text.replace(/\r/g,'').split('\n'),films=[];
+  for(var i=1;i<lines.length;i++){
+    var line=lines[i].trim();if(!line)continue;
+    var cols=[],cur='',inQ=false;
+    for(var j=0;j<line.length;j++){
+      var c=line[j];
+      if(c==='"'){inQ=!inQ;}else if(c===','&&!inQ){cols.push(cur);cur='';}else cur+=c;
+    }
+    cols.push(cur);
+    if(cols.length>=3)films.push({name:(cols[1]||'').trim(),year:parseInt(cols[2])||0});
+  }
+  return films;
+}
+function importLetterboxd(inp){
+  var file=inp.files[0];if(!file)return;
+  var rdr=new FileReader();
+  rdr.onload=function(ev){
+    try{
+      var films=_parseLbCSV(ev.target.result);
+      if(!films.length){_lbMsg('warn',LANG==='en'?'No films found in file.':'Nessun film trovato nel file.');inp.value='';return;}
+      var idx=_lbBuildIndex(),matched=0,already=0,standby=[];
+      films.forEach(function(lf){
+        var id=_lbMatch(lf.name,lf.year,idx);
+        if(id){if(seenFilms.has(id))already++;else{seenFilms.add(id);matched++;}}
+        else standby.push({name:lf.name,year:lf.year});
+      });
+      saveSeen();
+      var ex=[];try{var raw=_lbLoad('sw3_lb_standby');if(raw)ex=JSON.parse(raw);}catch(e){}
+      var exk=new Set(ex.map(function(x){return x.name+'|'+x.year;}));
+      standby.forEach(function(s){var k=s.name+'|'+s.year;if(!exk.has(k)){ex.push(s);exk.add(k);}});
+      _lbStore('sw3_lb_standby',JSON.stringify(ex));
+      _lbShowStandby(ex.length);
+      var it=LANG==='en';
+      var msg='\u2713 '+matched+(it?' films marked as watched.':' film marcati come visti.');
+      if(already)msg+='\n'+already+(it?' already marked.':' già segnati.');
+      if(standby.length)msg+='\n'+standby.length+(it?' not in Swainz DB (standby).':' non nel DB Swainz (standby).');
+      _lbMsg('ok',msg);
+      var cnt=document.getElementById('vcnt');
+      if(cnt)cnt.innerHTML='<span>'+seenFilms.size+'</span>'+t('seen_count');
+    }catch(er){_lbMsg('warn',LANG==='en'?'Error reading file.':'Errore lettura file.');}
+    inp.value='';
+  };
+  rdr.readAsText(file,'utf-8');
+}
+function _lbMsg(type,msg){var el=document.getElementById('lb-result');if(el){el.className=type;el.style.display='block';el.textContent=msg;}}
+function _lbShowStandby(n){
+  var el=document.getElementById('lb-standby-box');if(!el)return;
+  if(n>0){el.style.display='block';el.innerHTML=(LANG==='en'?'<b>'+n+'</b> films in standby — auto-matched when added to Swainz DB.':'<b>'+n+'</b> film in standby — abbinati automaticamente quando aggiunti al DB Swainz.');}
+  else el.style.display='none';
+}
+function checkLbStandby(){
+  if(!DB||!DB.length)return;
+  var raw=_lbLoad('sw3_lb_standby');
+  if(!raw)return;
+  var sb=[];try{sb=JSON.parse(raw);}catch(e){return;}
+  if(!sb.length)return;
+  var idx=_lbBuildIndex(),matched=0,remaining=[];
+  sb.forEach(function(lf){
+    var id=_lbMatch(lf.name,lf.year,idx);
+    if(id&&!seenFilms.has(id)){seenFilms.add(id);matched++;}
+    else if(!id)remaining.push(lf);
+  });
+  if(matched>0){saveSeen();_lbStore('sw3_lb_standby',JSON.stringify(remaining));}
+  _lbShowStandby(remaining.length);
+}
 </script>
 <!-- EXCL NOTICE MODAL -->
 <div id="excl-modal">
