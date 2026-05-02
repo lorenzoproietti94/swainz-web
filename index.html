@@ -174,6 +174,8 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:15px;heigh
 /* FILM CARD */
 #mbk{position:fixed;inset:0;z-index:180;background:rgba(4,4,12,.83);backdrop-filter:blur(10px);opacity:0;pointer-events:none;transition:opacity .5s}
 #mbk.on{opacity:1;pointer-events:all}
+#mbk{touch-action:none}
+.fcb{overscroll-behavior:contain}
 #fc{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) scale(.91) translateY(24px);z-index:220;max-width:556px;width:calc(100% - 28px);max-height:calc(100vh - 40px);display:flex;flex-direction:column;background:var(--card);border:1px solid rgba(255,80,0,.3);border-radius:22px;overflow:hidden;box-shadow:0 0 50px rgba(255,80,0,.12),0 24px 60px rgba(0,0,0,.7);opacity:0;pointer-events:none;transition:opacity .5s,transform .6s cubic-bezier(.34,1.56,.64,1)}
 #fc.on{opacity:1;pointer-events:all;transform:translate(-50%,-50%) scale(1) translateY(0)}
 .fch{padding:24px 24px 0;position:relative;flex-shrink:0}
@@ -537,6 +539,12 @@ body.cat-revealing #today-wrap-mob{visibility:hidden!important;pointer-events:no
 #lb-result.warn{background:rgba(251,191,36,.07);border:1px solid rgba(251,191,36,.25);color:#fbbf24}
 #lb-standby-box{font-size:11px;color:var(--td);margin-bottom:8px;display:none}
 #lb-standby-box b{color:rgba(251,191,36,.9)}
+  
+  #pool-count{display:none;text-align:center;font-size:12px;font-weight:700;letter-spacing:.03em;margin-bottom:10px;padding:5px 14px;border-radius:20px;background:rgba(0,0,0,.35);transition:all .3s}
+  #pool-count.pc-visible{display:block}
+  #pool-count.pc-plenty{color:rgba(255,255,255,.45)}
+  #pool-count.pc-low{color:var(--or)}
+  #pool-count.pc-zero{color:#f87171;font-size:13px}
   </style></head>
 <body>
 <div id="deco"><span class="o1"></span><span class="b1"></span></div>
@@ -618,7 +626,7 @@ body.cat-revealing #today-wrap-mob{visibility:hidden!important;pointer-events:no
     </div>
     <div id="fgc"></div>
     <div class="fgrp"><div class="fgh" onclick="tog(this)"><div class="fght or">⭐ &nbsp;<span data-i18n="filter_rating">Voto minimo IMDb</span></div><div class="fgar open">▾</div></div>
-      <div class="fgb open"><div class="sl"><label data-i18n="rating_any">Qualsiasi</label><input type="range" min="5" max="9.5" step=".5" value="6.5" id="rsl" oninput="document.getElementById('rv').textContent=this.value"><span class="sv" id="rv">6.5</span><label data-i18n="rating_top">Solo il top</label></div></div>
+      <div class="fgb open"><div class="sl"><label data-i18n="rating_any">Qualsiasi</label><input type="range" min="5" max="9.5" step=".5" value="6.5" id="rsl" oninput="document.getElementById('rv').textContent=this.value;updatePoolCount()"><span class="sv" id="rv">6.5</span><label data-i18n="rating_top">Solo il top</label></div></div>
     </div>
     <div id="fgc2"></div>
     <div class="fgrp"><div class="fgh" onclick="tog(this)"><div class="fght red">🚫 &nbsp;<span data-i18n="filter_excl">Escludi caratteristiche</span></div><div class="fgar">▾</div></div>
@@ -820,7 +828,7 @@ body.cat-revealing #today-wrap-mob{visibility:hidden!important;pointer-events:no
   </div>
 </div>
 
-  <div class="cta-w"><button id="gobtn" class="cta" onclick="go()" data-i18n="cta_btn">✦ &nbsp;Chiedi a Swainz &nbsp;✦</button></div>
+  <div class="cta-w" style="flex-direction:column;gap:0"><div id="pool-count"></div><button id="gobtn" class="cta" onclick="go()" data-i18n="cta_btn">✦ &nbsp;Chiedi a Swainz &nbsp;✦</button></div>
 </div>
 
 
@@ -1449,6 +1457,7 @@ function resetFilters(){
   const rsl=document.getElementById('rsl');
   if(rsl){rsl.value=6.5;document.getElementById('rv').textContent='6.5';}
   updatePanel();
+updatePoolCount();
 }
 
 // Event delegation for pill remove buttons (desktop + mobile panels)
@@ -1515,7 +1524,7 @@ function buildUI(){
       ch.textContent=tTag(t);
       var _tip=getTagTip(t);if(_tip)ch.setAttribute('data-tip',_tip);
       if(!isLocked){
-        ch.onclick=()=>{const on=ch.classList.contains('on');if(!g.multi){d.querySelectorAll('.chip').forEach(x=>x.classList.remove('on'));SEL[g.id].clear();}on?(ch.classList.remove('on'),SEL[g.id].delete(t)):(ch.classList.add('on'),SEL[g.id].add(t));updatePanel();};
+        ch.onclick=()=>{const on=ch.classList.contains('on');if(!g.multi){d.querySelectorAll('.chip').forEach(x=>x.classList.remove('on'));SEL[g.id].clear();}on?(ch.classList.remove('on'),SEL[g.id].delete(t)):(ch.classList.add('on'),SEL[g.id].add(t));updatePanel();updatePoolCount();};
       }
       chips.appendChild(ch);
     });
@@ -1524,7 +1533,7 @@ function buildUI(){
   const freeGroups=GROUPS.filter(g=>isPremium||!premGroups.includes(g.id));
   const allTags=[...new Set(freeGroups.flatMap(g=>g.tags||[]))].sort((a,b)=>tTag(a).localeCompare(tTag(b)));
   const ce=document.getElementById('ce');ce.innerHTML='';
-  allTags.forEach(t=>{const ch=document.createElement('span');ch.className='chip ex';ch.textContent=tTag(t);var _et=getTagTip(t);if(_et)ch.setAttribute('data-tip',_et);ch.onclick=()=>{EXCL.has(t)?(ch.classList.remove('on'),EXCL.delete(t)):(ch.classList.add('on'),EXCL.add(t));updatePanel();};ce.appendChild(ch);});
+  allTags.forEach(t=>{const ch=document.createElement('span');ch.className='chip ex';ch.textContent=tTag(t);var _et=getTagTip(t);if(_et)ch.setAttribute('data-tip',_et);ch.onclick=()=>{EXCL.has(t)?(ch.classList.remove('on'),EXCL.delete(t)):(ch.classList.add('on'),EXCL.add(t));updatePanel();updatePoolCount();};ce.appendChild(ch);});
 }
 function tog(h){const b=h.nextElementSibling,a=h.querySelector('.fgar');b.classList.toggle('open');a.classList.toggle('open');}
 
@@ -1642,10 +1651,32 @@ function showCard(res,opts={}) {
     el.innerHTML=`<div class="fch"><button class="fc-x" onclick="closeCard()">✕</button><div class="fc-bdg">${t('card_badge')}</div><div class="fc-tit">${displayTitle}</div><div class="fc-dir">${LANG==='en'?'Directed by':'Regia di'} ${f.dir}</div><div class="fc-sub"><span>📅 ${f.year}</span><span>⭐ ${f.r}/10</span></div><div class="fc-rat">${stars(f.r)}</div></div><div class="fcb"><div class="fdiv"></div><div class="fcdesc">${f.desc_en&&LANG==='en'?f.desc_en:f.desc}</div><div class="fst">${t('card_cast')}</div><div class="fcppl">${f.cast.join(' · ')}</div><div class="fst">${t('card_plt')}</div><div class="mcs" style="margin-bottom:16px">${f.plt.map(p=>`<span class="mc2 b">📺 ${p}</span>`).join('')}</div>${f.tags.includes('Sequel')?`<div class="mcs" style="margin-bottom:8px"><span class="mc2" style="border-color:rgba(255,180,0,.35);background:rgba(255,180,0,.1);color:#ffd060">🔗 ${t('sequel_badge')}</span></div>`:''} ${f.tags.length?`<div class="fst">${t('card_why')}</div><div class="mcs">${f.tags.map(m=>`<span class="mc2">✓ ${tTag(m)}</span>`).join('')}</div>`:''}<div class="fcact"><button class="b1" onclick="closeCard()">${t('card_ok')}</button>${opts.hideMore?'':`<button class="b2" onclick="tryAgain()">${t('card_more')}</button>`}<button class="b3 ${sn?'marked':''}" id="snbtn" onclick="toggleSeen(${f.id},this)">${sn?t('card_marked'):t('card_mark')}</button></div></div>`;
   }
   document.getElementById('mbk').classList.add('on');document.getElementById('fc').classList.add('on');
+    _lockScroll();
 }
 function toggleSeen(id,btn){seenFilms.has(id)?(seenFilms.delete(id),btn.textContent=t('card_mark'),btn.classList.remove('marked')):(seenFilms.add(id),btn.textContent=t('card_marked'),btn.classList.add('marked'));saveSeen();}
 function stars(r){const f=Math.floor(r/2),h=(r/2)%1>=.5?1:0,e=5-f-h;let s='<div class="st">';for(let i=0;i<f;i++)s+='<span>★</span>';if(h)s+='<span style="color:#a09040">★</span>';for(let i=0;i<e;i++)s+='<span class="e">☆</span>';return s+`</div><span class="rn">${r}</span>`;}
+
+function _stopScroll(e){e.preventDefault();}
+function _fcbScroll(e){e.stopPropagation();}
+function _lockScroll(){
+  document.documentElement.style.overflow='hidden';
+  document.body.style.overflow='hidden';
+  document.addEventListener('wheel',_stopScroll,{passive:false});
+  document.addEventListener('touchmove',_stopScroll,{passive:false});
+  // Allow scroll ONLY inside .fcb (the card body)
+  var fcb=document.querySelector('.fcb');
+  if(fcb){fcb.addEventListener('wheel',_fcbScroll,{passive:true});fcb.addEventListener('touchmove',_fcbScroll,{passive:true});}
+}
+function _unlockScroll(){
+  document.documentElement.style.overflow='';
+  document.body.style.overflow='';
+  document.removeEventListener('wheel',_stopScroll);
+  document.removeEventListener('touchmove',_stopScroll);
+  var fcb=document.querySelector('.fcb');
+  if(fcb){fcb.removeEventListener('wheel',_fcbScroll);fcb.removeEventListener('touchmove',_fcbScroll);}
+}
 function closeCard(){
+  _unlockScroll();
   document.getElementById('mbk').classList.remove('on');
   document.getElementById('fc').classList.remove('on');
   // restore card z-index to default
@@ -3004,11 +3035,18 @@ function checkLbStandby(){
 
 // ── OAUTH SOCIAL LOGIN ──────────────────────────────────────────────────────
 function loginWithProvider(provider) {
-  // redirect_to must match exactly what's in Supabase → Auth → URL Configuration
-  var redirectTo = 'https://swainz.it';
-  var url = SUPA_URL + '/auth/v1/authorize?provider=' + provider +
-            '&redirect_to=' + encodeURIComponent(redirectTo);
-  window.location.href = url;
+  // Show dark overlay to prevent logo flicker during navigation
+  var ov = document.createElement('div');
+  ov.style.cssText = 'position:fixed;inset:0;background:#0a0914;z-index:9999;transition:opacity .15s';
+  ov.style.opacity = '0';
+  document.body.appendChild(ov);
+  requestAnimationFrame(function(){ ov.style.opacity = '1'; });
+
+  var url = SUPA_URL + '/auth/v1/authorize?provider=' + provider;
+  if (provider === 'google') {
+    url += '&prompt=select_account';
+  }
+  setTimeout(function(){ window.location.href = url; }, 180);
 }
 
 function _handleOAuthCallback() {
@@ -3051,6 +3089,47 @@ function _handleOAuthCallback() {
     }
   });
   return true;
+}
+
+
+// ── POOL COUNT LABEL ─────────────────────────────────────────────────────────
+function updatePoolCount(){
+  var el=document.getElementById('pool-count');if(!el)return;
+  var anyActive=[...Object.values(SEL)].some(function(s){return s.size>0;})||EXCL.size>0;
+  if(!anyActive||!DB||!DB.length){el.className='';el.style.display='none';return;}
+
+  var allSel=new Set([...Object.values(SEL)].flatMap(function(s){return[...s];}));
+  var minR=parseFloat(document.getElementById('rsl')?document.getElementById('rsl').value:0)||0;
+
+  var count=DB.filter(function(f){
+    if(seenFilms.has(f.id))return false;
+    if(EXCL.size&&f.tags.some(function(t){return EXCL.has(t);}))return false;
+    // OPT_IN: skip film if it has an opt-in tag not selected by user
+    for(const tag of OPT_IN_TAGS){
+      if(f.tags.includes(tag)&&!allSel.has(tag)&&!_activeOptInTags.has(tag))return false;
+    }
+    // AND logic: every selected tag must be in film
+    for(var gid in SEL){
+      var sel=SEL[gid];
+      if(sel.size>0&&![...sel].every(function(t){return f.tags.includes(t);}))return false;
+    }
+    if(minR&&f.r<minR)return false;
+    return true;
+  }).length;
+
+  var it=LANG==='en',txt,cls;
+  if(count>100){txt=it?'More than 100 films with these characteristics':'Più di 100 film con queste caratteristiche';cls='pc-plenty';}
+  else if(count>50){txt=it?'More than 50 films with these characteristics':'Più di 50 film con queste caratteristiche';cls='pc-plenty';}
+  else if(count>20){txt=it?'More than 20 films with these characteristics':'Più di 20 film con queste caratteristiche';cls='pc-plenty';}
+  else if(count>10){txt=it?'More than 10 films with these characteristics':'Più di 10 film con queste caratteristiche';cls='pc-low';}
+  else if(count>5){txt=it?'Fewer than 10 films with these characteristics':'Meno di 10 film con queste caratteristiche';cls='pc-low';}
+  else if(count>0){txt=it?'Fewer than 5 films with these characteristics':'Meno di 5 film con queste caratteristiche';cls='pc-low';}
+  else{txt=it?'⚠ 0 films with these characteristics':'⚠ 0 film con queste caratteristiche';cls='pc-zero';}
+
+  el.textContent=txt;
+  el.className='pc-visible '+cls;
+  el.style.display='block';
+  el.style.color=cls==='pc-zero'?'#f87171':(cls==='pc-low'?'var(--or)':'rgba(255,255,255,.6)');
 }
 
 </script>
