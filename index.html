@@ -3004,42 +3004,51 @@ function checkLbStandby(){
 
 // ── OAUTH SOCIAL LOGIN ──────────────────────────────────────────────────────
 function loginWithProvider(provider) {
-  var redirectTo = window.location.origin + window.location.pathname;
+  // redirect_to must match exactly what's in Supabase → Auth → URL Configuration
+  var redirectTo = 'https://swainz.it';
   var url = SUPA_URL + '/auth/v1/authorize?provider=' + provider +
             '&redirect_to=' + encodeURIComponent(redirectTo);
   window.location.href = url;
 }
 
 function _handleOAuthCallback() {
-  // Supabase returns tokens in URL hash: #access_token=...&refresh_token=...
+  // Supabase returns tokens in URL hash after OAuth redirect
   var hash = window.location.hash;
-  if (!hash) return false;
+  if (!hash || hash.indexOf('access_token') === -1) return false;
+
   var params = {};
-  hash.replace('#','').split('&').forEach(function(p){
-    var kv = p.split('=');
-    params[decodeURIComponent(kv[0])] = decodeURIComponent(kv[1]||'');
+  hash.replace(/^#/, '').split('&').forEach(function(p) {
+    var idx = p.indexOf('=');
+    if (idx > 0) {
+      var k = decodeURIComponent(p.slice(0, idx));
+      var v = decodeURIComponent(p.slice(idx + 1));
+      params[k] = v;
+    }
   });
+
   if (!params.access_token) return false;
 
-  // Build session-like object
-  var session = {
-    access_token: params.access_token,
-    refresh_token: params.refresh_token || '',
-    expires_in: parseInt(params.expires_in) || 3600,
-    user: null
-  };
+  // Clean hash immediately so it doesn't re-trigger on reload
+  history.replaceState(null, '', window.location.pathname);
 
-  // Fetch user info from Supabase
+  // Fetch user from Supabase with the token
   _supaXHR('GET', '/auth/v1/user', null, params.access_token, function(status, user) {
     if (status === 200 && user) {
-      session.user = user;
+      var session = {
+        access_token: params.access_token,
+        refresh_token: params.refresh_token || '',
+        expires_in: parseInt(params.expires_in) || 3600,
+        user: user
+      };
       _saveSession(session);
       _saveUserData({ email: user.email || '', updated_at: new Date().toISOString() });
-      _loadUserData(function(d){ _applyUserData(d); });
+      _dbReady.then(function() {
+        _loadUserData(function(d) { _applyUserData(d); login(); });
+      });
+    } else {
+      // Token invalid — show login screen normally
+      console.warn('OAuth token invalid, status:', status);
     }
-    // Clean hash from URL without reloading
-    history.replaceState(null, '', window.location.pathname);
-    login();
   });
   return true;
 }
