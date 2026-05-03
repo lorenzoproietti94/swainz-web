@@ -49,7 +49,7 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
 .flag-btn{pointer-events:all;background:none;border:2px solid transparent;border-radius:5px;padding:2px;cursor:pointer;transition:all .22s;opacity:.45;filter:grayscale(40%)}
 .flag-btn:hover{opacity:.85;filter:grayscale(0%);border-color:rgba(255,255,255,.18)}
 .flag-btn.active{opacity:1;filter:grayscale(0%);border-color:rgba(255,255,255,.35);box-shadow:0 0 8px rgba(255,255,255,.12)}
-#desktop-lang-drop{display:none;position:fixed;background:rgba(24,24,24,.97);border:1px solid var(--br);border-radius:10px;overflow:hidden;z-index:60;min-width:120px;box-shadow:0 8px 24px rgba(0,0,0,.4)}
+#desktop-lang-drop{display:none;position:fixed;top:-9999px;left:-9999px;background:rgba(24,24,24,.97);border:1px solid var(--br);border-radius:10px;overflow:hidden;z-index:60;min-width:120px;box-shadow:0 8px 24px rgba(0,0,0,.4)}
 .desk-lang-opt{display:flex;align-items:center;gap:8px;padding:10px 14px;width:100%;background:none;border:none;color:var(--tx);font-size:12px;cursor:pointer;font-family:inherit}
 .desk-lang-opt+.desk-lang-opt{border-top:1px solid var(--br)}
 .flag-btn img{display:block;width:28px;height:19px;border-radius:2px;object-fit:cover}
@@ -2704,7 +2704,7 @@ function toggleDesktopLangDrop(btn){
 }
 function closeDesktopLangDrop(){
   const d=document.getElementById('desktop-lang-drop');
-  if(d)d.style.display='none';
+  if(d){d.style.display='none';d.style.top='-9999px';d.style.left='-9999px';}
 }
 function toggleMobLangDrop(){
   const d=document.getElementById('mob-lang-drop');
@@ -2941,14 +2941,6 @@ function _applyUserData(d) {
     try{localStorage.setItem(_allRecKey,JSON.stringify(allRecs));}catch(e){}
   }
 }
-
-// ── POOL COUNT: event delegation on filter containers ─────────────────────
-document.addEventListener('click', function(e){
-  // If click was on or inside a chip, update pool count after a tick
-  if(e.target.closest && (e.target.closest('.chips') || e.target.closest('.chip') || e.target.closest('.sl'))){
-    setTimeout(updatePoolCount, 50);
-  }
-});
 
 // ── AUTH CALLS ──────────────────────────────────────────────────────────────
 function _lsAuth(endpoint, body, onOk) {
