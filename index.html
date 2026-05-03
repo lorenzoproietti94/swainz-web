@@ -546,7 +546,10 @@ body.cat-revealing #today-wrap-mob{visibility:hidden!important;pointer-events:no
   #pool-count.pc-plenty{color:rgba(255,255,255,.45)}
   #pool-count.pc-low{color:var(--or)}
   #pool-count.pc-zero{color:#f87171;font-size:13px}
-  </style></head>
+  
+.optin-tag-btn.co-sel{background:rgba(255,120,0,.18);border-color:var(--or);color:var(--or);opacity:.85;pointer-events:none}
+.optin-tag-btn.co-sel span:first-child{color:var(--or)}
+</style></head>
 <body>
 <div id="deco"><span class="o1"></span><span class="b1"></span></div>
 
@@ -1760,9 +1763,10 @@ function _coTags(tag){
 }
 
 function showOptInOverlay(){
-  _optInSelected=null;
   _activeOptInTags.clear();
   const el=document.getElementById('optin-overlay');
+  el._selectedTags=new Set(); // tracks ALL user-selected tags (incl. co-tags)
+  el._primaryTags=new Set(); // tracks primary tags selected by user click
   const title=LANG==='en'?'Films with your selected characteristics also tend to have other "special" traits — which can you accept?'
     :'I film con le caratteristiche che hai inserito hanno generalmente anche altre caratteristiche "particolari", quali puoi accettare?';
   document.getElementById('optin-title').textContent='';
@@ -1771,8 +1775,10 @@ function showOptInOverlay(){
   const tags=computeOptInTags();
   el._tags=tags;
   document.getElementById('optin-tags').innerHTML=tags.map((tag,i)=>
-    `<button class="optin-tag-btn" onclick="selectOptInTag(${i},this)"><span>✦</span><span>${tTag(tag)}</span></button>`
+    `<button class="optin-tag-btn" data-idx="${i}" onclick="selectOptInTag(${i},this)"><span>✦</span><span>${tTag(tag)}</span></button>`
   ).join('');
+  const note=document.getElementById('optin-note');
+  if(note)note.style.display='none';
   el.classList.add('show');
 }
 
@@ -1780,33 +1786,67 @@ function selectOptInTag(idx,btn){
   const el=document.getElementById('optin-overlay');
   const tag=el._tags&&el._tags[idx];
   if(!tag)return;
-  // Find co-occurring tags that always appear with this one
   const coTags=_coTags(tag);
-  _optInSelected=[tag,...coTags];
-  document.querySelectorAll('.optin-tag-btn').forEach(b=>b.classList.remove('sel'));
-  btn.classList.add('sel');
-  document.getElementById('optin-confirm').classList.add('active');
-  // Show auto-select message if co-tags exist
+  const allTags=[tag,...coTags];
+
+  // Toggle selection
+  if(el._primaryTags.has(tag)){
+    // Deselect: remove primary + its co-tags
+    el._primaryTags.delete(tag);
+    allTags.forEach(t=>el._selectedTags.delete(t));
+    btn.classList.remove('sel');
+  } else {
+    // Select: add primary + its co-tags
+    el._primaryTags.add(tag);
+    allTags.forEach(t=>el._selectedTags.add(t));
+    btn.classList.add('sel');
+  }
+
+  // Update co-tag buttons (show as auto-selected)
+  const allBtns=document.querySelectorAll('.optin-tag-btn');
+  allBtns.forEach(b=>{
+    const bIdx=parseInt(b.dataset.idx);
+    const bTag=el._tags[bIdx];
+    if(!bTag)return;
+    // Is this tag a co-tag of any currently selected primary?
+    let isCo=false;
+    el._primaryTags.forEach(primary=>{
+      if(primary!==bTag&&_coTags(primary).includes(bTag))isCo=true;
+    });
+    if(isCo){
+      b.classList.add('co-sel');
+      b.classList.remove('sel');
+    } else {
+      b.classList.remove('co-sel');
+    }
+  });
+
+  // Show/hide note about auto-selections
   const note=document.getElementById('optin-note');
   if(note){
-    if(coTags.length){
-      const coLabels=coTags.map(t=>tTag(t)).join(', ');
+    const autoTags=[...el._selectedTags].filter(t=>!el._primaryTags.has(t));
+    if(autoTags.length){
       note.textContent=LANG==='en'
-        ?`"${tTag(tag)}" always appears with ${coLabels} in this pool — both selected automatically.`
-        :`"${tTag(tag)}" compare sempre insieme a ${coLabels} in questa selezione — selezionati automaticamente.`;
+        ?`Some tags auto-selected because they always appear together: ${autoTags.map(t=>tTag(t)).join(', ')}`
+        :`Alcuni tag selezionati automaticamente perché compaiono sempre insieme: ${autoTags.map(t=>tTag(t)).join(', ')}`;
       note.style.display='block';
     } else {
       note.style.display='none';
     }
   }
+
+  // Enable confirm if at least one tag selected
+  document.getElementById('optin-confirm').classList.toggle('active', el._selectedTags.size>0);
 }
 
 function confirmOptIn(){
-  if(!_optInSelected||!_optInSelected.length)return;
-  _optInSelected.forEach(t=>_activeOptInTags.add(t));
-  _usedOptInCombos.add(_optInSelected[0]);
+  const el=document.getElementById('optin-overlay');
+  const selected=el._selectedTags||new Set();
+  if(!selected.size)return;
+  selected.forEach(t=>_activeOptInTags.add(t));
+  // Track primary tags as used
+  if(el._primaryTags)el._primaryTags.forEach(t=>_usedOptInCombos.add(t));
   closeOptIn();
-  // Let go() handle the film recommendation with the new _activeOptInTags
   setTimeout(go, 100);
 }
 function closeOptIn(){document.getElementById('optin-overlay').classList.remove('show');const n=document.getElementById('optin-note');if(n)n.style.display='none';resetCat();}
