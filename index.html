@@ -611,7 +611,7 @@ body.cat-revealing #today-wrap-mob{visibility:hidden!important;pointer-events:no
     </div>
   </header>
   <!-- MOBILE LANG DROPDOWN -->
-  <div id="mob-lang-drop">
+  <div id="mob-lang-drop" style="display:none">
     <button class="mob-lang-opt" onclick="setLang('it');closeMobLangDrop()">
       <svg width="20" height="14" viewBox="0 0 3 2" xmlns="http://www.w3.org/2000/svg" style="border-radius:2px;flex-shrink:0"><rect width="1" height="2" fill="#009246"/><rect x="1" width="1" height="2" fill="#fff"/><rect x="2" width="1" height="2" fill="#ce2b37"/></svg>
       Italiano
@@ -2693,10 +2693,13 @@ function renderNews(lang){
 })();
 
 function toggleDesktopLangDrop(btn){
-  if(window.innerWidth<=600)return; // mobile uses its own dropdown
+  if(window.innerWidth<=600)return;
+  // Only open if we're in the main app (not login screen)
+  const app=document.getElementById('app');
+  if(!app||!app.classList.contains('on'))return;
   const d=document.getElementById('desktop-lang-drop');
   if(!d)return;
-  if(d.style.display==='block'){d.style.display='none';return;}
+  if(d.style.display==='block'){d.style.display='none';d.style.top='-9999px';return;}
   const r=btn.getBoundingClientRect();
   d.style.display='block';
   d.style.left=(r.left+r.width/2-60)+'px';
@@ -3215,7 +3218,7 @@ function updatePoolCount(){
     <button class="excl-modal-btn" onclick="closeExclModal()" data-i18n="excl_modal_btn">Ho capito</button>
   </div>
 </div>
-<div id="desktop-lang-drop">
+<div id="desktop-lang-drop" style="display:none">
   <button class="desk-lang-opt" onclick="setLang('it');closeDesktopLangDrop()">
     <svg width="20" height="14" viewBox="0 0 3 2" xmlns="http://www.w3.org/2000/svg" style="border-radius:2px;flex-shrink:0"><rect width="1" height="2" fill="#009246"/><rect x="1" width="1" height="2" fill="#fff"/><rect x="2" width="1" height="2" fill="#ce2b37"/></svg>
     Italiano
