@@ -4,14 +4,11 @@
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600&family=Syne:wght@600;800&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-:root{--bg:#080810;--card:rgba(14,14,22,.92);--bl:#2563ff;--bl2:#1a3dbf;--or:#ff6820;--or2:#b53000;--gbl:rgba(37,99,255,.28);--gor:rgba(255,104,32,.26);--tx:#b8c8de;--td:#556070;--br:rgba(255,255,255,.07);--bh:rgba(255,255,255,.18);--bro:rgba(255,104,32,.28);--boh:rgba(255,104,32,.55);--cb:rgba(255,255,255,.03);--ca:rgba(37,99,255,.18);--coa:rgba(255,104,32,.08)}
+:root{--bg:#080810;--card:rgba(14,14,22,.82);--bl:#2563ff;--bl2:#1a3dbf;--or:#ff6820;--or2:#b53000;--gbl:rgba(37,99,255,.28);--gor:rgba(255,104,32,.26);--tx:#b8c8de;--td:#556070;--br:rgba(255,255,255,.07);--bh:rgba(255,255,255,.18);--bro:rgba(255,104,32,.28);--boh:rgba(255,104,32,.55);--cb:rgba(255,255,255,.03);--ca:rgba(37,99,255,.18);--coa:rgba(255,104,32,.08)}
 html.noscroll{overflow:hidden!important}
 html.noscroll body{overflow:hidden!important}
 html.noscroll #app{touch-action:none;overscroll-behavior:none}
 html,body{min-height:100vh;background:var(--bg);color:var(--tx);font-family:'Inter',sans-serif;overflow-x:hidden}
-body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;background:radial-gradient(ellipse 70% 60% at 15% 20%,rgba(37,99,255,.06) 0%,transparent 70%),radial-gradient(ellipse 60% 50% at 85% 80%,rgba(255,104,32,.07) 0%,transparent 65%),radial-gradient(ellipse 40% 40% at 50% 50%,rgba(0,0,0,.3) 0%,transparent 100%);animation:atm-pulse 9s ease-in-out infinite alternate}
-body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");opacity:.5}
-@keyframes atm-pulse{0%{opacity:.7}100%{opacity:1}}
 body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
   background:radial-gradient(ellipse 70% 55% at -5% 100%,rgba(255,80,0,.18) 0,transparent 55%),
              radial-gradient(ellipse 60% 50% at 105% 0%,rgba(37,99,255,.16) 0,transparent 55%)}
@@ -555,6 +552,35 @@ body.cat-revealing #today-wrap-mob{visibility:hidden!important;pointer-events:no
   
 .optin-tag-btn.co-sel{background:rgba(255,120,0,.18);border-color:var(--or);color:var(--or);opacity:.85;pointer-events:none}
 .optin-tag-btn.co-sel span:first-child{color:var(--or)}
+
+/* ── ATMOSPHERIC OVERLAY MAIN PAGE ───────────────────────────────────── */
+#atm-overlay{
+  position:fixed;inset:0;z-index:9;pointer-events:none;
+  background:
+    radial-gradient(ellipse 65% 55% at 12% 18%, rgba(37,99,255,.09) 0%, transparent 70%),
+    radial-gradient(ellipse 55% 50% at 88% 82%, rgba(255,104,32,.10) 0%, transparent 65%),
+    radial-gradient(ellipse 40% 35% at 75% 12%, rgba(37,99,255,.05) 0%, transparent 60%),
+    radial-gradient(ellipse 30% 30% at 25% 88%, rgba(255,104,32,.06) 0%, transparent 55%);
+  animation:atm-shift 12s ease-in-out infinite alternate;
+}
+@keyframes atm-shift{
+  0%  {opacity:.65; background-position:0% 0%}
+  50% {opacity:1}
+  100%{opacity:.75; background-position:3% 3%}
+}
+#atm-grain{
+  position:fixed;inset:0;z-index:8;pointer-events:none;opacity:.55;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.72' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.045'/%3E%3C/svg%3E");
+  mix-blend-mode:overlay;
+}
+#atm-vignette{
+  position:fixed;inset:0;z-index:8;pointer-events:none;
+  background:radial-gradient(ellipse 100% 100% at 50% 50%, transparent 45%, rgba(0,0,0,.55) 100%);
+}
+#page-rain{
+  position:fixed;inset:0;z-index:8;pointer-events:none;opacity:.08;
+}
+
 </style></head>
 <body>
 <div id="deco"><span class="o1"></span><span class="b1"></span></div>
@@ -592,6 +618,10 @@ body.cat-revealing #today-wrap-mob{visibility:hidden!important;pointer-events:no
 
 <!-- APP -->
 <div id="app">
+<div id="atm-overlay"></div>
+<div id="atm-grain"></div>
+<div id="atm-vignette"></div>
+<canvas id="page-rain"></canvas>
   <header class="hdr">
     <div class="logo-sm">SWAINZ</div>
     <div class="hdr-r">
@@ -3261,6 +3291,47 @@ function updatePoolCount(){
   }
   if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',initRain);}
   else{setTimeout(initRain,0);}
+})();
+
+
+// ── PAGE RAIN ─────────────────────────────────────────────────────────────
+(function(){
+  function initPageRain(){
+    var c=document.getElementById('page-rain');
+    if(!c)return;
+    var ctx=c.getContext('2d');
+    function resize(){c.width=window.innerWidth;c.height=window.innerHeight;}
+    resize();
+    window.addEventListener('resize',resize);
+    var drops=[];
+    for(var i=0;i<60;i++){
+      drops.push({
+        x:Math.random()*window.innerWidth,
+        y:Math.random()*window.innerHeight,
+        spd:5+Math.random()*7,
+        len:8+Math.random()*16,
+        op:0.3+Math.random()*0.5,
+        ang:0.07+Math.random()*0.05
+      });
+    }
+    function draw(){
+      ctx.clearRect(0,0,c.width,c.height);
+      drops.forEach(function(d){
+        ctx.beginPath();
+        ctx.strokeStyle='rgba(150,190,255,'+d.op+')';
+        ctx.lineWidth=0.5;
+        ctx.moveTo(d.x,d.y);
+        ctx.lineTo(d.x+d.ang*d.len,d.y+d.len);
+        ctx.stroke();
+        d.y+=d.spd; d.x+=d.ang*d.spd*0.25;
+        if(d.y>c.height+20){d.y=-20;d.x=Math.random()*c.width;}
+      });
+      requestAnimationFrame(draw);
+    }
+    draw();
+  }
+  if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',initPageRain);}
+  else{setTimeout(initPageRain,0);}
 })();
 
 </script>
