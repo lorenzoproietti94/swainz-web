@@ -5,6 +5,9 @@
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 :root{--bg:#181818;--card:rgba(38,38,38,.97);--bl:#2563ff;--bl2:#1a3dbf;--or:#ff6820;--or2:#b53000;--gbl:rgba(37,99,255,.28);--gor:rgba(255,104,32,.26);--tx:#ccd6e8;--td:#687888;--br:rgba(255,255,255,.09);--bh:rgba(255,255,255,.2);--bro:rgba(255,104,32,.22);--boh:rgba(255,104,32,.5);--cb:rgba(255,255,255,.04);--ca:rgba(37,99,255,.2);--coa:rgba(255,104,32,.1)}
+html.noscroll{overflow:hidden!important}
+html.noscroll body{overflow:hidden!important}
+html.noscroll #app{touch-action:none;overscroll-behavior:none}
 html,body{min-height:100vh;background:var(--bg);color:var(--tx);font-family:'Inter',sans-serif;overflow-x:hidden}
 body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
   background:radial-gradient(ellipse 70% 55% at -5% 100%,rgba(255,80,0,.18) 0,transparent 55%),
@@ -174,8 +177,6 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:15px;heigh
 /* FILM CARD */
 #mbk{position:fixed;inset:0;z-index:180;background:rgba(4,4,12,.83);backdrop-filter:blur(10px);opacity:0;pointer-events:none;transition:opacity .5s}
 #mbk.on{opacity:1;pointer-events:all}
-#mbk{touch-action:none}
-.fcb{overscroll-behavior:contain}
 #fc{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) scale(.91) translateY(24px);z-index:220;max-width:556px;width:calc(100% - 28px);max-height:calc(100vh - 40px);display:flex;flex-direction:column;background:var(--card);border:1px solid rgba(255,80,0,.3);border-radius:22px;overflow:hidden;box-shadow:0 0 50px rgba(255,80,0,.12),0 24px 60px rgba(0,0,0,.7);opacity:0;pointer-events:none;transition:opacity .5s,transform .6s cubic-bezier(.34,1.56,.64,1)}
 #fc.on{opacity:1;pointer-events:all;transform:translate(-50%,-50%) scale(1) translateY(0)}
 .fch{padding:24px 24px 0;position:relative;flex-shrink:0}
@@ -188,7 +189,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:15px;heigh
 .st span{color:#ffd060;font-size:12px}.st span.e{color:#3a3a3a}
 .rn{font-family:'Bebas Neue',sans-serif;font-size:22px;color:#ffd060;letter-spacing:1px}
 .fdiv{height:1px;background:linear-gradient(90deg,transparent,var(--bro),transparent);margin:16px 0}
-.fcb{padding:0 24px 24px;overflow-y:auto;flex:1}
+.fcb{padding:0 24px 24px;overflow-y:auto;flex:1;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
 .fcb::-webkit-scrollbar{width:3px}
 .fcb::-webkit-scrollbar-thumb{background:var(--br);border-radius:2px}
 .fcdesc{font-size:13px;line-height:1.85;color:var(--td);margin-bottom:16px}
@@ -1524,7 +1525,7 @@ function buildUI(){
       ch.textContent=tTag(t);
       var _tip=getTagTip(t);if(_tip)ch.setAttribute('data-tip',_tip);
       if(!isLocked){
-        ch.onclick=()=>{const on=ch.classList.contains('on');if(!g.multi){d.querySelectorAll('.chip').forEach(x=>x.classList.remove('on'));SEL[g.id].clear();}on?(ch.classList.remove('on'),SEL[g.id].delete(t)):(ch.classList.add('on'),SEL[g.id].add(t));updatePanel();updatePoolCount();};
+        ch.onclick=()=>{const on=ch.classList.contains('on');if(!g.multi){d.querySelectorAll('.chip').forEach(x=>x.classList.remove('on'));SEL[g.id].clear();}on?(ch.classList.remove('on'),SEL[g.id].delete(t)):(ch.classList.add('on'),SEL[g.id].add(t));updatePanel();};
       }
       chips.appendChild(ch);
     });
@@ -1533,7 +1534,7 @@ function buildUI(){
   const freeGroups=GROUPS.filter(g=>isPremium||!premGroups.includes(g.id));
   const allTags=[...new Set(freeGroups.flatMap(g=>g.tags||[]))].sort((a,b)=>tTag(a).localeCompare(tTag(b)));
   const ce=document.getElementById('ce');ce.innerHTML='';
-  allTags.forEach(t=>{const ch=document.createElement('span');ch.className='chip ex';ch.textContent=tTag(t);var _et=getTagTip(t);if(_et)ch.setAttribute('data-tip',_et);ch.onclick=()=>{EXCL.has(t)?(ch.classList.remove('on'),EXCL.delete(t)):(ch.classList.add('on'),EXCL.add(t));updatePanel();updatePoolCount();};ce.appendChild(ch);});
+  allTags.forEach(t=>{const ch=document.createElement('span');ch.className='chip ex';ch.textContent=tTag(t);var _et=getTagTip(t);if(_et)ch.setAttribute('data-tip',_et);ch.onclick=()=>{EXCL.has(t)?(ch.classList.remove('on'),EXCL.delete(t)):(ch.classList.add('on'),EXCL.add(t));updatePanel();};ce.appendChild(ch);});
 }
 function tog(h){const b=h.nextElementSibling,a=h.querySelector('.fgar');b.classList.toggle('open');a.classList.toggle('open');}
 
@@ -1656,25 +1657,9 @@ function showCard(res,opts={}) {
 function toggleSeen(id,btn){seenFilms.has(id)?(seenFilms.delete(id),btn.textContent=t('card_mark'),btn.classList.remove('marked')):(seenFilms.add(id),btn.textContent=t('card_marked'),btn.classList.add('marked'));saveSeen();}
 function stars(r){const f=Math.floor(r/2),h=(r/2)%1>=.5?1:0,e=5-f-h;let s='<div class="st">';for(let i=0;i<f;i++)s+='<span>★</span>';if(h)s+='<span style="color:#a09040">★</span>';for(let i=0;i<e;i++)s+='<span class="e">☆</span>';return s+`</div><span class="rn">${r}</span>`;}
 
-function _stopScroll(e){e.preventDefault();}
-function _fcbScroll(e){e.stopPropagation();}
-function _lockScroll(){
-  document.documentElement.style.overflow='hidden';
-  document.body.style.overflow='hidden';
-  document.addEventListener('wheel',_stopScroll,{passive:false});
-  document.addEventListener('touchmove',_stopScroll,{passive:false});
-  // Allow scroll ONLY inside .fcb (the card body)
-  var fcb=document.querySelector('.fcb');
-  if(fcb){fcb.addEventListener('wheel',_fcbScroll,{passive:true});fcb.addEventListener('touchmove',_fcbScroll,{passive:true});}
-}
-function _unlockScroll(){
-  document.documentElement.style.overflow='';
-  document.body.style.overflow='';
-  document.removeEventListener('wheel',_stopScroll);
-  document.removeEventListener('touchmove',_stopScroll);
-  var fcb=document.querySelector('.fcb');
-  if(fcb){fcb.removeEventListener('wheel',_fcbScroll);fcb.removeEventListener('touchmove',_fcbScroll);}
-}
+function _lockScroll(){document.documentElement.classList.add('noscroll');}
+function _unlockScroll(){document.documentElement.classList.remove('noscroll');}
+
 function closeCard(){
   _unlockScroll();
   document.getElementById('mbk').classList.remove('on');
@@ -1735,50 +1720,92 @@ function closeNoFilm(){
   resetFilters();
 }
 
-function computeOptInCombinations(){
+function _getBlockedPool(){
+  // Returns films compatible with user filters but blocked only by OPT_IN tags
   const check=new Set([...Object.values(SEL)].flatMap(s=>[...s]));
-  _activeOptInTags.forEach(t=>check.add(t));
-  const combos=new Map();
-  DB.filter(f=>{
+  _activeOptInTags.forEach(tag=>check.add(tag));
+  return DB.filter(f=>{
     if(seenFilms.has(f.id)||sessionShown.has(f.id))return false;
     if(EXCL.size&&f.tags.some(t=>EXCL.has(t)))return false;
     for(const gid of['g1','g2','g3','g4','g5','g6']){const sel=SEL[gid];if(sel.size>0&&![...sel].every(t=>f.tags.includes(t)))return false;}
-    return true;
-  }).forEach(f=>{
-    const sig=f.tags.filter(tag=>OPT_IN_TAGS.has(tag)&&!check.has(tag)).sort();
-    if(!sig.length)return;
-    const key=sig.join('|');
-    if(!combos.has(key))combos.set(key,{tags:sig,label:sig.map(t=>tTag(t)).join(' + ')});
+    return true; // don't apply OPT_IN filter here — we want blocked films
   });
-  // Filter out combos whose exact combination was already used
-  return [...combos.values()].filter(c=>!_usedOptInCombos.has(c.tags.slice().sort().join('|')));
+}
+
+function computeOptInTags(){
+  // Returns individual OPT_IN tags (not combos) that are blocking the pool
+  const check=new Set([...Object.values(SEL)].flatMap(s=>[...s]));
+  _activeOptInTags.forEach(tag=>check.add(tag));
+  const tagSet=new Set();
+  _getBlockedPool().forEach(f=>{
+    f.tags.filter(tag=>OPT_IN_TAGS.has(tag)&&!check.has(tag)).forEach(tag=>tagSet.add(tag));
+  });
+  // Remove already-used tags
+  _usedOptInCombos.forEach(tag=>tagSet.delete(tag));
+  return [...tagSet];
+}
+
+function _coTags(tag){
+  // Returns which other OPT_IN tags ALWAYS appear alongside `tag` in the blocked pool
+  const pool=_getBlockedPool();
+  const withTag=pool.filter(f=>f.tags.includes(tag));
+  if(!withTag.length)return [];
+  const check=new Set([...Object.values(SEL)].flatMap(s=>[...s]));
+  _activeOptInTags.forEach(t=>check.add(t));
+  const others=[];
+  for(const ot of OPT_IN_TAGS){
+    if(ot===tag||check.has(ot))continue;
+    if(withTag.every(f=>f.tags.includes(ot)))others.push(ot);
+  }
+  return others;
 }
 
 function showOptInOverlay(){
   _optInSelected=null;
   _activeOptInTags.clear();
   const el=document.getElementById('optin-overlay');
-  document.getElementById('optin-title').textContent=t('optin_title')||'Nessun risultato trovato';
-  document.getElementById('optin-sub').textContent=t('optin_sub')||'I film compatibili appartengono anche ad altre categorie. Vuoi includerne una?';
+  const title=LANG==='en'?'Films with your selected characteristics also tend to have other "special" traits — which can you accept?'
+    :'I film con le caratteristiche che hai inserito hanno generalmente anche altre caratteristiche "particolari", quali puoi accettare?';
+  document.getElementById('optin-title').textContent='';
+  document.getElementById('optin-sub').textContent=title;
   document.getElementById('optin-confirm').classList.remove('active');
-  const combos=computeOptInCombinations();
-  el._combos=combos;
-  document.getElementById('optin-tags').innerHTML=combos.map((c,i)=>
-    `<button class="optin-tag-btn" onclick="selectOptInCombo(${i},this)"><span>✦</span><span>${c.label}</span></button>`
+  const tags=computeOptInTags();
+  el._tags=tags;
+  document.getElementById('optin-tags').innerHTML=tags.map((tag,i)=>
+    `<button class="optin-tag-btn" onclick="selectOptInTag(${i},this)"><span>✦</span><span>${tTag(tag)}</span></button>`
   ).join('');
   el.classList.add('show');
 }
-function selectOptInCombo(idx,btn){
+
+function selectOptInTag(idx,btn){
   const el=document.getElementById('optin-overlay');
-  _optInSelected=(el._combos&&el._combos[idx])?el._combos[idx].tags:[];
+  const tag=el._tags&&el._tags[idx];
+  if(!tag)return;
+  // Find co-occurring tags that always appear with this one
+  const coTags=_coTags(tag);
+  _optInSelected=[tag,...coTags];
   document.querySelectorAll('.optin-tag-btn').forEach(b=>b.classList.remove('sel'));
   btn.classList.add('sel');
   document.getElementById('optin-confirm').classList.add('active');
+  // Show auto-select message if co-tags exist
+  const note=document.getElementById('optin-note');
+  if(note){
+    if(coTags.length){
+      const coLabels=coTags.map(t=>tTag(t)).join(', ');
+      note.textContent=LANG==='en'
+        ?`"${tTag(tag)}" always appears with ${coLabels} in this pool — both selected automatically.`
+        :`"${tTag(tag)}" compare sempre insieme a ${coLabels} in questa selezione — selezionati automaticamente.`;
+      note.style.display='block';
+    } else {
+      note.style.display='none';
+    }
+  }
 }
+
 function confirmOptIn(){
   if(!_optInSelected||!_optInSelected.length)return;
-  (_optInSelected||[]).forEach(t=>_activeOptInTags.add(t));
-  _usedOptInCombos.add((_optInSelected||[]).slice().sort().join('|')); // track whole combo as key
+  _optInSelected.forEach(t=>_activeOptInTags.add(t));
+  _usedOptInCombos.add(_optInSelected[0]); // track primary tag as used
   closeOptIn();
   const allSelPlus=new Set([...Object.values(SEL)].flatMap(s=>[...s]));
   // In confirmOptIn pool: same logic — OPT_IN ok if in allSelPlus OR _activeOptInTags; film must have ALL active tags
@@ -1804,7 +1831,7 @@ function confirmOptIn(){
   sessionShown.add(pick.id);addTodayRec(pick.id);addAllRec(pick.id);
   revealCat();setTimeout(()=>showCard({f:pick,mx:pick.tags||[]}),2500);
 }
-function closeOptIn(){document.getElementById('optin-overlay').classList.remove('show');resetCat();}
+function closeOptIn(){document.getElementById('optin-overlay').classList.remove('show');const n=document.getElementById('optin-note');if(n)n.style.display='none';resetCat();}
 
 function go(){
   if(DB.length===0){
@@ -2738,6 +2765,14 @@ function setLang(l){
   });
 })();
 
+// ── POOL COUNT: event delegation on filter containers ─────────────────────
+document.addEventListener('click', function(e){
+  // If click was on or inside a chip, update pool count after a tick
+  if(e.target.closest && (e.target.closest('.chips') || e.target.closest('.chip') || e.target.closest('.sl'))){
+    setTimeout(updatePoolCount, 50);
+  }
+});
+
 // ── AUTH ────────────────────────────────────────────────────────────────
 function lsSetLang(lang) {
   LANG = lang;
@@ -2870,6 +2905,14 @@ function _applyUserData(d) {
   }
   if (d.profile) try { localStorage.setItem('sw3_prof', JSON.stringify(d.profile)); } catch(e) {}
 }
+
+// ── POOL COUNT: event delegation on filter containers ─────────────────────
+document.addEventListener('click', function(e){
+  // If click was on or inside a chip, update pool count after a tick
+  if(e.target.closest && (e.target.closest('.chips') || e.target.closest('.chip') || e.target.closest('.sl'))){
+    setTimeout(updatePoolCount, 50);
+  }
+});
 
 // ── AUTH CALLS ──────────────────────────────────────────────────────────────
 function _lsAuth(endpoint, body, onOk) {
@@ -3156,6 +3199,7 @@ function updatePoolCount(){
   <div class="optin-box">
     <div class="optin-title" id="optin-title"></div>
     <div class="optin-sub" id="optin-sub"></div>
+    <div id="optin-note" style="display:none;font-size:11px;color:var(--or);margin:8px 4px 4px;line-height:1.5;border-left:2px solid var(--or);padding-left:8px"></div>
     <div class="optin-tags" id="optin-tags"></div>
     <div class="optin-actions">
       <button class="optin-confirm" id="optin-confirm" onclick="confirmOptIn()">Seleziona</button>
