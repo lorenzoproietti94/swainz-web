@@ -556,68 +556,71 @@ body.cat-revealing #today-wrap-mob{visibility:hidden!important;pointer-events:no
 
 /* ══ NEON + FOG ══════════════════════════════════════════════════════════ */
 
-/* Neon glow logo */
-.logo-syne{text-shadow:0 0 16px rgba(255,114,40,.5),0 0 36px rgba(255,114,40,.2);}
+/* Neon glow logo — pulsa */
+.logo-syne{
+  animation:logo-pulse 3s ease-in-out infinite alternate;
+}
+@keyframes logo-pulse{
+  0%  {text-shadow:0 0 10px rgba(255,114,40,.4),0 0 28px rgba(255,114,40,.15);}
+  100%{text-shadow:0 0 22px rgba(255,114,40,.85),0 0 55px rgba(255,114,40,.35),0 0 90px rgba(255,114,40,.12);}
+}
 
-/* Header neon border bottom */
-.hdr{box-shadow:0 1px 0 rgba(255,114,40,.25),0 4px 32px rgba(0,0,0,.6)!important;}
+/* Header neon border bottom — pulsa */
+.hdr{animation:hdr-glow 4s ease-in-out infinite alternate;position:relative!important;}
+@keyframes hdr-glow{
+  0%  {box-shadow:0 1px 0 rgba(255,114,40,.18),0 4px 24px rgba(0,0,0,.6);}
+  100%{box-shadow:0 1px 0 rgba(255,114,40,.55),0 4px 32px rgba(0,0,0,.6),0 0 40px rgba(255,114,40,.08);}
+}
 
 /* Filter card hover glow */
 .fgrp{transition:border-color .25s,box-shadow .25s!important;}
-.fgrp:hover{border-color:rgba(255,114,40,.25)!important;box-shadow:0 0 20px rgba(255,114,40,.08)!important;}
+.fgrp:hover{border-color:rgba(255,114,40,.35)!important;box-shadow:0 0 22px rgba(255,114,40,.12),inset 0 0 18px rgba(255,114,40,.03)!important;}
 
-/* Active chip neon */
-.chip.on{box-shadow:0 0 10px rgba(255,114,40,.4),0 0 24px rgba(255,114,40,.14)!important;}
-
-/* CTA button neon */
-.cta-btn{
-  box-shadow:0 0 20px rgba(255,114,40,.35),0 0 50px rgba(255,114,40,.12)!important;
-  text-shadow:0 0 10px rgba(255,114,40,.5)!important;
+/* Active chip — neon intenso + pulsa */
+.chip.on{animation:chip-neon 2.5s ease-in-out infinite alternate!important;}
+@keyframes chip-neon{
+  0%  {box-shadow:0 0 6px rgba(255,114,40,.5),0 0 16px rgba(255,114,40,.2);}
+  100%{box-shadow:0 0 14px rgba(255,114,40,.9),0 0 32px rgba(255,114,40,.4),0 0 60px rgba(255,114,40,.15);}
 }
-.cta-btn:hover{box-shadow:0 0 32px rgba(255,114,40,.55),0 0 70px rgba(255,114,40,.20)!important;}
 
-/* Neon line fissa in fondo */
+/* CTA button neon — pulsa */
+.cta-btn{animation:cta-neon 2.8s ease-in-out infinite alternate!important;}
+@keyframes cta-neon{
+  0%  {box-shadow:0 0 16px rgba(255,114,40,.3),0 0 40px rgba(255,114,40,.10);text-shadow:0 0 8px rgba(255,114,40,.4);}
+  100%{box-shadow:0 0 30px rgba(255,114,40,.65),0 0 70px rgba(255,114,40,.25),0 0 120px rgba(255,114,40,.10);text-shadow:0 0 18px rgba(255,114,40,.8);}
+}
+.cta-btn:hover{
+  box-shadow:0 0 40px rgba(255,114,40,.85),0 0 90px rgba(255,114,40,.35),0 0 140px rgba(255,114,40,.15)!important;
+  text-shadow:0 0 22px rgba(255,114,40,1)!important;
+}
+
+/* vbtn badge neon */
+.vbtn{animation:vbtn-neon 3.2s ease-in-out infinite alternate;}
+@keyframes vbtn-neon{
+  0%  {box-shadow:0 0 4px rgba(255,114,40,.2);}
+  100%{box-shadow:0 0 12px rgba(255,114,40,.6),0 0 26px rgba(255,114,40,.2);}
+}
+
+/* Neon line fissa in fondo — pulsa */
 #neon-line{
   position:fixed;bottom:0;left:0;right:0;height:1px;z-index:15;
   pointer-events:none;
   background:linear-gradient(90deg,
     transparent 0%,
-    rgba(255,114,40,.15) 20%,
-    rgba(255,114,40,.55) 45%,
-    rgba(255,114,40,.55) 55%,
-    rgba(255,114,40,.15) 80%,
+    rgba(255,114,40,.2) 20%,
+    rgba(255,114,40,.8) 45%,
+    rgba(255,114,40,.8) 55%,
+    rgba(255,114,40,.2) 80%,
     transparent 100%);
-  animation:nline-pulse 3.5s ease-in-out infinite alternate;
+  animation:nline-pulse 2.8s ease-in-out infinite alternate;
+  filter:blur(.3px);
 }
-@keyframes nline-pulse{0%{opacity:.4}100%{opacity:1}}
+@keyframes nline-pulse{
+  0%  {opacity:.35;filter:blur(.3px);}
+  100%{opacity:1;filter:blur(0px) drop-shadow(0 0 4px rgba(255,114,40,.8));}
+}
 
-/* Fog layers */
-#fog-wrap{
-  position:fixed;inset:0;
-  z-index:6;          /* sopra le card (z:2), sotto header (z:50) e CTA (z:10) */
-  pointer-events:none;
-  overflow:hidden;
-}
-.fog-l{
-  position:absolute;
-  width:300%;
-  height:220px;
-  background:linear-gradient(90deg,
-    transparent 0%,
-    rgba(255,255,255,.028) 18%,
-    rgba(255,114,40,.018) 35%,
-    transparent 50%,
-    rgba(255,255,255,.022) 68%,
-    rgba(255,114,40,.014) 83%,
-    transparent 100%);
-  animation:fog-move linear infinite;
-  border-radius:50%;
-  filter:blur(18px);
-}
-.fog-l:nth-child(1){top:12%;animation-duration:30s;opacity:.9;}
-.fog-l:nth-child(2){top:42%;animation-duration:44s;opacity:.6;animation-delay:-14s;animation-direction:reverse;}
-.fog-l:nth-child(3){top:68%;animation-duration:56s;opacity:.5;animation-delay:-28s;}
-@keyframes fog-move{from{transform:translateX(-66%)}to{transform:translateX(0%)}}
+
 
 /* Vignetta scura ai bordi */
 #vign{
@@ -664,11 +667,7 @@ body.cat-revealing #today-wrap-mob{visibility:hidden!important;pointer-events:no
 <!-- APP -->
 <div id="app">
 <div id="vign"></div>
-<div id="fog-wrap">
-  <div class="fog-l"></div>
-  <div class="fog-l"></div>
-  <div class="fog-l"></div>
-</div>
+
 <div id="neon-line"></div>
   <header class="hdr">
     <div class="logo-sm">SWAINZ</div>
