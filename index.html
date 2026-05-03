@@ -1802,21 +1802,24 @@ function selectOptInTag(idx,btn){
     btn.classList.add('sel');
   }
 
-  // Update co-tag buttons (show as auto-selected)
+  // Update all buttons: co-tags get 'sel' class (look identical to manually selected)
   const allBtns=document.querySelectorAll('.optin-tag-btn');
   allBtns.forEach(b=>{
     const bIdx=parseInt(b.dataset.idx);
     const bTag=el._tags[bIdx];
     if(!bTag)return;
+    // Skip primary tags (already toggled above)
+    if(el._primaryTags.has(bTag))return;
     // Is this tag a co-tag of any currently selected primary?
     let isCo=false;
     el._primaryTags.forEach(primary=>{
-      if(primary!==bTag&&_coTags(primary).includes(bTag))isCo=true;
+      if(_coTags(primary).includes(bTag))isCo=true;
     });
     if(isCo){
-      b.classList.add('co-sel');
-      b.classList.remove('sel');
+      b.classList.add('sel');
+      b.classList.remove('co-sel');
     } else {
+      b.classList.remove('sel');
       b.classList.remove('co-sel');
     }
   });
