@@ -1994,7 +1994,6 @@ function markAllSeen(){
 function openProfp(){document.getElementById('profp').classList.add('on');loadProfp();if(!isPremium)document.body.classList.add('profp-ads-show');}
 function closeProfp(){document.getElementById('profp').classList.remove('on');document.body.classList.remove('profp-ads-show');}
 async function loadProfp(){
-  try{const r=await window.storage.get('sw3_prof');if(r){const d=JSON.parse(r.value);['pNome','pCognome','pNascita','pFilm','pRegista','pAttore'].forEach(id=>{if(d[id])document.getElementById(id).value=d[id];});}}catch(e){}
   try{const lp=localStorage.getItem('sw3_prof');if(lp){const d=JSON.parse(lp);['pNome','pCognome','pNascita','pFilm','pRegista','pAttore'].forEach(id=>{if(d[id])document.getElementById(id).value=d[id];});}}catch(e){}
   const pt=document.getElementById('premToggle');pt.textContent=isPremium?'Premium ✓':'Free';pt.className=isPremium?'chip on':'chip';
   // Show account box with email if logged in
@@ -2008,7 +2007,6 @@ async function loadProfp(){
 async function saveProfp(){
   const ids=['pNome','pCognome','pNascita','pFilm','pRegista','pAttore'],data={};
   ids.forEach(i=>data[i]=document.getElementById(i).value);
-  try{await window.storage.set('sw3_prof',JSON.stringify(data));}catch(e){}
   try{localStorage.setItem('sw3_prof',JSON.stringify(data));}catch(e){}
   // Sync nome/cognome/email to Supabase user_data
   if(_authToken&&currentUser){
@@ -2933,11 +2931,20 @@ function _applyUserData(d) {
     try{localStorage.setItem('sw3_premium','1');}catch(e){}
   }
   if(d.profile&&typeof d.profile==='object'){
+    // Also inject top-level nome/cognome into profile so they're always present
+    if(d.nome)d.profile.pNome=d.profile.pNome||d.nome;
+    if(d.cognome)d.profile.pCognome=d.profile.pCognome||d.cognome;
     try{localStorage.setItem('sw3_prof',JSON.stringify(d.profile));}catch(e){}
     Object.keys(d.profile).forEach(function(k){
       var el=document.getElementById(k);
       if(el&&d.profile[k])el.value=d.profile[k];
     });
+  } else if(d.nome||d.cognome){
+    // profile column not set yet — restore from top-level columns directly
+    var profData={};
+    if(d.nome){profData.pNome=d.nome;var elN=document.getElementById('pNome');if(elN)elN.value=d.nome;}
+    if(d.cognome){profData.pCognome=d.cognome;var elC=document.getElementById('pCognome');if(elC)elC.value=d.cognome;}
+    try{localStorage.setItem('sw3_prof',JSON.stringify(profData));}catch(e){}
   }
   if(d.all_rec_ids&&d.all_rec_ids.length){
     allRecs=d.all_rec_ids;
