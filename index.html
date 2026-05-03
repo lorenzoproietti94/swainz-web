@@ -1603,9 +1603,8 @@ function findFilm(){
   scored.sort((a,b)=>b.sc-a.sc||Math.random()-.5);
   if(!scored.length){
     _activeOptInTags.clear();
-    const availCombos=computeOptInCombinations();
-    if(availCombos.length>0){
-      if(!isPremium&&searches<3){searches++;const cnt=document.getElementById('cnt');if(cnt)cnt.textContent=searches;}
+    const availTags=computeOptInTags();
+    if(availTags.length>0){
       showOptInOverlay();return null;
     }
     showNoFilmOverlay();return null;
@@ -1805,31 +1804,10 @@ function selectOptInTag(idx,btn){
 function confirmOptIn(){
   if(!_optInSelected||!_optInSelected.length)return;
   _optInSelected.forEach(t=>_activeOptInTags.add(t));
-  _usedOptInCombos.add(_optInSelected[0]); // track primary tag as used
+  _usedOptInCombos.add(_optInSelected[0]);
   closeOptIn();
-  const allSelPlus=new Set([...Object.values(SEL)].flatMap(s=>[...s]));
-  // In confirmOptIn pool: same logic — OPT_IN ok if in allSelPlus OR _activeOptInTags; film must have ALL active tags
-  const pool=DB.filter(f=>{
-    if(seenFilms.has(f.id)||sessionShown.has(f.id))return false;
-    if(EXCL.size&&f.tags.some(t=>EXCL.has(t)))return false;
-    if(f.tags.includes('Sequel')&&SEQUEL_MAP[f.id]&&!SEQUEL_MAP[f.id].every(pid=>seenFilms.has(pid)))return false;
-    // OPT_IN: tag ok if in allSelPlus OR _activeOptInTags; film must have ALL active tags
-    for(const tag of OPT_IN_TAGS){
-      if(f.tags.includes(tag)&&!allSelPlus.has(tag)&&!_activeOptInTags.has(tag))return false;
-    }
-    if(_activeOptInTags.size>0&&![..._activeOptInTags].every(t=>f.tags.includes(t)))return false;
-    for(const gid of['g1','g2','g3','g4','g5','g6']){
-      const sel=SEL[gid];if(sel.size>0&&![...sel].every(t=>f.tags.includes(t)))return false;
-    }
-    const minR=parseFloat(document.getElementById('rsl')?.value||6.5);
-    if(f.r<minR)return false;
-    return true;
-  });
-  if(!pool.length){return;}
-  pool.sort((a,b)=>b.r-a.r);
-  const pick=pool[Math.floor(Math.random()*Math.min(5,pool.length))];
-  sessionShown.add(pick.id);addTodayRec(pick.id);addAllRec(pick.id);
-  revealCat();setTimeout(()=>showCard({f:pick,mx:pick.tags||[]}),2500);
+  // Let go() handle the film recommendation with the new _activeOptInTags
+  setTimeout(go, 100);
 }
 function closeOptIn(){document.getElementById('optin-overlay').classList.remove('show');const n=document.getElementById('optin-note');if(n)n.style.display='none';resetCat();}
 
