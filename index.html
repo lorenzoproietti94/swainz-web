@@ -1116,10 +1116,14 @@ const _allRecKey='sw3_allrecs';
 let allRecs=[]; // array of film ids, all time
 
 async function loadAllRecs(){
-  try{const r=await window.storage.get(_allRecKey);if(r)allRecs=JSON.parse(r.value);}catch(e){}
+  try{const r=localStorage.getItem(_allRecKey);if(r)allRecs=JSON.parse(r);}catch(e){}
+}
+function _saveAllRecs(){
+  try{localStorage.setItem(_allRecKey,JSON.stringify(allRecs));}catch(e){}
+  if(_authToken&&currentUser){_saveUserData({all_rec_ids:allRecs,updated_at:new Date().toISOString()});}
 }
 async function addAllRec(id){
-  if(!allRecs.includes(id)){allRecs.push(id);try{await window.storage.set(_allRecKey,JSON.stringify(allRecs));}catch(e){}}
+  if(!allRecs.includes(id)){allRecs.push(id);_saveAllRecs();}
 }
 function openAllRecs(){
   const el=document.getElementById('allrec-list');
@@ -2931,6 +2935,10 @@ function _applyUserData(d) {
       var el=document.getElementById(k);
       if(el&&d.profile[k])el.value=d.profile[k];
     });
+  }
+  if(d.all_rec_ids&&d.all_rec_ids.length){
+    allRecs=d.all_rec_ids;
+    try{localStorage.setItem(_allRecKey,JSON.stringify(allRecs));}catch(e){}
   }
 }
 
