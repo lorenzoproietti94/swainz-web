@@ -1199,11 +1199,9 @@ function openTodayFilm(id){
   showCard({f,mx:f.tags||[]},{hideMore:true});
 }
 async function saveSeen(){
-  try{await window.storage.set('sw3_seen',JSON.stringify([...seenFilms]));}catch(e){}
   try{localStorage.setItem('sw3_seen',JSON.stringify([...seenFilms]));}catch(e){}
   if(_authToken&&currentUser){
-    var ids=[...seenFilms];
-    _saveUserData({seen_film_ids:ids,updated_at:new Date().toISOString()});
+    _saveUserData({seen_film_ids:[...seenFilms],updated_at:new Date().toISOString()});
   }
 }
 async function loadFck(){try{const r=await window.storage.get('sw3_fck');if(r){fckAnswers=JSON.parse(r.value);applyFck(fckAnswers);}}catch(e){}}
@@ -2014,6 +2012,7 @@ async function saveProfp(){
       nome: data.pNome||'',
       cognome: data.pCognome||'',
       email: currentUser.email||'',
+      profile: data,
       updated_at: new Date().toISOString()
     };
     _saveUserData(patch);
@@ -2914,17 +2913,25 @@ function _applyUserData(d) {
     d.seen_film_ids.forEach(function(id){ seenFilms.add(id); });
     try { localStorage.setItem('sw3_seen', JSON.stringify([...seenFilms])); } catch(e) {}
   }
-  if (d.lb_standby) try { localStorage.setItem('sw3_lb_standby', JSON.stringify(d.lb_standby)); } catch(e) {}
-  if (d.fck_answers && Object.keys(d.fck_answers).length) {
-    fckAnswers = d.fck_answers;
+  if(d.lb_standby&&Array.isArray(d.lb_standby)&&d.lb_standby.length){
+    try{localStorage.setItem('sw3_lb_standby',JSON.stringify(d.lb_standby));}catch(e){}
+  }
+  if(d.fck_answers&&Object.keys(d.fck_answers).length){
+    fckAnswers=d.fck_answers;
     applyFck(fckAnswers);
-    try { localStorage.setItem('sw3_fck', JSON.stringify(fckAnswers)); } catch(e) {}
+    try{localStorage.setItem('sw3_fck',JSON.stringify(fckAnswers));}catch(e){}
   }
-  if (d.is_premium) {
-    isPremium = true;
-    try { localStorage.setItem('sw3_premium', '1'); } catch(e) {}
+  if(d.is_premium){
+    isPremium=true;
+    try{localStorage.setItem('sw3_premium','1');}catch(e){}
   }
-  if (d.profile) try { localStorage.setItem('sw3_prof', JSON.stringify(d.profile)); } catch(e) {}
+  if(d.profile&&typeof d.profile==='object'){
+    try{localStorage.setItem('sw3_prof',JSON.stringify(d.profile));}catch(e){}
+    Object.keys(d.profile).forEach(function(k){
+      var el=document.getElementById(k);
+      if(el&&d.profile[k])el.value=d.profile[k];
+    });
+  }
 }
 
 // ── POOL COUNT: event delegation on filter containers ─────────────────────
@@ -2991,7 +2998,14 @@ function doLogout() {
 
 
 // ── LETTERBOXD IMPORT ─────────────────────────────────────────────────────
-function _lbStore(key,val){try{localStorage.setItem(key,val);}catch(e){}}
+function _lbStore(key,val){
+  try{localStorage.setItem(key,val);}catch(e){}
+  // If logged in and this is the standby key, also persist to Supabase
+  if(key==='sw3_lb_standby'&&_authToken&&currentUser){
+    try{var arr=JSON.parse(val)||[];}catch(ex){var arr=[];}
+    _saveUserData({lb_standby:arr,updated_at:new Date().toISOString()});
+  }
+}
 function _lbLoad(key){try{return localStorage.getItem(key);}catch(e){return null;}}
 
 function _lbNorm(s){
