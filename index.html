@@ -1165,7 +1165,7 @@ var _dbReady=new Promise(function(resolve,reject){
 
 const GROUPS=[
   {id:'g1',title:'🎭 Genere & Atmosfera',col:'bl',multi:true,tags:['Thriller','Horror','Dramma','Commedia','Fantascienza','Western','Animazione','Documentario','Noire','CineComic','Romantico','Comico']},
-  {id:'g7',title:'📺 Piattaforma',col:'bl',multi:true,opts:['Netflix','Prime Video','Disney+','MUBI','Apple TV','Non importa']},
+  {id:'g7',title:'📺 Piattaforma',col:'bl',multi:true,opts:['Netflix','Prime Video','Disney+','MUBI','Apple TV']},
   {id:'g3',title:'🔍 Temi',col:'bl',multi:true,tags:['Crimine','Mafia','Droga','Guerra','Serial Killer','Economico','Catastrofico','Vendetta','Sportivo','Legal Drama','Biografico','Colossal']},
   {id:'g8',title:'📅 Periodo',col:'or',multi:true,opts:["Anni '60 e prima","Anni '70","Anni '80","Anni '90","Anni 2000","Anni 2010","Anni 2020"]},
   {id:'g2',title:'✨ Qualità & Stile',col:'or',multi:true,tags:["Capolavoro","D'Autore","Oscar","Grande Interpretazione","Grande Colonna Sonora","Estetico","Imponente","Storia Avvincente","Pazzesco","Bizzarro","Musicale","Difficile"]},
@@ -2090,15 +2090,15 @@ async function loadProfp(){
 }
 async function saveProfp(){
   const ids=['pNome','pCognome','pNascita','pFilm','pRegista','pAttore'],data={};
-  ids.forEach(i=>data[i]=document.getElementById(i).value);
+  ids.forEach(i=>data[i]=(document.getElementById(i)||{}).value||'');
   try{localStorage.setItem('sw3_prof',JSON.stringify(data));}catch(e){}
-  // Sync nome/cognome/email to Supabase user_data
+  // Sync all profile fields to Supabase user_data
   if(_authToken&&currentUser){
     var patch={
       nome: data.pNome||'',
       cognome: data.pCognome||'',
       email: currentUser.email||'',
-      profile: data,
+      profile: data,   // full profile blob with all fields
       updated_at: new Date().toISOString()
     };
     _saveUserData(patch);
@@ -2869,7 +2869,7 @@ function setLang(l){
     _dbReady.then(function(){
       // Ensure user_data row exists (creates it if this is a legacy account)
       _saveUserData({ email: currentUser ? currentUser.email : '', updated_at: new Date().toISOString() });
-      _loadUserData(function(d){_applyUserData(d);buildUI();login();});
+      _loadUserData(function(d){_applyUserData(d);_autoPushLocalProfile(d);buildUI();login();});
     });
   });
 })();
@@ -2973,6 +2973,15 @@ function _restoreSession(cb) {
 }
 
 // ── USER DATA (Supabase table: user_data) ──────────────────────────────────
+
+function _autoPushLocalProfile(d){
+  // If Supabase has no profile blob yet, push local profile data to server
+  if(d&&d.profile)return;
+  var lp=null;try{var s=localStorage.getItem('sw3_prof');if(s)lp=JSON.parse(s);}catch(e){}
+  if(!lp||!_authToken||!currentUser)return;
+  var patch={nome:lp.pNome||'',cognome:lp.pCognome||'',email:currentUser.email||'',profile:lp,updated_at:new Date().toISOString()};
+  _saveUserData(patch);
+}
 function _saveUserData(patch) {
   if (!_authToken || !currentUser) return;
   var uid = currentUser.id;
@@ -3014,20 +3023,27 @@ function _applyUserData(d) {
     isPremium=true;
     try{localStorage.setItem('sw3_premium','1');}catch(e){}
   }
-  if(d.profile&&typeof d.profile==='object'){
+  var _prof=d.profile;
+  if(_prof&&typeof _prof==='string'){try{_prof=JSON.parse(_prof);}catch(e){_prof=null;}}
+  if(_prof&&typeof _prof==='object'){
     // Also inject top-level nome/cognome into profile so they're always present
-    if(d.nome)d.profile.pNome=d.profile.pNome||d.nome;
-    if(d.cognome)d.profile.pCognome=d.profile.pCognome||d.cognome;
-    try{localStorage.setItem('sw3_prof',JSON.stringify(d.profile));}catch(e){}
-    Object.keys(d.profile).forEach(function(k){
+    if(d.nome)_prof.pNome=_prof.pNome||d.nome;
+    if(d.cognome)_prof.pCognome=_prof.pCognome||d.cognome;
+    try{localStorage.setItem('sw3_prof',JSON.stringify(_prof));}catch(e){}
+    Object.keys(_prof).forEach(function(k){
       var el=document.getElementById(k);
-      if(el&&d.profile[k])el.value=d.profile[k];
+      if(el&&_prof[k])el.value=_prof[k];
     });
   } else if(d.nome||d.cognome){
-    // profile column not set yet — restore from top-level columns directly
+    // profile column not set yet — merge top-level columns with any existing local profile
     var profData={};
+    try{var lp=localStorage.getItem('sw3_prof');if(lp)profData=JSON.parse(lp);}catch(e){}
     if(d.nome){profData.pNome=d.nome;var elN=document.getElementById('pNome');if(elN)elN.value=d.nome;}
     if(d.cognome){profData.pCognome=d.cognome;var elC=document.getElementById('pCognome');if(elC)elC.value=d.cognome;}
+    // restore other fields from merged local data
+    ['pNascita','pFilm','pRegista','pAttore'].forEach(function(id){
+      if(profData[id]){var el=document.getElementById(id);if(el)el.value=profData[id];}
+    });
     try{localStorage.setItem('sw3_prof',JSON.stringify(profData));}catch(e){}
   }
   if(d.all_rec_ids&&d.all_rec_ids.length){
@@ -3066,7 +3082,7 @@ function doLogin() {
     // Ensure user_data row exists (upsert with empty patch = create if missing)
     var email = res.user ? res.user.email : (currentUser ? currentUser.email : '');
     _saveUserData({ email: email, updated_at: new Date().toISOString() });
-    _loadUserData(function(d){ _applyUserData(d); login(); });
+    _loadUserData(function(d){ _applyUserData(d); _autoPushLocalProfile(d); login(); });
   });
 }
 
@@ -3253,7 +3269,7 @@ function _handleOAuthCallback() {
       _saveSession(session);
       _saveUserData({ email: user.email || '', updated_at: new Date().toISOString() });
       _dbReady.then(function() {
-        _loadUserData(function(d) { _applyUserData(d); login(); });
+        _loadUserData(function(d) { _applyUserData(d); _autoPushLocalProfile(d); login(); });
       });
     } else {
       // Token invalid — show login screen normally
