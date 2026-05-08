@@ -1,0 +1,33 @@
+name: Swainz – Daily DB Update
+
+on:
+  schedule:
+    - cron: '0 4 * * *'   # ogni giorno alle 4:00 UTC (6:00 ora italiana in estate)
+  workflow_dispatch:
+    inputs:
+      batch_size:
+        description: 'Film per batch (default 950)'
+        required: false
+        default: '950'
+
+jobs:
+  update:
+    name: Aggiorna IMDB rating e Piattaforme
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Run DB update (batch rotation)
+        run: node scripts/update-db.js
+        env:
+          SUPABASE_URL:         ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+          OMDB_API_KEY:         ${{ secrets.OMDB_API_KEY }}
+          TMDB_API_KEY:         ${{ secrets.TMDB_API_KEY }}
+          BATCH_SIZE:           ${{ inputs.batch_size || '950' }}
