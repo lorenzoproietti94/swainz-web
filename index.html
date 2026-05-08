@@ -432,11 +432,26 @@ body.profp-ads-show #profp{padding-bottom:96px}
 #chip-tip{position:fixed;display:none;background:rgba(18,18,28,.97);border:1px solid var(--br);border-radius:9px;padding:7px 11px;font-size:11px;color:var(--tx);width:200px;line-height:1.5;z-index:9999;pointer-events:none;box-shadow:0 4px 18px rgba(0,0,0,.5)}
 /* ALL RECS PANEL */
 #allrecsp{z-index:320;display:flex;flex-direction:column}
-.arec-row{padding:12px 20px;border-bottom:1px solid var(--br);cursor:pointer;transition:background .15s;display:flex;flex-direction:column;gap:3px}
-.arec-row:hover{background:rgba(255,255,255,.04)}
-.arec-title{font-size:13px;font-weight:600;color:var(--tx)}
-.arec-sub{font-size:11px;color:var(--td)}
 .arec-empty{padding:48px 24px;text-align:center;color:var(--td);font-size:14px}
+/* ─ allrecs table ─ */
+.arec-filters{display:flex;flex-wrap:wrap;gap:8px;padding:0 0 16px 0;align-items:flex-end}
+.arec-filter-group{display:flex;flex-direction:column;gap:4px;flex:1;min-width:120px}
+.arec-filter-group label{font-size:10px;font-weight:600;letter-spacing:.5px;text-transform:uppercase;color:var(--td)}
+.arec-filter-input{background:rgba(255,255,255,.05);border:1px solid var(--br);border-radius:8px;padding:7px 10px;color:var(--tx);font-size:12px;outline:none;transition:border .15s;width:100%;box-sizing:border-box}
+.arec-filter-input:focus{border-color:var(--or)}
+.arec-filter-input::placeholder{color:rgba(255,255,255,.25)}
+.arec-table{width:100%;border-collapse:collapse;font-size:13px}
+.arec-table th{padding:9px 12px;text-align:left;font-size:10px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:var(--td);border-bottom:1px solid rgba(255,255,255,.10);white-space:nowrap}
+.arec-table td{padding:11px 12px;border-bottom:1px solid rgba(255,255,255,.05);vertical-align:top;color:var(--tx);font-size:12.5px}
+.arec-table tr.arec-tr{cursor:pointer;transition:background .12s}
+.arec-table tr.arec-tr:hover{background:rgba(255,255,255,.04)}
+.arec-table tr.arec-tr:hover td{border-bottom-color:rgba(255,255,255,.08)}
+.arec-td-title{font-weight:600;font-size:13px}
+.arec-td-year{color:var(--td);font-variant-numeric:tabular-nums;white-space:nowrap}
+.arec-td-dir{color:var(--td)}
+.arec-tags{display:flex;flex-wrap:wrap;gap:4px}
+.arec-tag{font-size:10px;padding:2px 7px;border-radius:5px;border:1px solid rgba(255,114,40,.3);background:rgba(255,114,40,.08);color:rgba(255,180,80,.9);white-space:nowrap}
+.arec-count{font-size:11px;color:var(--td);padding-bottom:12px}
 .hist-btn{display:flex;align-items:center;gap:8px;padding:10px 16px;border-radius:11px;border:1px solid var(--br);background:var(--cb);color:var(--tx);font-size:12px;font-weight:600;cursor:pointer;width:100%;margin-top:12px;transition:all .2s}
 .hist-btn:hover{border-color:var(--bh);background:rgba(255,255,255,.06)}
 .fgrp-prem-badge span{font-size:8.5px;font-weight:800;letter-spacing:2.5px;text-transform:uppercase;color:var(--or);opacity:.65;font-family:'Inter',sans-serif;border:1px solid rgba(255,104,32,.3);border-radius:12px;padding:1px 8px;white-space:nowrap}
@@ -1200,7 +1215,7 @@ var _dbReady=new Promise(function(resolve,reject){
 const GROUPS=[
   {id:'g1',title:'🎭 Genere & Atmosfera',col:'bl',multi:true,tags:['Thriller','Horror','Dramma','Commedia','Fantascienza','Western','Animazione','Documentario','Noire','CineComic','Romantico','Comico']},
   {id:'g7',title:'📺 Piattaforma',col:'bl',multi:true,opts:['Netflix','Prime Video','Disney+','MUBI','Apple TV','Non su piattaforme']},
-  {id:'g3',title:'🔍 Temi',col:'bl',multi:true,tags:['Crimine','Mafia','Droga','Guerra','Serial Killer','Economico','Catastrofico','Vendetta','Sportivo','Legal Drama','Biografico','Colossal']},
+  {id:'g3',title:'🔍 Temi specifici',col:'bl',multi:true,tags:['Crimine','Mafia','Droga','Guerra','Serial Killer','Economico','Catastrofico','Vendetta','Sportivo','Legal Drama','Biografico','Colossal']},
   {id:'g8',title:'📅 Periodo',col:'or',multi:true,opts:["Anni '60 e prima","Anni '70","Anni '80","Anni '90","Anni 2000","Anni 2010","Anni 2020"]},
   {id:'g2',title:'✨ Qualità & Stile',col:'or',multi:true,tags:["Capolavoro","D'Autore","Oscar","Grande Interpretazione","Grande Colonna Sonora","Estetico","Imponente","Storia Avvincente","Pazzesco","Bizzarro","Musicale","Difficile"]},
   {id:'g4',title:'🧠 Mood',col:'or',multi:true,tags:['Triste','Psicologico/mentale','Angosciante','Claustrofobico','Onirico','Psichedelico','Crudo','Violenza Ironica','Personaggio Cattivo']},
@@ -1234,28 +1249,79 @@ const _allRecKey='sw3_allrecs';
 let allRecs=[]; // array of film ids, all time
 
 async function loadAllRecs(){
-  try{const r=localStorage.getItem(_allRecKey);if(r)allRecs=JSON.parse(r);}catch(e){}
+  try{
+    let r=localStorage.getItem(_allRecKey);
+    if(r){
+      const raw=JSON.parse(r);
+      // Migrazione: converte vecchi ID numerici in oggetti {id,filters:[]}
+      allRecs=raw.map(x=>typeof x==='number'?{id:x,filters:[],ts:null}:x);
+    }
+  }catch(e){}
 }
 function _saveAllRecs(){
   try{localStorage.setItem(_allRecKey,JSON.stringify(allRecs));}catch(e){}
   if(_authToken&&currentUser){_saveUserData({all_rec_ids:allRecs,updated_at:new Date().toISOString()});}
 }
-async function addAllRec(id){
-  if(!allRecs.includes(id)){allRecs.push(id);_saveAllRecs();}
+async function addAllRec(id,filters){
+  const already=allRecs.some(r=>(typeof r==='number'?r:r.id)===id);
+  if(!already){allRecs.push({id,filters:filters||[],ts:Date.now()});_saveAllRecs();}
 }
 function openAllRecs(){
   const el=document.getElementById('allrec-list');
   if(!el)return;
-  const films=allRecs.map(id=>DB.find(f=>f.id===id)).filter(Boolean).reverse();
-  if(!films.length){
-    el.innerHTML=`<div class="arec-empty">${t('allrec_empty')}</div>`;
-  } else {
-    el.innerHTML=films.map(f=>{
-      const title=LANG==='en'?(TITLE_ORIG[f.id]||f.title):f.title;
-      return`<div class="arec-row" onclick="openRecFilm(${f.id})"><div class="arec-title">${title}</div><div class="arec-sub">${f.dir} · ${f.year} · ⭐ ${f.r}</div></div>`;
-    }).join('');
-  }
   document.getElementById('allrecsp').classList.add('on');
+  _renderAllRecsTable();
+}
+function _getRecEntries(){
+  // Restituisce [{film, filters}] in ordine inverso (più recente prima)
+  return [...allRecs].reverse().map(rec=>{
+    const id=typeof rec==='number'?rec:rec.id;
+    const filters=typeof rec==='number'?[]:(rec.filters||[]);
+    const f=DB.find(x=>x.id===id);
+    return f?{f,filters}:null;
+  }).filter(Boolean);
+}
+function _renderAllRecsTable(fTitle,fYear,fDir,fTags){
+  const el=document.getElementById('allrec-list');if(!el)return;
+  const entries=_getRecEntries();
+  if(!entries.length){el.innerHTML=`<div class="arec-empty">${t('allrec_empty')}</div>`;return;}
+  const ft=(fTitle||'').toLowerCase().trim();
+  const fy=(fYear||'').toLowerCase().trim();
+  const fd=(fDir||'').toLowerCase().trim();
+  const ftg=(fTags||'').toLowerCase().trim();
+  const visible=entries.filter(({f,filters})=>{
+    const title=(LANG==='en'?(TITLE_ORIG[f.id]||f.title):f.title).toLowerCase();
+    const year=String(f.year);
+    const dir=f.dir.toLowerCase();
+    const tags=filters.join(' ').toLowerCase();
+    return(!ft||title.includes(ft))&&(!fy||year.includes(fy))&&(!fd||dir.includes(fd))&&(!ftg||tags.includes(ftg));
+  });
+  const rows=visible.map(({f,filters})=>{
+    const title=LANG==='en'?(TITLE_ORIG[f.id]||f.title):f.title;
+    const tagHtml=filters.length
+      ?filters.map(tg=>`<span class="arec-tag">${tTag(tg)}</span>`).join('')
+      :`<span style="color:var(--td);font-size:11px">—</span>`;
+    return`<tr class="arec-tr" onclick="openRecFilm(${f.id})"><td class="arec-td-title">${title}</td><td class="arec-td-year">${f.year}</td><td class="arec-td-dir">${f.dir}</td><td><div class="arec-tags">${tagHtml}</div></td></tr>`;
+  }).join('');
+  el.innerHTML=`
+    <div class="arec-filters">
+      <div class="arec-filter-group"><label>${t('allrec_col_title')}</label><input class="arec-filter-input" placeholder="${t('allrec_filter_ph')}" oninput="_arcF(this,'t')" value="${(fTitle||'').replace(/"/g,'&quot;')}"></div>
+      <div class="arec-filter-group"><label>${t('allrec_col_year')}</label><input class="arec-filter-input" placeholder="2001" oninput="_arcF(this,'y')" value="${(fYear||'').replace(/"/g,'&quot;')}"></div>
+      <div class="arec-filter-group"><label>${t('allrec_col_dir')}</label><input class="arec-filter-input" placeholder="${t('allrec_filter_ph')}" oninput="_arcF(this,'d')" value="${(fDir||'').replace(/"/g,'&quot;')}"></div>
+      <div class="arec-filter-group"><label>${t('allrec_col_tags')}</label><input class="arec-filter-input" placeholder="${t('allrec_filter_ph')}" oninput="_arcF(this,'g')" value="${(fTags||'').replace(/"/g,'&quot;')}"></div>
+    </div>
+    <div class="arec-count">${visible.length} ${t('allrec_of')} ${entries.length} ${t('allrec_films')}</div>
+    <div style="overflow-x:auto"><table class="arec-table"><thead><tr><th>${t('allrec_col_title')}</th><th>${t('allrec_col_year')}</th><th>${t('allrec_col_dir')}</th><th>${t('allrec_col_tags')}</th></tr></thead><tbody>${rows}</tbody></table></div>`;
+}
+// Stato filtri globale per il pannello allrecs
+let _arcFilters={t:'',y:'',d:'',g:''};
+function _arcF(input,key){
+  _arcFilters[key]=input.value;
+  _renderAllRecsTable(_arcFilters.t,_arcFilters.y,_arcFilters.d,_arcFilters.g);
+  // Ripristina focus sull'input dopo il re-render
+  const map={t:0,y:1,d:2,g:3};
+  const inputs=document.getElementById('allrec-list').querySelectorAll('.arec-filter-input');
+  if(inputs[map[key]]){inputs[map[key]].focus();}
 }
 function closeAllRecs(){document.getElementById('allrecsp').classList.remove('on');}
 function openRecFilm(id){
@@ -1806,7 +1872,7 @@ function showCard(res,opts={}) {
     const{f,mx}=res,sn=seenFilms.has(f.id);
     sessionShown.add(f.id);
     addTodayRec(f.id);
-    addAllRec(f.id);
+    addAllRec(f.id,Object.values(SEL).flatMap(s=>[...s]));
     const displayTitle=LANG==='en'?(TITLE_ORIG[f.id]||f.title):f.title;
     el.innerHTML=`<div class="fch"><button class="fc-x" onclick="closeCard()">✕</button><div class="fc-bdg">${t('card_badge')}</div><div class="fc-tit">${displayTitle}</div><div class="fc-dir">${LANG==='en'?'Directed by':'Regia di'} ${f.dir}</div><div class="fc-sub"><span>📅 ${f.year}</span><span>⭐ ${f.r}/10</span></div><div class="fc-rat">${stars(f.r)}</div></div><div class="fcb"><div class="fdiv"></div><div class="fcdesc">${f.desc_en&&LANG==='en'?f.desc_en:f.desc}</div><div class="fst">${t('card_cast')}</div><div class="fcppl">${f.cast.join(' · ')}</div><div class="fst">${t('card_plt')}</div><div class="mcs" style="margin-bottom:16px">${f.plt.map(p=>`<span class="mc2 b">📺 ${p}</span>`).join('')}</div>${f.tags.includes('Sequel')?`<div class="mcs" style="margin-bottom:8px"><span class="mc2" style="border-color:rgba(255,180,0,.35);background:rgba(255,180,0,.1);color:#ffd060">🔗 ${t('sequel_badge')}</span></div>`:''} ${f.tags.length?`<div class="fst">${t('card_why')}</div><div class="mcs">${f.tags.map(m=>`<span class="mc2">✓ ${tTag(m)}</span>`).join('')}</div>`:''}<div class="fcact"><button class="b1" onclick="closeCard()">${t('card_ok')}</button>${opts.hideMore?'':`<button class="b2" onclick="tryAgain()">${t('card_more')}</button>`}<button class="b3 ${sn?'marked':''}" id="snbtn" onclick="toggleSeen(${f.id},this)">${sn?t('card_marked'):t('card_mark')}</button></div></div>`;
   }
@@ -2704,7 +2770,7 @@ const T={
     search_none:'Nessun film trovato.',
     search_results:'risultati',mark_all_seen:'✓ Segna tutti come visti',today_btn:'🎬 Film consigliati oggi',mark_all_unseen:'✕ Deseleziona tutti',
     seen_count:' film già visti da te',
-    prof_h2:'Il tuo profilo',allrec_btn:'Tutti i film consigliati',allrec_h2:'Tutti i film consigliati',allrec_p:'Ogni film che Swainz ti ha consigliato',allrec_empty:'Nessun film ancora consigliato.',prof_p:'Informazioni personali — non influenzano i consigli di Swainz',
+    prof_h2:'Il tuo profilo',allrec_btn:'Tutti i film consigliati',allrec_h2:'Tutti i film consigliati',allrec_p:'Ogni film che Swainz ti ha consigliato',allrec_empty:'Nessun film ancora consigliato.',allrec_col_title:'Titolo',allrec_col_year:'Anno',allrec_col_dir:'Regista',allrec_col_tags:'Filtri attivi',allrec_filter_ph:'Cerca...',allrec_of:'di',allrec_films:'film consigliati',prof_p:'Informazioni personali — non influenzano i consigli di Swainz',
     prof_nome:'Nome',prof_cog:'Cognome',prof_data:'Data di nascita',
     prof_film:'Film preferito',prof_reg:'Regista preferito',prof_att:'Attore preferito',
     prof_nome_ph:'Es. Marco',prof_cog_ph:'Es. Rossi',prof_film_ph:'Es. Il Padrino',
@@ -2712,14 +2778,14 @@ const T={
     save:'Salva profilo',saved:'✓ Salvato!',
     plan_label:'Piano attuale',plan_sub:'Clicca per simulare Premium (demo)',
     fcp_h2:'Fatti conoscere da Swainz',fcp_p:'Le tue risposte guidano i consigli — modificabili in qualsiasi momento',
-    fck_save:'Salva preferenze',fck_saved:'✓ Preferenze salvate!',fck_free_teaser_title:'Prova Premium',fck_free_teaser_sub:'Per farti conoscere al meglio da Swainz, sblocca le domande personalizzate complete.',
+    fck_save:'Salva preferenze',fck_saved:'✓ Preferenze salvate!',fck_free_teaser_title:'Passa a Premium!',fck_free_teaser_sub:'Per farti conoscere al meglio da Swainz, sblocca tutte le ulteriori domande personalizzate.',
     prem_lock_title:'Funzione Premium',prem_lock_sub:'Attivalo dal profilo 👤',prem_lock_back:'← Torna',
     card_badge:'✦ SWAINZ CONSIGLIA',sequel_badge:'Sequel',card_cast:'Cast',card_plt:'Disponibile su',reset_filters:'Reset Filtri',news_hdr:'🎬 Notizie del giorno',news_load:'Caricamento...',news_err:'Notizie non disponibili',optin_title:'Nessun risultato trovato',nofilm_title:'Nessun film disponibile',nofilm_sub:'Hai esplorato tutti i film compatibili con i tuoi criteri. I filtri verranno azzerati.',optin_sub:'I film compatibili appartengono anche ad altre categorie. Vuoi includerne una?',afp_active:'Filtri attivi',afp_excl:'Esclusi',afp_none:'Nessun filtro',card_why:'Caratteristiche',
     card_ok:'🎬 Perfetto, grazie!',card_more:'↺ Altro',card_mark:'👁 Segna visto',card_marked:'✓ Già visto',
     card_none:'Nessun film trovato',card_none_sub:'Prova ad allargare i filtri!',card_edit:'Modifica filtri',
     ac_films:'Film',ac_people:'Persone',
     mbu:'Mrrrow! 🎬',
-    g1:'🎭 Genere & Atmosfera',g2:'✨ Qualità & Stile',g3:'🔍 Temi',g4:'🧠 Mood',g5:'🌍 Contesto',g6:'⏱ Durata',g7:'📺 Piattaforma',g8:'📅 Periodo',
+    g1:'🎭 Genere & Atmosfera',g2:'✨ Qualità & Stile',g3:'🔍 Temi specifici',g4:'🧠 Mood',g5:'🌍 Contesto',g6:'⏱ Durata',g7:'📺 Piattaforma',g8:'📅 Periodo',
     fck_q1:'Come ti rapporti con i film del passato?',
     fck_q1_a:'Solo film recenti (dal 2000)',fck_q1_b:"Apprezzo anche gli anni '80 e '90",fck_q1_c:'Amo tutti i film, classici compresi',
     fck_q2:'Quanto tempo hai?',
@@ -2771,7 +2837,7 @@ const T={
     search_none:'No films found.',
     search_results:'results',mark_all_seen:'✓ Mark all as watched',today_btn:'🎬 Films recommended today',mark_all_unseen:'✕ Unmark all',
     seen_count:' films watched by you',
-    prof_h2:'Your profile',allrec_btn:'All recommended films',allrec_h2:'All recommended films',allrec_p:'Every film Swainz has ever suggested to you',allrec_empty:'No films recommended yet.',prof_p:'Personal info — does not affect Swainz recommendations',
+    prof_h2:'Your profile',allrec_btn:'All recommended films',allrec_h2:'All recommended films',allrec_p:'Every film Swainz has ever suggested to you',allrec_empty:'No films recommended yet.',allrec_col_title:'Title',allrec_col_year:'Year',allrec_col_dir:'Director',allrec_col_tags:'Active filters',allrec_filter_ph:'Search...',allrec_of:'of',allrec_films:'recommended films',prof_p:'Personal info — does not affect Swainz recommendations',
     prof_nome:'First name',prof_cog:'Last name',prof_data:'Date of birth',
     prof_film:'Favourite film',prof_reg:'Favourite director',prof_att:'Favourite actor',
     prof_nome_ph:'E.g. John',prof_cog_ph:'E.g. Smith',prof_film_ph:'E.g. The Godfather',
@@ -2786,7 +2852,7 @@ const T={
     card_none:'No film found',card_none_sub:'Try broadening your filters!',card_edit:'Edit filters',
     ac_films:'Films',ac_people:'People',
     mbu:'Purrr! 🎬',
-    g1:'🎭 Genre & Mood',g2:'✨ Quality & Style',g3:'🔍 Themes',g4:'🧠 Mood',g5:'🌍 Context',g6:'⏱ Length',g7:'📺 Platform',g8:'📅 Period',
+    g1:'🎭 Genre & Mood',g2:'✨ Quality & Style',g3:'🔍 Specific Themes',g4:'🧠 Mood',g5:'🌍 Context',g6:'⏱ Length',g7:'📺 Platform',g8:'📅 Period',
     fck_q1:'How do you feel about older films?',
     fck_q1_a:'Recent films only (from 2000)',fck_q1_b:"I also enjoy the '80s and '90s",fck_q1_c:'I love all films, classics included',
     fck_q2:'How much time do you have?',
