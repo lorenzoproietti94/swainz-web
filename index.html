@@ -2712,7 +2712,7 @@ const T={
     save:'Salva profilo',saved:'✓ Salvato!',
     plan_label:'Piano attuale',plan_sub:'Clicca per simulare Premium (demo)',
     fcp_h2:'Fatti conoscere da Swainz',fcp_p:'Le tue risposte guidano i consigli — modificabili in qualsiasi momento',
-    fck_save:'Salva preferenze',fck_saved:'✓ Preferenze salvate!',
+    fck_save:'Salva preferenze',fck_saved:'✓ Preferenze salvate!',fck_free_teaser_title:'Prova Premium',fck_free_teaser_sub:'Per farti conoscere al meglio da Swainz, sblocca le domande personalizzate complete.',
     prem_lock_title:'Funzione Premium',prem_lock_sub:'Attivalo dal profilo 👤',prem_lock_back:'← Torna',
     card_badge:'✦ SWAINZ CONSIGLIA',sequel_badge:'Sequel',card_cast:'Cast',card_plt:'Disponibile su',reset_filters:'Reset Filtri',news_hdr:'🎬 Notizie del giorno',news_load:'Caricamento...',news_err:'Notizie non disponibili',optin_title:'Nessun risultato trovato',nofilm_title:'Nessun film disponibile',nofilm_sub:'Hai esplorato tutti i film compatibili con i tuoi criteri. I filtri verranno azzerati.',optin_sub:'I film compatibili appartengono anche ad altre categorie. Vuoi includerne una?',afp_active:'Filtri attivi',afp_excl:'Esclusi',afp_none:'Nessun filtro',card_why:'Caratteristiche',
     card_ok:'🎬 Perfetto, grazie!',card_more:'↺ Altro',card_mark:'👁 Segna visto',card_marked:'✓ Già visto',
@@ -2779,7 +2779,7 @@ const T={
     save:'Save profile',saved:'✓ Saved!',
     plan_label:'Current plan',plan_sub:'Click to simulate Premium (demo)',
     fcp_h2:'Let Swainz know you',fcp_p:'Your answers guide the recommendations — editable anytime',
-    fck_save:'Save preferences',fck_saved:'✓ Preferences saved!',
+    fck_save:'Save preferences',fck_saved:'✓ Preferences saved!',fck_free_teaser_title:'Try Premium',fck_free_teaser_sub:'Let Swainz get to know you better — unlock the full personalised questionnaire.',
     prem_lock_title:'Premium feature',prem_lock_sub:'Activate it from profile 👤',prem_lock_back:'← Back',
     card_badge:'✦ SWAINZ RECOMMENDS',sequel_badge:'Sequel',card_cast:'Cast',card_plt:'Available on',reset_filters:'Reset filters',news_hdr:'🎬 News of the day',news_load:'Loading...',news_err:'News not available',optin_title:'No results found',nofilm_title:'No films available',nofilm_sub:'You have explored all films matching your criteria. Filters will be reset.',optin_sub:'Films matching your criteria also belong to other categories. Would you like to include one?',afp_active:'Active filters',afp_excl:'Excluded',afp_none:'No filters',card_why:'Characteristics',
     card_ok:'🎬 Perfect, thanks!',card_more:'↺ Another',card_mark:'👁 Mark watched',card_marked:'✓ Watched',
@@ -2968,7 +2968,7 @@ function setLang(l){
   // rebuild filter groups with translated titles
   buildUI();
   // re-render fck if open
-  if(document.getElementById('fcp').classList.contains('on'))renderFcp();
+  if(document.getElementById('fcp').classList.contains('on')){if(isPremium)renderFcp();else renderFcpFree();}
   renderTodayList();
   if(isPremium){renderNews(LANG);loadNews(LANG);}
 }
