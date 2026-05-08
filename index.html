@@ -38,11 +38,20 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
 .hdr-r{display:flex;align-items:center;gap:9px}
 .bdg{display:flex;align-items:center;gap:6px;padding:5px 13px;background:var(--cb);border:1px solid var(--br);border-radius:20px;font-size:12px;color:var(--td);white-space:nowrap}
 .bdg-n{color:var(--or);font-weight:700;font-size:15px}
-.hdr-btns{display:flex;flex-direction:column;gap:5px;align-items:flex-end}
-.vbtn{padding:7px 14px;border-radius:10px;border:1px solid var(--bro);background:var(--coa);color:var(--or);font-size:12px;font-weight:600;cursor:pointer;transition:all .2s;white-space:nowrap}
-.vbtn:hover{border-color:var(--boh);box-shadow:0 0 12px var(--gor)}
-.vbtn.bl{border-color:rgba(37,99,255,.22);background:rgba(37,99,255,.07);color:var(--bl)}
-.vbtn.bl:hover{border-color:var(--bh);box-shadow:0 0 12px var(--gbl)}
+/* ── Nav dropdown ── */
+.nav-drop-wrap{position:relative}
+.nav-drop-btn{display:flex;align-items:center;gap:7px;padding:7px 14px;border-radius:10px;border:1px solid var(--bro);background:var(--coa);color:var(--or);font-size:12px;font-weight:600;cursor:pointer;transition:all .2s;white-space:nowrap;letter-spacing:.3px}
+.nav-drop-btn:hover,.nav-drop-btn.open{border-color:var(--boh);box-shadow:0 0 12px var(--gor);background:rgba(255,114,40,.1)}
+.nav-drop-btn svg{transition:transform .22s}
+.nav-drop-btn.open svg{transform:rotate(180deg)}
+.nav-drop-menu{display:none;position:absolute;top:calc(100% + 8px);right:0;min-width:230px;background:rgba(10,10,20,.97);border:1px solid rgba(255,114,40,.22);border-radius:12px;overflow:hidden;z-index:200;box-shadow:0 12px 40px rgba(0,0,0,.7),0 0 20px rgba(255,114,40,.06)}
+.nav-drop-menu.open{display:block;animation:ndrop-in .18s ease}
+@keyframes ndrop-in{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
+.nav-drop-item{display:flex;align-items:center;gap:10px;width:100%;padding:13px 18px;background:none;border:none;color:var(--tx);font-size:13px;font-weight:500;cursor:pointer;transition:background .15s,color .15s;text-align:left;font-family:inherit;border-bottom:1px solid rgba(255,255,255,.04)}
+.nav-drop-item:last-child{border-bottom:none}
+.nav-drop-item:hover{background:rgba(255,114,40,.1);color:var(--or)}
+.nav-drop-item .nd-icon{font-size:16px;flex-shrink:0}
+.nav-drop-item .nd-star{font-size:9px;color:var(--or);margin-left:auto;opacity:.8}
 .icon-btn{width:32px;height:32px;border-radius:50%;border:1px solid var(--br);background:var(--cb);color:var(--tx);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s}
 .icon-btn:hover{border-color:var(--bh);background:rgba(255,255,255,.08)}
 .lang-btn{display:flex;align-items:center;gap:4px;padding:4px 9px;border-radius:20px;border:1px solid var(--br);background:var(--cb);cursor:pointer;transition:all .2s;font-size:15px}
@@ -673,9 +682,22 @@ body.cat-revealing #today-wrap-mob{visibility:hidden!important;pointer-events:no
     <div class="logo-sm">SWAINZ</div>
     <div class="hdr-r">
       <div class="bdg" id="bdg" style="display:none"><span data-i18n="bdg_label">Consigli rimasti</span>&nbsp;<span class="bdg-n" id="cnt">3</span></div>
-      <div class="hdr-btns">
-        <button class="vbtn" onclick="openVisti()" data-i18n="btn_visti">👁&nbsp;Segna i film già visti</button>
-        <button class="vbtn bl" onclick="openFcp()" id="btnFcp">🐱&nbsp;<span data-i18n="btn_fcp">Fatti conoscere da Swainz</span>&nbsp;<span style="font-size:9px;color:var(--or)">★</span></button>
+      <div class="nav-drop-wrap" id="navDropWrap">
+        <button class="nav-drop-btn" id="navDropBtn" onclick="toggleNavDrop()" aria-haspopup="true" aria-expanded="false">
+          <span id="navDropLabel">Menu</span>
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div class="nav-drop-menu" id="navDropMenu" role="menu">
+          <button class="nav-drop-item" onclick="openVisti();closeNavDrop()" data-i18n-nd="btn_visti_nd" role="menuitem">
+            <span class="nd-icon">👁</span>
+            <span data-i18n="btn_visti_nd">Segna i film già visti</span>
+          </button>
+          <button class="nav-drop-item" onclick="openFcp();closeNavDrop()" id="btnFcp" role="menuitem">
+            <span class="nd-icon">🐱</span>
+            <span data-i18n="btn_fcp">Fatti conoscere da Swainz</span>
+            <span class="nd-star">★</span>
+          </button>
+        </div>
       </div>
       <button class="icon-btn" onclick="openProfp()" id="profBtn">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
@@ -1486,6 +1508,30 @@ const TAG_EN={"Difficile":"Difficult","Facile":"Easy","Normale":"Normal",
 function tTag(tag){return LANG==='en'?(TAG_EN[tag]||tag):tag;}
 
 // ── BUILD UI ────────────────────────────────────────────────────────────
+// ── NAV DROPDOWN ──────────────────────────────────────────────────────────
+function toggleNavDrop(){
+  var btn=document.getElementById('navDropBtn');
+  var menu=document.getElementById('navDropMenu');
+  if(!btn||!menu)return;
+  var isOpen=menu.classList.contains('open');
+  if(isOpen){closeNavDrop();}else{
+    btn.classList.add('open');
+    menu.classList.add('open');
+    btn.setAttribute('aria-expanded','true');
+  }
+}
+function closeNavDrop(){
+  var btn=document.getElementById('navDropBtn');
+  var menu=document.getElementById('navDropMenu');
+  if(btn){btn.classList.remove('open');btn.setAttribute('aria-expanded','false');}
+  if(menu)menu.classList.remove('open');
+}
+// Close on outside click
+document.addEventListener('click',function(e){
+  var wrap=document.getElementById('navDropWrap');
+  if(wrap&&!wrap.contains(e.target))closeNavDrop();
+},{passive:true});
+
 function updatePanel(){
   const panel=document.getElementById('afp');
   const selEl=document.getElementById('afp-sel');
@@ -2566,7 +2612,7 @@ const T={
     login_apple:'Continua con Apple',lb_import_btn:'Importa da Letterboxd',logout_btn:'Esci dall\'account',login_enter:'Accedi',login_register:'Registrati',login_pwd_ph:'Password',login_guest:'Entra come ospite',
     login_sub:'3 consigli gratuiti al giorno · Nessuna carta richiesta',
     bdg_label:'Consigli rimasti',
-    btn_visti:'👁\u00a0Segna i film già visti',
+    btn_visti:'👁\u00a0Segna i film già visti',btn_visti_nd:'Segna i film già visti',
     btn_fcp:'Fatti conoscere da Swainz',
     main_h2:'Cosa vuoi vedere stasera?',
     main_p:'Seleziona le caratteristiche che desideri e Swainz farà il resto',
@@ -2633,7 +2679,7 @@ const T={
     login_apple:'Continue with Apple',lb_import_btn:'Import from Letterboxd',logout_btn:'Sign out',login_enter:'Sign in',login_register:'Register',login_pwd_ph:'Password',login_guest:'Enter as guest',
     login_sub:'3 free recommendations a day · No card required',
     bdg_label:'Suggestions left',
-    btn_visti:'👁\u00a0Mark watched films',
+    btn_visti:'👁\u00a0Mark watched films',btn_visti_nd:'Mark watched films',
     btn_fcp:'Let Swainz know you',
     main_h2:'What do you want to watch tonight?',
     main_p:'Select the features you want and Swainz will do the rest',
@@ -3294,7 +3340,12 @@ function updatePoolCount(){
     // AND logic: every selected tag must be in film (NO OPT_IN exclusion for count)
     for(var gid in SEL){
       var sel=SEL[gid];
-      if(sel.size>0&&![...sel].every(function(t){return f.tags.includes(t);}))return false;
+      if(sel.size===0)continue;
+      // g7 = piattaforma: OR logic on f.plt
+      if(gid==='g7'){if(!f.plt||!f.plt.some(function(p){return sel.has(p);}))return false;continue;}
+      // g8 = periodo: OR logic on f.year via PERIOD_MAP
+      if(gid==='g8'){if(![...sel].some(function(p){return PERIOD_MAP[p]&&PERIOD_MAP[p](f.year);}))return false;continue;}
+      if(![...sel].every(function(t){return f.tags.includes(t);}))return false;
     }
     if(minR&&f.r<minR)return false;
     return true;
