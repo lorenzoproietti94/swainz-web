@@ -40,11 +40,12 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
 .bdg-n{color:var(--or);font-weight:700;font-size:15px}
 /* ── Nav dropdown ── */
 .nav-drop-wrap{position:relative}
-.nav-drop-btn{display:flex;align-items:center;gap:7px;padding:7px 14px;border-radius:10px;border:1px solid var(--bro);background:var(--coa);color:var(--or);font-size:12px;font-weight:600;cursor:pointer;transition:all .2s;white-space:nowrap;letter-spacing:.3px}
-.nav-drop-btn:hover,.nav-drop-btn.open{border-color:var(--boh);box-shadow:0 0 12px var(--gor);background:rgba(255,114,40,.1)}
-.nav-drop-btn svg{transition:transform .22s}
-.nav-drop-btn.open svg{transform:rotate(180deg)}
-.nav-drop-menu{display:none;position:absolute;top:calc(100% + 8px);right:0;min-width:230px;background:rgba(10,10,20,.97);border:1px solid rgba(255,114,40,.22);border-radius:12px;overflow:hidden;z-index:200;box-shadow:0 12px 40px rgba(0,0,0,.7),0 0 20px rgba(255,114,40,.06)}
+.nav-drop-btn{display:flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:8px;border:1px solid rgba(255,255,255,.13);background:rgba(255,255,255,.06);color:rgba(255,255,255,.75);cursor:pointer;transition:all .2s;padding:0}
+.nav-drop-btn:hover{background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.25);color:#fff}
+.nav-drop-btn.open{background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.25);color:#fff}
+.nav-drop-btn .hbr-line{display:block;width:16px;height:1.8px;background:currentColor;border-radius:2px;transition:all .22s}
+.nav-drop-btn .hbr-wrap{display:flex;flex-direction:column;gap:4px}
+.nav-drop-menu{display:none;position:absolute;top:calc(100% + 8px);right:0;min-width:230px;background:rgba(12,12,22,.97);border:1px solid rgba(255,255,255,.10);border-radius:12px;overflow:hidden;z-index:200;box-shadow:0 12px 40px rgba(0,0,0,.75)}
 .nav-drop-menu.open{display:block;animation:ndrop-in .18s ease}
 @keyframes ndrop-in{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
 .nav-drop-item{display:flex;align-items:center;gap:10px;width:100%;padding:13px 18px;background:none;border:none;color:var(--tx);font-size:13px;font-weight:500;cursor:pointer;transition:background .15s,color .15s;text-align:left;font-family:inherit;border-bottom:1px solid rgba(255,255,255,.04)}
@@ -683,9 +684,12 @@ body.cat-revealing #today-wrap-mob{visibility:hidden!important;pointer-events:no
     <div class="hdr-r">
       <div class="bdg" id="bdg" style="display:none"><span data-i18n="bdg_label">Consigli rimasti</span>&nbsp;<span class="bdg-n" id="cnt">3</span></div>
       <div class="nav-drop-wrap" id="navDropWrap">
-        <button class="nav-drop-btn" id="navDropBtn" onclick="toggleNavDrop()" aria-haspopup="true" aria-expanded="false">
-          <span id="navDropLabel">Menu</span>
-          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+        <button class="nav-drop-btn" id="navDropBtn" onclick="toggleNavDrop()" aria-haspopup="true" aria-expanded="false" title="Menu">
+          <span class="hbr-wrap" aria-hidden="true">
+            <span class="hbr-line"></span>
+            <span class="hbr-line"></span>
+            <span class="hbr-line"></span>
+          </span>
         </button>
         <div class="nav-drop-menu" id="navDropMenu" role="menu">
           <button class="nav-drop-item" onclick="openVisti();closeNavDrop()" data-i18n-nd="btn_visti_nd" role="menuitem">
