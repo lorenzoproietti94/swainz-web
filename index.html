@@ -3024,7 +3024,7 @@ function setLang(l){
     _dbReady.then(function(){
       // Ensure user_data row exists (creates it if this is a legacy account)
       _saveUserData({ email: currentUser ? currentUser.email : '', updated_at: new Date().toISOString() });
-      _loadUserData(function(d){_applyUserData(d);_autoPushLocalProfile(d);buildUI();if(_shouldShowOnboarding(d)){showOnboarding();}else{login();}});
+      _loadUserData(function(d){_applyUserData(d);_autoPushLocalProfile(d);buildUI();try{if(typeof _shouldShowOnboarding==="function"&&_shouldShowOnboarding(d)){showOnboarding();return;}}catch(e){console.error("Onboarding error:",e);}login();});
     });
   });
 })();
@@ -3237,7 +3237,7 @@ function doLogin() {
     // Ensure user_data row exists (upsert with empty patch = create if missing)
     var email = res.user ? res.user.email : (currentUser ? currentUser.email : '');
     _saveUserData({ email: email, updated_at: new Date().toISOString() });
-    _loadUserData(function(d){ _applyUserData(d); _autoPushLocalProfile(d); if(_shouldShowOnboarding(d)){showOnboarding();}else{login();} });
+    _loadUserData(function(d){ _applyUserData(d); _autoPushLocalProfile(d); try{if(typeof _shouldShowOnboarding==="function"&&_shouldShowOnboarding(d)){showOnboarding();return;}}catch(e){console.error("Onboarding error:",e);}login(); });
   });
 }
 
@@ -3424,7 +3424,7 @@ function _handleOAuthCallback() {
       _saveSession(session);
       _saveUserData({ email: user.email || '', updated_at: new Date().toISOString() });
       _dbReady.then(function() {
-        _loadUserData(function(d) { _applyUserData(d); _autoPushLocalProfile(d); if(_shouldShowOnboarding(d)){showOnboarding();}else{login();} });
+        _loadUserData(function(d) { _applyUserData(d); _autoPushLocalProfile(d); try{if(typeof _shouldShowOnboarding==="function"&&_shouldShowOnboarding(d)){showOnboarding();return;}}catch(e){console.error("Onboarding error:",e);}login(); });
       });
     } else {
       // Token invalid — show login screen normally
@@ -3652,9 +3652,11 @@ function _shouldShowOnboarding(d){
   return true;
 }
 function showOnboarding(){
+  var ov=document.getElementById('onboarding');
+  if(!ov){login();return;}  // overlay missing → fallback to login
   _onbActive=true;
   _onbGoTo('a');
-  document.getElementById('onboarding').style.display='flex';
+  ov.style.display='flex';
 }
 function _onbGoTo(step){
   ['a','b','c'].forEach(function(s){var el=document.getElementById('onb-'+s);if(el)el.style.display='none';});
