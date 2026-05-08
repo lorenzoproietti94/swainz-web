@@ -1,26 +1,18 @@
 /**
- * Swainz – Daily DB Update  (con batch rotation)
+ * Swainz – Daily DB Update  (con batch rotation + matching migliorato)
  *
- * PROBLEMA: OMDB free = 1000 req/giorno → con 4-5k film non basta fare tutto in un giorno.
- * SOLUZIONE: ogni giorno si aggiorna un batch di ~950 film (margine di sicurezza).
- *            La rotazione è deterministica sul giorno: nessuno stato esterno da salvare.
+ * MATCHING STRATEGY:
+ *  1. Cerca su TMDB per titolo + anno esatto
+ *  2. Verifica che il risultato abbia anno ≤ ±1 dal nostro
+ *  3. Verifica similarità titolo ≥ 0.6 (evita false corrispondenze su titoli brevi/comuni)
+ *  4. Se la confidenza è bassa → salta piattaforme (meglio non aggiornare che sbagliare)
+ *  5. Logga i match incerti per revisione manuale
  *
- *  Esempio con 5000 film / BATCH_SIZE=950:
- *    numBatches = ceil(5000 / 950) = 6
- *    Ogni giorno un batch diverso → ciclo completo in 6 giorni
+ * OMDB (Voto IMDB): cerca per imdb_id se disponibile, altrimenti titolo+anno.
  *
- * TMDB (piattaforme) non ha limiti significativi → si aggiorna insieme al batch OMDB.
- *
- * Fonti:
- *  - TMDB API  → watch/providers Italia + imdb_id
- *  - OMDB API  → Voto IMDB reale (via imdb_id)
- *
- * Variabili d'ambiente:
- *  SUPABASE_URL          https://xxxx.supabase.co
- *  SUPABASE_SERVICE_KEY  service_role key (scrittura DB)
- *  OMDB_API_KEY          omdbapi.com – free: 1000 req/giorno
- *  TMDB_API_KEY          themoviedb.org – free, nessun limite significativo
- *  BATCH_SIZE            (opzionale, default 950)
+ * BATCH ROTATION:
+ *  BATCH_SIZE film/giorno (default 950, entro il limite OMDB free 1000/day)
+ *  Rotazione deterministica sul giorno → ciclo completo ogni ceil(tot/950) giorni
  */
 
 'use strict';
@@ -31,13 +23,13 @@ const OMDB_KEY   = process.env.OMDB_API_KEY;
 const TMDB_KEY   = process.env.TMDB_API_KEY;
 const BATCH_SIZE = parseInt(process.env.BATCH_SIZE || '950', 10);
 
-// Provider TMDB → nome piattaforma nel DB (Italia)
+// Provider TMDB flatrate → nome piattaforma nel DB (catalogo Italia)
 const PROVIDER_MAP = {
-  8:   'Netflix',
-  119: 'Prime Video',
-  337: 'Disney+',
-  11:  'MUBI',
-  350: 'Apple TV',
+  8:   'Netflix',        // Netflix IT
+  119: 'Prime Video',   // Amazon Prime Video IT
+  337: 'Disney+',       // Disney Plus IT
+  11:  'MUBI',          // MUBI IT
+  350: 'Apple TV',      // Apple TV+ IT
 };
 
 // ─── helpers ───────────────────────────────────────────────────────────────
@@ -57,22 +49,45 @@ async function safeJSON(url, retries = 2) {
   }
 }
 
-// ─── Supabase helpers ──────────────────────────────────────────────────────
+/**
+ * Similarità tra due stringhe (Dice coefficient sui bigrammi).
+ * Restituisce un valore tra 0 (nessuna somiglianza) e 1 (identici).
+ * Usato per validare che il film trovato su TMDB sia effettivamente il nostro.
+ */
+function stringSimilarity(a, b) {
+  const norm = s => s.toLowerCase().replace(/[^a-z0-9\s]/g, '').trim();
+  a = norm(a); b = norm(b);
+  if (a === b) return 1;
+  if (a.length < 2 || b.length < 2) return 0;
+  const bigrams = s => {
+    const bg = new Map();
+    for (let i = 0; i < s.length - 1; i++) {
+      const bg2 = s.slice(i, i + 2);
+      bg.set(bg2, (bg.get(bg2) || 0) + 1);
+    }
+    return bg;
+  };
+  const bgA = bigrams(a), bgB = bigrams(b);
+  let intersection = 0;
+  bgA.forEach((count, key) => { if (bgB.has(key)) intersection += Math.min(count, bgB.get(key)); });
+  return (2 * intersection) / (a.length - 1 + b.length - 1);
+}
+
+// ─── Supabase ──────────────────────────────────────────────────────────────
 
 async function getAllFilms() {
   const all = [];
   let offset = 0;
-  const step  = 500;
   while (true) {
     const res = await fetch(
-      `${SUPA_URL}/rest/v1/Movies?select=ID,Titolo,Anno,Piattaforme,"Voto IMDB"&order=ID&limit=${step}&offset=${offset}`,
+      `${SUPA_URL}/rest/v1/Movies?select=ID,Titolo,Anno,Piattaforme,"Voto IMDB"&order=ID&limit=500&offset=${offset}`,
       { headers: { apikey: SUPA_KEY, Authorization: `Bearer ${SUPA_KEY}` } }
     );
     const data = await res.json();
     if (!Array.isArray(data) || data.length === 0) break;
     all.push(...data);
-    if (data.length < step) break;
-    offset += step;
+    if (data.length < 500) break;
+    offset += 500;
   }
   return all;
 }
@@ -88,37 +103,74 @@ async function patchFilm(id, patch) {
     },
     body: JSON.stringify(patch),
   });
-  if (!res.ok) {
-    const txt = await res.text();
-    throw new Error(`Supabase PATCH failed (${res.status}): ${txt}`);
-  }
+  if (!res.ok) throw new Error(`Supabase PATCH ${res.status}: ${await res.text()}`);
 }
 
-// ─── TMDB helpers ──────────────────────────────────────────────────────────
+// ─── TMDB ──────────────────────────────────────────────────────────────────
 
+/**
+ * Cerca il film su TMDB con validazione robusta.
+ * Restituisce { tmdbId, imdbId, confidence, matchTitle } oppure null.
+ * confidence = 'high' | 'low' | 'skip'
+ */
 async function searchTMDB(title, year) {
-  // 1) con anno
-  let url = `https://api.themoviedb.org/3/search/movie?api_key=${TMDB_KEY}&query=${encodeURIComponent(title)}&year=${year}&language=it-IT`;
-  let data = await safeJSON(url);
-  let result = data.results?.[0];
+  const YEAR_TOLERANCE = 1;       // anno ± 1 anno
+  const SIM_THRESHOLD  = 0.50;    // similarità titolo minima accettata
+  const SIM_HIGH       = 0.75;    // soglia per confidenza "high"
 
-  // 2) senza anno (fallback)
-  if (!result) {
-    data = await safeJSON(
-      `https://api.themoviedb.org/3/search/movie?api_key=${TMDB_KEY}&query=${encodeURIComponent(title)}`
-    );
-    result = (data.results || []).find(r => Math.abs((r.release_date?.slice(0,4)|0) - year) <= 2)
-          || data.results?.[0];
+  const trySearch = async (q, y) => {
+    const url = `https://api.themoviedb.org/3/search/movie?api_key=${TMDB_KEY}&query=${encodeURIComponent(q)}${y ? `&year=${y}` : ''}&language=it-IT`;
+    const data = await safeJSON(url);
+    return data.results || [];
+  };
+
+  // Raccoglie candidati: prima con anno, poi senza anno come fallback
+  let candidates = await trySearch(title, year);
+  if (candidates.length === 0) {
+    await sleep(80);
+    candidates = await trySearch(title, null);
   }
-  if (!result) return null;
 
-  // external_ids per avere imdb_id
+  // Filtra per anno (± YEAR_TOLERANCE)
+  const byYear = candidates.filter(r => {
+    const ry = parseInt(r.release_date?.slice(0, 4) || '0', 10);
+    return Math.abs(ry - year) <= YEAR_TOLERANCE;
+  });
+
+  // Lavora con i candidati filtrati per anno se esistono, altrimenti con tutti
+  const pool = byYear.length > 0 ? byYear : candidates;
+  if (pool.length === 0) return null;
+
+  // Trova il candidato con la maggiore similarità di titolo
+  let best = null, bestSim = -1;
+  for (const r of pool) {
+    // Confronta con titolo italiano, titolo originale e titolo TMDB
+    const sims = [r.title, r.original_title, r.name].filter(Boolean)
+      .map(t => stringSimilarity(title, t));
+    const sim = Math.max(...sims);
+    if (sim > bestSim) { bestSim = sim; best = r; }
+  }
+
+  // Rifiuta match troppo incerti
+  if (bestSim < SIM_THRESHOLD) {
+    return { tmdbId: null, imdbId: null, confidence: 'skip',
+      matchTitle: best?.title, matchSim: bestSim.toFixed(2) };
+  }
+
+  const confidence = bestSim >= SIM_HIGH ? 'high' : 'low';
+
   await sleep(80);
   const ext = await safeJSON(
-    `https://api.themoviedb.org/3/movie/${result.id}/external_ids?api_key=${TMDB_KEY}`
+    `https://api.themoviedb.org/3/movie/${best.id}/external_ids?api_key=${TMDB_KEY}`
   ).catch(() => ({}));
 
-  return { tmdbId: result.id, imdbId: ext.imdb_id || null };
+  return {
+    tmdbId: best.id,
+    imdbId: ext.imdb_id || null,
+    confidence,
+    matchTitle: best.title,
+    matchSim: bestSim.toFixed(2),
+  };
 }
 
 async function getPlatformsIT(tmdbId) {
@@ -131,7 +183,7 @@ async function getPlatformsIT(tmdbId) {
     .map(p => PROVIDER_MAP[p.provider_id]);
 }
 
-// ─── OMDB helper ──────────────────────────────────────────────────────────
+// ─── OMDB ──────────────────────────────────────────────────────────────────
 
 async function getIMDBRating(title, year, imdbId) {
   const url = imdbId
@@ -144,38 +196,22 @@ async function getIMDBRating(title, year, imdbId) {
   return null;
 }
 
-// ─── Selezione batch giornaliero ──────────────────────────────────────────
+// ─── Batch selection ───────────────────────────────────────────────────────
 
-/**
- * Restituisce il sottoinsieme di film da elaborare oggi.
- *
- * Algoritmo:
- *   dayIndex  = giorni trascorsi dall'epoch Unix (deterministico, stesso per tutte le run dello stesso giorno)
- *   numBatches = ceil(totalFilms / BATCH_SIZE)
- *   batchIndex = dayIndex % numBatches          ← quale batch tocca oggi
- *   batch      = films[ batchIndex*size .. (batchIndex+1)*size ]
- *
- * Proprietà:
- *   - Nessuno stato da salvare (basato solo sulla data)
- *   - Si scala automaticamente all'aumentare dei film nel DB
- *   - Si aggiusta da solo se qualche giorno il job non gira
- */
 function selectTodaysBatch(films) {
-  const numBatches  = Math.ceil(films.length / BATCH_SIZE);
-  const dayIndex    = Math.floor(Date.now() / 86400000);   // giorni da epoch
-  const batchIndex  = dayIndex % numBatches;
-  const start       = batchIndex * BATCH_SIZE;
-  const end         = Math.min(start + BATCH_SIZE, films.length);
-  const batch       = films.slice(start, end);
-
-  return { batch, batchIndex, numBatches, start, end };
+  const numBatches = Math.ceil(films.length / BATCH_SIZE);
+  const dayIndex   = Math.floor(Date.now() / 86400000);
+  const batchIndex = dayIndex % numBatches;
+  const start      = batchIndex * BATCH_SIZE;
+  const end        = Math.min(start + BATCH_SIZE, films.length);
+  return { batch: films.slice(start, end), batchIndex, numBatches, start, end };
 }
 
 // ─── main ─────────────────────────────────────────────────────────────────
 
 async function main() {
   console.log('╔══════════════════════════════════════════╗');
-  console.log('║   Swainz – Daily DB Update (batch)       ║');
+  console.log('║   Swainz – Daily DB Update               ║');
   console.log('╚══════════════════════════════════════════╝');
   console.log(`Started:    ${new Date().toISOString()}`);
   console.log(`Batch size: ${BATCH_SIZE} film/giorno\n`);
@@ -185,38 +221,43 @@ async function main() {
     process.exit(1);
   }
 
-  // Recupera tutti i film dal DB (solo per determinare la dimensione e l'ordine)
   const allFilms = await getAllFilms();
   console.log(`Film totali nel DB: ${allFilms.length}`);
 
-  // Selezione batch odierno
   const { batch, batchIndex, numBatches, start, end } = selectTodaysBatch(allFilms);
+  console.log(`\n📦 Batch ${batchIndex + 1}/${numBatches} — film ${start + 1}–${end} (${batch.length} film)`);
+  console.log(`   Ciclo completo ogni ${numBatches} giorni\n`);
 
-  console.log(`\n📦 Batch ${batchIndex + 1} di ${numBatches}`);
-  console.log(`   Film ${start + 1}–${end} (${batch.length} film)`);
-  console.log(`   Ciclo completo ogni ${numBatches} giorni`);
-  console.log(`   Prossimo batch: film ${(end % allFilms.length) + 1}–${Math.min(end + BATCH_SIZE, allFilms.length)}\n`);
-
-  const stats   = { checked: 0, updated: 0, errors: 0 };
+  const stats   = { checked: 0, updated: 0, errors: 0, skipped: 0, lowConf: 0 };
   const changes = [];
+  const warnings = [];
 
   for (let i = 0; i < batch.length; i++) {
     const film  = batch[i];
     const patch = {};
 
     try {
-      // TMDB: cerca il film per ottenere tmdbId + imdbId
       const tmdb = await searchTMDB(film.Titolo, film.Anno);
       await sleep(120);
 
-      // Piattaforme (solo se trovato su TMDB)
-      if (tmdb?.tmdbId) {
+      if (!tmdb) {
+        // Nessun risultato TMDB: salta piattaforme, prova solo IMDB via titolo
+      } else if (tmdb.confidence === 'skip') {
+        // Titolo troppo dissimile: non aggiornare piattaforme
+        stats.skipped++;
+        warnings.push(`  ⚠ SKIP match incerto [${film.ID}] "${film.Titolo}" → trovato "${tmdb.matchTitle}" (sim=${tmdb.matchSim})`);
+      } else {
+        // Match trovato
+        if (tmdb.confidence === 'low') {
+          stats.lowConf++;
+          warnings.push(`  ℹ LOW CONF [${film.ID}] "${film.Titolo}" → "${tmdb.matchTitle}" (sim=${tmdb.matchSim}) — piattaforme aggiornate comunque`);
+        }
+
+        // Piattaforme
         const newPlt = await getPlatformsIT(tmdb.tmdbId);
         await sleep(100);
 
-        const curPlt  = film.Piattaforme
-          ? film.Piattaforme.split(', ').filter(Boolean)
-          : [];
+        const curPlt  = film.Piattaforme ? film.Piattaforme.split(', ').filter(Boolean) : [];
         const sortNew = [...newPlt].sort().join(', ');
         const sortCur = [...curPlt].sort().join(', ');
 
@@ -224,21 +265,20 @@ async function main() {
           patch.Piattaforme = newPlt.join(', ');
           changes.push({ id: film.ID, title: film.Titolo, field: 'Piattaforme', from: sortCur || '(nessuna)', to: sortNew || '(nessuna)' });
         }
-      }
 
-      // Voto IMDB tramite OMDB
-      const newRating = await getIMDBRating(film.Titolo, film.Anno, tmdb?.imdbId);
-      await sleep(150);
+        // Voto IMDB (usa imdb_id da TMDB se disponibile)
+        const newRating = await getIMDBRating(film.Titolo, film.Anno, tmdb.imdbId);
+        await sleep(150);
 
-      if (newRating !== null) {
-        const curRating = parseFloat(film['Voto IMDB'] || 0);
-        if (Math.abs(newRating - curRating) >= 0.1) {
-          patch['Voto IMDB'] = newRating;
-          changes.push({ id: film.ID, title: film.Titolo, field: 'Voto IMDB', from: curRating, to: newRating });
+        if (newRating !== null) {
+          const curRating = parseFloat(film['Voto IMDB'] || 0);
+          if (Math.abs(newRating - curRating) >= 0.1) {
+            patch['Voto IMDB'] = newRating;
+            changes.push({ id: film.ID, title: film.Titolo, field: 'Voto IMDB', from: curRating, to: newRating });
+          }
         }
       }
 
-      // Applica patch se ci sono modifiche
       if (Object.keys(patch).length > 0) {
         await patchFilm(film.ID, patch);
         stats.updated++;
@@ -251,7 +291,6 @@ async function main() {
       console.error(`  ✗  [${film.ID}] ${film.Titolo}: ${e.message}`);
     }
 
-    // Progresso ogni 100 film
     if ((i + 1) % 100 === 0) {
       console.log(`  … ${i + 1}/${batch.length} (${Math.round((i+1)/batch.length*100)}%)`);
     }
@@ -259,14 +298,16 @@ async function main() {
 
   // ── Riepilogo ─────────────────────────────────────────────────────────
   console.log('\n═══════════════════════════════════════════');
-  console.log(`Elaborati: ${stats.checked} | Aggiornati: ${stats.updated} | Errori: ${stats.errors}`);
-  console.log(`Prossimo batch domani: ${numBatches > 1 ? `film ${end + 1}–${Math.min(end + BATCH_SIZE, allFilms.length)}` : 'tutto il DB (1 batch)'}`);
+  console.log(`Elaborati: ${stats.checked} | Aggiornati: ${stats.updated} | Saltati (match incerto): ${stats.skipped} | Bassa confidenza: ${stats.lowConf} | Errori: ${stats.errors}`);
+
+  if (warnings.length > 0) {
+    console.log('\n⚠ Match incerti / bassa confidenza (verificare manualmente):');
+    warnings.forEach(w => console.log(w));
+  }
 
   if (changes.length > 0) {
     console.log('\n📋 Modifiche apportate:');
-    changes.forEach(c =>
-      console.log(`  [${c.id}] ${c.title} — ${c.field}: "${c.from}" → "${c.to}"`)
-    );
+    changes.forEach(c => console.log(`  [${c.id}] ${c.title} — ${c.field}: "${c.from}" → "${c.to}"`));
   } else {
     console.log('\n✅ Nessuna modifica necessaria nel batch di oggi.');
   }
@@ -274,7 +315,4 @@ async function main() {
   console.log(`\nFinished: ${new Date().toISOString()}`);
 }
 
-main().catch(err => {
-  console.error('Fatal:', err);
-  process.exit(1);
-});
+main().catch(err => { console.error('Fatal:', err); process.exit(1); });
