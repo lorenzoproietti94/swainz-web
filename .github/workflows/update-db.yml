@@ -21,7 +21,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '24'        # Node 24 — evita il deprecation warning
 
       - name: Run DB update (batch rotation)
         run: node scripts/update-db.js
