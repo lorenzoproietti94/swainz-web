@@ -273,6 +273,10 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:15px;heigh
 .fck-opt{padding:10px 14px;border-radius:10px;border:1px solid var(--br);background:var(--cb);color:var(--tx);font-size:13px;cursor:pointer;transition:all .16s;text-align:left;width:100%}
 .fck-opt:hover{border-color:var(--bh);background:rgba(255,255,255,.06)}
 .fck-opt.sel{border-color:var(--or);background:var(--coa);color:var(--or);font-weight:600}
+.fck-q7b{margin-top:14px;padding:14px 16px;background:rgba(255,255,255,.03);border-radius:10px;border:1px solid rgba(255,255,255,.07)}
+.fck-qt-sub{font-family:'Syne',sans-serif;font-size:13px;font-weight:600;margin-bottom:10px;opacity:.75}
+.fck-opts-plt{flex-direction:row;flex-wrap:wrap;gap:8px}
+.fck-opts-plt .fck-opt{width:auto;padding:8px 14px;font-size:12px}
 .prem-lock{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:80px 24px;text-align:center;gap:12px}
 .prem-lock-ico{font-size:54px}
 .prem-lock h3{font-family:'Syne',sans-serif;font-size:20px;font-weight:800}
@@ -1191,7 +1195,7 @@ var _dbReady=new Promise(function(resolve,reject){
 
 const GROUPS=[
   {id:'g1',title:'🎭 Genere & Atmosfera',col:'bl',multi:true,tags:['Thriller','Horror','Dramma','Commedia','Fantascienza','Western','Animazione','Documentario','Noire','CineComic','Romantico','Comico']},
-  {id:'g7',title:'📺 Piattaforma',col:'bl',multi:true,opts:['Netflix','Prime Video','Disney+','MUBI','Apple TV']},
+  {id:'g7',title:'📺 Piattaforma',col:'bl',multi:true,opts:['Netflix','Prime Video','Disney+','MUBI','Apple TV','Non su piattaforme']},
   {id:'g3',title:'🔍 Temi',col:'bl',multi:true,tags:['Crimine','Mafia','Droga','Guerra','Serial Killer','Economico','Catastrofico','Vendetta','Sportivo','Legal Drama','Biografico','Colossal']},
   {id:'g8',title:'📅 Periodo',col:'or',multi:true,opts:["Anni '60 e prima","Anni '70","Anni '80","Anni '90","Anni 2000","Anni 2010","Anni 2020"]},
   {id:'g2',title:'✨ Qualità & Stile',col:'or',multi:true,tags:["Capolavoro","D'Autore","Oscar","Grande Interpretazione","Grande Colonna Sonora","Estetico","Imponente","Storia Avvincente","Pazzesco","Bizzarro","Musicale","Difficile"]},
@@ -1685,13 +1689,26 @@ function findFilm(){
     if(seenFilms.has(f.id))return false;
     if(sessionShown.has(f.id))return false;
     if(f.r<minR)return false;
-    if(pltSel.size>0&&!pltSel.has('Non importa')&&!f.plt.some(p=>pltSel.has(p)))return false;
+    if(pltSel.size>0){
+      const _noPlat=pltSel.has('Non su piattaforme');
+      const _matchNoPlat=_noPlat&&(!f.plt||f.plt.length===0);
+      const _matchPlt=f.plt.some(p=>pltSel.has(p));
+      if(!_matchNoPlat&&!_matchPlt)return false;
+    }
     if(perSel.size>0&&![...perSel].some(p=>PERIOD_MAP[p]&&PERIOD_MAP[p](f.year)))return false;
     const _vecchioSel=[...Object.values(SEL)].some(s=>s.has('Vecchio'))||_activeOptInTags.has('Vecchio');
     if(userPrefs.minYear&&f.year<userPrefs.minYear&&!_vecchioSel)return false;
     if(userPrefs.excludeHorror&&f.tags.includes('Horror'))return false;
     if(userPrefs.excludeCrudo&&f.tags.includes('Crudo'))return false;
-    if(userPrefs.onlyPlatform&&(!f.plt||f.plt.length===0))return false;
+    if(userPrefs.onlyPlatform&&pltSel.size===0){
+      if(userPrefs.userPlatforms&&userPrefs.userPlatforms.length>0){
+        // User specified platforms in FCK: only show films on those platforms
+        if(!f.plt||!f.plt.some(p=>userPrefs.userPlatforms.includes(p)))return false;
+      } else {
+        // User said "only platforms" but didn't pick any: exclude films with no platform
+        if(!f.plt||f.plt.length===0)return false;
+      }
+    }
     const _longSel=[...Object.values(SEL)].some(s=>s.has('Lunghissimo')||s.has('Lungo(>2h30)'));
     if(userPrefs.excludeLong&&!_longSel&&(f.tags.includes('Lunghissimo')||f.tags.includes('Lungo(>2h30)')))return false;
     if(userPrefs.excludedTags&&userPrefs.excludedTags.size>0){if(f.tags.some(tag=>userPrefs.excludedTags.has(tag)))return false;}
@@ -2158,7 +2175,8 @@ async function saveProfp(){
 function togglePremium(){isPremium=!isPremium;const pt=document.getElementById('premToggle');pt.textContent=isPremium?'Premium ✓':'Free';pt.className=isPremium?'chip on':'chip';document.getElementById('bdg').style.display=isPremium?'none':'flex';try{window.storage.set('sw3_premium',isPremium?'1':'0');}catch(e){}buildUI();}
 
 // ── FATTI CONOSCERE ───────────────────────────────────────────────────────
-function applyFck(ans){userPrefs={};if(ans.q1==='recent')userPrefs.minYear=2000;else if(ans.q1==='from80')userPrefs.minYear=1980;if(ans.q2==='short')userPrefs.excludeLong=true;if(ans.q3==='no'){userPrefs.excludeHorror=true;userPrefs.excludeCrudo=true;}else if(ans.q3==='some')userPrefs.excludeCrudo=true;if(ans.q4==='commercial'){userPrefs.boostTags=['Colossal','CineComic'];userPrefs.excludeDifficile=true;}else if(ans.q4==='auteur')userPrefs.boostTags=["D'Autore","Capolavoro"];if(ans.q6==='never')userPrefs.excludeDifficile=true;else if(ans.q6==='sometimes')userPrefs.difficileOptIn=true;else userPrefs.excludeDifficile=false;userPrefs.onlyPlatform=ans.q7==='yes';userPrefs.excludedTags=new Set(ans.q8||[]);userPrefs.excludeConosciutissimo=(ans.q9==='weekly'||ans.q9==='often');
+function applyFck(ans){userPrefs={};if(ans.q1==='recent')userPrefs.minYear=2000;else if(ans.q1==='from80')userPrefs.minYear=1980;if(ans.q2==='short')userPrefs.excludeLong=true;if(ans.q3==='no'){userPrefs.excludeHorror=true;userPrefs.excludeCrudo=true;}else if(ans.q3==='some')userPrefs.excludeCrudo=true;if(ans.q4==='commercial'){userPrefs.boostTags=['Colossal','CineComic'];userPrefs.excludeDifficile=true;}else if(ans.q4==='auteur')userPrefs.boostTags=["D'Autore","Capolavoro"];if(ans.q6==='never')userPrefs.excludeDifficile=true;else if(ans.q6==='sometimes')userPrefs.difficileOptIn=true;else userPrefs.excludeDifficile=false;userPrefs.onlyPlatform=ans.q7==='yes';
+  if(ans.q7==='yes'&&ans.q7b&&ans.q7b.length>0){userPrefs.userPlatforms=ans.q7b;}else{userPrefs.userPlatforms=null;}userPrefs.excludedTags=new Set(ans.q8||[]);userPrefs.excludeConosciutissimo=(ans.q9==='weekly'||ans.q9==='often');
   // q10: Italian cinema preference
   if(ans.q10==='italian')userPrefs.boostItalian=true;
   else if(ans.q10==='foreign')userPrefs.reduceItalian=true;
@@ -2191,7 +2209,18 @@ async function renderFck(){
     {id:'q16',text:t('fck_q16'),opts:[{t:t('fck_q16_a'),v:'always'},{t:t('fck_q16_b'),v:'often'}]},
     {id:'q17',text:t('fck_q17'),opts:[{t:t('fck_q17_a'),v:'original'},{t:t('fck_q17_b'),v:'dubbed'},{t:t('fck_q17_c'),v:'both'}]}
   ];
-  let html=qs.map(q=>`<div class="fck-q"><div class="fck-qt">${q.text}</div><div class="fck-opts">${q.opts.map(o=>`<button class="fck-opt ${fckAnswers[q.id]===o.v?'sel':''}" onclick="selFck('${q.id}','${o.v}',this)">${o.t}</button>`).join('')}</div></div>`).join('');
+  let html='';
+  const _plt7=['Netflix','Prime Video','Disney+','MUBI','Apple TV'];
+  qs.forEach(q=>{
+    if(q.id==='q7'){
+      const _s7=fckAnswers.q7||'',_s7b=new Set(fckAnswers.q7b||[]);
+      html+=`<div class="fck-q"><div class="fck-qt">${q.text}</div><div class="fck-opts">${q.opts.map(o=>`<button class="fck-opt ${_s7===o.v?'sel':''}" onclick="selFck('q7','${o.v}',this)">${o.t}</button>`).join('')}</div>`+
+        `<div class="fck-q7b" id="fck-q7b" style="${_s7==='yes'?'':'display:none'}"><div class="fck-qt fck-qt-sub">${t('fck_q7b')}</div>`+
+        `<div class="fck-opts fck-opts-plt">${_plt7.map(p=>`<button class="fck-opt ${_s7b.has(p)?'sel':''}" onclick="toggleFckQ7b('${p}',this)">${p}</button>`).join('')}</div></div></div>`;
+    } else {
+      html+=`<div class="fck-q"><div class="fck-qt">${q.text}</div><div class="fck-opts">${q.opts.map(o=>`<button class="fck-opt ${fckAnswers[q.id]===o.v?'sel':''}" onclick="selFck('${q.id}','${o.v}',this)">${o.t}</button>`).join('')}</div></div>`;
+    }
+  });
   html+=renderFckExcl();
   html+=`<div style="display:flex;align-items:center;gap:12px;padding-top:8px"><button class="save-btn" onclick="saveFck()">${t('fck_save')}</button><span class="save-ok" id="fckOk">${t('fck_saved')}</span></div>`;
   document.getElementById('fcpBody').innerHTML=html;
@@ -2226,7 +2255,15 @@ function fckExclRemove(tag){
   fckAnswers.q8=fckAnswers.q8.filter(t=>t!==tag);
   document.getElementById('fck-excl-tags').innerHTML=(fckAnswers.q8||[]).map(t=>`<span class="fck-excl-tag">${tTag(t)}<button onclick="fckExclRemove('${t.replace(/'/g,"\\'")}')">✕</button></span>`).join('');
 }
-function selFck(qid,val,btn){if(fckAnswers[qid]===val){delete fckAnswers[qid];btn.classList.remove('sel');}else{fckAnswers[qid]=val;btn.closest('.fck-opts').querySelectorAll('.fck-opt').forEach(b=>b.classList.remove('sel'));btn.classList.add('sel');}}
+function selFck(qid,val,btn){if(fckAnswers[qid]===val){delete fckAnswers[qid];btn.classList.remove('sel');}else{fckAnswers[qid]=val;btn.closest('.fck-opts').querySelectorAll('.fck-opt').forEach(b=>b.classList.remove('sel'));btn.classList.add('sel');}
+  if(qid==='q7'){const sub=document.getElementById('fck-q7b');if(sub)sub.style.display=fckAnswers.q7==='yes'?'block':'none';}
+}
+function toggleFckQ7b(platform,btn){
+  if(!fckAnswers.q7b)fckAnswers.q7b=[];
+  const idx=fckAnswers.q7b.indexOf(platform);
+  if(idx>=0){fckAnswers.q7b.splice(idx,1);btn.classList.remove('sel');}
+  else{fckAnswers.q7b.push(platform);btn.classList.add('sel');}
+}
 async function saveFck(){
   applyFck(fckAnswers);
   try{await window.storage.set('sw3_fck',JSON.stringify(fckAnswers));}catch(e){}
@@ -2663,7 +2700,7 @@ const T={
     fck_q4_a:'Preferisco blockbuster',fck_q4_b:"Amo il cinema d'autore",fck_q4_c:'Un buon mix',
 
     fck_q6:'Ti piacciono i film impegnati/difficili?',fck_q6_a:'Molto',fck_q6_b:'Uno ogni tanto',fck_q6_c:'No, quando vedo un film voglio spegnere il cervello',
-    fck_q7:'Guardi solo film presenti su piattaforme?',fck_q7_a:'Sì',fck_q7_b:'Trovo il modo di vedere tutto',
+    fck_q7:'Guardi solo film presenti su piattaforme?',fck_q7_a:'Sì',fck_q7_b:'Trovo il modo di vedere tutto',fck_q7b:'Seleziona le piattaforme di cui hai attualmente l\'abbonamento',
     fck_q8:'C\'è qualche caratteristica che vuoi escludere permanentemente?',fck_q8_ph:'Cerca un tag da escludere...',
     fck_q9:'Quanti film vedi mediamente?',fck_q9_a:'Uno ogni tanto',fck_q9_b:'1-2 alla settimana',fck_q9_c:'>= 3 alla settimana',
     fck_q10:'Preferisci film italiani o internazionali?',fck_q10_a:'Solo italiani',fck_q10_b:'Mix',fck_q10_c:'Preferisco film stranieri',
@@ -2730,7 +2767,7 @@ const T={
     fck_q4_a:'I prefer blockbusters',fck_q4_b:'I love arthouse',fck_q4_c:'A good mix',
 
     fck_q6:'Do you enjoy challenging/complex films?',fck_q6_a:'Very much',fck_q6_b:'Once in a while',fck_q6_c:'No, when I watch a film I want to switch my brain off',
-    fck_q7:'Do you only watch films on streaming platforms?',fck_q7_a:'Yes',fck_q7_b:'I find a way to watch everything',
+    fck_q7:'Do you only watch films on streaming platforms?',fck_q7_a:'Yes',fck_q7_b:'I find a way to watch everything',fck_q7b:'Select the streaming platforms you currently subscribe to',
     fck_q8:'Are there any characteristics you want to permanently exclude?',fck_q8_ph:'Search a tag to exclude...',
     fck_q9:'How many films do you watch on average?',fck_q9_a:'Once in a while',fck_q9_b:'1-2 per week',fck_q9_c:'>= 3 per week',
     fck_q10:'Do you prefer Italian or international films?',fck_q10_a:'Italian only',fck_q10_b:'Mix',fck_q10_c:'I prefer foreign films',
@@ -3346,7 +3383,13 @@ function updatePoolCount(){
       var sel=SEL[gid];
       if(sel.size===0)continue;
       // g7 = piattaforma: OR logic on f.plt
-      if(gid==='g7'){if(!f.plt||!f.plt.some(function(p){return sel.has(p);}))return false;continue;}
+      if(gid==='g7'){
+        var _noPlat=sel.has('Non su piattaforme');
+        var _matchNoPlat=_noPlat&&(!f.plt||f.plt.length===0);
+        var _matchPlt=f.plt&&f.plt.some(function(p){return sel.has(p);});
+        if(!_matchNoPlat&&!_matchPlt)return false;
+        continue;
+      }
       // g8 = periodo: OR logic on f.year via PERIOD_MAP
       if(gid==='g8'){if(![...sel].some(function(p){return PERIOD_MAP[p]&&PERIOD_MAP[p](f.year);}))return false;continue;}
       if(![...sel].every(function(t){return f.tags.includes(t);}))return false;
