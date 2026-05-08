@@ -3631,8 +3631,24 @@ function updatePoolCount(){
 // === ONBOARDING JS ===
 var _onbActive=false;
 function _shouldShowOnboarding(d){
+  // Già completato l'onboarding
   if(localStorage.getItem('sw3_onboarded')==='1')return false;
   if(d&&d.profile&&d.profile.onboarded)return false;
+  // Utente esistente: ha già dati su Supabase (nome, film visti, risposte FCK...)
+  if(d&&(d.nome||d.cognome))return false;
+  if(d&&d.profile&&(d.profile.pNome||d.profile.pNascita))return false;
+  if(d&&d.seen_film_ids&&d.seen_film_ids.length>0)return false;
+  if(d&&d.fck_answers&&Object.keys(d.fck_answers||{}).length>0)return false;
+  if(d&&d.all_rec_ids&&d.all_rec_ids.length>0)return false;
+  // Utente con dati locali (usava l'app senza account o aveva gia' fatto login)
+  try{var lp=localStorage.getItem('sw3_prof');if(lp){var p=JSON.parse(lp);if(p.pNome||p.pNascita)return false;}}catch(e){}
+  try{var ls=localStorage.getItem('sw3_seen');if(ls){var s=JSON.parse(ls);if(s&&s.length>0)return false;}}catch(e){}
+  try{var lf=localStorage.getItem('sw3_fck');if(lf){var f=JSON.parse(lf);if(f&&Object.keys(f).length>0)return false;}}catch(e){}
+  try{var la=localStorage.getItem('sw3_allrecs');if(la){var a=JSON.parse(la);if(a&&a.length>0)return false;}}catch(e){}
+  // Nuovo utente vero: mostra onboarding e imposta il flag per le sessioni future
+  try{localStorage.setItem('sw3_onboarded','1');}catch(e){}
+  // NB: il flag viene impostato subito - se l'utente chiude il browser a meta'
+  // onboarding non lo vedra' di nuovo (comportamento voluto, evita loop)
   return true;
 }
 function showOnboarding(){
