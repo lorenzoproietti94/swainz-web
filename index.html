@@ -463,6 +463,24 @@ body.profp-ads-show #profp{padding-bottom:96px}
 .arec-td-dir{color:var(--td);font-size:12px}
 .arec-td-tags{display:flex;flex-wrap:wrap;gap:4px}
 .arec-tag{font-size:10px;padding:2px 7px;border-radius:8px;border:1px solid rgba(255,80,0,.25);background:rgba(255,80,0,.07);color:var(--or);white-space:nowrap}
+/* tag multi-select */
+.arec-ms-wrap{position:relative;flex-shrink:0}
+.arec-ms-btn{background:var(--cb);border:1px solid var(--br);border-radius:9px;padding:7px 11px;color:var(--tx);font-size:12px;cursor:pointer;white-space:nowrap;display:flex;align-items:center;gap:6px;transition:border-color .15s}
+.arec-ms-btn:hover,.arec-ms-btn.open{border-color:var(--bh)}
+.arec-ms-btn .arec-ms-chevron{opacity:.5;font-size:10px;transition:transform .15s}
+.arec-ms-btn.open .arec-ms-chevron{transform:rotate(180deg)}
+.arec-ms-drop{position:absolute;top:calc(100% + 6px);left:0;min-width:220px;max-width:320px;background:#1e1e28;border:1px solid var(--bh);border-radius:12px;box-shadow:0 12px 40px rgba(0,0,0,.6);z-index:20;overflow:hidden;display:none}
+.arec-ms-drop.open{display:block}
+.arec-ms-search{width:100%;box-sizing:border-box;padding:9px 12px;border:none;border-bottom:1px solid var(--br);background:transparent;color:var(--tx);font-size:12px;outline:none}
+.arec-ms-search::placeholder{color:var(--td)}
+.arec-ms-list{max-height:220px;overflow-y:auto}
+.arec-ms-opt{display:flex;align-items:center;gap:9px;padding:8px 14px;cursor:pointer;font-size:12px;color:var(--tx);transition:background .1s}
+.arec-ms-opt:hover{background:rgba(255,255,255,.06)}
+.arec-ms-opt input[type=checkbox]{accent-color:var(--or);width:14px;height:14px;flex-shrink:0;cursor:pointer}
+.arec-ms-opt.checked{color:var(--or)}
+.arec-ms-empty{padding:12px 14px;font-size:12px;color:var(--td);text-align:center}
+.arec-ms-clear{display:block;width:100%;padding:8px 14px;border:none;border-top:1px solid var(--br);background:none;color:var(--td);font-size:11px;cursor:pointer;text-align:left;transition:color .15s}
+.arec-ms-clear:hover{color:var(--tx)}
 @media(max-width:560px){.arec-td-dir{display:none}.arec-thead th:nth-child(3){display:none}.arec-filters{gap:6px}.arec-filter-inp{min-width:100px;font-size:11px}}
 .hist-btn{display:flex;align-items:center;gap:8px;padding:10px 16px;border-radius:11px;border:1px solid var(--br);background:var(--cb);color:var(--tx);font-size:12px;font-weight:600;cursor:pointer;width:100%;margin-top:12px;transition:all .2s}
 .hist-btn:hover{border-color:var(--bh);background:rgba(255,255,255,.06)}
@@ -1158,7 +1176,17 @@ body.cat-revealing #today-wrap-mob{visibility:hidden!important;pointer-events:no
     <div class="arec-filters">
       <input class="arec-filter-inp" id="arec-f-title" type="text" oninput="_arecApplyFilters()" data-i18n-ph="arec_f_title" placeholder="🔍 Cerca titolo…">
       <input class="arec-filter-inp" id="arec-f-dir"   type="text" oninput="_arecApplyFilters()" data-i18n-ph="arec_f_dir"   placeholder="Regista…" style="max-width:160px">
-      <input class="arec-filter-inp" id="arec-f-tag"   type="text" oninput="_arecApplyFilters()" data-i18n-ph="arec_f_tag"   placeholder="Tag…"     style="max-width:130px">
+      <div class="arec-ms-wrap" id="arec-ms-wrap">
+        <button class="arec-ms-btn" id="arec-ms-btn" onclick="_arecMsToggle(event)">
+          <span id="arec-ms-label" data-i18n="arec_f_tag_all">Tutte le caratteristiche</span>
+          <span class="arec-ms-chevron">▼</span>
+        </button>
+        <div class="arec-ms-drop" id="arec-ms-drop">
+          <input class="arec-ms-search" id="arec-ms-search" type="text" placeholder="Cerca tag…" oninput="_arecMsSearch()">
+          <div class="arec-ms-list" id="arec-ms-list"></div>
+          <button class="arec-ms-clear" onclick="_arecMsClear()">✕ Deseleziona tutto</button>
+        </div>
+      </div>
     </div>
     <div class="arec-count" id="arec-count"></div>
     <table class="arec-table">
@@ -1315,45 +1343,74 @@ const sessionShown=new Set(); // films shown in this session, reset with new day
 // ── STORAGE ─────────────────────────────────────────────────────────────
 // ── ALL-TIME RECOMMENDATIONS HISTORY ────────────────────────────────────
 const _allRecKey='sw3_allrecs';
-let allRecs=[]; // array of film ids, all time
+let allRecs=[]; // array of {id, tags:[]} — tags = filtri attivi al momento del consiglio
 
+function _normaliseAllRecs(raw){
+  if(!Array.isArray(raw))return[];
+  return raw.map(e=>(typeof e==='object'&&e!==null&&'id' in e)?e:{id:e,tags:[]});
+}
 async function loadAllRecs(){
-  try{const r=localStorage.getItem(_allRecKey);if(r)allRecs=JSON.parse(r);}catch(e){}
+  try{const r=localStorage.getItem(_allRecKey);if(r)allRecs=_normaliseAllRecs(JSON.parse(r));}catch(e){}
 }
 function _saveAllRecs(){
   try{localStorage.setItem(_allRecKey,JSON.stringify(allRecs));}catch(e){}
   if(_authToken&&currentUser){_saveUserData({all_rec_ids:allRecs,updated_at:new Date().toISOString()});}
 }
-async function addAllRec(id){
-  if(!allRecs.includes(id)){allRecs.push(id);_saveAllRecs();}
+async function addAllRec(id,tags){
+  if(!allRecs.some(e=>e.id===id)){allRecs.push({id,tags:tags||[]});_saveAllRecs();}
 }
 /* ── All-recs table: state ─────────────────────────────────────── */
-let _arecFilms=[], _arecSort_col='', _arecSort_dir=1;
+// Each entry in allRecs is now {id, tags:[]} where tags = filtri attivi al momento
+let _arecEntries=[];   // [{id, tags, film}] — joined at open time
+let _arecSort_col='', _arecSort_dir=1;
+let _arecSelTags=new Set(); // selected tags in multi-select
 
 function openAllRecs(){
-  _arecFilms=allRecs.map(id=>DB.find(f=>f.id===id)).filter(Boolean).reverse();
+  // join allRecs entries with DB
+  _arecEntries=allRecs.map(e=>{
+    const film=DB.find(f=>f.id===e.id);
+    return film?{id:e.id, tags:e.tags||[], film}:null;
+  }).filter(Boolean).reverse();
+
   // reset filters
-  ['arec-f-title','arec-f-dir','arec-f-tag'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  const ti=document.getElementById('arec-f-title');if(ti)ti.value='';
+  const di=document.getElementById('arec-f-dir');if(di)di.value='';
+  _arecSelTags=new Set();
   _arecSort_col=''; _arecSort_dir=1;
-  _arecRenderTable(_arecFilms);
+  ['arec-arr-title','arec-arr-year','arec-arr-dir'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent='↕';});
+  ['title','year','dir'].forEach(c=>{const th=document.querySelector(`[data-col="${c}"]`);if(th)th.classList.remove('sorted');});
+
+  _arecRenderTable(_arecGetFiltered());
+  _arecMsRebuild();
   document.getElementById('allrecsp').classList.add('on');
 }
 function closeAllRecs(){document.getElementById('allrecsp').classList.remove('on');}
 
-function _arecApplyFilters(){
-  const qTitle=(document.getElementById('arec-f-title').value||'').toLowerCase().trim();
-  const qDir  =(document.getElementById('arec-f-dir').value||'').toLowerCase().trim();
-  const qTag  =(document.getElementById('arec-f-tag').value||'').toLowerCase().trim();
-  let films=_arecFilms;
-  if(qTitle) films=films.filter(f=>(LANG==='en'?(TITLE_ORIG[f.id]||f.title):f.title).toLowerCase().includes(qTitle));
-  if(qDir)   films=films.filter(f=>f.dir.toLowerCase().includes(qDir));
-  if(qTag)   films=films.filter(f=>f.tags.some(tg=>tTagRaw(tg).toLowerCase().includes(qTag)));
-  _arecRenderTable(films);
+/* ── filters ─────────────────────────────────────────────────────── */
+function _arecGetFiltered(){
+  const qTitle=(document.getElementById('arec-f-title')||{}).value||'';
+  const qDir  =(document.getElementById('arec-f-dir')||{}).value||'';
+  const qt=qTitle.toLowerCase().trim();
+  const qd=qDir.toLowerCase().trim();
+  return _arecEntries.filter(e=>{
+    const f=e.film;
+    const title=LANG==='en'?(TITLE_ORIG[f.id]||f.title):f.title;
+    if(qt&&!title.toLowerCase().includes(qt))return false;
+    if(qd&&!f.dir.toLowerCase().includes(qd))return false;
+    if(_arecSelTags.size&&!e.tags.some(tg=>_arecSelTags.has(tg)))return false;
+    return true;
+  });
 }
 
+function _arecApplyFilters(){
+  const filtered=_arecGetFiltered();
+  _arecRenderTable(filtered);
+  _arecMsUpdate(filtered); // keep available tags in sync
+}
+
+/* ── sort ─────────────────────────────────────────────────────────── */
 function _arecSort(col){
-  if(_arecSort_col===col) _arecSort_dir*=-1; else{_arecSort_col=col;_arecSort_dir=1;}
-  // update header arrows
+  if(_arecSort_col===col)_arecSort_dir*=-1;else{_arecSort_col=col;_arecSort_dir=1;}
   ['title','year','dir'].forEach(c=>{
     const el=document.getElementById('arec-arr-'+c);
     const th=document.querySelector(`[data-col="${c}"]`);
@@ -1364,40 +1421,115 @@ function _arecSort(col){
   _arecApplyFilters();
 }
 
-function _arecRenderTable(films){
-  // apply sort
+/* ── render table ─────────────────────────────────────────────────── */
+function _arecRenderTable(entries){
   if(_arecSort_col){
     const d=_arecSort_dir;
-    films=[...films].sort((a,b)=>{
-      let va=_arecSort_col==='title'?(LANG==='en'?(TITLE_ORIG[a.id]||a.title):a.title):a[_arecSort_col];
-      let vb=_arecSort_col==='title'?(LANG==='en'?(TITLE_ORIG[b.id]||b.title):b.title):b[_arecSort_col];
-      if(typeof va==='string') return va.localeCompare(vb)*d;
-      return (va-vb)*d;
+    entries=[...entries].sort((a,b)=>{
+      const fa=a.film,fb=b.film;
+      let va=_arecSort_col==='title'?(LANG==='en'?(TITLE_ORIG[fa.id]||fa.title):fa.title):fa[_arecSort_col];
+      let vb=_arecSort_col==='title'?(LANG==='en'?(TITLE_ORIG[fb.id]||fb.title):fb.title):fb[_arecSort_col];
+      if(typeof va==='string')return va.localeCompare(vb)*d;
+      return(va-vb)*d;
     });
   }
   const count=document.getElementById('arec-count');
   const tbody=document.getElementById('arec-tbody');
   if(!tbody)return;
-  if(!films.length){
-    tbody.innerHTML='';
-    if(count) count.innerHTML=`<strong>0</strong> film`;
-    return;
-  }
-  if(count) count.innerHTML=`<strong>${films.length}</strong> film`;
-  tbody.innerHTML=films.map(f=>{
+  if(count)count.innerHTML=`<strong>${entries.length}</strong> film`;
+  if(!entries.length){tbody.innerHTML=`<tr><td colspan="4" style="padding:32px;text-align:center;color:var(--td);font-size:13px">${t('allrec_empty')}</td></tr>`;return;}
+  tbody.innerHTML=entries.map(e=>{
+    const f=e.film;
     const title=LANG==='en'?(TITLE_ORIG[f.id]||f.title):f.title;
-    const tagsHTML=f.tags.slice(0,4).map(tg=>`<span class="arec-tag">${tTagRaw(tg)}</span>`).join('');
-    return `<tr onclick="openRecFilm(${f.id})">
+    const tagsHTML=e.tags.map(tg=>`<span class="arec-tag">${tg}</span>`).join('');
+    return`<tr onclick="openRecFilm(${f.id})">
       <td class="arec-td-title">${title}</td>
       <td class="arec-td-year">${f.year}</td>
       <td class="arec-td-dir">${f.dir}</td>
-      <td><div class="arec-td-tags">${tagsHTML}</div></td>
+      <td><div class="arec-td-tags">${tagsHTML||'<span style="color:var(--td);font-size:11px">—</span>'}</div></td>
     </tr>`;
   }).join('');
 }
 
-// tTagRaw: restituisce il nome della tag così com'è
-function tTagRaw(k){return k;}
+/* ── multi-select tag dropdown ─────────────────────────────────────── */
+let _arecAllTags=[];  // all unique tags in current filtered set (for dropdown)
+
+function _arecMsToggle(e){
+  e.stopPropagation();
+  const btn=document.getElementById('arec-ms-btn');
+  const drop=document.getElementById('arec-ms-drop');
+  if(!btn||!drop)return;
+  const isOpen=drop.classList.contains('open');
+  if(!isOpen){
+    _arecMsRebuild();
+    drop.classList.add('open');
+    btn.classList.add('open');
+    document.getElementById('arec-ms-search').value='';
+    _arecMsSearch();
+    document.addEventListener('click',_arecMsClickOutside,{once:true});
+  }else{
+    drop.classList.remove('open');
+    btn.classList.remove('open');
+  }
+}
+function _arecMsClickOutside(e){
+  const wrap=document.getElementById('arec-ms-wrap');
+  if(wrap&&!wrap.contains(e.target)){
+    document.getElementById('arec-ms-drop').classList.remove('open');
+    document.getElementById('arec-ms-btn').classList.remove('open');
+  }
+}
+function _arecMsRebuild(){
+  // collect all unique tags from ALL entries (not just filtered) so dropdown is stable
+  const tagSet=new Set();
+  _arecEntries.forEach(e=>e.tags.forEach(tg=>tagSet.add(tg)));
+  _arecAllTags=[...tagSet].sort();
+  _arecMsRenderList(_arecAllTags);
+  _arecMsUpdateLabel();
+}
+function _arecMsUpdate(){
+  // called after filter change — keep existing _arecAllTags, just refresh checkboxes
+  _arecMsRenderList(_arecAllTags.filter(tg=>
+    document.getElementById('arec-ms-search').value===''||
+    tg.toLowerCase().includes(document.getElementById('arec-ms-search').value.toLowerCase())
+  ));
+  _arecMsUpdateLabel();
+}
+function _arecMsSearch(){
+  const q=(document.getElementById('arec-ms-search').value||'').toLowerCase();
+  _arecMsRenderList(_arecAllTags.filter(tg=>!q||tg.toLowerCase().includes(q)));
+}
+function _arecMsRenderList(tags){
+  const list=document.getElementById('arec-ms-list');
+  if(!list)return;
+  if(!tags.length){list.innerHTML=`<div class="arec-ms-empty">Nessun tag</div>`;return;}
+  list.innerHTML=tags.map(tg=>{
+    const sel=_arecSelTags.has(tg);
+    return`<label class="arec-ms-opt ${sel?'checked':''}" onclick="_arecMsToggleTag(event,'${tg.replace(/'/g,"\'")}')">
+      <input type="checkbox" ${sel?'checked':''} onclick="event.stopPropagation()"> ${tg}
+    </label>`;
+  }).join('');
+}
+function _arecMsToggleTag(e,tg){
+  e.stopPropagation();
+  if(_arecSelTags.has(tg))_arecSelTags.delete(tg);else _arecSelTags.add(tg);
+  _arecApplyFilters();
+  _arecMsSearch(); // re-render list keeping search
+  _arecMsUpdateLabel();
+}
+function _arecMsClear(){
+  _arecSelTags.clear();
+  _arecApplyFilters();
+  _arecMsSearch();
+  _arecMsUpdateLabel();
+}
+function _arecMsUpdateLabel(){
+  const lbl=document.getElementById('arec-ms-label');
+  if(!lbl)return;
+  lbl.textContent=_arecSelTags.size===0
+    ?(t('arec_f_tag_all')||'Tutte le caratteristiche')
+    :`${_arecSelTags.size} ${_arecSelTags.size===1?'caratteristica':'caratteristiche'}`;
+}
 function openRecFilm(id){
   const f=DB.find(x=>x.id===id);if(!f)return;
   // raise card above slide panels (z-index 310) so panels stay visible behind
@@ -1977,7 +2109,7 @@ function showCard(res,opts={}) {
     const{f,mx}=res,sn=seenFilms.has(f.id);
     sessionShown.add(f.id);
     addTodayRec(f.id);
-    addAllRec(f.id);
+    addAllRec(f.id, mx||[]);
     const displayTitle=LANG==='en'?(TITLE_ORIG[f.id]||f.title):f.title;
     const descHTML=f.desc_en&&LANG==='en'?f.desc_en:f.desc;
     const posterHTML=f.poster
@@ -2908,7 +3040,7 @@ const T={
     search_results:'risultati',mark_all_seen:'✓ Segna tutti come visti',today_btn:'🎬 Film consigliati oggi',mark_all_unseen:'✕ Deseleziona tutti',
     seen_count:' film già visti da te',
     prof_h2:'Il tuo profilo',allrec_btn:'Tutti i film consigliati',allrec_h2:'Tutti i film consigliati',allrec_p:'Ogni film che Swainz ti ha consigliato',allrec_empty:'Nessun film ancora consigliato.',prof_p:'Informazioni personali — non influenzano i consigli di Swainz',
-    arec_col_title:'Titolo',arec_col_year:'Anno',arec_col_dir:'Regista',arec_col_tags:'Caratteristiche',arec_f_title:'🔍 Cerca titolo…',arec_f_dir:'Regista…',arec_f_tag:'Tag…',
+    arec_col_title:'Titolo',arec_col_year:'Anno',arec_col_dir:'Regista',arec_col_tags:'Caratteristiche',arec_f_title:'🔍 Cerca titolo…',arec_f_dir:'Regista…',arec_f_tag:'Tag…',arec_f_tag_all:'Tutte le caratteristiche',
     prof_nome:'Nome',prof_cog:'Cognome',prof_data:'Data di nascita',
     prof_film:'Film preferito',prof_reg:'Regista preferito',prof_att:'Attore preferito',
     prof_nome_ph:'Es. Marco',prof_cog_ph:'Es. Rossi',prof_film_ph:'Es. Il Padrino',
@@ -2976,7 +3108,7 @@ const T={
     search_results:'results',mark_all_seen:'✓ Mark all as watched',today_btn:'🎬 Films recommended today',mark_all_unseen:'✕ Unmark all',
     seen_count:' films watched by you',
     prof_h2:'Your profile',allrec_btn:'All recommended films',allrec_h2:'All recommended films',allrec_p:'Every film Swainz has ever suggested to you',allrec_empty:'No films recommended yet.',prof_p:'Personal info — does not affect Swainz recommendations',
-    arec_col_title:'Title',arec_col_year:'Year',arec_col_dir:'Director',arec_col_tags:'Characteristics',arec_f_title:'🔍 Search title…',arec_f_dir:'Director…',arec_f_tag:'Tag…',
+    arec_col_title:'Title',arec_col_year:'Year',arec_col_dir:'Director',arec_col_tags:'Characteristics',arec_f_title:'🔍 Search title…',arec_f_dir:'Director…',arec_f_tag:'Tag…',arec_f_tag_all:'All characteristics',
     prof_nome:'First name',prof_cog:'Last name',prof_data:'Date of birth',
     prof_film:'Favourite film',prof_reg:'Favourite director',prof_att:'Favourite actor',
     prof_nome_ph:'E.g. John',prof_cog_ph:'E.g. Smith',prof_film_ph:'E.g. The Godfather',
@@ -3369,7 +3501,7 @@ function _applyUserData(d) {
     try{localStorage.setItem('sw3_prof',JSON.stringify(profData));}catch(e){}
   }
   if(d.all_rec_ids&&d.all_rec_ids.length){
-    allRecs=d.all_rec_ids;
+    allRecs=_normaliseAllRecs(d.all_rec_ids);
     try{localStorage.setItem(_allRecKey,JSON.stringify(allRecs));}catch(e){}
   }
 }
