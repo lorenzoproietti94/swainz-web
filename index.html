@@ -2131,18 +2131,18 @@ function _extractPosterColors(imgEl,fcEl){
     while(centers.length<3)centers.push(centers[0]);
 
     // Muted bg: darken to `br` brightness, desaturate by `ds`
-    function muted([r,g,b],br=0.30,ds=0.38){
+    function muted([r,g,b],br=0.48,ds=0.20){
       const gr=(r+g+b)/3;
       return`rgb(${Math.round((r*(1-ds)+gr*ds)*br)},${Math.round((g*(1-ds)+gr*ds)*br)},${Math.round((b*(1-ds)+gr*ds)*br)})`;
     }
 
     const [c1,c2,c3]=centers;
-    // Three radial blobs at cinematographic positions + solid dark base
+    // Large overlapping blobs that cover the full card + tinted dark base gradient
     fcEl.style.background=[
-      `radial-gradient(ellipse 75% 55% at 18% 28%, ${muted(c1,0.35,0.32)} 0%, transparent 68%)`,
-      `radial-gradient(ellipse 65% 50% at 82% 22%, ${muted(c2,0.28,0.40)} 0%, transparent 62%)`,
-      `radial-gradient(ellipse 85% 55% at 48% 92%, ${muted(c3,0.25,0.42)} 0%, transparent 68%)`,
-      'rgb(7,7,13)'
+      `radial-gradient(ellipse 150% 80% at 15% 25%, ${muted(c1,0.54,0.18)} 0%, transparent 65%)`,
+      `radial-gradient(ellipse 130% 70% at 88% 18%, ${muted(c2,0.44,0.22)} 0%, transparent 62%)`,
+      `radial-gradient(ellipse 140% 70% at 45% 95%, ${muted(c3,0.40,0.24)} 0%, transparent 65%)`,
+      `linear-gradient(148deg, ${muted(c1,0.22,0.15)} 0%, ${muted(c2,0.16,0.18)} 55%, ${muted(c3,0.14,0.20)} 100%)`
     ].join(',');
     fcEl.style.backdropFilter='blur(0px)';
   }catch(e){/* CORS / tainted canvas */}
