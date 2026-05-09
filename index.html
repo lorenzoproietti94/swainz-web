@@ -441,11 +441,29 @@ body.profp-ads-show #profp{padding-bottom:96px}
 #chip-tip{position:fixed;display:none;background:rgba(18,18,28,.97);border:1px solid var(--br);border-radius:9px;padding:7px 11px;font-size:11px;color:var(--tx);width:200px;line-height:1.5;z-index:9999;pointer-events:none;box-shadow:0 4px 18px rgba(0,0,0,.5)}
 /* ALL RECS PANEL */
 #allrecsp{z-index:320;display:flex;flex-direction:column}
-.arec-row{padding:12px 20px;border-bottom:1px solid var(--br);cursor:pointer;transition:background .15s;display:flex;flex-direction:column;gap:3px}
-.arec-row:hover{background:rgba(255,255,255,.04)}
-.arec-title{font-size:13px;font-weight:600;color:var(--tx)}
-.arec-sub{font-size:11px;color:var(--td)}
 .arec-empty{padding:48px 24px;text-align:center;color:var(--td);font-size:14px}
+/* ── All-recs filterable table ───────────────────────────────────── */
+.arec-filters{display:flex;gap:8px;flex-wrap:wrap;padding:14px 18px 10px;border-bottom:1px solid var(--br);background:rgba(0,0,0,.25);position:sticky;top:0;z-index:5}
+.arec-filter-inp{flex:1;min-width:120px;background:var(--cb);border:1px solid var(--br);border-radius:9px;padding:7px 11px;color:var(--tx);font-size:12px;outline:none;transition:border-color .15s}
+.arec-filter-inp:focus{border-color:var(--bh)}
+.arec-filter-inp::placeholder{color:var(--td)}
+.arec-count{padding:6px 18px 4px;font-size:11px;color:var(--td)}
+.arec-count strong{color:var(--or)}
+.arec-table{width:100%;border-collapse:collapse}
+.arec-thead th{padding:9px 14px;text-align:left;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--td);border-bottom:1px solid var(--br);white-space:nowrap;user-select:none;cursor:pointer;position:sticky;top:0;background:rgba(10,10,18,.98);z-index:4}
+.arec-thead th:hover{color:var(--tx)}
+.arec-thead th.sorted{color:var(--or)}
+.arec-thead th .sort-arrow{margin-left:4px;opacity:.6;font-size:9px}
+.arec-thead th.sorted .sort-arrow{opacity:1;color:var(--or)}
+.arec-tbody tr{border-bottom:1px solid rgba(255,255,255,.05);cursor:pointer;transition:background .12s}
+.arec-tbody tr:hover{background:rgba(255,255,255,.04)}
+.arec-tbody td{padding:10px 14px;font-size:13px;vertical-align:top}
+.arec-td-title{font-weight:600;color:var(--tx)}
+.arec-td-year{color:var(--td);font-size:12px;white-space:nowrap}
+.arec-td-dir{color:var(--td);font-size:12px}
+.arec-td-tags{display:flex;flex-wrap:wrap;gap:4px}
+.arec-tag{font-size:10px;padding:2px 7px;border-radius:8px;border:1px solid rgba(255,80,0,.25);background:rgba(255,80,0,.07);color:var(--or);white-space:nowrap}
+@media(max-width:560px){.arec-td-dir{display:none}.arec-thead th:nth-child(3){display:none}.arec-filters{gap:6px}.arec-filter-inp{min-width:100px;font-size:11px}}
 .hist-btn{display:flex;align-items:center;gap:8px;padding:10px 16px;border-radius:11px;border:1px solid var(--br);background:var(--cb);color:var(--tx);font-size:12px;font-weight:600;cursor:pointer;width:100%;margin-top:12px;transition:all .2s}
 .hist-btn:hover{border-color:var(--bh);background:rgba(255,255,255,.06)}
 .fgrp-prem-badge span{font-size:8.5px;font-weight:800;letter-spacing:2.5px;text-transform:uppercase;color:var(--or);opacity:.65;font-family:'Inter',sans-serif;border:1px solid rgba(255,104,32,.3);border-radius:12px;padding:1px 8px;white-space:nowrap}
@@ -1136,7 +1154,25 @@ body.cat-revealing #today-wrap-mob{visibility:hidden!important;pointer-events:no
 <!-- ALL RECS PANEL -->
 <div id="allrecsp" class="slide-panel">
   <div class="vph"><button class="vp-back" onclick="closeAllRecs()">← Torna</button><div class="vph-t"><h2 data-i18n="allrec_h2">Tutti i film consigliati</h2><p data-i18n="allrec_p">Ogni film che Swainz ti ha consigliato</p></div></div>
-  <div class="vpb" id="allrec-list"></div>
+  <div class="vpb" style="padding:0;overflow-y:auto" id="allrec-list">
+    <div class="arec-filters">
+      <input class="arec-filter-inp" id="arec-f-title" type="text" oninput="_arecApplyFilters()" data-i18n-ph="arec_f_title" placeholder="🔍 Cerca titolo…">
+      <input class="arec-filter-inp" id="arec-f-dir"   type="text" oninput="_arecApplyFilters()" data-i18n-ph="arec_f_dir"   placeholder="Regista…" style="max-width:160px">
+      <input class="arec-filter-inp" id="arec-f-tag"   type="text" oninput="_arecApplyFilters()" data-i18n-ph="arec_f_tag"   placeholder="Tag…"     style="max-width:130px">
+    </div>
+    <div class="arec-count" id="arec-count"></div>
+    <table class="arec-table">
+      <thead class="arec-thead" id="arec-thead">
+        <tr>
+          <th onclick="_arecSort('title')"  data-col="title">  <span data-i18n="arec_col_title">Titolo</span>    <span class="sort-arrow" id="arec-arr-title">↕</span></th>
+          <th onclick="_arecSort('year')"   data-col="year"  style="width:60px"><span data-i18n="arec_col_year">Anno</span>     <span class="sort-arrow" id="arec-arr-year">↕</span></th>
+          <th onclick="_arecSort('dir')"    data-col="dir"   style="width:160px"><span data-i18n="arec_col_dir">Regista</span>  <span class="sort-arrow" id="arec-arr-dir">↕</span></th>
+          <th data-col="tags"><span data-i18n="arec_col_tags">Caratteristiche</span></th>
+        </tr>
+      </thead>
+      <tbody class="arec-tbody" id="arec-tbody"></tbody>
+    </table>
+  </div>
 </div>
 
 <!-- FILM CARD -->
@@ -1291,21 +1327,77 @@ function _saveAllRecs(){
 async function addAllRec(id){
   if(!allRecs.includes(id)){allRecs.push(id);_saveAllRecs();}
 }
+/* ── All-recs table: state ─────────────────────────────────────── */
+let _arecFilms=[], _arecSort_col='', _arecSort_dir=1;
+
 function openAllRecs(){
-  const el=document.getElementById('allrec-list');
-  if(!el)return;
-  const films=allRecs.map(id=>DB.find(f=>f.id===id)).filter(Boolean).reverse();
-  if(!films.length){
-    el.innerHTML=`<div class="arec-empty">${t('allrec_empty')}</div>`;
-  } else {
-    el.innerHTML=films.map(f=>{
-      const title=LANG==='en'?(TITLE_ORIG[f.id]||f.title):f.title;
-      return`<div class="arec-row" onclick="openRecFilm(${f.id})"><div class="arec-title">${title}</div><div class="arec-sub">${f.dir} · ${f.year} · ⭐ ${f.r}</div></div>`;
-    }).join('');
-  }
+  _arecFilms=allRecs.map(id=>DB.find(f=>f.id===id)).filter(Boolean).reverse();
+  // reset filters
+  ['arec-f-title','arec-f-dir','arec-f-tag'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  _arecSort_col=''; _arecSort_dir=1;
+  _arecRenderTable(_arecFilms);
   document.getElementById('allrecsp').classList.add('on');
 }
 function closeAllRecs(){document.getElementById('allrecsp').classList.remove('on');}
+
+function _arecApplyFilters(){
+  const qTitle=(document.getElementById('arec-f-title').value||'').toLowerCase().trim();
+  const qDir  =(document.getElementById('arec-f-dir').value||'').toLowerCase().trim();
+  const qTag  =(document.getElementById('arec-f-tag').value||'').toLowerCase().trim();
+  let films=_arecFilms;
+  if(qTitle) films=films.filter(f=>(LANG==='en'?(TITLE_ORIG[f.id]||f.title):f.title).toLowerCase().includes(qTitle));
+  if(qDir)   films=films.filter(f=>f.dir.toLowerCase().includes(qDir));
+  if(qTag)   films=films.filter(f=>f.tags.some(tg=>tTagRaw(tg).toLowerCase().includes(qTag)));
+  _arecRenderTable(films);
+}
+
+function _arecSort(col){
+  if(_arecSort_col===col) _arecSort_dir*=-1; else{_arecSort_col=col;_arecSort_dir=1;}
+  // update header arrows
+  ['title','year','dir'].forEach(c=>{
+    const el=document.getElementById('arec-arr-'+c);
+    const th=document.querySelector(`[data-col="${c}"]`);
+    if(!el||!th)return;
+    if(c===_arecSort_col){el.textContent=_arecSort_dir===1?'↑':'↓';th.classList.add('sorted');}
+    else{el.textContent='↕';th.classList.remove('sorted');}
+  });
+  _arecApplyFilters();
+}
+
+function _arecRenderTable(films){
+  // apply sort
+  if(_arecSort_col){
+    const d=_arecSort_dir;
+    films=[...films].sort((a,b)=>{
+      let va=_arecSort_col==='title'?(LANG==='en'?(TITLE_ORIG[a.id]||a.title):a.title):a[_arecSort_col];
+      let vb=_arecSort_col==='title'?(LANG==='en'?(TITLE_ORIG[b.id]||b.title):b.title):b[_arecSort_col];
+      if(typeof va==='string') return va.localeCompare(vb)*d;
+      return (va-vb)*d;
+    });
+  }
+  const count=document.getElementById('arec-count');
+  const tbody=document.getElementById('arec-tbody');
+  if(!tbody)return;
+  if(!films.length){
+    tbody.innerHTML='';
+    if(count) count.innerHTML=`<strong>0</strong> film`;
+    return;
+  }
+  if(count) count.innerHTML=`<strong>${films.length}</strong> film`;
+  tbody.innerHTML=films.map(f=>{
+    const title=LANG==='en'?(TITLE_ORIG[f.id]||f.title):f.title;
+    const tagsHTML=f.tags.slice(0,4).map(tg=>`<span class="arec-tag">${tTagRaw(tg)}</span>`).join('');
+    return `<tr onclick="openRecFilm(${f.id})">
+      <td class="arec-td-title">${title}</td>
+      <td class="arec-td-year">${f.year}</td>
+      <td class="arec-td-dir">${f.dir}</td>
+      <td><div class="arec-td-tags">${tagsHTML}</div></td>
+    </tr>`;
+  }).join('');
+}
+
+// tTagRaw: tag label without i18n overhead (fallback to raw key)
+function tTagRaw(k){try{return t('tag_'+k)||k;}catch(e){return k;}}
 function openRecFilm(id){
   const f=DB.find(x=>x.id===id);if(!f)return;
   // raise card above slide panels (z-index 310) so panels stay visible behind
@@ -2816,6 +2908,7 @@ const T={
     search_results:'risultati',mark_all_seen:'✓ Segna tutti come visti',today_btn:'🎬 Film consigliati oggi',mark_all_unseen:'✕ Deseleziona tutti',
     seen_count:' film già visti da te',
     prof_h2:'Il tuo profilo',allrec_btn:'Tutti i film consigliati',allrec_h2:'Tutti i film consigliati',allrec_p:'Ogni film che Swainz ti ha consigliato',allrec_empty:'Nessun film ancora consigliato.',prof_p:'Informazioni personali — non influenzano i consigli di Swainz',
+    arec_col_title:'Titolo',arec_col_year:'Anno',arec_col_dir:'Regista',arec_col_tags:'Caratteristiche',arec_f_title:'🔍 Cerca titolo…',arec_f_dir:'Regista…',arec_f_tag:'Tag…',
     prof_nome:'Nome',prof_cog:'Cognome',prof_data:'Data di nascita',
     prof_film:'Film preferito',prof_reg:'Regista preferito',prof_att:'Attore preferito',
     prof_nome_ph:'Es. Marco',prof_cog_ph:'Es. Rossi',prof_film_ph:'Es. Il Padrino',
@@ -2883,6 +2976,7 @@ const T={
     search_results:'results',mark_all_seen:'✓ Mark all as watched',today_btn:'🎬 Films recommended today',mark_all_unseen:'✕ Unmark all',
     seen_count:' films watched by you',
     prof_h2:'Your profile',allrec_btn:'All recommended films',allrec_h2:'All recommended films',allrec_p:'Every film Swainz has ever suggested to you',allrec_empty:'No films recommended yet.',prof_p:'Personal info — does not affect Swainz recommendations',
+    arec_col_title:'Title',arec_col_year:'Year',arec_col_dir:'Director',arec_col_tags:'Characteristics',arec_f_title:'🔍 Search title…',arec_f_dir:'Director…',arec_f_tag:'Tag…',
     prof_nome:'First name',prof_cog:'Last name',prof_data:'Date of birth',
     prof_film:'Favourite film',prof_reg:'Favourite director',prof_att:'Favourite actor',
     prof_nome_ph:'E.g. John',prof_cog_ph:'E.g. Smith',prof_film_ph:'E.g. The Godfather',
