@@ -1546,6 +1546,33 @@ let dailyRecs=[]; // array of film ids shown today
 
 async function loadTodayRecs(){
   try{const r=await window.storage.get(_todayKey);if(r)dailyRecs=JSON.parse(r.value);}catch(e){}
+  // Restore searches counter and countdown from persisted state
+  if(!isPremium){
+    searches=Math.max(0,3-dailyRecs.length);
+    const cnt=document.getElementById('cnt');if(cnt)cnt.textContent=searches;
+    if(searches<=0){
+      try{
+        const cd=localStorage.getItem('sw3_cd');
+        const t=cd?parseInt(cd,10):0;
+        if(t>Date.now()){
+          cdEndTime=t;
+          document.getElementById('cov').classList.add('on');
+          startCountdown();
+        }else{
+          // Countdown expired while page was closed — create a new one
+          localStorage.removeItem('sw3_cd');
+          cdEndTime=Date.now()+24*3600*1000;
+          try{localStorage.setItem('sw3_cd',String(cdEndTime));}catch(ex){}
+          document.getElementById('cov').classList.add('on');
+          startCountdown();
+        }
+      }catch(e){}
+    }else if(dailyRecs.length===0){
+      // New calendar day — clear any stale countdown
+      try{localStorage.removeItem('sw3_cd');}catch(e){}
+      cdEndTime=null;
+    }
+  }
   renderTodayList();
   if(document.getElementById('allrecsp').classList.contains('on'))openAllRecs();
   if(dailyRecs.length>0)showTodayBtn();
@@ -2170,7 +2197,7 @@ function tryAgain(){
   document.getElementById('catw').classList.remove('rev');
   // decrement counter exactly like go()
   if(!isPremium){
-    if(searches<=0){if(!cdEndTime){cdEndTime=Date.now()+24*3600*1000;startCountdown();}document.getElementById('cov').classList.add('on');return;}
+    if(searches<=0){if(!cdEndTime){cdEndTime=Date.now()+24*3600*1000;try{localStorage.setItem('sw3_cd',String(cdEndTime));}catch(e){}startCountdown();}document.getElementById('cov').classList.add('on');return;}
     searches--;document.getElementById('cnt').textContent=searches;
   }
   setTimeout(()=>{
@@ -2356,14 +2383,14 @@ function go(){
       else alert(LANG==='en'?'Database connection failed.':'Connessione al database fallita. Riprova su swainz.it');
     });return;
   }
-  if(!isPremium){if(searches<=0){if(!cdEndTime){cdEndTime=Date.now()+24*3600*1000;startCountdown();}document.getElementById('cov').classList.add('on');return;}searches--;document.getElementById('cnt').textContent=searches;}
+  if(!isPremium){if(searches<=0){if(!cdEndTime){cdEndTime=Date.now()+24*3600*1000;try{localStorage.setItem('sw3_cd',String(cdEndTime));}catch(e){}startCountdown();}document.getElementById('cov').classList.add('on');return;}searches--;document.getElementById('cnt').textContent=searches;}
   const r=findFilm();
   if(!r){if(!isPremium){searches++;const cnt=document.getElementById('cnt');if(cnt)cnt.textContent=searches;}resetCat();return;}
   if(isFirstSearch&&!isPremium){isFirstSearch=false;showAd(r);}else{revealCat();setTimeout(()=>showCard(r),2500);}
 }
 function startCountdown(){
   if(cdInterval)clearInterval(cdInterval);
-  function tick(){const d=cdEndTime-Date.now();if(d<=0){searches=3;isFirstSearch=true;document.getElementById('cnt').textContent=3;document.getElementById('cov').classList.remove('on');clearInterval(cdInterval);cdEndTime=cdInterval=null;return;}const h=Math.floor(d/3600000),m=Math.floor((d%3600000)/60000),s=Math.floor((d%60000)/1000);document.getElementById('cdh').textContent=String(h).padStart(2,'0');document.getElementById('cdm').textContent=String(m).padStart(2,'0');document.getElementById('cds').textContent=String(s).padStart(2,'0');}
+  function tick(){const d=cdEndTime-Date.now();if(d<=0){searches=3;isFirstSearch=true;document.getElementById('cnt').textContent=3;document.getElementById('cov').classList.remove('on');clearInterval(cdInterval);cdEndTime=cdInterval=null;try{localStorage.removeItem('sw3_cd');}catch(e){}return;}const h=Math.floor(d/3600000),m=Math.floor((d%3600000)/60000),s=Math.floor((d%60000)/1000);document.getElementById('cdh').textContent=String(h).padStart(2,'0');document.getElementById('cdm').textContent=String(m).padStart(2,'0');document.getElementById('cds').textContent=String(s).padStart(2,'0');}
   tick();cdInterval=setInterval(tick,1000);
 }
 
