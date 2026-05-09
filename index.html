@@ -3501,8 +3501,14 @@ function _applyUserData(d) {
     try{localStorage.setItem('sw3_prof',JSON.stringify(profData));}catch(e){}
   }
   if(d.all_rec_ids&&d.all_rec_ids.length){
-    allRecs=_normaliseAllRecs(d.all_rec_ids);
+    const _remote=_normaliseAllRecs(d.all_rec_ids);
+    const _localIds=new Set(allRecs.map(e=>e.id));
+    const _merged=[...allRecs,..._remote.filter(e=>!_localIds.has(e.id))];
+    allRecs=_merged;
     try{localStorage.setItem(_allRecKey,JSON.stringify(allRecs));}catch(e){}
+    if(_merged.length>_remote.length&&_authToken&&currentUser){
+      _saveUserData({all_rec_ids:_merged,updated_at:new Date().toISOString()});
+    }
   }
 }
 
