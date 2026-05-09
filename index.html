@@ -1542,37 +1542,11 @@ async function loadSeen(){try{const r=await window.storage.get('sw3_seen');if(r)
 
 // TODAY RECOMMENDATIONS
 const _todayKey='sw3_today_'+new Date().toISOString().slice(0,10);
+const _searchKey='sw3_srch_'+new Date().toISOString().slice(0,10);
 let dailyRecs=[]; // array of film ids shown today
 
 async function loadTodayRecs(){
   try{const r=await window.storage.get(_todayKey);if(r)dailyRecs=JSON.parse(r.value);}catch(e){}
-  // Restore searches counter and countdown from persisted state
-  if(!isPremium){
-    searches=Math.max(0,3-dailyRecs.length);
-    const cnt=document.getElementById('cnt');if(cnt)cnt.textContent=searches;
-    if(searches<=0){
-      try{
-        const cd=localStorage.getItem('sw3_cd');
-        const t=cd?parseInt(cd,10):0;
-        if(t>Date.now()){
-          cdEndTime=t;
-          document.getElementById('cov').classList.add('on');
-          startCountdown();
-        }else{
-          // Countdown expired while page was closed — create a new one
-          localStorage.removeItem('sw3_cd');
-          cdEndTime=Date.now()+24*3600*1000;
-          try{localStorage.setItem('sw3_cd',String(cdEndTime));}catch(ex){}
-          document.getElementById('cov').classList.add('on');
-          startCountdown();
-        }
-      }catch(e){}
-    }else if(dailyRecs.length===0){
-      // New calendar day — clear any stale countdown
-      try{localStorage.removeItem('sw3_cd');}catch(e){}
-      cdEndTime=null;
-    }
-  }
   renderTodayList();
   if(document.getElementById('allrecsp').classList.contains('on'))openAllRecs();
   if(dailyRecs.length>0)showTodayBtn();
@@ -2198,7 +2172,7 @@ function tryAgain(){
   // decrement counter exactly like go()
   if(!isPremium){
     if(searches<=0){if(!cdEndTime){cdEndTime=Date.now()+24*3600*1000;try{localStorage.setItem('sw3_cd',String(cdEndTime));}catch(e){}startCountdown();}document.getElementById('cov').classList.add('on');return;}
-    searches--;document.getElementById('cnt').textContent=searches;
+    searches--;document.getElementById('cnt').textContent=searches;try{localStorage.setItem(_searchKey,String(searches));}catch(e){}
   }
   setTimeout(()=>{
     const r=findFilm();
@@ -2383,15 +2357,48 @@ function go(){
       else alert(LANG==='en'?'Database connection failed.':'Connessione al database fallita. Riprova su swainz.it');
     });return;
   }
-  if(!isPremium){if(searches<=0){if(!cdEndTime){cdEndTime=Date.now()+24*3600*1000;try{localStorage.setItem('sw3_cd',String(cdEndTime));}catch(e){}startCountdown();}document.getElementById('cov').classList.add('on');return;}searches--;document.getElementById('cnt').textContent=searches;}
+  if(!isPremium){if(searches<=0){if(!cdEndTime){cdEndTime=Date.now()+24*3600*1000;try{localStorage.setItem('sw3_cd',String(cdEndTime));}catch(e){}startCountdown();}document.getElementById('cov').classList.add('on');return;}searches--;document.getElementById('cnt').textContent=searches;try{localStorage.setItem(_searchKey,String(searches));}catch(e){}}
   const r=findFilm();
   if(!r){if(!isPremium){searches++;const cnt=document.getElementById('cnt');if(cnt)cnt.textContent=searches;}resetCat();return;}
   if(isFirstSearch&&!isPremium){isFirstSearch=false;showAd(r);}else{revealCat();setTimeout(()=>showCard(r),2500);}
 }
 function startCountdown(){
   if(cdInterval)clearInterval(cdInterval);
-  function tick(){const d=cdEndTime-Date.now();if(d<=0){searches=3;isFirstSearch=true;document.getElementById('cnt').textContent=3;document.getElementById('cov').classList.remove('on');clearInterval(cdInterval);cdEndTime=cdInterval=null;try{localStorage.removeItem('sw3_cd');}catch(e){}return;}const h=Math.floor(d/3600000),m=Math.floor((d%3600000)/60000),s=Math.floor((d%60000)/1000);document.getElementById('cdh').textContent=String(h).padStart(2,'0');document.getElementById('cdm').textContent=String(m).padStart(2,'0');document.getElementById('cds').textContent=String(s).padStart(2,'0');}
+  function tick(){const d=cdEndTime-Date.now();if(d<=0){searches=3;isFirstSearch=true;document.getElementById('cnt').textContent=3;document.getElementById('cov').classList.remove('on');clearInterval(cdInterval);cdEndTime=cdInterval=null;try{localStorage.removeItem('sw3_cd');localStorage.removeItem(_searchKey);}catch(e){}return;}const h=Math.floor(d/3600000),m=Math.floor((d%3600000)/60000),s=Math.floor((d%60000)/1000);document.getElementById('cdh').textContent=String(h).padStart(2,'0');document.getElementById('cdm').textContent=String(m).padStart(2,'0');document.getElementById('cds').textContent=String(s).padStart(2,'0');}
   tick();cdInterval=setInterval(tick,1000);
+}
+function loadSearchState(){
+  if(isPremium)return;
+  try{
+    const saved=localStorage.getItem(_searchKey);
+    if(saved!==null){
+      searches=Math.max(0,parseInt(saved,10));
+      const cnt=document.getElementById('cnt');if(cnt)cnt.textContent=searches;
+    }
+    if(searches<=0){
+      const cd=localStorage.getItem('sw3_cd');
+      if(cd){
+        const t=parseInt(cd,10);
+        if(t>Date.now()){
+          cdEndTime=t;
+          document.getElementById('cov').classList.add('on');
+          startCountdown();
+        }else{
+          // Countdown expired while offline — reset for new cycle
+          localStorage.removeItem('sw3_cd');
+          localStorage.removeItem(_searchKey);
+          searches=3;
+          const cnt=document.getElementById('cnt');if(cnt)cnt.textContent=3;
+        }
+      }else{
+        // searches=0 but no cd stored — start countdown now
+        cdEndTime=Date.now()+24*3600*1000;
+        localStorage.setItem('sw3_cd',String(cdEndTime));
+        document.getElementById('cov').classList.add('on');
+        startCountdown();
+      }
+    }
+  }catch(e){}
 }
 
 // ── VISTI ────────────────────────────────────────────────────────────────
@@ -3341,7 +3348,7 @@ function setLang(l){
   // Load local prefs first
   try{const r=await window.storage.get('sw3_premium');if(r&&r.value==='1')isPremium=true;}catch(e){}
   try{const lp=localStorage.getItem('sw3_premium');if(lp==='1')isPremium=true;}catch(e){}
-  buildUI();loadSeen();loadFck();loadTodayRecs();loadAllRecs();if(window.innerWidth<=600){setLang(LANG);}
+  buildUI();loadSeen();loadFck();loadTodayRecs();loadAllRecs();loadSearchState();if(window.innerWidth<=600){setLang(LANG);}
   // Try to restore existing Supabase session → auto-login
   // Handle OAuth redirect callback (hash in URL)
   if(_handleOAuthCallback())return;
