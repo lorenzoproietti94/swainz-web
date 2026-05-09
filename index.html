@@ -2380,8 +2380,8 @@ function loadSearchState(){
       if(cd){
         const t=parseInt(cd,10);
         if(t>Date.now()){
+          // Restore cdEndTime silently — cov overlay only shown when user tries to search
           cdEndTime=t;
-          document.getElementById('cov').classList.add('on');
           startCountdown();
         }else{
           // Countdown expired while offline — reset for new cycle
@@ -2391,10 +2391,9 @@ function loadSearchState(){
           const cnt=document.getElementById('cnt');if(cnt)cnt.textContent=3;
         }
       }else{
-        // searches=0 but no cd stored — start countdown now
+        // searches=0 but no cd stored — set cdEndTime silently
         cdEndTime=Date.now()+24*3600*1000;
         localStorage.setItem('sw3_cd',String(cdEndTime));
-        document.getElementById('cov').classList.add('on');
         startCountdown();
       }
     }
