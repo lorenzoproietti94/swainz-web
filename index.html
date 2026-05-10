@@ -94,6 +94,27 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
 .reset-btn:hover .reset-icon{transform:rotate(-180deg)}
 .chip.on{border-color:var(--bl);background:var(--ca);color:#fff;box-shadow:0 0 10px rgba(37,99,255,.22)}
 .chip.ex:hover{border-color:var(--boh);background:rgba(255,80,0,.07)}
+/* ── PROPOSTE RAPIDE ─────────────────────────────────────────────────────── */
+#proposte-rapide{margin-bottom:16px;background:rgba(255,80,0,.04);border:1px solid rgba(255,80,0,.16);border-radius:18px;padding:16px 20px;position:relative;overflow:hidden}
+#proposte-rapide::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,80,0,.05) 0%,transparent 60%);pointer-events:none}
+.proposte-title{font-family:'Bebas Neue',sans-serif;font-size:11.5px;letter-spacing:3.5px;color:var(--or);text-transform:uppercase;margin-bottom:13px;opacity:.9;position:relative}
+.proposte-pills{display:flex;flex-wrap:wrap;gap:9px;justify-content:center;min-height:34px;align-items:center;position:relative}
+.quick-pill{background:rgba(255,255,255,.05);border:1px solid rgba(255,80,0,.24);border-radius:40px;color:var(--tx);font-size:12.5px;font-weight:600;padding:8px 19px;cursor:pointer;transition:all .2s;font-family:inherit;letter-spacing:.01em;line-height:1}
+.quick-pill:hover{background:rgba(255,80,0,.14);border-color:var(--or);transform:translateY(-1px);box-shadow:0 4px 14px rgba(255,80,0,.18)}
+.quick-pill:active{transform:scale(.96)}
+/* ── SWAINZ LAB ──────────────────────────────────────────────────────────── */
+.lab-box{background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.07);border-radius:18px;overflow:hidden;margin-bottom:10px}
+.lab-hdr{display:flex;align-items:center;justify-content:space-between;padding:12px 18px;cursor:pointer;user-select:none;transition:background .2s}
+.lab-hdr:hover{background:rgba(255,255,255,.03)}
+.lab-hdr.open{border-bottom:1px solid rgba(255,255,255,.06)}
+.lab-ttl{font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:4px;color:var(--td);text-transform:uppercase}
+.lab-ctl{display:flex;align-items:center;gap:10px}
+.lab-arr{color:var(--td);font-size:15px;transition:transform .35s;line-height:1;display:inline-block}
+.lab-arr.open{transform:rotate(0deg)}
+.lab-arr.closed{transform:rotate(-90deg)}
+.lab-body{overflow:hidden;transition:max-height .42s cubic-bezier(.4,0,.2,1);max-height:0}
+.lab-body.open{max-height:4200px}
+.lab-inner{padding:8px 2px 4px}
 .chip.ex.on{border-color:var(--or);background:var(--coa);color:var(--or)}
 .sl{display:flex;align-items:center;gap:11px;margin-top:4px}
 .sl label{font-size:11px;color:var(--td);white-space:nowrap}
@@ -823,23 +844,34 @@ body.cat-revealing #today-wrap-mob{visibility:hidden!important;pointer-events:no
     </button>
   </div>
   <div class="fa">
-    <div class="fi"><h2 data-i18n="main_h2">Cosa vuoi vedere stasera?</h2><p data-i18n="main_p">Seleziona le caratteristiche che desideri e Swainz farà il resto</p></div>
-    <div style="display:flex;justify-content:flex-start;margin-bottom:6px;padding:0 2px">
-      <button class="reset-btn" onclick="resetFilters()" id="resetBtn">
-        <span class="reset-icon">↺</span><span data-i18n="reset_filters">Reset Filtri</span>
-      </button>
+    <!-- ── PROPOSTE RAPIDE ── -->
+    <div id="proposte-rapide">
+      <div class="proposte-title">✦ &nbsp;Le proposte rapide di Swainz</div>
+      <div id="proposte-pills" class="proposte-pills"><span style="color:var(--td);font-size:12px;opacity:.45">Caricamento…</span></div>
     </div>
-    <div id="fgc"></div>
-    <div class="fgrp"><div class="fgh" onclick="tog(this)"><div class="fght or">⭐ &nbsp;<span data-i18n="filter_rating">Voto minimo IMDb</span></div><div class="fgar open">▾</div></div>
-      <div class="fgb open"><div class="sl"><label data-i18n="rating_any">Qualsiasi</label><input type="range" min="5" max="9.5" step=".5" value="6.5" id="rsl" oninput="document.getElementById('rv').textContent=this.value;updatePoolCount()"><span class="sv" id="rv">6.5</span><label data-i18n="rating_top">Solo il top</label></div></div>
+    <!-- ── SWAINZ LAB ── -->
+    <div class="lab-box">
+      <div class="lab-hdr open" id="lab-hdr" onclick="toggleLab()">
+        <span class="lab-ttl">⚗ &nbsp;Swainz Lab</span>
+        <div class="lab-ctl">
+          <button class="reset-btn" onclick="event.stopPropagation();resetFilters()" id="resetBtn"><span class="reset-icon">↺</span><span data-i18n="reset_filters">Reset Filtri</span></button>
+          <span class="lab-arr open" id="lab-arr">▾</span>
+        </div>
+      </div>
+      <div class="lab-body open" id="lab-body">
+        <div class="lab-inner">
+          <div id="fgc"></div>
+          <div class="fgrp"><div class="fgh" onclick="tog(this)"><div class="fght or">⭐ &nbsp;<span data-i18n="filter_rating">Voto minimo IMDb</span></div><div class="fgar open">▾</div></div>
+            <div class="fgb open"><div class="sl"><label data-i18n="rating_any">Qualsiasi</label><input type="range" min="5" max="9.5" step=".5" value="6.5" id="rsl" oninput="document.getElementById('rv').textContent=this.value;updatePoolCount()"><span class="sv" id="rv">6.5</span><label data-i18n="rating_top">Solo il top</label></div></div>
+          </div>
+          <div id="fgc2"></div>
+          <div class="fgrp"><div class="fgh" onclick="tog(this)"><div class="fght red">🚫 &nbsp;<span data-i18n="filter_excl">Escludi caratteristiche</span></div><div class="fgar">▾</div></div>
+            <div class="fgb"><div class="chips" id="ce"></div></div>
+          </div>
+        </div>
+      </div>
     </div>
-    <div id="fgc2"></div>
-    <div class="fgrp"><div class="fgh" onclick="tog(this)"><div class="fght red">🚫 &nbsp;<span data-i18n="filter_excl">Escludi caratteristiche</span></div><div class="fgar">▾</div></div>
-      <div class="fgb"><div class="chips" id="ce"></div></div>
-    </div>
-    <div id="ad-slot-bottom">
-      <span class="ad-slot-label">ADV</span>
-    </div>
+    <div id="ad-slot-bottom"><span class="ad-slot-label">ADV</span></div>
   </div>
 
 <!-- CAT WALKING (inside app so z-index is relative to app stacking context — below cta-w z-index:10) -->
@@ -1291,9 +1323,9 @@ function _supaFetchPage(page,step,resolve,reject,all){
     if(xhr.status!==200){resolve();return;}
     try{
       var rows=JSON.parse(xhr.responseText);
-      if(!Array.isArray(rows)||rows.length===0){DB=all.map(_supaTransform);resolve();return;}
+      if(!Array.isArray(rows)||rows.length===0){DB=all.map(_supaTransform);_renderProposte();resolve();return;}
       all=all.concat(rows);
-      if(rows.length<step){DB=all.map(_supaTransform);resolve();return;}
+      if(rows.length<step){DB=all.map(_supaTransform);_renderProposte();resolve();return;}
       _supaFetchPage(page+1,step,resolve,reject,all);
     }catch(e){resolve();}
   };
@@ -1911,6 +1943,140 @@ document.addEventListener('click', e=>{
 
 const TAG_TIPS={"it": {"Thriller": "Tensione e suspense come motori della storia. Spesso un protagonista in pericolo.", "Horror": "Progettato per spaventare. Atmosfere cupe, creature, paure psicologiche o fisiche.", "Dramma": "Storie centrate sulle emozioni e sui conflitti umani. Cinema nella sua forma essenziale.", "Commedia": "Film pensati per far ridere. Situazioni comiche, personaggi buffi, dialoghi arguti.", "Fantascienza": "Mondi futuri, tecnologie avanzate, spazio o intelligenza artificiale.", "Western": "Il Far West americano, la frontiera, i duelli e i cowboy. Un genere iconico.", "Animazione": "Film realizzati con tecniche animate. Per tutte le eta, spesso con profondita inaspettata.", "Documentario": "Racconto del reale. Storie vere, personaggi reali, temi sociali o naturalistici.", "Noire": "Atmosfere oscure, detective, crimini irrisolti e ambiguita morale.", "CineComic": "Adattamenti di fumetti e supereroi. Azione spettacolare e universi narrativi espansi.", "Romantico": "Una storia d amore al centro. Emozioni, attrazione, perdita.", "Comico": "Umorismo esplicito e situazioni esilaranti. Piu leggero della commedia classica.", "Crimine": "Furti, omicidi, gangster, poliziotti. Il mondo del crimine come sfondo narrativo.", "Mafia": "Organizzazioni criminali, clan familiari, codici d onore violati e lealta tradite.", "Droga": "Il mondo delle sostanze stupefacenti, della dipendenza e del traffico illecito.", "Guerra": "Il conflitto armato come protagonista. Eroismo, orrore, cameratismo e sacrificio.", "Serial Killer": "Un assassino seriale al centro. Indagini, profili psicologici, tensione.", "Economico": "Finanza, speculazione, avidita e potere economico come temi centrali.", "Catastrofico": "Disastri naturali o artificiali, sopravvivenza e caos su larga scala.", "Vendetta": "Un protagonista in cerca di giustizia personale. Rancore, pianificazione, esecuzione.", "Sportivo": "Lo sport come metafora o scenario principale. Sfide, vittorie, sacrifici.", "Legal Drama": "Tribunali, avvocati, processi. La legge come arena di conflitto morale.", "Biografico": "La vita reale di una persona famosa o straordinaria raccontata al cinema.", "Colossal": "Produzioni spettacolari con grandi budget, effetti visivi e cast stellari.", "Capolavoro": "Unanimemente riconosciuto come opera di eccezionale valore artistico e cinematografico.", "D'Autore": "Cinema con visione personale forte. Il regista come autore con stile inconfondibile.", "Oscar": "Premiato o candidato agli Academy Awards. Cinema mainstream di qualita riconosciuta.", "Grande Interpretazione": "Una o piu performance attoriali che rimangono impresse nella memoria.", "Grande Colonna Sonora": "La musica e un elemento fondamentale dell esperienza del film.", "Estetico": "Immagini di straordinaria bellezza visiva. Fotografia e messa in scena come arte.", "Imponente": "Scale narrative o visive grandissime. Un film che lascia senza fiato.", "Storia Avvincente": "Una trama che cattura dall inizio alla fine. Impossibile smettere di guardare.", "Pazzesco": "Un film che sorprende o sconvolge per originalita o intensita.", "Bizzarro": "Strano, insolito, fuori dagli schemi. Un film che non assomiglia a nessun altro.", "Musicale": "La musica e il canto sono parte integrante della narrazione.", "Difficile": "Richiede attenzione e apertura mentale. Piu di una visione potrebbe essere necessaria.", "Triste": "Emotivamente pesante. Preparati a commuoverti o a restare malinconico.", "Psicologico/mentale": "Esplora la mente umana, i disturbi, le ossessioni o la percezione della realta.", "Angosciante": "Un senso di oppressione o disagio pervade il film dall inizio alla fine.", "Claustrofobico": "Spazi ristretti, atmosfere soffocanti, senso di intrappolamento.", "Onirico": "Logica dei sogni, immagini surreali, confine sfumato tra reale e immaginario.", "Psichedelico": "Visioni alterate, uso di allucinazioni come linguaggio cinematografico.", "Crudo": "Violento, esplicito o disturbante. Non alleggerisce cio che mostra.", "Violenza Ironica": "La violenza e presente ma trattata con humour nero o distacco stilizzato.", "Personaggio Cattivo": "L antagonista e straordinariamente memorabile o complesso.", "Italiano": "Produzione italiana o con ambientazione e cultura italiana predominante.", "Asiatico": "Cinema orientale: Giappone, Corea, Cina, Hong Kong.", "Epoca Passata": "Ambientato in un epoca storica passata, fino al XX secolo.", "Distopia": "Un futuro cupo e oppressivo, spesso con critica politica o sociale.", "Tecnologico": "La tecnologia come tema centrale, tra utopia digitale e minacce informatiche.", "Vecchio": "Film prodotto prima degli anni Settanta. Cinema classico in bianco e nero.", "Neorealismo": "Il grande cinema italiano del dopoguerra. Storie di gente comune girate per strada.", "Corto(<1h30)": "Durata contenuta, meno di 90 minuti. Ideale quando hai poco tempo.", "Lungo(>2h30)": "Oltre 150 minuti. Preparati a un esperienza immersiva.", "Lunghissimo": "Durata eccezionale, spesso oltre le 3 ore. Un impegno serio."}, "en": {"Thriller": "Tension and suspense drive the story. Often a protagonist in danger.", "Horror": "Designed to frighten. Dark atmospheres, creatures, psychological or physical fears.", "Dramma": "Stories centered on emotions and human conflicts. Cinema in its most essential form.", "Commedia": "Films meant to make you laugh. Comic situations, funny characters, witty dialogue.", "Fantascienza": "Future worlds, advanced technology, space or AI. Cinema of ideas.", "Western": "The American frontier, duels and cowboys. An iconic classic genre.", "Animazione": "Films made with animation. For all ages, often with unexpected depth.", "Documentario": "Storytelling about reality. True stories, real people, social or natural themes.", "Noire": "Dark atmospheres, detectives, unsolved crimes and moral ambiguity.", "CineComic": "Comic book and superhero adaptations. Spectacular action and expanded universes.", "Romantico": "A love story at the centre. Emotions, attraction, loss.", "Comico": "Explicit humour and hilarious situations. Lighter than classic comedy.", "Crimine": "Heists, murders, gangsters, cops. The world of crime as narrative backdrop.", "Mafia": "Criminal organisations, family clans, violated codes of honour and betrayed loyalty.", "Droga": "The world of narcotics, addiction and illicit trafficking.", "Guerra": "Armed conflict as protagonist. Heroism, horror, camaraderie and sacrifice.", "Serial Killer": "A serial killer at the centre. Investigations, psychological profiles.", "Economico": "Finance, speculation, greed and economic power as central themes.", "Catastrofico": "Natural or man-made disasters, survival and large-scale chaos.", "Vendetta": "A protagonist seeking personal justice. Resentment, planning, execution.", "Sportivo": "Sport as metaphor or main setting. Challenges, victories, sacrifices.", "Legal Drama": "Courts, lawyers, trials. The law as an arena of moral conflict.", "Biografico": "The real life of a famous or extraordinary person told on screen.", "Colossal": "Spectacular productions with large budgets, impressive VFX and star casts.", "Capolavoro": "Unanimously recognised as a work of exceptional artistic value.", "D'Autore": "Cinema with a strong personal vision. The director as auteur.", "Oscar": "Academy Award winner or nominee. Quality mainstream cinema recognised globally.", "Grande Interpretazione": "One or more acting performances that stay with you after the credits.", "Grande Colonna Sonora": "Music is a fundamental element of the film experience.", "Estetico": "Extraordinarily beautiful imagery. Cinematography and staging as art.", "Imponente": "Enormous narrative or visual scale. A film that takes your breath away.", "Storia Avvincente": "A plot that grips from start to finish. Impossible to stop watching.", "Pazzesco": "A film that surprises or shocks for its originality or intensity.", "Bizzarro": "Strange, unusual, out of the ordinary. A film unlike any other.", "Musicale": "Music and singing are an integral part of the narrative.", "Difficile": "Requires attention and open-mindedness. More than one viewing may be needed.", "Triste": "Emotionally heavy. Prepare to be moved or left feeling melancholy.", "Psicologico/mentale": "Explores the human mind, disorders, obsessions or perception of reality.", "Angosciante": "A sense of oppression or unease pervades the film throughout.", "Claustrofobico": "Tight spaces, suffocating atmospheres, a sense of being trapped.", "Onirico": "Dream logic, surreal imagery, blurred boundary between real and imaginary.", "Psichedelico": "Altered-state visions, hallucinations used as cinematic language.", "Crudo": "Violent, explicit or disturbing. Does not soften what it shows.", "Violenza Ironica": "Violence is present but treated with black humour or stylised detachment.", "Personaggio Cattivo": "The antagonist is extraordinarily memorable or complex.", "Italiano": "Italian production or with predominantly Italian setting and culture.", "Asiatico": "Far Eastern cinema: Japan, Korea, China, Hong Kong.", "Epoca Passata": "Set in a historical past era, up to the 20th century.", "Distopia": "A bleak and oppressive future, often with political or social critique.", "Tecnologico": "Technology as a central theme, between digital utopia and cyber threats.", "Vecchio": "Film made before the 1970s. Classic black-and-white or early colour cinema.", "Neorealismo": "Great Italian post-war cinema. Everyday stories shot on location.", "Corto(<1h30)": "Short runtime, under 90 minutes. Ideal when you have limited time.", "Lungo(>2h30)": "Long runtime, over 150 minutes. Prepare for an immersive experience.", "Lunghissimo": "Exceptionally long, often over 3 hours. A serious commitment."}};
 function getTagTip(tag){var tips=TAG_TIPS[LANG]||TAG_TIPS.it;return tips[tag]||"";}
+// ── PROPOSTE RAPIDE ──────────────────────────────────────────────────────────
+function _seededRand(seed){let s=seed+1;return function(){s=(Math.imul(1664525,s)+1013904223)|0;return(s>>>0)/4294967296;};}
+
+function _quickCountForCombo(gid1,tag1,gid2,tag2){
+  if(!DB||!DB.length)return 0;
+  const minR=parseFloat((document.getElementById('rsl')||{value:'6.5'}).value)||6.5;
+  const pltSel=SEL['g7'],perSel=SEL['g8'];
+  const vecchioSel=tag1==='Vecchio'||tag2==='Vecchio';
+  return DB.filter(f=>{
+    if(seenFilms.has(f.id))return false;
+    if(f.r<minR)return false;
+    if(pltSel.size>0){
+      const noPlat=pltSel.has('Non su piattaforme');
+      if(noPlat?(!f.plt||f.plt.length>0):!f.plt.some(p=>pltSel.has(p)))return false;
+    }
+    if(perSel.size>0&&![...perSel].some(p=>PERIOD_MAP[p]&&PERIOD_MAP[p](f.year)))return false;
+    if(userPrefs.minYear&&f.year<userPrefs.minYear&&!vecchioSel)return false;
+    if(userPrefs.excludeHorror&&f.tags.includes('Horror')&&tag1!=='Horror'&&tag2!=='Horror')return false;
+    if(userPrefs.excludeCrudo&&f.tags.includes('Crudo')&&tag1!=='Crudo'&&tag2!=='Crudo')return false;
+    if(userPrefs.excludeScifi&&f.tags.includes('Fantascienza')&&tag1!=='Fantascienza'&&tag2!=='Fantascienza')return false;
+    if(userPrefs.excludeComedy&&(f.tags.includes('Commedia')||f.tags.includes('Comico'))&&tag1!=='Commedia'&&tag2!=='Commedia'&&tag1!=='Comico'&&tag2!=='Comico')return false;
+    if(userPrefs.excludeRomance&&f.tags.includes('Romantico')&&tag1!=='Romantico'&&tag2!=='Romantico')return false;
+    if(userPrefs.excludeDifficile&&f.tags.includes('Difficile'))return false;
+    if(userPrefs.excludeConosciutissimo&&f.tags.includes('Conosciutissimo'))return false;
+    if(userPrefs.excludedTags&&userPrefs.excludedTags.size>0&&f.tags.some(t=>userPrefs.excludedTags.has(t)&&t!==tag1&&t!==tag2))return false;
+    if(userPrefs.onlyPlatform&&pltSel.size===0){
+      if(userPrefs.userPlatforms&&userPrefs.userPlatforms.length>0){if(!f.plt||!f.plt.some(p=>userPrefs.userPlatforms.includes(p)))return false;}
+      else{if(!f.plt||f.plt.length===0)return false;}
+    }
+    if(userPrefs.reduceItalian&&f.tags.includes('Italiano')&&tag1!=='Italiano'&&tag2!=='Italiano')return false;
+    for(const t of OPT_IN_TAGS){if(f.tags.includes(t)&&t!==tag1&&t!==tag2&&!_activeOptInTags.has(t))return false;}
+    if(f.tags.includes('Sequel')&&SEQUEL_MAP[f.id]&&!SEQUEL_MAP[f.id].every(pid=>seenFilms.has(pid)))return false;
+    return f.tags.includes(tag1)&&f.tags.includes(tag2);
+  }).length;
+}
+
+function _generateProposte(){
+  if(!DB||DB.length<5)return[];
+  const dp=new Date().toISOString().slice(0,10).split('-');
+  const rand=_seededRand(parseInt(dp[0])*10000+parseInt(dp[1])*100+parseInt(dp[2]));
+  const _prem=['g2','g4','g5','g6'];
+  const tagGroups=GROUPS.filter(g=>['g1','g2','g3','g4','g5','g6'].includes(g.id)&&(isPremium||!_prem.includes(g.id)));
+  const allTags=[];
+  tagGroups.forEach(g=>{
+    (g.tags||[]).forEach(tag=>{
+      if(userPrefs.excludeDifficile&&tag==='Difficile')return;
+      if(userPrefs.excludeHorror&&tag==='Horror')return;
+      if(userPrefs.excludeConosciutissimo&&tag==='Conosciutissimo')return;
+      if(userPrefs.excludedTags&&userPrefs.excludedTags.has(tag))return;
+      if(userPrefs.excludeScifi&&tag==='Fantascienza')return;
+      if(userPrefs.excludeComedy&&(tag==='Commedia'||tag==='Comico'))return;
+      if(userPrefs.excludeRomance&&tag==='Romantico')return;
+      allTags.push({gid:g.id,tag});
+    });
+  });
+  if(allTags.length<2)return[];
+  // Fisher-Yates seeded shuffle
+  const sh=[...allTags];
+  for(let i=sh.length-1;i>0;i--){const j=Math.floor(rand()*(i+1));[sh[i],sh[j]]=[sh[j],sh[i]];}
+  const out=[],used=new Set();
+  // Pass 1: cross-group pairs (more interesting)
+  for(let i=0;i<sh.length&&out.length<3;i++){
+    if(used.has(sh[i].tag))continue;
+    for(let j=0;j<sh.length&&out.length<3;j++){
+      if(i===j||sh[j].gid===sh[i].gid||used.has(sh[j].tag))continue;
+      if(_quickCountForCombo(sh[i].gid,sh[i].tag,sh[j].gid,sh[j].tag)>=5){
+        out.push({gid1:sh[i].gid,tag1:sh[i].tag,gid2:sh[j].gid,tag2:sh[j].tag});
+        used.add(sh[i].tag);used.add(sh[j].tag);break;
+      }
+    }
+  }
+  // Pass 2: same-group pairs as fallback
+  for(let i=0;i<sh.length&&out.length<3;i++){
+    if(used.has(sh[i].tag))continue;
+    for(let j=i+1;j<sh.length&&out.length<3;j++){
+      if(sh[j].gid!==sh[i].gid||used.has(sh[j].tag))continue;
+      if(_quickCountForCombo(sh[i].gid,sh[i].tag,sh[j].gid,sh[j].tag)>=5){
+        out.push({gid1:sh[i].gid,tag1:sh[i].tag,gid2:sh[j].gid,tag2:sh[j].tag});
+        used.add(sh[i].tag);used.add(sh[j].tag);break;
+      }
+    }
+  }
+  return out;
+}
+
+function _renderProposte(){
+  const wrap=document.getElementById('proposte-pills');
+  if(!wrap)return;
+  if(!DB||DB.length<5){wrap.innerHTML='<span style="color:var(--td);font-size:12px;opacity:.45">Caricamento…</span>';return;}
+  const ps=_generateProposte();
+  wrap.innerHTML='';
+  if(!ps.length){wrap.innerHTML='<span style="color:var(--td);font-size:12px;opacity:.45">Nessuna proposta disponibile oggi</span>';return;}
+  ps.forEach(p=>{
+    const btn=document.createElement('button');
+    btn.className='quick-pill';
+    btn.textContent=tTag(p.tag1)+' + '+tTag(p.tag2);
+    btn.onclick=()=>_activateProposal(p);
+    wrap.appendChild(btn);
+  });
+}
+
+function _activateProposal(p){
+  // Clear tag SEL (keep platform/period/rating)
+  ['g1','g2','g3','g4','g5','g6'].forEach(gid=>SEL[gid].clear());
+  EXCL.clear();
+  document.querySelectorAll('#fgc .chip.on,#fgc2 .chip.on').forEach(ch=>ch.classList.remove('on'));
+  const ceEl=document.getElementById('ce');if(ceEl)ceEl.querySelectorAll('.chip.on').forEach(ch=>ch.classList.remove('on'));
+  // Set two tags
+  SEL[p.gid1].add(p.tag1);SEL[p.gid2].add(p.tag2);
+  // Highlight chips
+  [[p.gid1,p.tag1],[p.gid2,p.tag2]].forEach(([gid,tag])=>{
+    const c=document.getElementById('ch-'+gid);if(!c)return;
+    const txt=tTag(tag);
+    c.querySelectorAll('.chip:not(.locked)').forEach(ch=>{if(ch.textContent.trim()===txt.trim())ch.classList.add('on');});
+  });
+  // Open Lab to show active filters
+  const body=document.getElementById('lab-body'),arr=document.getElementById('lab-arr'),hdr=document.getElementById('lab-hdr');
+  if(body&&!body.classList.contains('open')){
+    body.classList.add('open');body.classList.remove('closed');
+    if(arr){arr.classList.add('open');arr.classList.remove('closed');}
+    if(hdr)hdr.classList.add('open');
+  }
+  updatePanel();go();
+}
+
+function toggleLab(){
+  const body=document.getElementById('lab-body'),arr=document.getElementById('lab-arr'),hdr=document.getElementById('lab-hdr');
+  if(!body)return;
+  const isOpen=body.classList.contains('open');
+  body.classList.toggle('open',!isOpen);body.classList.toggle('closed',isOpen);
+  if(arr){arr.classList.toggle('open',!isOpen);arr.classList.toggle('closed',isOpen);}
+  if(hdr)hdr.classList.toggle('open',!isOpen);
+}
+
 function buildUI(){
   const c=document.getElementById('fgc');
   const c2=document.getElementById('fgc2');
@@ -1955,6 +2121,7 @@ function buildUI(){
   const allTags=[...new Set(freeGroups.flatMap(g=>g.tags||[]))].sort((a,b)=>tTag(a).localeCompare(tTag(b)));
   const ce=document.getElementById('ce');ce.innerHTML='';
   allTags.forEach(t=>{const ch=document.createElement('span');ch.className='chip ex';ch.textContent=tTag(t);var _et=getTagTip(t);if(_et)ch.setAttribute('data-tip',_et);ch.onclick=()=>{EXCL.has(t)?(ch.classList.remove('on'),EXCL.delete(t)):(ch.classList.add('on'),EXCL.add(t));updatePanel();};ce.appendChild(ch);});
+  if(DB&&DB.length)_renderProposte();
 }
 function tog(h){const b=h.nextElementSibling,a=h.querySelector('.fgar');b.classList.toggle('open');a.classList.toggle('open');}
 
