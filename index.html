@@ -3754,24 +3754,31 @@ function _autoPushLocalProfile(d){
   var patch={nome:lp.pNome||'',cognome:lp.pCognome||'',email:currentUser.email||'',profile:lp,updated_at:new Date().toISOString()};
   _saveUserData(patch);
 }
-function _saveUserData(patch) {
+function _saveUserData(patch, _cb) {
   if (!_authToken || !currentUser) return;
   var uid = currentUser.id;
-  var body = Object.assign({ user_id: uid }, patch);
-  // UPSERT: insert or update on conflict
-  var xhr = new XMLHttpRequest();
-  xhr.open('POST', SUPA_URL + '/rest/v1/user_data');
-  xhr.setRequestHeader('apikey', SUPA_KEY);
-  xhr.setRequestHeader('Content-Type', 'application/json');
-  xhr.setRequestHeader('Authorization', 'Bearer ' + _authToken);
-  xhr.setRequestHeader('Prefer', 'resolution=merge-duplicates,return=minimal');
-  xhr.timeout = 10000;
-  xhr.send(JSON.stringify(body));
+  // PATCH updates only the specified columns of the matching row (no conflict needed)
+  _supaXHR('PATCH', '/rest/v1/user_data?user_id=eq.' + uid,
+    patch, _authToken, function(status, res) {
+      if (status === 200 && Array.isArray(res) && res.length === 0) {
+        // Row doesn't exist yet → INSERT
+        var body = Object.assign({ user_id: uid }, patch);
+        _supaXHR('POST', '/rest/v1/user_data', body, _authToken, function(s2, r2) {
+          if (s2 !== 201 && s2 !== 200) console.error('[SW] saveUserData INSERT failed', s2, r2);
+          if (_cb) _cb(s2 === 201 || s2 === 200);
+        });
+      } else {
+        if (status !== 200 && status !== 204) console.error('[SW] saveUserData PATCH failed', status, res);
+        if (_cb) _cb(status === 200 || status === 204);
+      }
+    }
+  );
 }
 
 function _loadUserData(cb) {
   if (!_authToken || !currentUser) { cb(null); return; }
-  _supaXHR('GET', '/rest/v1/user_data?user_id=eq.' + currentUser.id + '&select=*',
+  // order by updated_at desc: handles the rare case of duplicate rows (gets the most recent)
+  _supaXHR('GET', '/rest/v1/user_data?user_id=eq.' + currentUser.id + '&select=*&order=updated_at.desc.nullslast&limit=1',
     null, _authToken, function(status, res) {
       cb((Array.isArray(res) && res.length) ? res[0] : null);
   });
