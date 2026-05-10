@@ -2252,12 +2252,12 @@ function findFilm(){
     const allSel=new Set([...Object.values(SEL)].flatMap(s=>[...s]));
     // q6='never': always exclude Difficile regardless of selection
     if(userPrefs.excludeDifficile&&f.tags.includes('Difficile'))return false;
-    // OPT_IN loop: tag is OK if in base allSel OR in _activeOptInTags
-    for(const tag of OPT_IN_TAGS){
-      if(f.tags.includes(tag)&&!allSel.has(tag)&&!_activeOptInTags.has(tag))return false;
-    }
-    // If active opt-in tags: film must have ALL of them (exact combination required)
-    if(_activeOptInTags.size>0&&![..._activeOptInTags].every(t=>f.tags.includes(t)))return false;
+    // OPT_IN: if the film has any opt-in tags, at least one must be accepted (OR logic)
+    // This prevents the loop where a film with [AcceptedTag, OtherOptInTag] gets excluded
+    const _filmOI=f.tags.filter(t=>OPT_IN_TAGS.has(t));
+    if(_filmOI.length>0&&!_filmOI.some(t=>allSel.has(t)||_activeOptInTags.has(t)))return false;
+    // If active opt-in tags: film must have AT LEAST ONE of them (OR logic, not AND)
+    if(_activeOptInTags.size>0&&![..._activeOptInTags].some(t=>f.tags.includes(t)))return false;
     // AND logic: for each tag group, film must have ALL selected tags
     for(const gid of['g1','g2','g3','g4','g5','g6']){
       const sel=SEL[gid];
