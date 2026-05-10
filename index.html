@@ -1400,7 +1400,9 @@ let _arecEntries=[];   // [{id, tags, film}] — joined at open time
 let _arecSort_col='', _arecSort_dir=1;
 let _arecSelTags=new Set(); // selected tags in multi-select
 
+let _openAllRecsRendering=false;
 function openAllRecs(){
+  if(!_openAllRecsRendering)_bgSyncAllRecs(true); // pull latest from Supabase before showing the list
   // join allRecs entries with DB
   _arecEntries=allRecs.map(e=>{
     const film=DB.find(f=>f.id===e.id);
@@ -1972,7 +1974,7 @@ function _bgSyncAllRecs(force){
         try{localStorage.setItem(_allRecKey,JSON.stringify(allRecs));}catch(e){}
         // Refresh panel if open
         const ap=document.getElementById('allrecsp');
-        if(ap&&ap.classList.contains('on'))openAllRecs();
+        if(ap&&ap.classList.contains('on')){_openAllRecsRendering=true;openAllRecs();_openAllRecsRendering=false;}
       }
       // ── PUSH: local has films Supabase doesn't (safety net) ───────────────
       if(allRecs.length>_remote.length){
@@ -1995,7 +1997,7 @@ function _startBgSync(){
 
 // Sync the moment the user returns to the tab / brings app to foreground
 document.addEventListener('visibilitychange',function(){
-  if(document.visibilityState==='visible')_bgSyncAllRecs(false);
+  if(document.visibilityState==='visible')_bgSyncAllRecs(true); // always force when user returns
 });
 
 // ── PROPOSTE RAPIDE ──────────────────────────────────────────────────────────
@@ -3809,17 +3811,20 @@ function _applyUserData(d) {
     });
     try{localStorage.setItem('sw3_prof',JSON.stringify(profData));}catch(e){}
   }
-  // ── allRecs sync: merge local ∪ Supabase, push back if local has anything new ─
+  // ── allRecs sync: merge local ∪ Supabase, always push back on login ─────────
   {
     const _remote=d.all_rec_ids&&d.all_rec_ids.length?_normaliseAllRecs(d.all_rec_ids):[];
     const _localIds=new Set(allRecs.map(e=>e.id));
     const _merged=[...allRecs,..._remote.filter(e=>!_localIds.has(e.id))];
     allRecs=_merged;
     try{localStorage.setItem(_allRecKey,JSON.stringify(allRecs));}catch(e){}
-    // Push to Supabase whenever local contributes films not already there
-    if(_merged.length!==_remote.length&&_authToken&&currentUser){
+    // Always push merged to Supabase on every login → guarantees all devices converge
+    if(_authToken&&currentUser&&_merged.length>0){
       _saveUserData({all_rec_ids:_merged,updated_at:new Date().toISOString()});
     }
+    // Re-render the panel if it's already open
+    const _ap=document.getElementById('allrecsp');
+    if(_ap&&_ap.classList.contains('on')){_openAllRecsRendering=true;openAllRecs();_openAllRecsRendering=false;}
   }
 }
 
