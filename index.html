@@ -1570,21 +1570,21 @@ function openRecFilm(id){
   showCard({f,mx:f.tags||[]},{hideMore:true,returnTo:'allrecs'});
 }
 
-async function loadSeen(){try{const r=await window.storage.get('sw3_seen');if(r)seenFilms=new Set(JSON.parse(r.value));}catch(e){}}
+function loadSeen(){try{const r=localStorage.getItem('sw3_seen');if(r)seenFilms=new Set(JSON.parse(r));}catch(e){}}
 
 // TODAY RECOMMENDATIONS
 const _todayKey='sw3_today_'+new Date().toISOString().slice(0,10);
 const _searchKey='sw3_srch_'+new Date().toISOString().slice(0,10);
 let dailyRecs=[]; // array of film ids shown today
 
-async function loadTodayRecs(){
-  try{const r=await window.storage.get(_todayKey);if(r)dailyRecs=JSON.parse(r.value);}catch(e){}
+function loadTodayRecs(){
+  try{const r=localStorage.getItem(_todayKey);if(r)dailyRecs=JSON.parse(r);}catch(e){}
   renderTodayList();
   if(document.getElementById('allrecsp').classList.contains('on'))openAllRecs();
   if(dailyRecs.length>0)showTodayBtn();
 }
-async function saveTodayRecs(){
-  try{await window.storage.set(_todayKey,JSON.stringify(dailyRecs));}catch(e){}
+function saveTodayRecs(){
+  try{localStorage.setItem(_todayKey,JSON.stringify(dailyRecs));}catch(e){}
 }
 function addTodayRec(id){
   if(!dailyRecs.includes(id)){dailyRecs.push(id);saveTodayRecs();}
@@ -1631,7 +1631,7 @@ async function saveSeen(){
     _saveUserData({seen_film_ids:[...seenFilms],updated_at:new Date().toISOString()});
   }
 }
-async function loadFck(){try{const r=await window.storage.get('sw3_fck');if(r){fckAnswers=JSON.parse(r.value);applyFck(fckAnswers);}}catch(e){}}
+function loadFck(){try{const r=localStorage.getItem('sw3_fck');if(r){fckAnswers=JSON.parse(r);applyFck(fckAnswers);}}catch(e){}}
 function closeExclModal(){document.getElementById('excl-modal').classList.remove('show');}
 
 const TITLE_ORIG={
@@ -2757,7 +2757,7 @@ async function saveProfp(){
   }
   const ok=document.getElementById('profOk');ok.classList.add('show');setTimeout(()=>ok.classList.remove('show'),2200);
 }
-function togglePremium(){isPremium=!isPremium;const pt=document.getElementById('premToggle');pt.textContent=isPremium?'Premium ✓':'Free';pt.className=isPremium?'chip on':'chip';document.getElementById('bdg').style.display=isPremium?'none':'flex';try{window.storage.set('sw3_premium',isPremium?'1':'0');}catch(e){}buildUI();}
+function togglePremium(){isPremium=!isPremium;const pt=document.getElementById('premToggle');pt.textContent=isPremium?'Premium ✓':'Free';pt.className=isPremium?'chip on':'chip';document.getElementById('bdg').style.display=isPremium?'none':'flex';try{localStorage.setItem('sw3_premium',isPremium?'1':'0');}catch(e){}buildUI();}
 
 // ── FATTI CONOSCERE ───────────────────────────────────────────────────────
 function applyFck(ans){userPrefs={};if(ans.q1==='recent')userPrefs.minYear=2000;else if(ans.q1==='from80')userPrefs.minYear=1980;if(ans.q2==='short')userPrefs.excludeLong=true;if(ans.q3==='no'){userPrefs.excludeHorror=true;userPrefs.excludeCrudo=true;}else if(ans.q3==='some')userPrefs.excludeCrudo=true;if(ans.q4==='commercial'){userPrefs.boostTags=['Colossal','CineComic'];userPrefs.excludeDifficile=true;}else if(ans.q4==='auteur')userPrefs.boostTags=["D'Autore","Capolavoro"];if(ans.q6==='never')userPrefs.excludeDifficile=true;else if(ans.q6==='sometimes')userPrefs.difficileOptIn=true;else userPrefs.excludeDifficile=false;userPrefs.onlyPlatform=ans.q7==='yes';
@@ -2776,7 +2776,7 @@ function applyFck(ans){userPrefs={};if(ans.q1==='recent')userPrefs.minYear=2000;
 function openFcp(){document.getElementById('fcp').classList.add('on');if(!isPremium){renderFcpFree();return;}renderFcp();}
 function closeFcp(){document.getElementById('fcp').classList.remove('on');}
 async function renderFck(){
-  try{const r=await window.storage.get('sw3_fck');if(r)fckAnswers=JSON.parse(r.value);}catch(e){}
+  try{const r=localStorage.getItem('sw3_fck');if(r)fckAnswers=JSON.parse(r);}catch(e){}
   const qs=[
     {id:'q1',text:t('fck_q1'),opts:[{t:t('fck_q1_a'),v:'recent'},{t:t('fck_q1_b'),v:'from80'},{t:t('fck_q1_c'),v:'all'}]},
     {id:'q2',text:t('fck_q2'),opts:[{t:t('fck_q2_a'),v:'short'},{t:t('fck_q2_b'),v:'any'}]},
@@ -2812,7 +2812,7 @@ async function renderFck(){
 }
 async function renderFcpFree(){
   // Carica risposte salvate
-  try{const r=await window.storage.get('sw3_fck');if(r)fckAnswers=JSON.parse(r.value);}catch(e){}
+  try{const r=localStorage.getItem('sw3_fck');if(r)fckAnswers=JSON.parse(r);}catch(e){}
   const _plt7=['Netflix','Prime Video','Disney+','MUBI','Apple TV'];
   // Solo le 3 domande accessibili ai free: q6 (difficile), q7 (piattaforme), q9 (frequenza)
   const freeQs=[
@@ -2877,7 +2877,7 @@ function toggleFckQ7b(platform,btn){
 }
 async function saveFck(){
   applyFck(fckAnswers);
-  try{await window.storage.set('sw3_fck',JSON.stringify(fckAnswers));}catch(e){}
+  try{localStorage.setItem('sw3_fck',JSON.stringify(fckAnswers));}catch(e){}
   const ok=document.getElementById('fckOk');ok.classList.add('show');setTimeout(()=>ok.classList.remove('show'),2800);
   // Show blocking modal if user excluded tags
   if(fckAnswers.q8&&fckAnswers.q8.length>0){
@@ -3404,7 +3404,7 @@ async function loadNews(lang){
   if(!isPremium)return;
   const today=new Date().toISOString().slice(0,10);
   const cacheKey=_newsKey+lang+'_'+today;
-  try{const cached=await window.storage.get(cacheKey);if(cached){_newsCache[lang]=JSON.parse(cached.value);renderNews(lang);return;}}catch(e){}
+  try{const cached=localStorage.getItem(cacheKey);if(cached){_newsCache[lang]=JSON.parse(cached);renderNews(lang);return;}}catch(e){}
   // Use Reddit JSON API — CORS-enabled, no auth needed
   const subIt='cinemaitalia';
   const subEn='movies';
@@ -3434,7 +3434,7 @@ async function loadNews(lang){
         source:p.data.domain
       }));
       _newsCache[lang]=items;
-      try{await window.storage.set(cacheKey,JSON.stringify(items));}catch(e){}
+      try{localStorage.setItem(cacheKey,JSON.stringify(items));}catch(e){}
       renderNews(lang);return;
     }catch(e){continue;}
   }
@@ -3558,7 +3558,6 @@ function setLang(l){
 
 (async()=>{
   // Load local prefs first
-  try{const r=await window.storage.get('sw3_premium');if(r&&r.value==='1')isPremium=true;}catch(e){}
   try{const lp=localStorage.getItem('sw3_premium');if(lp==='1')isPremium=true;}catch(e){}
   buildUI();loadSeen();loadFck();loadTodayRecs();loadAllRecs();loadSearchState();if(window.innerWidth<=600){setLang(LANG);}
   // Try to restore existing Supabase session → auto-login
