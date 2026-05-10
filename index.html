@@ -1400,26 +1400,47 @@ let _arecEntries=[];   // [{id, tags, film}] — joined at open time
 let _arecSort_col='', _arecSort_dir=1;
 let _arecSelTags=new Set(); // selected tags in multi-select
 
-let _openAllRecsRendering=false;
-function openAllRecs(){
-  if(!_openAllRecsRendering)_bgSyncAllRecs(true); // pull latest from Supabase before showing the list
-  // join allRecs entries with DB
+// ── openAllRecs: DB as single source of truth ─────────────────────────────
+function _openAllRecsRender(){
   _arecEntries=allRecs.map(e=>{
     const film=DB.find(f=>f.id===e.id);
-    return film?{id:e.id, tags:e.tags||[], film}:null;
+    return film?{id:e.id,tags:e.tags||[],film}:null;
   }).filter(Boolean).reverse();
-
-  // reset filters
   const ti=document.getElementById('arec-f-title');if(ti)ti.value='';
   const di=document.getElementById('arec-f-dir');if(di)di.value='';
   _arecSelTags=new Set();
-  _arecSort_col=''; _arecSort_dir=1;
+  _arecSort_col='';_arecSort_dir=1;
   ['arec-arr-title','arec-arr-year','arec-arr-dir'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent='↕';});
   ['title','year','dir'].forEach(c=>{const th=document.querySelector(`[data-col="${c}"]`);if(th)th.classList.remove('sorted');});
-
   _arecRenderTable(_arecGetFiltered());
   _arecMsRebuild();
+}
+
+function openAllRecs(){
+  // Show panel immediately with current local data
+  _openAllRecsRender();
   document.getElementById('allrecsp').classList.add('on');
+  // Always read fresh from Supabase (the only authoritative list)
+  if(!_authToken||!currentUser)return;
+  _supaXHR('GET','/rest/v1/user_data?user_id=eq.'+currentUser.id+'&select=all_rec_ids',
+    null,_authToken,function(status,res){
+      if(status!==200||!Array.isArray(res)||!res.length)return;
+      const raw=res[0].all_rec_ids;
+      const _remote=raw&&raw.length?_normaliseAllRecs(raw):[];
+      // Merge: Supabase-first + local films not yet pushed (added in this session)
+      const _remoteIds=new Set(_remote.map(e=>e.id));
+      const _localOnly=allRecs.filter(e=>!_remoteIds.has(e.id));
+      const _merged=[..._remote,..._localOnly];
+      allRecs=_merged;
+      try{localStorage.setItem(_allRecKey,JSON.stringify(allRecs));}catch(e){}
+      // Push local-only films to Supabase (race-free: only adds, never removes)
+      if(_localOnly.length>0){
+        _saveUserData({all_rec_ids:_merged,updated_at:new Date().toISOString()});
+      }
+      // Re-render with fresh data
+      _openAllRecsRender();
+    }
+  );
 }
 function closeAllRecs(){document.getElementById('allrecsp').classList.remove('on');}
 
@@ -1585,7 +1606,7 @@ let dailyRecs=[]; // array of film ids shown today
 function loadTodayRecs(){
   try{const r=localStorage.getItem(_todayKey);if(r)dailyRecs=JSON.parse(r);}catch(e){}
   renderTodayList();
-  if(document.getElementById('allrecsp').classList.contains('on'))openAllRecs();
+  if(document.getElementById('allrecsp').classList.contains('on'))_openAllRecsRender();
   if(dailyRecs.length>0)showTodayBtn();
 }
 function saveTodayRecs(){
@@ -1948,11 +1969,11 @@ document.addEventListener('click', e=>{
 
 const TAG_TIPS={"it": {"Thriller": "Tensione e suspense come motori della storia. Spesso un protagonista in pericolo.", "Horror": "Progettato per spaventare. Atmosfere cupe, creature, paure psicologiche o fisiche.", "Dramma": "Storie centrate sulle emozioni e sui conflitti umani. Cinema nella sua forma essenziale.", "Commedia": "Film pensati per far ridere. Situazioni comiche, personaggi buffi, dialoghi arguti.", "Fantascienza": "Mondi futuri, tecnologie avanzate, spazio o intelligenza artificiale.", "Western": "Il Far West americano, la frontiera, i duelli e i cowboy. Un genere iconico.", "Animazione": "Film realizzati con tecniche animate. Per tutte le eta, spesso con profondita inaspettata.", "Documentario": "Racconto del reale. Storie vere, personaggi reali, temi sociali o naturalistici.", "Noire": "Atmosfere oscure, detective, crimini irrisolti e ambiguita morale.", "CineComic": "Adattamenti di fumetti e supereroi. Azione spettacolare e universi narrativi espansi.", "Romantico": "Una storia d amore al centro. Emozioni, attrazione, perdita.", "Comico": "Umorismo esplicito e situazioni esilaranti. Piu leggero della commedia classica.", "Crimine": "Furti, omicidi, gangster, poliziotti. Il mondo del crimine come sfondo narrativo.", "Mafia": "Organizzazioni criminali, clan familiari, codici d onore violati e lealta tradite.", "Droga": "Il mondo delle sostanze stupefacenti, della dipendenza e del traffico illecito.", "Guerra": "Il conflitto armato come protagonista. Eroismo, orrore, cameratismo e sacrificio.", "Serial Killer": "Un assassino seriale al centro. Indagini, profili psicologici, tensione.", "Economico": "Finanza, speculazione, avidita e potere economico come temi centrali.", "Catastrofico": "Disastri naturali o artificiali, sopravvivenza e caos su larga scala.", "Vendetta": "Un protagonista in cerca di giustizia personale. Rancore, pianificazione, esecuzione.", "Sportivo": "Lo sport come metafora o scenario principale. Sfide, vittorie, sacrifici.", "Legal Drama": "Tribunali, avvocati, processi. La legge come arena di conflitto morale.", "Biografico": "La vita reale di una persona famosa o straordinaria raccontata al cinema.", "Colossal": "Produzioni spettacolari con grandi budget, effetti visivi e cast stellari.", "Capolavoro": "Unanimemente riconosciuto come opera di eccezionale valore artistico e cinematografico.", "D'Autore": "Cinema con visione personale forte. Il regista come autore con stile inconfondibile.", "Oscar": "Premiato o candidato agli Academy Awards. Cinema mainstream di qualita riconosciuta.", "Grande Interpretazione": "Una o piu performance attoriali che rimangono impresse nella memoria.", "Grande Colonna Sonora": "La musica e un elemento fondamentale dell esperienza del film.", "Estetico": "Immagini di straordinaria bellezza visiva. Fotografia e messa in scena come arte.", "Imponente": "Scale narrative o visive grandissime. Un film che lascia senza fiato.", "Storia Avvincente": "Una trama che cattura dall inizio alla fine. Impossibile smettere di guardare.", "Pazzesco": "Un film che sorprende o sconvolge per originalita o intensita.", "Bizzarro": "Strano, insolito, fuori dagli schemi. Un film che non assomiglia a nessun altro.", "Musicale": "La musica e il canto sono parte integrante della narrazione.", "Difficile": "Richiede attenzione e apertura mentale. Piu di una visione potrebbe essere necessaria.", "Triste": "Emotivamente pesante. Preparati a commuoverti o a restare malinconico.", "Psicologico/mentale": "Esplora la mente umana, i disturbi, le ossessioni o la percezione della realta.", "Angosciante": "Un senso di oppressione o disagio pervade il film dall inizio alla fine.", "Claustrofobico": "Spazi ristretti, atmosfere soffocanti, senso di intrappolamento.", "Onirico": "Logica dei sogni, immagini surreali, confine sfumato tra reale e immaginario.", "Psichedelico": "Visioni alterate, uso di allucinazioni come linguaggio cinematografico.", "Crudo": "Violento, esplicito o disturbante. Non alleggerisce cio che mostra.", "Violenza Ironica": "La violenza e presente ma trattata con humour nero o distacco stilizzato.", "Personaggio Cattivo": "L antagonista e straordinariamente memorabile o complesso.", "Italiano": "Produzione italiana o con ambientazione e cultura italiana predominante.", "Asiatico": "Cinema orientale: Giappone, Corea, Cina, Hong Kong.", "Epoca Passata": "Ambientato in un epoca storica passata, fino al XX secolo.", "Distopia": "Un futuro cupo e oppressivo, spesso con critica politica o sociale.", "Tecnologico": "La tecnologia come tema centrale, tra utopia digitale e minacce informatiche.", "Vecchio": "Film prodotto prima degli anni Settanta. Cinema classico in bianco e nero.", "Neorealismo": "Il grande cinema italiano del dopoguerra. Storie di gente comune girate per strada.", "Corto(<1h30)": "Durata contenuta, meno di 90 minuti. Ideale quando hai poco tempo.", "Lungo(>2h30)": "Oltre 150 minuti. Preparati a un esperienza immersiva.", "Lunghissimo": "Durata eccezionale, spesso oltre le 3 ore. Un impegno serio."}, "en": {"Thriller": "Tension and suspense drive the story. Often a protagonist in danger.", "Horror": "Designed to frighten. Dark atmospheres, creatures, psychological or physical fears.", "Dramma": "Stories centered on emotions and human conflicts. Cinema in its most essential form.", "Commedia": "Films meant to make you laugh. Comic situations, funny characters, witty dialogue.", "Fantascienza": "Future worlds, advanced technology, space or AI. Cinema of ideas.", "Western": "The American frontier, duels and cowboys. An iconic classic genre.", "Animazione": "Films made with animation. For all ages, often with unexpected depth.", "Documentario": "Storytelling about reality. True stories, real people, social or natural themes.", "Noire": "Dark atmospheres, detectives, unsolved crimes and moral ambiguity.", "CineComic": "Comic book and superhero adaptations. Spectacular action and expanded universes.", "Romantico": "A love story at the centre. Emotions, attraction, loss.", "Comico": "Explicit humour and hilarious situations. Lighter than classic comedy.", "Crimine": "Heists, murders, gangsters, cops. The world of crime as narrative backdrop.", "Mafia": "Criminal organisations, family clans, violated codes of honour and betrayed loyalty.", "Droga": "The world of narcotics, addiction and illicit trafficking.", "Guerra": "Armed conflict as protagonist. Heroism, horror, camaraderie and sacrifice.", "Serial Killer": "A serial killer at the centre. Investigations, psychological profiles.", "Economico": "Finance, speculation, greed and economic power as central themes.", "Catastrofico": "Natural or man-made disasters, survival and large-scale chaos.", "Vendetta": "A protagonist seeking personal justice. Resentment, planning, execution.", "Sportivo": "Sport as metaphor or main setting. Challenges, victories, sacrifices.", "Legal Drama": "Courts, lawyers, trials. The law as an arena of moral conflict.", "Biografico": "The real life of a famous or extraordinary person told on screen.", "Colossal": "Spectacular productions with large budgets, impressive VFX and star casts.", "Capolavoro": "Unanimously recognised as a work of exceptional artistic value.", "D'Autore": "Cinema with a strong personal vision. The director as auteur.", "Oscar": "Academy Award winner or nominee. Quality mainstream cinema recognised globally.", "Grande Interpretazione": "One or more acting performances that stay with you after the credits.", "Grande Colonna Sonora": "Music is a fundamental element of the film experience.", "Estetico": "Extraordinarily beautiful imagery. Cinematography and staging as art.", "Imponente": "Enormous narrative or visual scale. A film that takes your breath away.", "Storia Avvincente": "A plot that grips from start to finish. Impossible to stop watching.", "Pazzesco": "A film that surprises or shocks for its originality or intensity.", "Bizzarro": "Strange, unusual, out of the ordinary. A film unlike any other.", "Musicale": "Music and singing are an integral part of the narrative.", "Difficile": "Requires attention and open-mindedness. More than one viewing may be needed.", "Triste": "Emotionally heavy. Prepare to be moved or left feeling melancholy.", "Psicologico/mentale": "Explores the human mind, disorders, obsessions or perception of reality.", "Angosciante": "A sense of oppression or unease pervades the film throughout.", "Claustrofobico": "Tight spaces, suffocating atmospheres, a sense of being trapped.", "Onirico": "Dream logic, surreal imagery, blurred boundary between real and imaginary.", "Psichedelico": "Altered-state visions, hallucinations used as cinematic language.", "Crudo": "Violent, explicit or disturbing. Does not soften what it shows.", "Violenza Ironica": "Violence is present but treated with black humour or stylised detachment.", "Personaggio Cattivo": "The antagonist is extraordinarily memorable or complex.", "Italiano": "Italian production or with predominantly Italian setting and culture.", "Asiatico": "Far Eastern cinema: Japan, Korea, China, Hong Kong.", "Epoca Passata": "Set in a historical past era, up to the 20th century.", "Distopia": "A bleak and oppressive future, often with political or social critique.", "Tecnologico": "Technology as a central theme, between digital utopia and cyber threats.", "Vecchio": "Film made before the 1970s. Classic black-and-white or early colour cinema.", "Neorealismo": "Great Italian post-war cinema. Everyday stories shot on location.", "Corto(<1h30)": "Short runtime, under 90 minutes. Ideal when you have limited time.", "Lungo(>2h30)": "Long runtime, over 150 minutes. Prepare for an immersive experience.", "Lunghissimo": "Exceptionally long, often over 3 hours. A serious commitment."}};
 function getTagTip(tag){var tips=TAG_TIPS[LANG]||TAG_TIPS.it;return tips[tag]||"";}
-// ── CROSS-DEVICE ALLRECS SYNC ────────────────────────────────────────────────
-// Keeps allRecs (storico film consigliati) identical across all logged-in devices.
-// Uses a lightweight Supabase fetch (only all_rec_ids column) to minimise traffic.
+// ── CROSS-DEVICE ALLRECS BACKGROUND UPDATE ───────────────────────────────────
+// Keeps the in-memory allRecs current so the "storico" badge count is accurate.
+// openAllRecs() always fetches live from Supabase regardless of this.
 let _bgSyncLast=0;
-const _BG_SYNC_MIN_MS=25000; // min gap between auto-syncs (25 s)
+const _BG_SYNC_MIN_MS=30000;
 let _bgSyncTimer=null;
 
 function _bgSyncAllRecs(force){
@@ -1960,7 +1981,6 @@ function _bgSyncAllRecs(force){
   const now=Date.now();
   if(!force&&now-_bgSyncLast<_BG_SYNC_MIN_MS)return;
   _bgSyncLast=now;
-  // Fetch only all_rec_ids — minimal payload
   _supaXHR('GET','/rest/v1/user_data?user_id=eq.'+currentUser.id+'&select=all_rec_ids',
     null,_authToken,function(status,res){
       if(status!==200||!Array.isArray(res)||!res.length)return;
@@ -1968,18 +1988,16 @@ function _bgSyncAllRecs(force){
       const _remote=raw&&raw.length?_normaliseAllRecs(raw):[];
       const _localIds=new Set(allRecs.map(e=>e.id));
       const _newFromRemote=_remote.filter(e=>!_localIds.has(e.id));
-      // ── PULL: another device added films ──────────────────────────────────
       if(_newFromRemote.length>0){
         allRecs=[...allRecs,..._newFromRemote];
         try{localStorage.setItem(_allRecKey,JSON.stringify(allRecs));}catch(e){}
-        // Refresh panel if open
+        // If panel is open, re-render with new data
         const ap=document.getElementById('allrecsp');
-        if(ap&&ap.classList.contains('on')){_openAllRecsRendering=true;openAllRecs();_openAllRecsRendering=false;}
+        if(ap&&ap.classList.contains('on'))_openAllRecsRender();
       }
-      // ── PUSH: local has films Supabase doesn't (safety net) ───────────────
       if(allRecs.length>_remote.length){
         _saveUserData({all_rec_ids:allRecs,updated_at:new Date().toISOString()});
-        _bgSyncLast=Date.now(); // skip next auto-pull (we just pushed)
+        _bgSyncLast=Date.now();
       }
     }
   );
@@ -1987,17 +2005,14 @@ function _bgSyncAllRecs(force){
 
 function _startBgSync(){
   if(_bgSyncTimer)clearInterval(_bgSyncTimer);
-  // Periodic poll every 45 s (only when tab is visible)
   _bgSyncTimer=setInterval(function(){
     if(document.visibilityState!=='hidden')_bgSyncAllRecs(false);
   },45000);
-  // Immediate sync on login
   _bgSyncAllRecs(true);
 }
 
-// Sync the moment the user returns to the tab / brings app to foreground
 document.addEventListener('visibilitychange',function(){
-  if(document.visibilityState==='visible')_bgSyncAllRecs(true); // always force when user returns
+  if(document.visibilityState==='visible')_bgSyncAllRecs(true);
 });
 
 // ── PROPOSTE RAPIDE ──────────────────────────────────────────────────────────
@@ -3811,20 +3826,16 @@ function _applyUserData(d) {
     });
     try{localStorage.setItem('sw3_prof',JSON.stringify(profData));}catch(e){}
   }
-  // ── allRecs sync: merge local ∪ Supabase, always push back on login ─────────
+  // ── allRecs: merge Supabase + local, push if local has new films ─────────────
   {
     const _remote=d.all_rec_ids&&d.all_rec_ids.length?_normaliseAllRecs(d.all_rec_ids):[];
-    const _localIds=new Set(allRecs.map(e=>e.id));
-    const _merged=[...allRecs,..._remote.filter(e=>!_localIds.has(e.id))];
-    allRecs=_merged;
+    const _remoteIds=new Set(_remote.map(e=>e.id));
+    const _localOnly=allRecs.filter(e=>!_remoteIds.has(e.id));
+    allRecs=[..._remote,..._localOnly]; // Supabase-first
     try{localStorage.setItem(_allRecKey,JSON.stringify(allRecs));}catch(e){}
-    // Always push merged to Supabase on every login → guarantees all devices converge
-    if(_authToken&&currentUser&&_merged.length>0){
-      _saveUserData({all_rec_ids:_merged,updated_at:new Date().toISOString()});
+    if(_authToken&&currentUser&&_localOnly.length>0){
+      _saveUserData({all_rec_ids:allRecs,updated_at:new Date().toISOString()});
     }
-    // Re-render the panel if it's already open
-    const _ap=document.getElementById('allrecsp');
-    if(_ap&&_ap.classList.contains('on')){_openAllRecsRendering=true;openAllRecs();_openAllRecsRendering=false;}
   }
 }
 
