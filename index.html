@@ -3707,8 +3707,16 @@ function _loadUserData(cb) {
 function _applyUserData(d) {
   if (!d) return;
   if (d.seen_film_ids && d.seen_film_ids.length) {
+    const _prevSize=seenFilms.size;
     d.seen_film_ids.forEach(function(id){ seenFilms.add(id); });
     try { localStorage.setItem('sw3_seen', JSON.stringify([...seenFilms])); } catch(e) {}
+  }
+  // Push seenFilms to Supabase if local has films not on Supabase
+  if(_authToken&&currentUser){
+    const _remoteSeenSize=(d.seen_film_ids&&d.seen_film_ids.length)||0;
+    if(seenFilms.size>_remoteSeenSize){
+      _saveUserData({seen_film_ids:[...seenFilms],updated_at:new Date().toISOString()});
+    }
   }
   if(d.lb_standby&&Array.isArray(d.lb_standby)&&d.lb_standby.length){
     try{localStorage.setItem('sw3_lb_standby',JSON.stringify(d.lb_standby));}catch(e){}
@@ -3745,13 +3753,15 @@ function _applyUserData(d) {
     });
     try{localStorage.setItem('sw3_prof',JSON.stringify(profData));}catch(e){}
   }
-  if(d.all_rec_ids&&d.all_rec_ids.length){
-    const _remote=_normaliseAllRecs(d.all_rec_ids);
+  // ── allRecs sync: merge local ∪ Supabase, push back if local has anything new ─
+  {
+    const _remote=d.all_rec_ids&&d.all_rec_ids.length?_normaliseAllRecs(d.all_rec_ids):[];
     const _localIds=new Set(allRecs.map(e=>e.id));
     const _merged=[...allRecs,..._remote.filter(e=>!_localIds.has(e.id))];
     allRecs=_merged;
     try{localStorage.setItem(_allRecKey,JSON.stringify(allRecs));}catch(e){}
-    if(_merged.length>_remote.length&&_authToken&&currentUser){
+    // Push to Supabase whenever local contributes films not already there
+    if(_merged.length!==_remote.length&&_authToken&&currentUser){
       _saveUserData({all_rec_ids:_merged,updated_at:new Date().toISOString()});
     }
   }
