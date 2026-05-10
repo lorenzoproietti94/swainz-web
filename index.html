@@ -415,7 +415,7 @@ body.profp-ads-show #profp{padding-bottom:96px}
 /* BOTTOM LEADERBOARD AD */
 #ad-slot-bottom{display:none;width:100%;max-width:728px;height:90px;margin:18px auto 0;border:1px dashed rgba(255,255,255,.08);border-radius:13px;align-items:center;justify-content:center;background:rgba(255,255,255,.02)}
 #ad-slot-bottom.free-show{display:flex}
-.fgrp-prem-badge{pointer-events:none;position:absolute;left:50%;transform:translateX(-50%)}
+.fgrp-prem-badge{pointer-events:none;flex-shrink:0;margin-right:8px}
 #nofilm-overlay{position:fixed;inset:0;z-index:231;background:rgba(4,4,12,.92);backdrop-filter:blur(18px);display:none;align-items:center;justify-content:center;padding:24px}
 #nofilm-overlay.show{display:flex}
 #optin-overlay{position:fixed;inset:0;z-index:230;background:rgba(4,4,12,.92);backdrop-filter:blur(18px);display:none;align-items:center;justify-content:center;padding:24px}
@@ -2171,7 +2171,7 @@ function buildUI(){
     const title=t(g.id)||g.title;
     const isLocked=!isPremium&&premGroups.includes(g.id);
     const _pb=premGroups.includes(g.id)?'<div class="fgrp-prem-badge"><span>✦ Premium</span></div>':'';
-    d.innerHTML=`<div class="fgh" onclick="tog(this)"><div class="fght ${g.col}">${title}${_pb}</div><div class="fgar ${open?'open':''}">▾</div></div><div class="fgb ${open?'open':''}"><div class="chips" id="ch-${g.id}"></div></div>`;
+    d.innerHTML=`<div class="fgh" onclick="tog(this)"><div class="fght ${g.col}" style="flex:1">${title}</div>${_pb}<div class="fgar ${open?'open':''}">▾</div></div><div class="fgb ${open?'open':''}"><div class="chips" id="ch-${g.id}"></div></div>`;
     target.appendChild(d);
     const items=g.tags||g.opts;
     const chips=d.querySelector(`#ch-${g.id}`);
