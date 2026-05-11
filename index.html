@@ -261,6 +261,27 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:15px;heigh
 .vph-t h2{font-family:'Syne',sans-serif;font-size:18px;font-weight:800}
 .vph-t p{color:var(--td);font-size:11.5px;margin-top:3px;line-height:1.6;max-width:500px}
 .vpb{padding:22px 24px;max-width:780px;margin:0 auto}
+/* ── PROFILO 2-COL LAYOUT ─────────────────────────────────────────────────── */
+.prof-layout{display:grid;grid-template-columns:1fr 1fr;gap:22px;align-items:start}
+@media(max-width:600px){.prof-layout{grid-template-columns:1fr}}
+.avatar-box{aspect-ratio:1;border-radius:16px;border:2px dashed rgba(255,255,255,.13);background:rgba(255,255,255,.03);display:flex;align-items:center;justify-content:center;margin-bottom:12px;min-height:80px}
+.avatar-box-inner{text-align:center;color:var(--td);font-size:11.5px;opacity:.55;pointer-events:none}
+.storico-box{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:14px 14px 8px}
+.storico-lbl{font-size:9.5px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--or);margin-bottom:10px;opacity:.9}
+.storico-btn{display:flex;align-items:center;gap:9px;padding:10px 14px;border-radius:10px;border:1px solid var(--br);background:var(--cb);color:var(--tx);font-size:12.5px;font-weight:600;cursor:pointer;width:100%;transition:all .2s;margin-bottom:8px;font-family:inherit;text-align:left}
+.storico-btn:last-child{margin-bottom:0}
+.storico-btn:hover{border-color:var(--bh);background:rgba(255,255,255,.06)}
+/* ── PANNELLO FILM VISTI ─────────────────────────────────────────────────── */
+#seenp{z-index:325;display:flex;flex-direction:column;background:#1a1a22;overscroll-behavior:contain}
+.seen-item{display:flex;align-items:baseline;gap:10px;padding:9px 0;border-bottom:1px solid rgba(255,255,255,.05);font-size:13px}
+.seen-item:last-child{border-bottom:none}
+.seen-chk{color:#4ade80;font-size:13px;flex-shrink:0;font-weight:700}
+.seen-ttl{flex:1;line-height:1.35}
+.seen-yr{color:var(--td);font-size:11px;flex-shrink:0}
+.seen-empty{color:var(--td);font-size:13px;padding:20px 0;text-align:center;opacity:.55}
+.standby-lbl{font-size:9.5px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:var(--td);margin-bottom:8px;opacity:.65}
+.standby-desc{color:var(--td);font-size:11.5px;line-height:1.65;margin-bottom:12px;opacity:.75}
+.standby-item .seen-chk{color:var(--td)}
 .sw{position:relative;margin-bottom:12px}
 .sw input{width:100%;padding:13px 18px 13px 43px;background:var(--card);border:1px solid var(--br);border-radius:13px;color:var(--tx);font-size:14px;outline:none;transition:border-color .2s;font-family:'Inter',sans-serif}
 .sw input:focus{border-color:var(--bh)}
@@ -1265,23 +1286,34 @@ body.cat-revealing #today-wrap-mob{visibility:hidden!important;pointer-events:no
 <div id="profp" class="slide-panel">
   <div class="vph"><button class="vp-back" onclick="closeProfp()" data-i18n="back">← Torna</button><div class="vph-t"><h2 data-i18n="prof_h2">Il tuo profilo</h2><p data-i18n="prof_p">Informazioni personali — non influenzano i consigli di Swainz</p></div></div>
   <div class="vpb">
-    <div id="prof-account-box" style="display:none;background:rgba(255,255,255,.04);border:1px solid var(--br);border-radius:10px;padding:10px 14px;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between;gap:10px">
-      <div style="min-width:0"><div style="font-size:11px;color:var(--td);margin-bottom:2px" data-i18n="account_label">Account</div><div id="prof-email" style="font-size:13px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></div></div>
-      <button onclick="doLogout()" style="flex-shrink:0;padding:6px 12px;border-radius:8px;border:1px solid rgba(248,113,113,.35);background:rgba(248,113,113,.1);color:#f87171;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap" data-i18n="logout_btn">Esci</button>
-    </div>
-    <div class="prof-row"><label class="prof-lbl" data-i18n="prof_nome">Nome</label><input class="prof-inp" id="pNome" data-i18n-ph="prof_nome_ph" placeholder="Es. Marco"></div>
-    <div class="prof-row"><label class="prof-lbl" data-i18n="prof_cog">Cognome</label><input class="prof-inp" id="pCognome" data-i18n-ph="prof_cog_ph" placeholder="Es. Rossi"></div>
-    <div class="prof-row"><label class="prof-lbl" data-i18n="prof_data">Data di nascita</label><input class="prof-inp" type="date" id="pNascita"></div>
-    <div class="fdiv"></div>
-    <div class="prof-row"><label class="prof-lbl">🎬 <span data-i18n="prof_film">Film preferito</span></label><input class="prof-inp" id="pFilm" data-i18n-ph="prof_film_ph" placeholder="Es. Il Padrino"></div>
-    <div class="prof-row"><label class="prof-lbl">🎭 <span data-i18n="prof_reg">Regista preferito</span></label><input class="prof-inp" id="pRegista" data-i18n-ph="prof_reg_ph" placeholder="Es. Stanley Kubrick"></div>
-    <div class="prof-row"><label class="prof-lbl">⭐ <span data-i18n="prof_att">Attore preferito</span></label><input class="prof-inp" id="pAttore" data-i18n-ph="prof_att_ph" placeholder="Es. Cate Blanchett"></div>
-    <div style="display:flex;align-items:center;gap:12px;margin-top:8px"><button class="save-btn" onclick="saveProfp()" data-i18n="save">Salva profilo</button><span class="save-ok" id="profOk" data-i18n="saved">✓ Salvato!</span></div>
-    <button class="hist-btn" onclick="openAllRecs()"><span>🎬</span><span data-i18n="allrec_btn">Tutti i film consigliati</span></button>
-    <div class="fdiv"></div>
-    <div style="display:flex;align-items:center;justify-content:space-between;padding:4px 0">
-      <div><div style="font-size:12px;font-weight:600" data-i18n="plan_label">Piano attuale</div><div style="font-size:11px;color:var(--td);margin-top:2px" data-i18n="plan_sub">Clicca per simulare Premium (demo)</div></div>
-      <button class="chip" id="premToggle" onclick="togglePremium()">Free</button>
+    <div class="prof-layout">
+      <div>
+        <div id="prof-account-box" style="display:none;background:rgba(255,255,255,.04);border:1px solid var(--br);border-radius:10px;padding:10px 14px;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between;gap:10px">
+          <div style="min-width:0"><div style="font-size:11px;color:var(--td);margin-bottom:2px" data-i18n="account_label">Account</div><div id="prof-email" style="font-size:13px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></div></div>
+          <button onclick="doLogout()" style="flex-shrink:0;padding:6px 12px;border-radius:8px;border:1px solid rgba(248,113,113,.35);background:rgba(248,113,113,.1);color:#f87171;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap" data-i18n="logout_btn">Esci</button>
+        </div>
+        <div class="prof-row"><label class="prof-lbl" data-i18n="prof_nome">Nome</label><input class="prof-inp" id="pNome" data-i18n-ph="prof_nome_ph" placeholder="Es. Marco"></div>
+        <div class="prof-row"><label class="prof-lbl" data-i18n="prof_cog">Cognome</label><input class="prof-inp" id="pCognome" data-i18n-ph="prof_cog_ph" placeholder="Es. Rossi"></div>
+        <div class="prof-row"><label class="prof-lbl" data-i18n="prof_data">Data di nascita</label><input class="prof-inp" type="date" id="pNascita"></div>
+        <div class="fdiv"></div>
+        <div class="prof-row"><label class="prof-lbl">🎬 <span data-i18n="prof_film">Film preferito</span></label><input class="prof-inp" id="pFilm" data-i18n-ph="prof_film_ph" placeholder="Es. Il Padrino"></div>
+        <div class="prof-row"><label class="prof-lbl">🎭 <span data-i18n="prof_reg">Regista preferito</span></label><input class="prof-inp" id="pRegista" data-i18n-ph="prof_reg_ph" placeholder="Es. Stanley Kubrick"></div>
+        <div class="prof-row"><label class="prof-lbl">⭐ <span data-i18n="prof_att">Attore preferito</span></label><input class="prof-inp" id="pAttore" data-i18n-ph="prof_att_ph" placeholder="Es. Cate Blanchett"></div>
+        <div style="display:flex;align-items:center;gap:12px;margin-top:8px"><button class="save-btn" onclick="saveProfp()" data-i18n="save">Salva profilo</button><span class="save-ok" id="profOk" data-i18n="saved">✓ Salvato!</span></div>
+        <div class="fdiv"></div>
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:4px 0">
+          <div><div style="font-size:12px;font-weight:600" data-i18n="plan_label">Piano attuale</div><div style="font-size:11px;color:var(--td);margin-top:2px" data-i18n="plan_sub">Clicca per simulare Premium (demo)</div></div>
+          <button class="chip" id="premToggle" onclick="togglePremium()">Free</button>
+        </div>
+      </div>
+      <div>
+        <div class="avatar-box"><div class="avatar-box-inner"><div style="font-size:38px;margin-bottom:6px">👤</div><div>Avatar</div></div></div>
+        <div class="storico-box">
+          <div class="storico-lbl">Storico</div>
+          <button class="storico-btn" onclick="openAllRecs()"><span>🎬</span><span data-i18n="allrec_btn">Film consigliati fino a oggi</span></button>
+          <button class="storico-btn" onclick="openSeenPanel()"><span style="color:#4ade80;font-weight:700">✓</span><span>Film già visti</span></button>
+        </div>
+      </div>
     </div>
   </div>
 </div>
@@ -1290,6 +1322,20 @@ body.cat-revealing #today-wrap-mob{visibility:hidden!important;pointer-events:no
 <div id="profp-ad-l"><span class="ad-slot-label">ADV</span></div>
 <div id="profp-ad-r"><span class="ad-slot-label">ADV</span></div>
 <div id="profp-ad-b"><span class="ad-slot-label">ADV</span></div>
+
+<!-- FILM GIÀ VISTI PANEL -->
+<div id="seenp" class="slide-panel">
+  <div class="vph"><button class="vp-back" onclick="closeSeenPanel()">← Torna</button><div class="vph-t"><h2>Film già visti</h2><p>La tua lista personale di film visti</p></div></div>
+  <div class="vpb" style="overflow-y:auto;overscroll-behavior:contain">
+    <div id="seen-list-items"></div>
+    <div class="fdiv" id="seen-standby-div" style="display:none"></div>
+    <div id="seen-standby-section" style="display:none">
+      <div class="standby-lbl">Titoli in stand-by</div>
+      <p class="standby-desc">Se in futuro venissero aggiunti nel database di Swainz saranno automaticamente segnati come visti</p>
+      <div id="standby-list-items"></div>
+    </div>
+  </div>
+</div>
 
 <!-- FATTI CONOSCERE -->
 <div id="fcp" class="slide-panel">
@@ -2805,6 +2851,37 @@ function markAllSeen(){
 // ── PROFILO ──────────────────────────────────────────────────────────────
 function openProfp(){document.getElementById('profp').classList.add('on');loadProfp();if(!isPremium)document.body.classList.add('profp-ads-show');}
 function closeProfp(){document.getElementById('profp').classList.remove('on');document.body.classList.remove('profp-ads-show');}
+
+function openSeenPanel(){
+  const seenArr=[...seenFilms];
+  const inDB=seenArr.filter(id=>DB.some(f=>f.id===id));
+  const notInDB=seenArr.filter(id=>!DB.some(f=>f.id===id));
+  // Build seen list (most recent first → reverse insertion order)
+  const listEl=document.getElementById('seen-list-items');
+  if(inDB.length){
+    listEl.innerHTML=inDB.slice().reverse().map(id=>{
+      const f=DB.find(f=>f.id===id);
+      if(!f)return'';
+      return`<div class="seen-item"><span class="seen-chk">✓</span><span class="seen-ttl">${f.title}</span><span class="seen-yr">${f.year}</span></div>`;
+    }).join('');
+  } else {
+    listEl.innerHTML='<div class="seen-empty">Nessun film ancora segnato come visto</div>';
+  }
+  // Standby: IDs not found in current DB
+  const standbyEl=document.getElementById('standby-list-items');
+  const standbySection=document.getElementById('seen-standby-section');
+  const standbyDiv=document.getElementById('seen-standby-div');
+  if(notInDB.length){
+    standbyEl.innerHTML=notInDB.map(id=>`<div class="seen-item standby-item"><span class="seen-chk">⏳</span><span class="seen-ttl" style="opacity:.6">ID #${id}</span></div>`).join('');
+    standbySection.style.display='block';
+    standbyDiv.style.display='block';
+  } else {
+    standbySection.style.display='none';
+    standbyDiv.style.display='none';
+  }
+  document.getElementById('seenp').classList.add('on');
+}
+function closeSeenPanel(){document.getElementById('seenp').classList.remove('on');}
 async function loadProfp(){
   try{const lp=localStorage.getItem('sw3_prof');if(lp){const d=JSON.parse(lp);['pNome','pCognome','pNascita','pFilm','pRegista','pAttore'].forEach(id=>{if(d[id])document.getElementById(id).value=d[id];});}}catch(e){}
   const pt=document.getElementById('premToggle');pt.textContent=isPremium?'Premium ✓':'Free';pt.className=isPremium?'chip on':'chip';
