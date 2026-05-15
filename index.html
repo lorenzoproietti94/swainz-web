@@ -139,6 +139,8 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:15px;heigh
 #catw svg{overflow:visible;filter:drop-shadow(0 0 6px rgba(0,0,0,.5))}
 .mbu{position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%) scale(.35) translateY(10px);background:var(--card);border:1px solid var(--or);border-radius:14px 14px 14px 2px;padding:7px 16px;font-family:'Syne',sans-serif;font-size:13px;font-weight:800;color:var(--or);opacity:0;transition:all .45s cubic-bezier(.34,1.56,.64,1) .05s;white-space:nowrap;box-shadow:0 0 18px var(--gor)}
 #catw.rev .mbu{opacity:1;transform:translateX(-50%) scale(1) translateY(0)}
+#cat-hint-bub{position:fixed;display:none;max-width:240px;background:rgba(14,14,26,.97);border:1px solid rgba(255,255,255,.14);border-radius:14px 14px 14px 3px;padding:10px 14px;font-family:'Syne',sans-serif;font-size:12px;font-weight:600;color:var(--tx);line-height:1.55;z-index:50;pointer-events:none;box-shadow:0 6px 24px rgba(0,0,0,.55);opacity:0;transform:scale(.82) translateY(10px);transition:opacity .38s,transform .4s cubic-bezier(.34,1.56,.64,1)}
+#cat-hint-bub.show{opacity:1;transform:scale(1) translateY(0)}
 .mc{display:block}.mo{display:none}
 #catw.rev .mc{display:none}#catw.rev .mo{display:block}
 @keyframes legf{0%,100%{transform:rotate(-18deg)}50%{transform:rotate(18deg)}}
@@ -1122,6 +1124,9 @@ body.cat-revealing #today-wrap-mob{visibility:hidden!important;pointer-events:no
   <div class="cta-w" style="flex-direction:column;gap:0"><div id="pool-count"></div><button id="gobtn" class="cta" onclick="go()" data-i18n="cta_btn">✦ &nbsp;Chiedi a Swainz &nbsp;✦</button></div>
 </div>
 
+
+<!-- CAT HINT BUBBLE — fixed position, outside catw to avoid scaleX mirroring -->
+<div id="cat-hint-bub"></div>
 
 <!-- LOAF CAT -->
 <div id="loafcatw">
@@ -3265,6 +3270,49 @@ function hideCat(){
   if(cRaf){cancelAnimationFrame(cRaf);cRaf=null;}
   catEl().style.opacity='0';
   exitCrouch();
+  _hideCatHint();
+}
+
+// ── CAT HINT BUBBLES ────────────────────────────────────────────────────────
+const _catHints=[
+  'Sapevi che posso importare la tua lista di film già visti da Letterboxd? Visita la sezione "Segna i film già visti" 🎬',
+  'Per visualizzare lo storico dei film che ti ho consigliato visita la sezione "Il tuo profilo" 📋',
+  'Vuoi evitare assolutamente alcune caratteristiche nel film che ti consiglio? Escludile nella scheda in fondo alla pagina! 🚫'
+];
+let _catHintIdx=0,_catHintTimer=null;
+
+function _hideCatHint(){
+  if(_catHintTimer){clearTimeout(_catHintTimer);_catHintTimer=null;}
+  const bub=document.getElementById('cat-hint-bub');
+  if(!bub)return;
+  bub.classList.remove('show');
+  setTimeout(()=>{bub.style.display='none';},400);
+}
+
+function _showCatHint(){
+  const bub=document.getElementById('cat-hint-bub');
+  if(!bub)return;
+  bub.textContent=_catHints[_catHintIdx];
+  _catHintIdx=(_catHintIdx+1)%_catHints.length;
+  // Position: above the cat, centered on its horizontal center
+  const el=catEl();
+  if(!el||el.style.opacity==='0')return;
+  const r=el.getBoundingClientRect();
+  const bW=240;
+  let left=r.left+r.width/2-bW/2;
+  left=Math.max(8,Math.min(left,window.innerWidth-bW-8));
+  const top=Math.max(8,r.top-110);
+  bub.style.left=left+'px';
+  bub.style.top=top+'px';
+  bub.style.display='block';
+  requestAnimationFrame(()=>bub.classList.add('show'));
+  if(_catHintTimer)clearTimeout(_catHintTimer);
+  _catHintTimer=setTimeout(_hideCatHint,5500);
+}
+
+function _triggerCatHint(){
+  cVX=0;cMode='pause';cTimer=320;
+  _showCatHint();
 }
 
 function reappearCat(ms){
@@ -3417,11 +3465,11 @@ function catLoop(){
     const b=xBounds();
     if(cX>b.hi){
       if(cMode!=='jump'&&Math.random()<0.70){isFleeing=true;cMode='sprint';cVX=FLEE_SPD;cTimer=9999;}
-      else{cDir=-1;cVX=-Math.abs(cVX);cX=b.hi;}
+      else{cDir=-1;cVX=-Math.abs(cVX);cX=b.hi;if(!isEntering&&cMode!=='jump'&&Math.random()<0.30)_triggerCatHint();}
     }
     if(cX<b.lo){
       if(cMode!=='jump'&&Math.random()<0.70){isFleeing=true;cMode='sprint';cDir=-1;cVX=-FLEE_SPD;cTimer=9999;}
-      else{cDir=1;cVX=Math.abs(cVX);cX=b.lo;}
+      else{cDir=1;cVX=Math.abs(cVX);cX=b.lo;if(!isEntering&&cMode!=='jump'&&Math.random()<0.30)_triggerCatHint();}
     }
   }
 
