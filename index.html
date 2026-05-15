@@ -233,7 +233,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:15px;heigh
 .st span{color:#ffd060;font-size:12px}.st span.e{color:#3a3a3a}
 .rn{font-family:'Bebas Neue',sans-serif;font-size:22px;color:#ffd060;letter-spacing:1px}
 .fdiv{height:1px;background:linear-gradient(90deg,transparent,var(--bro),transparent);margin:16px 0}
-.fcb{padding:0 24px 24px;overflow-y:auto;flex:1;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
+.fcb{padding:0 24px 24px;overflow-y:auto;flex:1;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;touch-action:pan-y}
 .fcb::-webkit-scrollbar{width:3px}
 .fcb::-webkit-scrollbar-thumb{background:var(--br);border-radius:2px}
 .fcdesc{font-size:13px;line-height:1.85;color:var(--td);margin-bottom:16px}
@@ -2504,8 +2504,9 @@ function showCard(res,opts={}) {
 function toggleSeen(id,btn){seenFilms.has(id)?(seenFilms.delete(id),btn.textContent=t('card_mark'),btn.classList.remove('marked')):(seenFilms.add(id),btn.textContent=t('card_marked'),btn.classList.add('marked'));saveSeen();}
 function stars(r){const f=Math.floor(r/2),h=(r/2)%1>=.5?1:0,e=5-f-h;let s='<div class="st">';for(let i=0;i<f;i++)s+='<span>★</span>';if(h)s+='<span style="color:#a09040">★</span>';for(let i=0;i<e;i++)s+='<span class="e">☆</span>';return s+`</div><span class="rn">${r}</span>`;}
 
-function _lockScroll(){document.documentElement.classList.add('noscroll');}
-function _unlockScroll(){document.documentElement.classList.remove('noscroll');}
+let _scrollLockY=0;
+function _lockScroll(){_scrollLockY=window.scrollY;document.documentElement.classList.add('noscroll');document.body.style.position='fixed';document.body.style.top='-'+_scrollLockY+'px';document.body.style.width='100%';}
+function _unlockScroll(){document.documentElement.classList.remove('noscroll');document.body.style.position='';document.body.style.top='';document.body.style.width='';window.scrollTo(0,_scrollLockY);}
 
 function closeCard(){
   _unlockScroll();
@@ -3138,7 +3139,7 @@ function wakeUpSequence(){
 // ══════════════════════════════════════════════════════════════════════════
 // CAT ANIMATION — clean rewrite
 // ══════════════════════════════════════════════════════════════════════════
-const CAT_W=225,CAT_H=158,WSPD=1.8,SSPD=6.2,FLEE_SPD=8,GRAV=0.46,CROUCH_DUR=1800;
+const CAT_W=225,CAT_H=158,WSPD=1.8,SSPD=6.2,FLEE_SPD=8,GRAV=0.46,CROUCH_DUR=900;
 let cX=0,cY=0,cVX=WSPD,cVY=0,cDir=1;
 let cMode='walk',cTimer=120,cGroundY=0,cTargetGY=0;
 let cBob=0,cCrouchTimer=0,isFleeing=false,isEntering=false;
@@ -3224,7 +3225,7 @@ function fleeAndReturn(){
   el.style.transition='none';el.style.opacity='1';
   el.style.left=cX+'px';el.style.bottom=cGroundY+'px';
   catLoop();
-  cHideTimer=setTimeout(()=>{hideCat();reappearCat(8000);},2500);
+  cHideTimer=setTimeout(()=>{hideCat();reappearCat(22000);},2500);
 }
 
 function exitCrouch(){
@@ -3340,18 +3341,18 @@ function catLoop(){
   if(!isFleeing&&!isEntering){
     const b=xBounds();
     if(cX>b.hi){
-      if(cMode!=='jump'&&Math.random()<0.40){isFleeing=true;cMode='sprint';cVX=FLEE_SPD;cTimer=9999;}
+      if(cMode!=='jump'&&Math.random()<0.70){isFleeing=true;cMode='sprint';cVX=FLEE_SPD;cTimer=9999;}
       else{cDir=-1;cVX=-Math.abs(cVX);cX=b.hi;}
     }
     if(cX<b.lo){
-      if(cMode!=='jump'&&Math.random()<0.40){isFleeing=true;cMode='sprint';cDir=-1;cVX=-FLEE_SPD;cTimer=9999;}
+      if(cMode!=='jump'&&Math.random()<0.70){isFleeing=true;cMode='sprint';cDir=-1;cVX=-FLEE_SPD;cTimer=9999;}
       else{cDir=1;cVX=Math.abs(cVX);cX=b.lo;}
     }
   }
 
   // off screen (organic exit or flee) — skip check while entering
   if(!isEntering&&(cX>window.innerWidth+130||cX<-CAT_W-30)){
-    hideCat();isFleeing=false;reappearCat(3000+Math.random()*2000);cRaf=null;return;
+    hideCat();isFleeing=false;reappearCat(22000+Math.random()*13000);cRaf=null;return;
   }
   // clear entering flag once cat is inside viewport
   if(isEntering&&cX>-CAT_W+10&&cX<window.innerWidth){isEntering=false;}
