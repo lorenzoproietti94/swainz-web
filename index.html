@@ -1371,6 +1371,7 @@ var SUPA_TAGS=['Angosciante','Animazione','Asiatico','Biografico','Bizzarro','Ca
 function _supaTransform(row){
   return {
     id:row.ID, title:row.Titolo||'', dir:row.Regista||'', year:row.Anno||0,
+    dur:row.Durata||row.durata||null,
     cast:row.Cast?row.Cast.split(', ').filter(Boolean):[],
     plt:row.Piattaforme?row.Piattaforme.split(', ').filter(Boolean):[],
     r:parseFloat(row['Voto IMDB'])||7.0,
@@ -2455,6 +2456,13 @@ function _extractPosterColors(imgEl,fcEl){
   }catch(e){/* CORS / tainted canvas */}
 }
 
+function _filmDurLabel(f){
+  if(f.dur){const m=parseInt(f.dur,10);if(m>0){const h=Math.floor(m/60),min=m%60;return h?h+'h'+(min?' '+min+'min':''):min+'min';}}
+  if(f.tags.includes('Lunghissimo'))return '> 3h';
+  if(f.tags.includes('Lungo(>2h30)'))return '> 2h 30min';
+  if(f.tags.includes('Corto(<1h30)'))return '< 1h 30min';
+  return '1h 30 – 2h 30';
+}
 function showCard(res,opts={}) {
   _cardReturnTo=opts.returnTo||null;
   const el=document.getElementById('fcc');
@@ -2477,7 +2485,7 @@ function showCard(res,opts={}) {
   <div class="fc-bdg">${t('card_badge')}</div>
   <div class="fc-tit">${displayTitle}</div>
   <div class="fc-dir">${LANG==='en'?'Directed by':'Regia di'} <strong>${f.dir}</strong></div>
-  <div class="fc-sub"><span>📅 ${f.year}</span><span>⭐ ${f.r}/10</span>${stars(f.r)}</div>
+  <div class="fc-sub"><span>📅 ${f.year}</span><span>⏱ ${_filmDurLabel(f)}</span><span>⭐ ${f.r}/10</span>${stars(f.r)}</div>
 </div>
 <div class="fcb">
   <div class="fc-body-row">
