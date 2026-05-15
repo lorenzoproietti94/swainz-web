@@ -98,7 +98,7 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
 /* ── PROPOSTE RAPIDE ─────────────────────────────────────────────────────── */
 #proposte-rapide{margin-bottom:16px;background:rgba(255,80,0,.04);border:1px solid rgba(255,80,0,.16);border-radius:18px;padding:16px 20px;position:relative;overflow:hidden}
 #proposte-rapide::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,80,0,.05) 0%,transparent 60%);pointer-events:none}
-.proposte-title{font-family:'Bebas Neue',sans-serif;font-size:11.5px;letter-spacing:3.5px;color:var(--or);text-transform:uppercase;margin-bottom:13px;opacity:.9;position:relative;text-align:center}
+.proposte-title{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:3.5px;color:var(--or);text-transform:uppercase;margin-bottom:13px;opacity:.9;position:relative;text-align:center}
 .proposte-pills{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;min-height:34px;align-items:stretch;position:relative}
 .quick-pill{display:flex;align-items:center;justify-content:center;flex:1;min-width:0;padding:0 18px;border-radius:16px;border:1px solid rgba(255,80,0,.28);background:rgba(255,80,0,.06);color:var(--tx);font-size:13px;font-weight:600;cursor:pointer;transition:all .22s;font-family:inherit;text-align:center;line-height:1.35;letter-spacing:.01em}
 .quick-pill:hover{background:rgba(255,80,0,.14);border-color:var(--or);transform:translateY(-2px);box-shadow:0 6px 18px rgba(255,80,0,.2)}
@@ -108,7 +108,7 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
 .lab-hdr{display:flex;align-items:center;justify-content:space-between;padding:12px 18px;cursor:pointer;user-select:none;transition:background .2s;position:relative}
 .lab-hdr:hover{background:rgba(255,255,255,.03)}
 .lab-hdr.open{border-bottom:1px solid rgba(255,255,255,.06)}
-.lab-ttl{font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:4px;color:var(--td);text-transform:uppercase;position:absolute;left:50%;transform:translateX(-50%);white-space:nowrap;pointer-events:none}
+.lab-ttl{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:4px;color:var(--td);text-transform:uppercase;position:absolute;left:50%;transform:translateX(-50%);white-space:nowrap;pointer-events:none}
 .lab-ctl{display:flex;align-items:center;gap:10px}
 .lab-arr{color:var(--td);font-size:15px;transition:transform .35s;line-height:1;display:inline-block}
 .lab-arr.open{transform:rotate(0deg)}
@@ -512,8 +512,8 @@ body.profp-ads-show #profp{padding-bottom:96px}
 #excl-notice button{background:none;border:none;color:#f87171;cursor:pointer;font-size:13px;padding:0;line-height:1;flex-shrink:0}
 .chip.locked{opacity:.35;cursor:default;pointer-events:none;filter:grayscale(50%);position:relative;padding-right:18px}
 .chip.locked::after{content:"🔒";position:absolute;top:-5px;right:-3px;font-size:11px;opacity:.8;line-height:1}
-.chip-incompat{opacity:.38;cursor:not-allowed;border-color:rgba(239,68,68,.35)!important;color:rgba(239,160,160,.75)!important;position:relative;padding-right:18px}
-.chip-incompat::after{content:'✕';position:absolute;top:-5px;right:-4px;width:14px;height:14px;border-radius:50%;background:#ef4444;color:#fff;font-size:9px;font-weight:800;line-height:14px;text-align:center;display:block}
+.chip-incompat{opacity:.38;cursor:not-allowed;border-color:rgba(239,68,68,.35)!important;color:rgba(239,160,160,.75)!important;position:relative;padding-right:22px}
+.chip-incompat::after{content:'✕';position:absolute;top:3px;right:3px;width:10px;height:10px;border-radius:50%;background:#ef4444;color:#fff;font-size:7px;font-weight:800;line-height:10px;text-align:center;display:block}
 #chip-incompat-tip{position:fixed;display:none;background:rgba(35,8,8,.97);border:1px solid rgba(239,68,68,.45);border-radius:9px;padding:7px 11px;font-size:11px;color:#fca5a5;width:240px;line-height:1.6;z-index:10000;pointer-events:none;box-shadow:0 4px 18px rgba(239,68,68,.22)}
 #chip-tip{position:fixed;display:none;background:rgba(18,18,28,.97);border:1px solid var(--br);border-radius:9px;padding:7px 11px;font-size:11px;color:var(--tx);width:200px;line-height:1.5;z-index:9999;pointer-events:none;box-shadow:0 4px 18px rgba(0,0,0,.5)}
 /* ALL RECS PANEL */
@@ -902,13 +902,13 @@ body.cat-revealing #today-wrap-mob{visibility:hidden!important;pointer-events:no
   <div class="fa">
     <!-- ── PROPOSTE RAPIDE ── -->
     <div id="proposte-rapide">
-      <div class="proposte-title">✦ &nbsp;Le proposte rapide di Swainz</div>
+      <div class="proposte-title">✦ &nbsp;Le proposte rapide di Swainz &nbsp;⚡</div>
       <div id="proposte-pills" class="proposte-pills"><span style="color:var(--td);font-size:12px;opacity:.45">Caricamento…</span></div>
     </div>
     <!-- ── SWAINZ LAB ── -->
     <div class="lab-box">
       <div class="lab-hdr open" id="lab-hdr" onclick="toggleLab()">
-        <span class="lab-ttl">⚗ &nbsp;Swainz Lab</span>
+        <span class="lab-ttl">Swainz Lab &nbsp;🧪</span>
         <div class="lab-ctl">
           <button class="reset-btn" onclick="event.stopPropagation();resetFilters()" id="resetBtn"><span class="reset-icon">↺</span><span data-i18n="reset_filters">Reset Filtri</span></button>
           <span class="lab-arr open" id="lab-arr">▾</span>
