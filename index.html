@@ -131,6 +131,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:15px;heigh
 #gobtn.glow1{animation:_glow1 2.4s ease-in-out infinite}
 #gobtn.glow2{animation:_glow2 1.7s ease-in-out infinite}
 #gobtn.glow3{animation:_glow3 1.1s ease-in-out infinite}
+#gobtn.glow-zero{animation:none;box-shadow:0 4px 28px rgba(239,68,68,.2),0 0 32px rgba(239,68,68,.35),0 0 64px rgba(239,68,68,.15)}
 
 /* CAT */
 #catwrapper{position:fixed;inset:0;overflow:hidden;pointer-events:none;z-index:4}
@@ -4234,14 +4235,15 @@ function updatePoolCount(){
   el.className='pc-visible '+cls;
   el.style.display='block';
   el.style.color=cls==='pc-zero'?'#f87171':(cls==='pc-low'?'var(--or)':'rgba(255,255,255,.6)');
-  _updateBtnGlow();
+  _updateBtnGlow(count);
 }
 
-function _updateBtnGlow(){
+function _updateBtnGlow(count){
   const btn=document.getElementById('gobtn');
   if(!btn)return;
   const n=Object.values(SEL).reduce((acc,s)=>acc+s.size,0)+(typeof EXCL!=='undefined'?EXCL.size:0);
-  btn.classList.remove('glow1','glow2','glow3');
+  btn.classList.remove('glow1','glow2','glow3','glow-zero');
+  if(n>0&&count===0){btn.classList.add('glow-zero');return;}
   if(n>=3)btn.classList.add('glow3');
   else if(n===2)btn.classList.add('glow2');
   else if(n===1)btn.classList.add('glow1');
