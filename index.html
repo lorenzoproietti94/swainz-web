@@ -2507,7 +2507,7 @@ function showCard(res,opts={}) {
   ${f.tags.length?`<div class="fc-section-box"><div class="fst">${t('card_why')}</div><div class="mcs">${sequelBadge}${f.tags.map(m=>`<span class="mc2">✓ ${tTag(m)}</span>`).join('')}</div></div>`:''}
   <div class="fc-section-box"><div class="fst">${t('card_plt')}</div><div class="mcs">${f.plt.length?f.plt.map(p=>`<span class="mc2 b">📺 ${p}</span>`).join(''):`<span style="color:var(--td);font-size:12px;opacity:.7">${t('card_plt_none')}</span>`}</div></div>
   <div class="fcact">
-    <button class="b1" onclick="closeCard()">${t('card_ok')}</button>
+    <button class="b1" onclick="closeCard();resetFilters()">${t('card_ok')}</button>
     ${opts.hideMore?'':`<button class="b2" onclick="tryAgain()">${t('card_more')}</button>`}
     <button class="b3 ${sn?'marked':''}" id="snbtn" onclick="toggleSeen(${f.id},this)">${sn?t('card_marked'):t('card_mark')}</button>
   </div>
