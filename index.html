@@ -1473,13 +1473,14 @@ const sessionShown=new Set(); // films shown in this session, reset with new day
 // ── ALL-TIME RECOMMENDATIONS HISTORY ────────────────────────────────────
 const _allRecKey='sw3_allrecs';
 let allRecs=[]; // array of {id, tags:[]} — tags = filtri attivi al momento del consiglio
+let _allRecIds=new Set(); // fast lookup set, kept in sync with allRecs
 
 function _normaliseAllRecs(raw){
   if(!Array.isArray(raw))return[];
   return raw.map(e=>(typeof e==='object'&&e!==null&&'id' in e)?e:{id:e,tags:[]});
 }
 async function loadAllRecs(){
-  try{const r=localStorage.getItem(_allRecKey);if(r)allRecs=_normaliseAllRecs(JSON.parse(r));}catch(e){}
+  try{const r=localStorage.getItem(_allRecKey);if(r){allRecs=_normaliseAllRecs(JSON.parse(r));_allRecIds=new Set(allRecs.map(e=>e.id));}}catch(e){}
 }
 function _saveAllRecs(){
   try{localStorage.setItem(_allRecKey,JSON.stringify(allRecs));}catch(e){}
@@ -1489,7 +1490,7 @@ function _saveAllRecs(){
   }
 }
 async function addAllRec(id,tags){
-  if(!allRecs.some(e=>e.id===id)){allRecs.push({id,tags:tags||[]});_saveAllRecs();}
+  if(!allRecs.some(e=>e.id===id)){allRecs.push({id,tags:tags||[]});_allRecIds.add(id);_saveAllRecs();}
 }
 /* ── All-recs table: state ─────────────────────────────────────── */
 // Each entry in allRecs is now {id, tags:[]} where tags = filtri attivi al momento
@@ -1528,7 +1529,7 @@ function openAllRecs(){
       const _remoteIds=new Set(_remote.map(e=>e.id));
       const _localOnly=allRecs.filter(e=>!_remoteIds.has(e.id));
       const _merged=[..._remote,..._localOnly];
-      allRecs=_merged;
+      allRecs=_merged;_allRecIds=new Set(_merged.map(e=>e.id));
       try{localStorage.setItem(_allRecKey,JSON.stringify(allRecs));}catch(e){}
       // Push local-only films to Supabase (race-free: only adds, never removes)
       if(_localOnly.length>0){
@@ -2089,7 +2090,7 @@ function _bgSyncAllRecs(force){
       const _localIds=new Set(allRecs.map(e=>e.id));
       const _newFromRemote=_remote.filter(e=>!_localIds.has(e.id));
       if(_newFromRemote.length>0){
-        allRecs=[...allRecs,..._newFromRemote];
+        allRecs=[...allRecs,..._newFromRemote];_allRecIds=new Set(allRecs.map(e=>e.id));
         try{localStorage.setItem(_allRecKey,JSON.stringify(allRecs));}catch(e){}
         // If panel is open, re-render with new data
         const ap=document.getElementById('allrecsp');
@@ -2307,6 +2308,7 @@ function findFilm(){
   let pool=DB.filter(f=>{
     if(seenFilms.has(f.id))return false;
     if(sessionShown.has(f.id))return false;
+    if(_allRecIds.has(f.id))return false;
     if(f.r<minR)return false;
     if(pltSel.size>0){
       const _noPlat=pltSel.has('Non su piattaforme');
