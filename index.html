@@ -96,7 +96,7 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
 .chip.on{border-color:var(--bl);background:var(--ca);color:#fff;box-shadow:0 0 10px rgba(37,99,255,.22)}
 .chip.ex:hover{border-color:var(--boh);background:rgba(255,80,0,.07)}
 /* ── PROPOSTE RAPIDE ─────────────────────────────────────────────────────── */
-#proposte-rapide{margin-bottom:16px;background:rgba(255,80,0,.04);border:1px solid rgba(255,80,0,.16);border-radius:18px;padding:16px 20px;position:relative;overflow:hidden}
+#proposte-rapide{margin-bottom:28px;background:rgba(255,80,0,.04);border:1px solid rgba(255,80,0,.16);border-radius:18px;padding:16px 20px;position:relative;overflow:hidden}
 #proposte-rapide::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,80,0,.05) 0%,transparent 60%);pointer-events:none}
 .proposte-title{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:3.5px;color:var(--or);text-transform:uppercase;margin-bottom:13px;opacity:.9;position:relative;text-align:center}
 .proposte-pills{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;min-height:34px;align-items:stretch;position:relative}
@@ -109,7 +109,7 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
 .lab-hdr:hover{background:rgba(255,255,255,.03)}
 .lab-hdr.open{border-bottom:1px solid rgba(255,255,255,.06)}
 .lab-ttl{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:4px;color:var(--td);text-transform:uppercase;position:absolute;left:50%;transform:translateX(-50%);white-space:nowrap;pointer-events:none}
-.lab-ctl{display:flex;align-items:center;gap:10px}
+.lab-ctl{display:flex;align-items:center;gap:8px;align-self:flex-end}
 .lab-arr{color:var(--td);font-size:15px;transition:transform .35s;line-height:1;display:inline-block}
 .lab-arr.open{transform:rotate(0deg)}
 .lab-arr.closed{transform:rotate(-90deg)}
@@ -246,7 +246,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:15px;heigh
 .fcb{padding:0 24px 24px;overflow-y:auto;flex:1;min-height:0;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;touch-action:pan-y}
 .fcb::-webkit-scrollbar{width:3px}
 .fcb::-webkit-scrollbar-thumb{background:var(--br);border-radius:2px}
-.fcdesc{font-size:13px;line-height:1.85;color:var(--td);margin-bottom:16px}
+.fcdesc{font-size:14.5px;line-height:1.85;color:var(--tx);margin-bottom:16px}
 .fst{font-size:9px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--bl);margin-bottom:6px}
 .fcppl{font-size:13px;color:var(--tx);margin-bottom:14px;line-height:2.1}
 .mcs{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:14px}
@@ -662,7 +662,7 @@ body.cat-revealing #afp-mobile,
 body.cat-revealing #today-wrap-mob{visibility:hidden!important;pointer-events:none!important}
 #afp-mobile.has-excl .afp-sep{display:block}
 
-  #ls-lang-bar{position:absolute;top:8px;left:50%;transform:translateX(-50%);z-index:10}
+  #ls-lang-bar{position:absolute;top:0;left:0;right:0;display:flex;justify-content:center;z-index:10}
   .ls-sep-txt{display:flex;align-items:center;gap:10px;margin:4px 0;width:100%}
   .ls-sep-txt span{font-size:11px;color:var(--td);white-space:nowrap}
   .ls-sep-txt:before,.ls-sep-txt:after{content:'';flex:1;height:1px;background:linear-gradient(90deg,transparent,var(--br),transparent)}
@@ -814,7 +814,6 @@ body.cat-revealing #today-wrap-mob{visibility:hidden!important;pointer-events:no
   <div id="ls-lang-bar">
     <button class="flag-btn active" id="ls-flag-btn" onclick="lsToggleLangDrop(this)" title="Lingua / Language">
       <svg id="ls-flag-svg" width="28" height="19" viewBox="0 0 3 2" xmlns="http://www.w3.org/2000/svg" style="display:block;border-radius:2px"><rect width="1" height="2" fill="#009246"/><rect x="1" width="1" height="2" fill="#fff"/><rect x="2" width="1" height="2" fill="#ce2b37"/></svg>
-      <span style="font-size:10px;opacity:.55;color:var(--tx)">▾</span>
     </button>
   </div>
   <div style="z-index:1;text-align:center;display:flex;flex-direction:column;align-items:center">
@@ -897,7 +896,7 @@ body.cat-revealing #today-wrap-mob{visibility:hidden!important;pointer-events:no
   <div class="fa">
     <!-- ── PROPOSTE RAPIDE ── -->
     <div id="proposte-rapide">
-      <div class="proposte-title" data-i18n="proposte_title">✦&nbsp;&nbsp;Le proposte rapide di Swainz&nbsp;&nbsp;⚡</div>
+      <div class="proposte-title" data-i18n="proposte_title">Le proposte rapide di Swainz&nbsp;&nbsp;⚡</div>
       <div id="proposte-pills" class="proposte-pills"><span style="color:var(--td);font-size:12px;opacity:.45">Caricamento…</span></div>
     </div>
     <!-- ── SWAINZ LAB ── -->
@@ -3594,7 +3593,7 @@ const T={
     fcp_h2:'Fatti conoscere da Swainz',fcp_p:'Le tue risposte guidano i consigli — modificabili in qualsiasi momento',
     fck_save:'Salva preferenze',fck_saved:'✓ Preferenze salvate!',fck_free_teaser_title:'Passa a Premium!',fck_free_teaser_sub:'Per farti conoscere al meglio da Swainz, sblocca tutte le ulteriori domande personalizzate.',
     prem_lock_title:'Funzione Premium',prem_lock_sub:'Attivalo dal profilo 👤',prem_lock_back:'← Torna',
-    card_badge:'✦ SWAINZ CONSIGLIA',sequel_badge:'Sequel',card_cast:'Cast',card_plt:'Disponibile su',card_plt_none:'Non disponibile in streaming',reset_filters:'Reset Filtri',news_hdr:'🎬 Notizie del giorno',news_load:'Caricamento...',news_err:'Notizie non disponibili',optin_title:'Nessun risultato trovato',nofilm_title:'Nessun film disponibile',nofilm_sub:'Hai esplorato tutti i film compatibili con i tuoi criteri. I filtri verranno azzerati.',optin_sub:'I film compatibili appartengono anche ad altre categorie. Vuoi includerne una?',afp_active:'Filtri attivi',afp_excl:'Esclusi',afp_none:'Nessun filtro',card_why:'Caratteristiche',proposte_title:'✦\u00a0\u00a0Le proposte rapide di Swainz\u00a0\u00a0⚡',fck_prog_label:'Completamento',fck_prog_done:'✓ Profilo completato',
+    card_badge:'✦ SWAINZ CONSIGLIA',sequel_badge:'Sequel',card_cast:'Cast',card_plt:'Disponibile su',card_plt_none:'Non disponibile in streaming',reset_filters:'Reset Filtri',news_hdr:'🎬 Notizie del giorno',news_load:'Caricamento...',news_err:'Notizie non disponibili',optin_title:'Nessun risultato trovato',nofilm_title:'Nessun film disponibile',nofilm_sub:'Hai esplorato tutti i film compatibili con i tuoi criteri. I filtri verranno azzerati.',optin_sub:'I film compatibili appartengono anche ad altre categorie. Vuoi includerne una?',afp_active:'Filtri attivi',afp_excl:'Esclusi',afp_none:'Nessun filtro',card_why:'Caratteristiche',proposte_title:'Le proposte rapide di Swainz\u00a0\u00a0⚡',fck_prog_label:'Completamento',fck_prog_done:'✓ Profilo completato',
     card_ok:'🎬 Perfetto, grazie!',card_more:'↺ Altro',card_mark:'👁 Segna visto',card_marked:'✓ Già visto',
     card_none:'Nessun film trovato',card_none_sub:'Prova ad allargare i filtri!',card_edit:'Modifica filtri',
     ac_films:'Film',ac_people:'Persone',
@@ -3662,7 +3661,7 @@ const T={
     fcp_h2:'Let Swainz know you',fcp_p:'Your answers guide the recommendations — editable anytime',
     fck_save:'Save preferences',fck_saved:'✓ Preferences saved!',fck_free_teaser_title:'Try Premium',fck_free_teaser_sub:'Let Swainz get to know you better — unlock the full personalised questionnaire.',
     prem_lock_title:'Premium feature',prem_lock_sub:'Activate it from profile 👤',prem_lock_back:'← Back',
-    card_badge:'✦ SWAINZ RECOMMENDS',sequel_badge:'Sequel',card_cast:'Cast',card_plt:'Available on',card_plt_none:'Not available on streaming',reset_filters:'Reset filters',news_hdr:'🎬 News of the day',news_load:'Loading...',news_err:'News not available',optin_title:'No results found',nofilm_title:'No films available',nofilm_sub:'You have explored all films matching your criteria. Filters will be reset.',optin_sub:'Films matching your criteria also belong to other categories. Would you like to include one?',afp_active:'Active filters',afp_excl:'Excluded',afp_none:'No filters',card_why:'Characteristics',proposte_title:'✦\u00a0\u00a0Swainz Quick Picks\u00a0\u00a0⚡',fck_prog_label:'Completion',fck_prog_done:'✓ Profile complete',
+    card_badge:'✦ SWAINZ RECOMMENDS',sequel_badge:'Sequel',card_cast:'Cast',card_plt:'Available on',card_plt_none:'Not available on streaming',reset_filters:'Reset filters',news_hdr:'🎬 News of the day',news_load:'Loading...',news_err:'News not available',optin_title:'No results found',nofilm_title:'No films available',nofilm_sub:'You have explored all films matching your criteria. Filters will be reset.',optin_sub:'Films matching your criteria also belong to other categories. Would you like to include one?',afp_active:'Active filters',afp_excl:'Excluded',afp_none:'No filters',card_why:'Characteristics',proposte_title:'Swainz Quick Picks\u00a0\u00a0⚡',fck_prog_label:'Completion',fck_prog_done:'✓ Profile complete',
     card_ok:'🎬 Perfect, thanks!',card_more:'↺ Another',card_mark:'👁 Mark watched',card_marked:'✓ Watched',
     card_none:'No film found',card_none_sub:'Try broadening your filters!',card_edit:'Edit filters',
     ac_films:'Films',ac_people:'People',
