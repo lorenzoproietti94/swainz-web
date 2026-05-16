@@ -662,10 +662,7 @@ body.cat-revealing #afp-mobile,
 body.cat-revealing #today-wrap-mob{visibility:hidden!important;pointer-events:none!important}
 #afp-mobile.has-excl .afp-sep{display:block}
 
-  #ls-lang{position:absolute;top:18px;right:20px;display:flex;gap:8px;z-index:2}
-  #ls-lang button{background:none;border:none;cursor:pointer;opacity:.5;padding:2px;border-radius:4px;transition:opacity .2s}
-  #ls-lang button.active{opacity:1}
-  #ls-lang button:hover{opacity:.85}
+  #ls-lang-bar{position:absolute;top:8px;left:50%;transform:translateX(-50%);z-index:10}
   .ls-sep-txt{display:flex;align-items:center;gap:10px;margin:4px 0;width:100%}
   .ls-sep-txt span{font-size:11px;color:var(--td);white-space:nowrap}
   .ls-sep-txt:before,.ls-sep-txt:after{content:'';flex:1;height:1px;background:linear-gradient(90deg,transparent,var(--br),transparent)}
@@ -814,12 +811,10 @@ body.cat-revealing #today-wrap-mob{visibility:hidden!important;pointer-events:no
 <!-- LOGIN -->
 <div id="ls">
   <canvas id="ls-rain"></canvas>
-  <div id="ls-lang">
-    <button onclick="lsSetLang('it')" id="ls-lang-it" class="active" title="Italiano">
-      <svg width="24" height="16" viewBox="0 0 3 2"><rect width="1" height="2" fill="#009246"/><rect x="1" width="1" height="2" fill="#fff"/><rect x="2" width="1" height="2" fill="#ce2b37"/></svg>
-    </button>
-    <button onclick="lsSetLang('en')" id="ls-lang-en" title="English">
-      <svg width="24" height="16" viewBox="0 0 60 40"><rect width="60" height="40" fill="#012169"/><path d="M0 0l60 40M60 0L0 40" stroke="#fff" stroke-width="8"/><path d="M0 0l60 40M60 0L0 40" stroke="#C8102E" stroke-width="5"/><path d="M30 0v40M0 20h60" stroke="#fff" stroke-width="13"/><path d="M30 0v40M0 20h60" stroke="#C8102E" stroke-width="8"/></svg>
+  <div id="ls-lang-bar">
+    <button class="flag-btn active" id="ls-flag-btn" onclick="lsToggleLangDrop(this)" title="Lingua / Language">
+      <svg id="ls-flag-svg" width="28" height="19" viewBox="0 0 3 2" xmlns="http://www.w3.org/2000/svg" style="display:block;border-radius:2px"><rect width="1" height="2" fill="#009246"/><rect x="1" width="1" height="2" fill="#fff"/><rect x="2" width="1" height="2" fill="#ce2b37"/></svg>
+      <span style="font-size:10px;opacity:.55;color:var(--tx)">▾</span>
     </button>
   </div>
   <div style="z-index:1;text-align:center;display:flex;flex-direction:column;align-items:center">
@@ -902,7 +897,7 @@ body.cat-revealing #today-wrap-mob{visibility:hidden!important;pointer-events:no
   <div class="fa">
     <!-- ── PROPOSTE RAPIDE ── -->
     <div id="proposte-rapide">
-      <div class="proposte-title">✦ &nbsp;Le proposte rapide di Swainz &nbsp;⚡</div>
+      <div class="proposte-title" data-i18n="proposte_title">✦&nbsp;&nbsp;Le proposte rapide di Swainz&nbsp;&nbsp;⚡</div>
       <div id="proposte-pills" class="proposte-pills"><span style="color:var(--td);font-size:12px;opacity:.45">Caricamento…</span></div>
     </div>
     <!-- ── SWAINZ LAB ── -->
@@ -1388,11 +1383,11 @@ body.cat-revealing #today-wrap-mob{visibility:hidden!important;pointer-events:no
   <div id="fcpBody" class="vpb"></div>
   <div id="fck-prog-footer">
     <div id="fck-prog-meta">
-      <span id="fck-prog-label">Completamento</span>
+      <span id="fck-prog-label" data-i18n="fck_prog_label">Completamento</span>
       <span id="fck-prog-pct">0%</span>
     </div>
     <div id="fck-prog-bg"><div id="fck-prog-bar"></div></div>
-    <div id="fck-prog-done">✓ Profilo completato</div>
+    <div id="fck-prog-done" data-i18n="fck_prog_done">✓ Profilo completato</div>
   </div>
 </div>
 
@@ -3274,11 +3269,18 @@ function hideCat(){
 }
 
 // ── CAT HINT BUBBLES ────────────────────────────────────────────────────────
-const _catHints=[
-  'Sapevi che posso importare la tua lista di film già visti da Letterboxd? Visita la sezione "Segna i film già visti" 🎬',
-  'Per visualizzare lo storico dei film che ti ho consigliato visita la sezione "Il tuo profilo" 📋',
-  'Vuoi evitare assolutamente alcune caratteristiche nel film che ti consiglio? Escludile nella scheda in fondo alla pagina! 🚫'
-];
+const _catHints={
+  it:[
+    'Sapevi che posso importare la tua lista di film già visti da Letterboxd? Visita la sezione "Segna i film già visti" 🎬',
+    'Per visualizzare lo storico dei film che ti ho consigliato visita la sezione "Il tuo profilo" 📋',
+    'Vuoi evitare assolutamente alcune caratteristiche nel film che ti consiglio? Escludile nella scheda in fondo alla pagina! 🚫'
+  ],
+  en:[
+    'Did you know I can import your watched list from Letterboxd? Visit the "Mark watched films" section 🎬',
+    'To see the history of films I\'ve recommended, visit the "Your profile" section 📋',
+    'Want to avoid certain traits in my recommendations? Exclude them in the panel at the bottom of the page! 🚫'
+  ]
+};
 let _catHintIdx=0,_catHintTimer=null;
 
 function _hideCatHint(){
@@ -3292,8 +3294,9 @@ function _hideCatHint(){
 function _showCatHint(){
   const bub=document.getElementById('cat-hint-bub');
   if(!bub)return;
-  bub.textContent=_catHints[_catHintIdx];
-  _catHintIdx=(_catHintIdx+1)%_catHints.length;
+  const hints=_catHints[LANG]||_catHints.it;
+  bub.textContent=hints[_catHintIdx];
+  _catHintIdx=(_catHintIdx+1)%hints.length;
   // Position: above the cat, centered on its horizontal center
   const el=catEl();
   if(!el||el.style.opacity==='0')return;
@@ -3591,7 +3594,7 @@ const T={
     fcp_h2:'Fatti conoscere da Swainz',fcp_p:'Le tue risposte guidano i consigli — modificabili in qualsiasi momento',
     fck_save:'Salva preferenze',fck_saved:'✓ Preferenze salvate!',fck_free_teaser_title:'Passa a Premium!',fck_free_teaser_sub:'Per farti conoscere al meglio da Swainz, sblocca tutte le ulteriori domande personalizzate.',
     prem_lock_title:'Funzione Premium',prem_lock_sub:'Attivalo dal profilo 👤',prem_lock_back:'← Torna',
-    card_badge:'✦ SWAINZ CONSIGLIA',sequel_badge:'Sequel',card_cast:'Cast',card_plt:'Disponibile su',card_plt_none:'Non disponibile in streaming',reset_filters:'Reset Filtri',news_hdr:'🎬 Notizie del giorno',news_load:'Caricamento...',news_err:'Notizie non disponibili',optin_title:'Nessun risultato trovato',nofilm_title:'Nessun film disponibile',nofilm_sub:'Hai esplorato tutti i film compatibili con i tuoi criteri. I filtri verranno azzerati.',optin_sub:'I film compatibili appartengono anche ad altre categorie. Vuoi includerne una?',afp_active:'Filtri attivi',afp_excl:'Esclusi',afp_none:'Nessun filtro',card_why:'Caratteristiche',
+    card_badge:'✦ SWAINZ CONSIGLIA',sequel_badge:'Sequel',card_cast:'Cast',card_plt:'Disponibile su',card_plt_none:'Non disponibile in streaming',reset_filters:'Reset Filtri',news_hdr:'🎬 Notizie del giorno',news_load:'Caricamento...',news_err:'Notizie non disponibili',optin_title:'Nessun risultato trovato',nofilm_title:'Nessun film disponibile',nofilm_sub:'Hai esplorato tutti i film compatibili con i tuoi criteri. I filtri verranno azzerati.',optin_sub:'I film compatibili appartengono anche ad altre categorie. Vuoi includerne una?',afp_active:'Filtri attivi',afp_excl:'Esclusi',afp_none:'Nessun filtro',card_why:'Caratteristiche',proposte_title:'✦\u00a0\u00a0Le proposte rapide di Swainz\u00a0\u00a0⚡',fck_prog_label:'Completamento',fck_prog_done:'✓ Profilo completato',
     card_ok:'🎬 Perfetto, grazie!',card_more:'↺ Altro',card_mark:'👁 Segna visto',card_marked:'✓ Già visto',
     card_none:'Nessun film trovato',card_none_sub:'Prova ad allargare i filtri!',card_edit:'Modifica filtri',
     ac_films:'Film',ac_people:'Persone',
@@ -3659,7 +3662,7 @@ const T={
     fcp_h2:'Let Swainz know you',fcp_p:'Your answers guide the recommendations — editable anytime',
     fck_save:'Save preferences',fck_saved:'✓ Preferences saved!',fck_free_teaser_title:'Try Premium',fck_free_teaser_sub:'Let Swainz get to know you better — unlock the full personalised questionnaire.',
     prem_lock_title:'Premium feature',prem_lock_sub:'Activate it from profile 👤',prem_lock_back:'← Back',
-    card_badge:'✦ SWAINZ RECOMMENDS',sequel_badge:'Sequel',card_cast:'Cast',card_plt:'Available on',card_plt_none:'Not available on streaming',reset_filters:'Reset filters',news_hdr:'🎬 News of the day',news_load:'Loading...',news_err:'News not available',optin_title:'No results found',nofilm_title:'No films available',nofilm_sub:'You have explored all films matching your criteria. Filters will be reset.',optin_sub:'Films matching your criteria also belong to other categories. Would you like to include one?',afp_active:'Active filters',afp_excl:'Excluded',afp_none:'No filters',card_why:'Characteristics',
+    card_badge:'✦ SWAINZ RECOMMENDS',sequel_badge:'Sequel',card_cast:'Cast',card_plt:'Available on',card_plt_none:'Not available on streaming',reset_filters:'Reset filters',news_hdr:'🎬 News of the day',news_load:'Loading...',news_err:'News not available',optin_title:'No results found',nofilm_title:'No films available',nofilm_sub:'You have explored all films matching your criteria. Filters will be reset.',optin_sub:'Films matching your criteria also belong to other categories. Would you like to include one?',afp_active:'Active filters',afp_excl:'Excluded',afp_none:'No filters',card_why:'Characteristics',proposte_title:'✦\u00a0\u00a0Swainz Quick Picks\u00a0\u00a0⚡',fck_prog_label:'Completion',fck_prog_done:'✓ Profile complete',
     card_ok:'🎬 Perfect, thanks!',card_more:'↺ Another',card_mark:'👁 Mark watched',card_marked:'✓ Watched',
     card_none:'No film found',card_none_sub:'Try broadening your filters!',card_edit:'Edit filters',
     ac_films:'Films',ac_people:'People',
@@ -3799,10 +3802,11 @@ function closeMobLangDrop(){
 }
 document.addEventListener('click',e=>{
   const lb=document.getElementById('langIt');
+  const lsb=document.getElementById('ls-flag-btn');
   const dd=document.getElementById('mob-lang-drop');
   if(dd&&lb&&!lb.contains(e.target)&&!dd.contains(e.target))closeMobLangDrop();
   const dd2=document.getElementById('desktop-lang-drop');
-  if(dd2&&lb&&!lb.contains(e.target)&&!dd2.contains(e.target))closeDesktopLangDrop();
+  if(dd2&&!( (lb&&lb.contains(e.target))||(lsb&&lsb.contains(e.target)) )&&!dd2.contains(e.target))closeDesktopLangDrop();
 });
 
 function setLang(l){
@@ -3810,10 +3814,11 @@ function setLang(l){
   document.getElementById('langIt').classList.add('active');
   // Update desktop flag
   const fd=document.getElementById('flagDesktop');
-  if(fd){
-    if(l==='it'){fd.setAttribute('viewBox','0 0 3 2');fd.innerHTML='<rect width="1" height="2" fill="#009246"/><rect x="1" width="1" height="2" fill="#fff"/><rect x="2" width="1" height="2" fill="#ce2b37"/>';}
-    else{fd.setAttribute('viewBox','0 0 60 40');fd.innerHTML='<rect width="60" height="40" fill="#012169"/><path d="M0,0 L60,40 M60,0 L0,40" stroke="#fff" stroke-width="8"/><path d="M0,0 L60,40 M60,0 L0,40" stroke="#C8102E" stroke-width="5"/><path d="M30,0 V40 M0,20 H60" stroke="#fff" stroke-width="13"/><path d="M30,0 V40 M0,20 H60" stroke="#C8102E" stroke-width="8"/>';}
-  }
+  const lsf=document.getElementById('ls-flag-svg');
+  const _itFlag='<rect width="1" height="2" fill="#009246"/><rect x="1" width="1" height="2" fill="#fff"/><rect x="2" width="1" height="2" fill="#ce2b37"/>';
+  const _enFlag='<rect width="60" height="40" fill="#012169"/><path d="M0,0 L60,40 M60,0 L0,40" stroke="#fff" stroke-width="8"/><path d="M0,0 L60,40 M60,0 L0,40" stroke="#C8102E" stroke-width="5"/><path d="M30,0 V40 M0,20 H60" stroke="#fff" stroke-width="13"/><path d="M30,0 V40 M0,20 H60" stroke="#C8102E" stroke-width="8"/>';
+  if(fd){if(l==='it'){fd.setAttribute('viewBox','0 0 3 2');fd.innerHTML=_itFlag;}else{fd.setAttribute('viewBox','0 0 60 40');fd.innerHTML=_enFlag;}}
+  if(lsf){if(l==='it'){lsf.setAttribute('viewBox','0 0 3 2');lsf.innerHTML=_itFlag;}else{lsf.setAttribute('viewBox','0 0 60 40');lsf.innerHTML=_enFlag;}}
   // On mobile: update flag to show current language
   if(window.innerWidth<=600){
     const btn=document.getElementById('langIt');
@@ -3882,9 +3887,19 @@ document.addEventListener('click', function(e){
 // ── AUTH ────────────────────────────────────────────────────────────────
 function lsSetLang(lang) {
   LANG = lang;
-  document.getElementById('ls-lang-it').className = lang === 'it' ? 'active' : '';
-  document.getElementById('ls-lang-en').className = lang === 'en' ? 'active' : '';
   setLang(lang);
+}
+function lsToggleLangDrop(btn){
+  const d=document.getElementById('desktop-lang-drop');
+  if(!d)return;
+  if(d.style.display==='block'){closeDesktopLangDrop();return;}
+  const r=btn.getBoundingClientRect();
+  d.style.display='block';
+  const dW=d.offsetWidth||130;
+  let left=r.left+r.width/2-dW/2;
+  left=Math.max(8,Math.min(left,window.innerWidth-dW-8));
+  d.style.left=left+'px';
+  d.style.top=(r.bottom+8)+'px';
 }
 
 function _lsErr(msg) {
