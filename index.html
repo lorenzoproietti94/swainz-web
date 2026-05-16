@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="it"><head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>SWAINZ</title>
+<title>SWAINZ</title><!-- v240 -->
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600&family=Syne:wght@600;800&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
@@ -4124,7 +4124,7 @@ function doRegister() {
     if (res.access_token && res.user) {
       _saveSession(res);
       _saveUserData({ email: res.user.email, updated_at: new Date().toISOString() });
-      login();
+      _loadUserData(function(d){ _applyUserData(d); _autoPushLocalProfile(d); try{if(typeof _shouldShowOnboarding==="function"&&_shouldShowOnboarding(d)){showOnboarding();return;}}catch(e){console.error("Onboarding error:",e);}login(); });
     } else {
       _lsInfo(LANG === 'en' ? '\u2709 Check your email to confirm your account.' : '\u2709 Controlla la tua email per confermare la registrazione.');
     }
