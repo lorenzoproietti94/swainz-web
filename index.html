@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="it"><head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>SWAINZ</title><!-- v242 -->
+<title>SWAINZ</title><!-- v243 -->
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600&family=Syne:wght@600;800&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
@@ -2192,7 +2192,7 @@ function _bgSyncAllRecs(force){
         try{localStorage.setItem(_allRecKey,JSON.stringify(allRecs));}catch(e){}
         // If panel is open, re-render with new data
         const ap=document.getElementById('allrecsp');
-        if(ap&&ap.classList.contains('on'))_openAllRecsRender();
+        if(ap&&ap.classList.contains('on'))_openAllRecsRender();var pp=document.getElementById('profp');if(pp&&pp.classList.contains('on'))_renderCineScore();
       }
       if(allRecs.length>_remote.length){
         _saveUserData({all_rec_ids:allRecs,updated_at:new Date().toISOString()});
@@ -3022,7 +3022,7 @@ function markAllSeen(){
 }
 
 // ── PROFILO ──────────────────────────────────────────────────────────────
-function openProfp(){document.getElementById('profp').classList.add('on');loadProfp();if(!isPremium)document.body.classList.add('profp-ads-show');setTimeout(_renderCineScore,120);setTimeout(_checkCsLevelUp,400);}
+function openProfp(){document.getElementById('profp').classList.add('on');loadProfp();if(!isPremium)document.body.classList.add('profp-ads-show');if(currentUser&&localStorage.getItem('sw3_onboarded')!=='1'){try{localStorage.setItem('sw3_onboarded','1');}catch(e){}}setTimeout(_renderCineScore,120);setTimeout(_checkCsLevelUp,400);}
 function closeProfp(){document.getElementById('profp').classList.remove('on');document.body.classList.remove('profp-ads-show');}
 
 // ── CINE-SCORE SYSTEM ─────────────────────────────────────────────────────
@@ -3096,10 +3096,16 @@ function _computeCineScore(){
 }
 
 function _getCineLevel(d){
-  var onboarded=localStorage.getItem('sw3_onboarded')==='1';
-  var hasFirstRec=allRecs.length>0;
+  // Robust onboarding check: sw3_onboarded OR logged in OR has any activity
+  var onboarded=localStorage.getItem('sw3_onboarded')==='1'
+    ||!!(currentUser)
+    ||d.seenCount>0
+    ||d.recsCount>0;
+  // First-rec check: any recs OR 1+ seen films (user has been using the app)
+  var hasFirstRec=d.recsCount>0||d.seenCount>0;
   if(!onboarded||!hasFirstRec)return 0;
-  var lvl=1;// at least Spettatore if onboarded
+  // Minimum level 1 (Esploratore) for any active user; loop finds the highest met level
+  var lvl=1;
   for(var i=CS_LEVELS.length-1;i>=1;i--){
     var lv=CS_LEVELS[i];
     if(d.totalPts>=lv.minPts&&d.seenCount>=lv.minSeen&&d.recsCount>=lv.minRecs&&d.seenClusters>=lv.minSeenCl&&d.recsClusters>=lv.minRecsCl){lvl=i;break;}
