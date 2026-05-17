@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="it"><head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>SWAINZ</title><!-- v240 -->
+<title>SWAINZ</title><!-- v241 -->
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600&family=Syne:wght@600;800&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
@@ -459,6 +459,53 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:15px;heigh
 body.vp-ads-show #vp-ad-l,body.vp-ads-show #vp-ad-r,body.vp-ads-show #vp-ad-b{display:flex}
 body.vp-ads-show #vp{padding-bottom:96px}
 body.profp-ads-show #profp-ad-l,body.profp-ads-show #profp-ad-r,body.profp-ads-show #profp-ad-b{display:flex}
+/* ── CINE-SCORE ──────────────────────────────────────────────────────────── */
+#cine-score-section{margin-top:22px;padding:20px;background:linear-gradient(135deg,rgba(37,99,255,.08) 0%,rgba(255,104,32,.08) 100%);border:1px solid rgba(255,255,255,.09);border-radius:16px;position:relative;overflow:hidden}
+#cine-score-section::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 80% 60% at 10% 110%,rgba(255,104,32,.07),transparent 60%),radial-gradient(ellipse 60% 50% at 90% -10%,rgba(37,99,255,.07),transparent 60%);pointer-events:none}
+.cs-title{font-size:10px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--td);margin-bottom:16px}
+.cs-badge-row{display:flex;align-items:center;gap:16px;margin-bottom:20px}
+.cs-badge{width:72px;height:72px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:34px;flex-shrink:0;position:relative;border:2px solid transparent;transition:all .4s}
+.cs-badge.lv0{background:radial-gradient(circle,rgba(100,100,120,.3),rgba(60,60,80,.15));border-color:rgba(255,255,255,.12)}
+.cs-badge.lv1{background:radial-gradient(circle,rgba(100,180,255,.25),rgba(37,99,255,.10));border-color:rgba(100,180,255,.4);box-shadow:0 0 18px rgba(100,180,255,.2)}
+.cs-badge.lv2{background:radial-gradient(circle,rgba(140,255,180,.25),rgba(34,197,94,.10));border-color:rgba(140,255,140,.4);box-shadow:0 0 18px rgba(100,220,120,.2)}
+.cs-badge.lv3{background:radial-gradient(circle,rgba(255,200,80,.30),rgba(255,150,0,.12));border-color:rgba(255,200,80,.5);box-shadow:0 0 22px rgba(255,180,40,.28)}
+.cs-badge.lv4{background:radial-gradient(circle,rgba(255,100,80,.30),rgba(200,40,255,.12));border-color:rgba(255,100,80,.55);box-shadow:0 0 28px rgba(255,80,40,.32)}
+.cs-badge.lv5{background:radial-gradient(circle,rgba(255,255,100,.35),rgba(255,200,0,.18));border-color:rgba(255,240,60,.65);box-shadow:0 0 32px rgba(255,220,20,.45),0 0 60px rgba(255,180,0,.2)}
+.cs-info{flex:1;min-width:0}
+.cs-level-name{font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:2px;line-height:1;margin-bottom:3px}
+.cs-level-name.lv0{color:var(--td)}
+.cs-level-name.lv1{background:linear-gradient(135deg,#64b4ff,#3b82f6);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.cs-level-name.lv2{background:linear-gradient(135deg,#86efac,#22c55e);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.cs-level-name.lv3{background:linear-gradient(135deg,#fcd34d,#f97316);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.cs-level-name.lv4{background:linear-gradient(135deg,#fb923c,#c026d3);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.cs-level-name.lv5{background:linear-gradient(135deg,#fde68a,#fbbf24,#f59e0b);-webkit-background-clip:text;-webkit-text-fill-color:transparent;filter:drop-shadow(0 0 6px rgba(255,200,0,.4))}
+.cs-pts{font-size:11px;color:var(--td);margin-top:1px}
+.cs-pts strong{color:var(--or);font-weight:700}
+.cs-progress-wrap{margin-top:4px}
+.cs-progress-track{height:6px;background:rgba(255,255,255,.07);border-radius:6px;overflow:hidden;position:relative}
+.cs-progress-fill{height:100%;border-radius:6px;transition:width .8s cubic-bezier(.34,1.56,.64,1);position:relative;min-width:4px}
+.cs-progress-fill.lv0{background:rgba(255,255,255,.2)}
+.cs-progress-fill.lv1{background:linear-gradient(90deg,#3b82f6,#64b4ff)}
+.cs-progress-fill.lv2{background:linear-gradient(90deg,#22c55e,#86efac)}
+.cs-progress-fill.lv3{background:linear-gradient(90deg,#f97316,#fcd34d)}
+.cs-progress-fill.lv4{background:linear-gradient(90deg,#c026d3,#fb923c)}
+.cs-progress-fill.lv5{background:linear-gradient(90deg,#f59e0b,#fde68a);box-shadow:0 0 8px rgba(255,200,0,.5)}
+.cs-progress-fill::after{content:'';position:absolute;top:0;right:0;bottom:0;width:30px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.35));border-radius:6px;animation:cs-shimmer 2s infinite}
+@keyframes cs-shimmer{0%,100%{opacity:0}50%{opacity:1}}
+.cs-next-label{font-size:10px;color:var(--td);margin-top:6px;opacity:.6}
+#cs-levelup-ov{position:fixed;inset:0;z-index:500;display:none;align-items:center;justify-content:center;background:rgba(0,0,10,.82);backdrop-filter:blur(6px)}
+#cs-levelup-ov.show{display:flex;animation:cs-ov-in .4s ease}
+@keyframes cs-ov-in{from{opacity:0}to{opacity:1}}
+#cs-levelup-canvas{position:absolute;inset:0;pointer-events:none}
+.cs-lu-card{position:relative;z-index:2;text-align:center;padding:36px 40px;background:rgba(8,8,20,.9);border:1px solid rgba(255,255,255,.12);border-radius:24px;max-width:320px;width:90%;animation:cs-card-in .5s cubic-bezier(.34,1.56,.64,1) .2s both}
+@keyframes cs-card-in{from{transform:scale(.7) translateY(20px);opacity:0}to{transform:scale(1) translateY(0);opacity:1}}
+.cs-lu-pre{font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--td);margin-bottom:12px}
+.cs-lu-badge{font-size:72px;margin-bottom:12px;display:block;animation:cs-badge-pop .6s cubic-bezier(.34,1.56,.64,1) .5s both}
+@keyframes cs-badge-pop{from{transform:scale(0) rotate(-30deg);opacity:0}to{transform:scale(1) rotate(0);opacity:1}}
+.cs-lu-level{font-family:'Bebas Neue',sans-serif;font-size:42px;letter-spacing:3px;margin-bottom:8px}
+.cs-lu-sub{font-size:13px;color:var(--td);margin-bottom:24px;line-height:1.5}
+.cs-lu-btn{padding:12px 28px;border-radius:12px;border:none;background:linear-gradient(135deg,var(--or2),var(--or));color:#fff;font-family:'Syne',sans-serif;font-size:14px;font-weight:800;cursor:pointer;letter-spacing:.5px;transition:transform .15s}
+.cs-lu-btn:hover{transform:scale(1.03)}
 body.profp-ads-show #profp{padding-bottom:96px}
 #profp-ad-l,#profp-ad-r,#profp-ad-b{position:fixed;display:none;align-items:center;justify-content:center;border:1px dashed rgba(255,255,255,.08);border-radius:13px;background:rgba(255,255,255,.02);z-index:320;pointer-events:none}
 #profp-ad-l{left:10px;top:50%;transform:translateY(-50%);width:160px;height:300px;flex-direction:column;gap:6px}
@@ -1356,6 +1403,33 @@ body.cat-revealing #today-wrap-mob{visibility:hidden!important;pointer-events:no
         </div>
       </div>
     </div>
+    <!-- CINE-SCORE SECTION -->
+    <div id="cine-score-section">
+      <div class="cs-title" data-i18n="cs_title">Cine-Score</div>
+      <div class="cs-badge-row">
+        <div class="cs-badge lv0" id="cs-badge-icon">🎬</div>
+        <div class="cs-info">
+          <div class="cs-level-name lv0" id="cs-level-name">Spettatore</div>
+          <div class="cs-pts" id="cs-pts-label"></div>
+        </div>
+      </div>
+      <div id="cs-progress-wrap">
+        <div class="cs-progress-track"><div class="cs-progress-fill lv0" id="cs-progress-fill" style="width:0%"></div></div>
+        <div class="cs-next-label" id="cs-next-label"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- LEVEL-UP OVERLAY -->
+<div id="cs-levelup-ov">
+  <canvas id="cs-levelup-canvas"></canvas>
+  <div class="cs-lu-card">
+    <div class="cs-lu-pre" data-i18n="cs_lu_pre">Nuovo livello sbloccato!</div>
+    <span class="cs-lu-badge" id="cs-lu-badge">🧭</span>
+    <div class="cs-lu-level" id="cs-lu-level-name">Esploratore</div>
+    <div class="cs-lu-sub" id="cs-lu-sub"></div>
+    <button class="cs-lu-btn" onclick="closeCsLevelUp()" data-i18n="cs_lu_btn">Ottimo!</button>
   </div>
 </div>
 
@@ -2925,8 +2999,211 @@ function markAllSeen(){
 }
 
 // ── PROFILO ──────────────────────────────────────────────────────────────
-function openProfp(){document.getElementById('profp').classList.add('on');loadProfp();if(!isPremium)document.body.classList.add('profp-ads-show');}
+function openProfp(){document.getElementById('profp').classList.add('on');loadProfp();if(!isPremium)document.body.classList.add('profp-ads-show');setTimeout(_renderCineScore,120);setTimeout(_checkCsLevelUp,400);}
 function closeProfp(){document.getElementById('profp').classList.remove('on');document.body.classList.remove('profp-ads-show');}
+
+// ── CINE-SCORE SYSTEM ─────────────────────────────────────────────────────
+const CS_CLUSTERS=[
+  {id:'tensione', emoji:'🔴', labelIt:'Tensione', labelEn:'Tension', tags:['Horror','Thriller','Crudo','Angosciante','Claustrofobico','Psicologico/mentale','Crimine','Mafia','Serial Killer','Droga','Vendetta','Pazzesco','Bizzarro']},
+  {id:'leggerezza', emoji:'😄', labelIt:'Leggerezza', labelEn:'Lightness', tags:['Commedia','Comico','Romantico']},
+  {id:'impegno', emoji:'🧠', labelIt:'Impegno', labelEn:'Commitment', tags:['Documentario','Difficile',"D'Autore",'Capolavoro','Estetico','Grande Interpretazione','Oscar']},
+  {id:'storia', emoji:'🏛', labelIt:'Storia e cultura', labelEn:'History & Culture', tags:['Biografico','Italiano','Neorealismo','Epoca Passata','Guerra','Legal Drama','Economico','Vecchio']},
+  {id:'avventura', emoji:'🚀', labelIt:'Avventura', labelEn:'Adventure', tags:['Fantascienza','Catastrofico','Colossal','Sportivo','Tecnologico','Distopia']},
+  {id:'intimita', emoji:'💔', labelIt:'Intimità', labelEn:'Intimacy', tags:['Dramma','Onirico','Psichedelico']},
+  {id:'musica', emoji:'🎵', labelIt:'Musica e spettacolo', labelEn:'Music & Show', tags:['Musicale','Animazione','Grande Colonna Sonora']},
+  {id:'internazionale', emoji:'🌏', labelIt:'Internazionale', labelEn:'International', tags:['Asiatico','Western','Noire']}
+];
+const CS_FILM_BONUS={'Difficile':4,'Crudo':3,'Vecchio':3,'Lunghissimo':3,'Asiatico':2,'Epoca Passata':1,'Biografico':1,'Western':1,'CineComic':-1};
+const CS_FCK_BONUS={q1:{from80:1,all:2},q2:{any:1},q3:{yes:1},q4:{auteur:1},q6:{love:2,sometimes:1},q9:{weekly:1,often:2},q17:{dubbed:1}};
+const CS_LEVELS=[
+  {idx:0,emoji:'🎬',nameIt:'Spettatore',nameEn:'Viewer',subIt:'Benvenuto nel cinema!',subEn:'Welcome to cinema!',minPts:0,minSeen:0,minRecs:0,minSeenCl:0,minRecsCl:0,needOnboard:true},
+  {idx:1,emoji:'🧭',nameIt:'Esploratore',nameEn:'Explorer',subIt:'Stai ampliando i tuoi orizzonti cinematografici.',subEn:'You are broadening your cinematic horizons.',minPts:50,minSeen:50,minRecs:30,minSeenCl:3,minRecsCl:3},
+  {idx:2,emoji:'🎞',nameIt:'Cinefilo',nameEn:'Film Buff',subIt:'La tua passione per il cinema è evidente.',subEn:'Your passion for cinema is clear.',minPts:300,minSeen:150,minRecs:100,minSeenCl:4,minRecsCl:5},
+  {idx:3,emoji:'🔬',nameIt:'Esperto',nameEn:'Expert',subIt:'Sei un intenditore di cinema a tutti gli effetti.',subEn:'You are a true cinema connoisseur.',minPts:600,minSeen:400,minRecs:100,minSeenCl:6,minRecsCl:6},
+  {idx:4,emoji:'🏆',nameIt:'Maestro',nameEn:'Master',subIt:'Hai raggiunto la vetta. Il cinema non ha segreti per te.',subEn:'You have reached the summit. Cinema holds no secrets for you.',minPts:1000,minSeen:700,minRecs:150,minSeenCl:7,minRecsCl:7}
+];
+
+function _computeCineScore(){
+  // FCK points
+  var fckPts=0;
+  var fckAnswered=0;
+  var qs=['q1','q2','q3','q4','q6','q7','q7b','q8','q9','q10','q11','q12','q13','q14','q15','q16','q17'];
+  qs.forEach(function(qid){if(fckAnswers[qid]!==undefined&&fckAnswers[qid]!==null&&fckAnswers[qid]!==''){fckPts+=1;fckAnswered++;}});
+  Object.keys(CS_FCK_BONUS).forEach(function(qid){
+    var bonusMap=CS_FCK_BONUS[qid];var ans=fckAnswers[qid];
+    if(ans&&bonusMap[ans])fckPts+=bonusMap[ans];
+  });
+  // Film seen points
+  var filmPts=0;
+  var seenArr=[...seenFilms];
+  seenArr.forEach(function(id){
+    var f=DB.find(function(x){return x.id===id;});
+    if(!f)return;
+    var pts=1;
+    Object.keys(CS_FILM_BONUS).forEach(function(tag){if(f.tags.includes(tag))pts+=CS_FILM_BONUS[tag];});
+    filmPts+=pts;
+  });
+  // Clusters from seen films
+  var seenClusters=0;
+  var seenClusterIds=[];
+  CS_CLUSTERS.forEach(function(cl){
+    var hit=seenArr.some(function(id){
+      var f=DB.find(function(x){return x.id===id;});
+      return f&&cl.tags.some(function(tag){return f.tags.includes(tag);});
+    });
+    if(hit){seenClusters++;seenClusterIds.push(cl.id);}
+  });
+  // Clusters from allRecs (by real film tags in DB)
+  var recsClusters=0;
+  var recsClusterIds=[];
+  var recIds=allRecs.map(function(e){return e.id;});
+  CS_CLUSTERS.forEach(function(cl){
+    var hit=recIds.some(function(id){
+      var f=DB.find(function(x){return x.id===id;});
+      return f&&cl.tags.some(function(tag){return f.tags.includes(tag);});
+    });
+    if(hit){recsClusters++;recsClusterIds.push(cl.id);}
+  });
+  return{
+    fckPts:fckPts,filmPts:filmPts,totalPts:fckPts+filmPts,
+    seenCount:seenFilms.size,recsCount:allRecs.length,
+    seenClusters:seenClusters,recsClusters:recsClusters,
+    seenClusterIds:seenClusterIds,recsClusterIds:recsClusterIds
+  };
+}
+
+function _getCineLevel(d){
+  var onboarded=localStorage.getItem('sw3_onboarded')==='1';
+  var hasFirstRec=allRecs.length>0;
+  if(!onboarded||!hasFirstRec)return 0;
+  var lvl=1;// at least Spettatore if onboarded
+  for(var i=CS_LEVELS.length-1;i>=1;i--){
+    var lv=CS_LEVELS[i];
+    if(d.totalPts>=lv.minPts&&d.seenCount>=lv.minSeen&&d.recsCount>=lv.minRecs&&d.seenClusters>=lv.minSeenCl&&d.recsClusters>=lv.minRecsCl){lvl=i;break;}
+  }
+  return lvl;
+}
+
+function _csProgressToNext(d,lvlIdx){
+  if(lvlIdx>=CS_LEVELS.length-1)return 1;// Maestro = 100%
+  var next=CS_LEVELS[lvlIdx+1];
+  var ratios=[];
+  if(next.minPts>0)ratios.push(Math.min(1,d.totalPts/next.minPts));
+  if(next.minSeen>0)ratios.push(Math.min(1,d.seenCount/next.minSeen));
+  if(next.minRecs>0)ratios.push(Math.min(1,d.recsCount/next.minRecs));
+  if(next.minSeenCl>0)ratios.push(Math.min(1,d.seenClusters/next.minSeenCl));
+  if(next.minRecsCl>0)ratios.push(Math.min(1,d.recsClusters/next.minRecsCl));
+  if(!ratios.length)return 1;
+  return Math.min(...ratios);
+}
+
+function _renderCineScore(){
+  var d=_computeCineScore();
+  var lvlIdx=_getCineLevel(d);
+  var lv=CS_LEVELS[lvlIdx];
+  var isIT=LANG!=='en';
+  var name=isIT?lv.nameIt:lv.nameEn;
+  var progress=_csProgressToNext(d,lvlIdx);
+  var cls='lv'+lvlIdx;
+  var icon=document.getElementById('cs-badge-icon');
+  var nm=document.getElementById('cs-level-name');
+  var pts=document.getElementById('cs-pts-label');
+  var bar=document.getElementById('cs-progress-fill');
+  var nextLbl=document.getElementById('cs-next-label');
+  var pw=document.getElementById('cs-progress-wrap');
+  if(!icon)return;
+  icon.className='cs-badge '+cls;icon.textContent=lv.emoji;
+  nm.className='cs-level-name '+cls;nm.textContent=name;
+  pts.innerHTML=(isIT?'':'')+'<strong>'+d.totalPts+'</strong> pt &nbsp;·&nbsp; <strong>'+d.seenCount+'</strong> '+(isIT?'film visti':'films seen')+'&nbsp;·&nbsp;<strong>'+d.recsCount+'</strong> '+(isIT?'consigli':'recs');
+  bar.className='cs-progress-fill '+cls;
+  setTimeout(function(){bar.style.width=Math.max(2,Math.round(progress*100))+'%';},80);
+  if(lvlIdx>=CS_LEVELS.length-1){
+    if(pw)pw.style.display='none';
+  }else{
+    if(pw)pw.style.display='';
+    var nextName=isIT?CS_LEVELS[lvlIdx+1].nameIt:CS_LEVELS[lvlIdx+1].nameEn;
+    if(nextLbl)nextLbl.textContent=(isIT?'Verso ':'Toward ')+nextName;
+  }
+}
+
+// ── Level-up detection & fireworks ────────────────────────────────────────
+var _csLuAnimFrame=null;
+function _checkCsLevelUp(){
+  var d=_computeCineScore();
+  var lvlIdx=_getCineLevel(d);
+  var prev=parseInt(localStorage.getItem('sw3_cine_lv')||'0',10);
+  localStorage.setItem('sw3_cine_lv',String(lvlIdx));
+  if(lvlIdx>prev&&prev>=0&&lvlIdx>=1){_showCsLevelUp(lvlIdx);}
+}
+function _showCsLevelUp(lvlIdx){
+  var lv=CS_LEVELS[lvlIdx];
+  var isIT=LANG!=='en';
+  var ov=document.getElementById('cs-levelup-ov');
+  var badgeEl=document.getElementById('cs-lu-badge');
+  var nameEl=document.getElementById('cs-lu-level-name');
+  var subEl=document.getElementById('cs-lu-sub');
+  if(!ov)return;
+  badgeEl.textContent=lv.emoji;
+  nameEl.textContent=isIT?lv.nameIt:lv.nameEn;
+  nameEl.style.background='';nameEl.style.webkitTextFillColor='';
+  var colors=['','linear-gradient(135deg,#64b4ff,#3b82f6)','linear-gradient(135deg,#86efac,#22c55e)','linear-gradient(135deg,#fcd34d,#f97316)','linear-gradient(135deg,#fb923c,#c026d3)','linear-gradient(135deg,#fde68a,#fbbf24,#f59e0b)'];
+  nameEl.style.background=colors[lvlIdx]||'';
+  nameEl.style.webkitBackgroundClip=colors[lvlIdx]?'text':'';
+  nameEl.style.webkitTextFillColor=colors[lvlIdx]?'transparent':'';
+  subEl.textContent=isIT?lv.subIt:lv.subEn;
+  ov.classList.add('show');
+  _startFireworks(lvlIdx);
+}
+function closeCsLevelUp(){
+  var ov=document.getElementById('cs-levelup-ov');
+  if(ov)ov.classList.remove('show');
+  if(_csLuAnimFrame)cancelAnimationFrame(_csLuAnimFrame);
+  _csLuAnimFrame=null;
+}
+function _startFireworks(intensity){
+  var canvas=document.getElementById('cs-levelup-canvas');
+  if(!canvas)return;
+  var ctx=canvas.getContext('2d');
+  canvas.width=window.innerWidth;canvas.height=window.innerHeight;
+  var particles=[];
+  var colors=['#ff6820','#3b82f6','#fbbf24','#86efac','#c026d3','#f87171','#fff'];
+  var burstCount=[1,3,5,8,12][Math.min(intensity-1,4)];
+  var particleCount=[40,60,80,120,200][Math.min(intensity-1,4)];
+  function burst(x,y){
+    for(var i=0;i<particleCount;i++){
+      var angle=Math.random()*Math.PI*2;
+      var speed=(1+Math.random()*4)*(0.6+intensity*0.3);
+      particles.push({x:x,y:y,vx:Math.cos(angle)*speed,vy:Math.sin(angle)*speed-2,alpha:1,color:colors[Math.floor(Math.random()*colors.length)],r:2+Math.random()*4,g:0.93+Math.random()*0.04,trail:[]});
+    }
+  }
+  var burstsDone=0;
+  function doNextBurst(){
+    burst(canvas.width*(0.2+Math.random()*0.6),canvas.height*(0.15+Math.random()*0.5));
+    burstsDone++;
+    if(burstsDone<burstCount)setTimeout(doNextBurst,350+Math.random()*400);
+  }
+  doNextBurst();
+  function frame(){
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    particles=particles.filter(function(p){return p.alpha>0.02;});
+    particles.forEach(function(p){
+      p.trail.push({x:p.x,y:p.y,a:p.alpha});
+      if(p.trail.length>6)p.trail.shift();
+      p.trail.forEach(function(pt,ti){
+        ctx.globalAlpha=pt.a*(ti/p.trail.length)*0.4;
+        ctx.fillStyle=p.color;
+        ctx.beginPath();ctx.arc(pt.x,pt.y,p.r*0.5,0,Math.PI*2);ctx.fill();
+      });
+      ctx.globalAlpha=p.alpha;
+      ctx.fillStyle=p.color;
+      ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fill();
+      p.x+=p.vx;p.y+=p.vy;p.vy+=0.12;p.vx*=0.98;p.alpha*=p.g;
+    });
+    ctx.globalAlpha=1;
+    _csLuAnimFrame=requestAnimationFrame(frame);
+  }
+  frame();
+}
 
 function openSeenPanel(){
   const seenArr=[...seenFilms];
@@ -3599,7 +3876,7 @@ const T={
     fcp_h2:'Fatti conoscere da Swainz',fcp_p:'Le tue risposte guidano i consigli — modificabili in qualsiasi momento',
     fck_save:'Salva preferenze',fck_saved:'✓ Preferenze salvate!',fck_free_teaser_title:'Passa a Premium!',fck_free_teaser_sub:'Per farti conoscere al meglio da Swainz, sblocca tutte le ulteriori domande personalizzate.',
     prem_lock_title:'Funzione Premium',prem_lock_sub:'Attivalo dal profilo 👤',prem_lock_back:'← Torna',
-    card_badge:'✦ SWAINZ CONSIGLIA',sequel_badge:'Sequel',card_cast:'Cast',card_plt:'Disponibile su',card_plt_none:'Non disponibile in streaming',reset_filters:'Reset Filtri',news_hdr:'🎬 Notizie del giorno',news_load:'Caricamento...',news_err:'Notizie non disponibili',optin_title:'Nessun risultato trovato',nofilm_title:'Nessun film disponibile',nofilm_sub:'Hai esplorato tutti i film compatibili con i tuoi criteri. I filtri verranno azzerati.',optin_sub:'I film compatibili appartengono anche ad altre categorie. Vuoi includerne una?',afp_active:'Filtri attivi',afp_excl:'Esclusi',afp_none:'Nessun filtro',card_why:'Caratteristiche',proposte_title:'Le proposte rapide di Swainz\u00a0\u00a0⚡',fck_prog_label:'Completamento',fck_prog_done:'✓ Profilo completato',
+    card_badge:'✦ SWAINZ CONSIGLIA',sequel_badge:'Sequel',card_cast:'Cast',card_plt:'Disponibile su',card_plt_none:'Non disponibile in streaming',reset_filters:'Reset Filtri',news_hdr:'🎬 Notizie del giorno',news_load:'Caricamento...',news_err:'Notizie non disponibili',optin_title:'Nessun risultato trovato',nofilm_title:'Nessun film disponibile',nofilm_sub:'Hai esplorato tutti i film compatibili con i tuoi criteri. I filtri verranno azzerati.',optin_sub:'I film compatibili appartengono anche ad altre categorie. Vuoi includerne una?',afp_active:'Filtri attivi',afp_excl:'Esclusi',afp_none:'Nessun filtro',card_why:'Caratteristiche',proposte_title:'Le proposte rapide di Swainz\u00a0\u00a0⚡',fck_prog_label:'Completamento',fck_prog_done:'✓ Profilo completato',cs_title:'Cine-Score',cs_lu_pre:'Nuovo livello sbloccato!',cs_lu_btn:'Ottimo!',cs_pts_fmt:'{{pts}} pt totali',cs_next_fmt:'Avanzamento verso {{next}}',
     card_ok:'🎬 Perfetto, grazie!',card_more:'↺ Altro',card_mark:'👁 Segna visto',card_marked:'✓ Già visto',
     card_none:'Nessun film trovato',card_none_sub:'Prova ad allargare i filtri!',card_edit:'Modifica filtri',
     ac_films:'Film',ac_people:'Persone',
@@ -3667,7 +3944,7 @@ const T={
     fcp_h2:'Let Swainz know you',fcp_p:'Your answers guide the recommendations — editable anytime',
     fck_save:'Save preferences',fck_saved:'✓ Preferences saved!',fck_free_teaser_title:'Try Premium',fck_free_teaser_sub:'Let Swainz get to know you better — unlock the full personalised questionnaire.',
     prem_lock_title:'Premium feature',prem_lock_sub:'Activate it from profile 👤',prem_lock_back:'← Back',
-    card_badge:'✦ SWAINZ RECOMMENDS',sequel_badge:'Sequel',card_cast:'Cast',card_plt:'Available on',card_plt_none:'Not available on streaming',reset_filters:'Reset filters',news_hdr:'🎬 News of the day',news_load:'Loading...',news_err:'News not available',optin_title:'No results found',nofilm_title:'No films available',nofilm_sub:'You have explored all films matching your criteria. Filters will be reset.',optin_sub:'Films matching your criteria also belong to other categories. Would you like to include one?',afp_active:'Active filters',afp_excl:'Excluded',afp_none:'No filters',card_why:'Characteristics',proposte_title:'Swainz Quick Picks\u00a0\u00a0⚡',fck_prog_label:'Completion',fck_prog_done:'✓ Profile complete',
+    card_badge:'✦ SWAINZ RECOMMENDS',sequel_badge:'Sequel',card_cast:'Cast',card_plt:'Available on',card_plt_none:'Not available on streaming',reset_filters:'Reset filters',news_hdr:'🎬 News of the day',news_load:'Loading...',news_err:'News not available',optin_title:'No results found',nofilm_title:'No films available',nofilm_sub:'You have explored all films matching your criteria. Filters will be reset.',optin_sub:'Films matching your criteria also belong to other categories. Would you like to include one?',afp_active:'Active filters',afp_excl:'Excluded',afp_none:'No filters',card_why:'Characteristics',proposte_title:'Swainz Quick Picks\u00a0\u00a0⚡',fck_prog_label:'Completion',fck_prog_done:'✓ Profile complete',cs_title:'Cine-Score',cs_lu_pre:'New level unlocked!',cs_lu_btn:'Awesome!',cs_pts_fmt:'{{pts}} total pts',cs_next_fmt:'Progress toward {{next}}',
     card_ok:'🎬 Perfect, thanks!',card_more:'↺ Another',card_mark:'👁 Mark watched',card_marked:'✓ Watched',
     card_none:'No film found',card_none_sub:'Try broadening your filters!',card_edit:'Edit filters',
     ac_films:'Films',ac_people:'People',
