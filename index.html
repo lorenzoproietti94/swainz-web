@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="it"><head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>SWAINZ</title><!-- v241 -->
+<title>SWAINZ</title><!-- v242 -->
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600&family=Syne:wght@600;800&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
@@ -460,52 +460,76 @@ body.vp-ads-show #vp-ad-l,body.vp-ads-show #vp-ad-r,body.vp-ads-show #vp-ad-b{di
 body.vp-ads-show #vp{padding-bottom:96px}
 body.profp-ads-show #profp-ad-l,body.profp-ads-show #profp-ad-r,body.profp-ads-show #profp-ad-b{display:flex}
 /* ── CINE-SCORE ──────────────────────────────────────────────────────────── */
-#cine-score-section{margin-top:22px;padding:20px;background:linear-gradient(135deg,rgba(37,99,255,.08) 0%,rgba(255,104,32,.08) 100%);border:1px solid rgba(255,255,255,.09);border-radius:16px;position:relative;overflow:hidden}
-#cine-score-section::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 80% 60% at 10% 110%,rgba(255,104,32,.07),transparent 60%),radial-gradient(ellipse 60% 50% at 90% -10%,rgba(37,99,255,.07),transparent 60%);pointer-events:none}
-.cs-title{font-size:10px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--td);margin-bottom:16px}
-.cs-badge-row{display:flex;align-items:center;gap:16px;margin-bottom:20px}
-.cs-badge{width:72px;height:72px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:34px;flex-shrink:0;position:relative;border:2px solid transparent;transition:all .4s}
-.cs-badge.lv0{background:radial-gradient(circle,rgba(100,100,120,.3),rgba(60,60,80,.15));border-color:rgba(255,255,255,.12)}
-.cs-badge.lv1{background:radial-gradient(circle,rgba(100,180,255,.25),rgba(37,99,255,.10));border-color:rgba(100,180,255,.4);box-shadow:0 0 18px rgba(100,180,255,.2)}
-.cs-badge.lv2{background:radial-gradient(circle,rgba(140,255,180,.25),rgba(34,197,94,.10));border-color:rgba(140,255,140,.4);box-shadow:0 0 18px rgba(100,220,120,.2)}
-.cs-badge.lv3{background:radial-gradient(circle,rgba(255,200,80,.30),rgba(255,150,0,.12));border-color:rgba(255,200,80,.5);box-shadow:0 0 22px rgba(255,180,40,.28)}
-.cs-badge.lv4{background:radial-gradient(circle,rgba(255,100,80,.30),rgba(200,40,255,.12));border-color:rgba(255,100,80,.55);box-shadow:0 0 28px rgba(255,80,40,.32)}
-.cs-badge.lv5{background:radial-gradient(circle,rgba(255,255,100,.35),rgba(255,200,0,.18));border-color:rgba(255,240,60,.65);box-shadow:0 0 32px rgba(255,220,20,.45),0 0 60px rgba(255,180,0,.2)}
-.cs-info{flex:1;min-width:0}
-.cs-level-name{font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:2px;line-height:1;margin-bottom:3px}
-.cs-level-name.lv0{color:var(--td)}
+/* Inline badge card (in prof-left) */
+.cs-card{margin-top:4px;margin-bottom:16px;padding:18px 18px 14px;background:linear-gradient(145deg,rgba(14,14,28,.9),rgba(8,8,18,.95));border:1px solid rgba(255,255,255,.08);border-radius:16px;position:relative;overflow:hidden}
+.cs-card::before{content:'';position:absolute;inset:0;opacity:0;transition:opacity .5s;pointer-events:none;border-radius:16px}
+.cs-card.lv1::before{background:radial-gradient(ellipse 70% 50% at 50% 0%,rgba(100,180,255,.08),transparent);opacity:1}
+.cs-card.lv2::before{background:radial-gradient(ellipse 70% 50% at 50% 0%,rgba(134,239,172,.08),transparent);opacity:1}
+.cs-card.lv3::before{background:radial-gradient(ellipse 70% 50% at 50% 0%,rgba(252,211,77,.08),transparent);opacity:1}
+.cs-card.lv4::before{background:radial-gradient(ellipse 70% 50% at 50% 0%,rgba(251,146,60,.08),transparent);opacity:1}
+.cs-card.lv5::before{background:radial-gradient(ellipse 70% 50% at 50% 0%,rgba(253,230,138,.12),transparent);opacity:1}
+.cs-card-inner{display:flex;align-items:center;gap:16px}
+/* Badge ring */
+.cs-ring-wrap{flex-shrink:0;width:68px;height:68px;position:relative;display:flex;align-items:center;justify-content:center}
+.cs-ring-wrap::before,.cs-ring-wrap::after{content:'';position:absolute;inset:0;border-radius:50%;transition:all .5s}
+.cs-ring-wrap::before{inset:-3px;background:conic-gradient(transparent 0deg,transparent 360deg);border:2px solid rgba(255,255,255,.08)}
+.cs-ring-wrap.lv1::before{background:conic-gradient(#3b82f6,#64b4ff,#3b82f6);inset:-2px;padding:0;-webkit-mask:radial-gradient(farthest-side,transparent calc(100% - 2px),#000 calc(100% - 2px));mask:radial-gradient(farthest-side,transparent calc(100% - 2px),#000 calc(100% - 2px));border:none}
+.cs-ring-wrap.lv2::before{background:conic-gradient(#22c55e,#86efac,#22c55e);inset:-2px;-webkit-mask:radial-gradient(farthest-side,transparent calc(100% - 2px),#000 calc(100% - 2px));mask:radial-gradient(farthest-side,transparent calc(100% - 2px),#000 calc(100% - 2px));border:none}
+.cs-ring-wrap.lv3::before{background:conic-gradient(#f97316,#fcd34d,#f97316);inset:-2px;-webkit-mask:radial-gradient(farthest-side,transparent calc(100% - 2px),#000 calc(100% - 2px));mask:radial-gradient(farthest-side,transparent calc(100% - 2px),#000 calc(100% - 2px));border:none;animation:cs-ring-spin 4s linear infinite}
+.cs-ring-wrap.lv4::before{background:conic-gradient(#c026d3,#fb923c,#f43f5e,#c026d3);inset:-2px;-webkit-mask:radial-gradient(farthest-side,transparent calc(100% - 2px),#000 calc(100% - 2px));mask:radial-gradient(farthest-side,transparent calc(100% - 2px),#000 calc(100% - 2px));border:none;animation:cs-ring-spin 3s linear infinite}
+.cs-ring-wrap.lv5::before{background:conic-gradient(#f59e0b,#fde68a,#fbbf24,#f59e0b);inset:-2px;-webkit-mask:radial-gradient(farthest-side,transparent calc(100% - 2px),#000 calc(100% - 2px));mask:radial-gradient(farthest-side,transparent calc(100% - 2px),#000 calc(100% - 2px));border:none;animation:cs-ring-spin 2s linear infinite}
+@keyframes cs-ring-spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+/* Inner badge circle */
+.cs-badge{width:60px;height:60px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:28px;position:relative;transition:all .4s;z-index:1}
+.cs-badge.lv0{background:rgba(40,40,60,.6);box-shadow:inset 0 1px 0 rgba(255,255,255,.06)}
+.cs-badge.lv1{background:radial-gradient(circle at 35% 35%,rgba(150,210,255,.2),rgba(10,20,50,.8));box-shadow:0 0 14px rgba(59,130,246,.3),inset 0 1px 0 rgba(255,255,255,.1)}
+.cs-badge.lv2{background:radial-gradient(circle at 35% 35%,rgba(150,255,180,.18),rgba(5,30,15,.8));box-shadow:0 0 14px rgba(34,197,94,.28),inset 0 1px 0 rgba(255,255,255,.1)}
+.cs-badge.lv3{background:radial-gradient(circle at 35% 35%,rgba(255,220,80,.2),rgba(40,20,5,.8));box-shadow:0 0 20px rgba(249,115,22,.32),inset 0 1px 0 rgba(255,255,255,.12)}
+.cs-badge.lv4{background:radial-gradient(circle at 35% 35%,rgba(255,120,80,.2),rgba(40,5,40,.8));box-shadow:0 0 24px rgba(192,38,211,.35),inset 0 1px 0 rgba(255,255,255,.12)}
+.cs-badge.lv5{background:radial-gradient(circle at 35% 35%,rgba(255,245,120,.28),rgba(40,30,0,.85));box-shadow:0 0 30px rgba(245,158,11,.45),0 0 60px rgba(245,158,11,.15),inset 0 1px 0 rgba(255,255,255,.15)}
+/* Outer decorative dots for high levels */
+.cs-ring-wrap.lv4::after,.cs-ring-wrap.lv5::after{content:'';position:absolute;inset:-8px;border-radius:50%;border:1px dashed;animation:cs-ring-spin 8s linear infinite reverse}
+.cs-ring-wrap.lv4::after{border-color:rgba(192,38,211,.2)}
+.cs-ring-wrap.lv5::after{border-color:rgba(245,158,11,.3);inset:-10px;animation-duration:6s}
+/* Text side */
+.cs-info-col{flex:1;min-width:0}
+.cs-level-name{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:2px;line-height:1;margin-bottom:6px}
+.cs-level-name.lv0{color:rgba(255,255,255,.4)}
 .cs-level-name.lv1{background:linear-gradient(135deg,#64b4ff,#3b82f6);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
 .cs-level-name.lv2{background:linear-gradient(135deg,#86efac,#22c55e);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
 .cs-level-name.lv3{background:linear-gradient(135deg,#fcd34d,#f97316);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
 .cs-level-name.lv4{background:linear-gradient(135deg,#fb923c,#c026d3);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-.cs-level-name.lv5{background:linear-gradient(135deg,#fde68a,#fbbf24,#f59e0b);-webkit-background-clip:text;-webkit-text-fill-color:transparent;filter:drop-shadow(0 0 6px rgba(255,200,0,.4))}
-.cs-pts{font-size:11px;color:var(--td);margin-top:1px}
-.cs-pts strong{color:var(--or);font-weight:700}
-.cs-progress-wrap{margin-top:4px}
-.cs-progress-track{height:6px;background:rgba(255,255,255,.07);border-radius:6px;overflow:hidden;position:relative}
-.cs-progress-fill{height:100%;border-radius:6px;transition:width .8s cubic-bezier(.34,1.56,.64,1);position:relative;min-width:4px}
-.cs-progress-fill.lv0{background:rgba(255,255,255,.2)}
+.cs-level-name.lv5{background:linear-gradient(135deg,#fde68a,#fbbf24,#f59e0b);-webkit-background-clip:text;-webkit-text-fill-color:transparent;filter:drop-shadow(0 0 4px rgba(255,200,0,.3))}
+.cs-stats-row{display:flex;gap:8px;margin-bottom:8px;flex-wrap:wrap}
+.cs-stat{font-size:10.5px;color:var(--td);background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);border-radius:8px;padding:3px 8px;display:flex;align-items:center;gap:4px}
+.cs-stat strong{color:var(--tx);font-weight:600}
+/* Progress */
+.cs-progress-track{height:4px;background:rgba(255,255,255,.06);border-radius:4px;overflow:hidden;position:relative}
+.cs-progress-fill{height:100%;border-radius:4px;transition:width .9s cubic-bezier(.34,1.56,.64,1);position:relative;min-width:3px}
+.cs-progress-fill.lv0{background:rgba(255,255,255,.15)}
 .cs-progress-fill.lv1{background:linear-gradient(90deg,#3b82f6,#64b4ff)}
 .cs-progress-fill.lv2{background:linear-gradient(90deg,#22c55e,#86efac)}
 .cs-progress-fill.lv3{background:linear-gradient(90deg,#f97316,#fcd34d)}
 .cs-progress-fill.lv4{background:linear-gradient(90deg,#c026d3,#fb923c)}
-.cs-progress-fill.lv5{background:linear-gradient(90deg,#f59e0b,#fde68a);box-shadow:0 0 8px rgba(255,200,0,.5)}
-.cs-progress-fill::after{content:'';position:absolute;top:0;right:0;bottom:0;width:30px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.35));border-radius:6px;animation:cs-shimmer 2s infinite}
+.cs-progress-fill.lv5{background:linear-gradient(90deg,#f59e0b,#fde68a);box-shadow:0 0 6px rgba(255,200,0,.4)}
+.cs-progress-fill::after{content:'';position:absolute;top:0;right:0;bottom:0;width:20px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.4));border-radius:4px;animation:cs-shimmer 2s infinite}
 @keyframes cs-shimmer{0%,100%{opacity:0}50%{opacity:1}}
-.cs-next-label{font-size:10px;color:var(--td);margin-top:6px;opacity:.6}
+.cs-next-label{font-size:10px;color:var(--td);margin-top:5px;opacity:.55}
+/* Level-up overlay */
 #cs-levelup-ov{position:fixed;inset:0;z-index:500;display:none;align-items:center;justify-content:center;background:rgba(0,0,10,.82);backdrop-filter:blur(6px)}
 #cs-levelup-ov.show{display:flex;animation:cs-ov-in .4s ease}
 @keyframes cs-ov-in{from{opacity:0}to{opacity:1}}
 #cs-levelup-canvas{position:absolute;inset:0;pointer-events:none}
-.cs-lu-card{position:relative;z-index:2;text-align:center;padding:36px 40px;background:rgba(8,8,20,.9);border:1px solid rgba(255,255,255,.12);border-radius:24px;max-width:320px;width:90%;animation:cs-card-in .5s cubic-bezier(.34,1.56,.64,1) .2s both}
+.cs-lu-card{position:relative;z-index:2;text-align:center;padding:36px 40px;background:rgba(8,8,20,.95);border:1px solid rgba(255,255,255,.1);border-radius:24px;max-width:320px;width:90%;animation:cs-card-in .5s cubic-bezier(.34,1.56,.64,1) .2s both}
 @keyframes cs-card-in{from{transform:scale(.7) translateY(20px);opacity:0}to{transform:scale(1) translateY(0);opacity:1}}
-.cs-lu-pre{font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--td);margin-bottom:12px}
-.cs-lu-badge{font-size:72px;margin-bottom:12px;display:block;animation:cs-badge-pop .6s cubic-bezier(.34,1.56,.64,1) .5s both}
+.cs-lu-pre{font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--td);margin-bottom:12px}
+.cs-lu-badge-wrap{width:90px;height:90px;margin:0 auto 14px;position:relative;display:flex;align-items:center;justify-content:center;animation:cs-badge-pop .6s cubic-bezier(.34,1.56,.64,1) .5s both}
 @keyframes cs-badge-pop{from{transform:scale(0) rotate(-30deg);opacity:0}to{transform:scale(1) rotate(0);opacity:1}}
-.cs-lu-level{font-family:'Bebas Neue',sans-serif;font-size:42px;letter-spacing:3px;margin-bottom:8px}
-.cs-lu-sub{font-size:13px;color:var(--td);margin-bottom:24px;line-height:1.5}
+.cs-lu-badge-inner{width:80px;height:80px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:40px}
+.cs-lu-level{font-family:'Bebas Neue',sans-serif;font-size:38px;letter-spacing:3px;margin-bottom:6px}
+.cs-lu-sub{font-size:13px;color:var(--td);margin-bottom:24px;line-height:1.5;max-width:220px;margin-left:auto;margin-right:auto}
 .cs-lu-btn{padding:12px 28px;border-radius:12px;border:none;background:linear-gradient(135deg,var(--or2),var(--or));color:#fff;font-family:'Syne',sans-serif;font-size:14px;font-weight:800;cursor:pointer;letter-spacing:.5px;transition:transform .15s}
-.cs-lu-btn:hover{transform:scale(1.03)}
+.cs-lu-btn:hover{transform:scale(1.04)}
 body.profp-ads-show #profp{padding-bottom:96px}
 #profp-ad-l,#profp-ad-r,#profp-ad-b{position:fixed;display:none;align-items:center;justify-content:center;border:1px dashed rgba(255,255,255,.08);border-radius:13px;background:rgba(255,255,255,.02);z-index:320;pointer-events:none}
 #profp-ad-l{left:10px;top:50%;transform:translateY(-50%);width:160px;height:300px;flex-direction:column;gap:6px}
@@ -1386,8 +1410,20 @@ body.cat-revealing #today-wrap-mob{visibility:hidden!important;pointer-events:no
         </div>
         <div class="fdiv"></div>
         <div class="prof-row"><label class="prof-lbl">🎬 <span data-i18n="prof_film">Film preferito</span></label><input class="prof-inp" id="pFilm" data-i18n-ph="prof_film_ph" placeholder="Es. Il Padrino"></div>
-        <div class="prof-row"><label class="prof-lbl">🎭 <span data-i18n="prof_reg">Regista preferito</span></label><input class="prof-inp" id="pRegista" data-i18n-ph="prof_reg_ph" placeholder="Es. Stanley Kubrick"></div>
-        <div class="prof-row"><label class="prof-lbl">⭐ <span data-i18n="prof_att">Attore preferito</span></label><input class="prof-inp" id="pAttore" data-i18n-ph="prof_att_ph" placeholder="Es. Cate Blanchett"></div>
+        <!-- CINE-SCORE BADGE CARD -->
+        <div class="cs-card lv0" id="cs-card">
+          <div class="cs-card-inner">
+            <div class="cs-ring-wrap lv0" id="cs-ring-wrap">
+              <div class="cs-badge lv0" id="cs-badge-icon">🎬</div>
+            </div>
+            <div class="cs-info-col">
+              <div class="cs-level-name lv0" id="cs-level-name">Spettatore</div>
+              <div class="cs-stats-row" id="cs-stats-row"></div>
+              <div class="cs-progress-track" id="cs-progress-track" style="display:none"><div class="cs-progress-fill lv0" id="cs-progress-fill" style="width:0%"></div></div>
+              <div class="cs-next-label" id="cs-next-label"></div>
+            </div>
+          </div>
+        </div>
         <div style="display:flex;align-items:center;gap:12px;margin-top:8px"><button class="save-btn" onclick="saveProfp()" data-i18n="save">Salva profilo</button><span class="save-ok" id="profOk" data-i18n="saved">✓ Salvato!</span></div>
         <div class="fdiv"></div>
         <div style="display:flex;align-items:center;justify-content:space-between;padding:4px 0">
@@ -1403,21 +1439,6 @@ body.cat-revealing #today-wrap-mob{visibility:hidden!important;pointer-events:no
         </div>
       </div>
     </div>
-    <!-- CINE-SCORE SECTION -->
-    <div id="cine-score-section">
-      <div class="cs-title" data-i18n="cs_title">Cine-Score</div>
-      <div class="cs-badge-row">
-        <div class="cs-badge lv0" id="cs-badge-icon">🎬</div>
-        <div class="cs-info">
-          <div class="cs-level-name lv0" id="cs-level-name">Spettatore</div>
-          <div class="cs-pts" id="cs-pts-label"></div>
-        </div>
-      </div>
-      <div id="cs-progress-wrap">
-        <div class="cs-progress-track"><div class="cs-progress-fill lv0" id="cs-progress-fill" style="width:0%"></div></div>
-        <div class="cs-next-label" id="cs-next-label"></div>
-      </div>
-    </div>
   </div>
 </div>
 
@@ -1426,7 +1447,9 @@ body.cat-revealing #today-wrap-mob{visibility:hidden!important;pointer-events:no
   <canvas id="cs-levelup-canvas"></canvas>
   <div class="cs-lu-card">
     <div class="cs-lu-pre" data-i18n="cs_lu_pre">Nuovo livello sbloccato!</div>
-    <span class="cs-lu-badge" id="cs-lu-badge">🧭</span>
+    <div class="cs-lu-badge-wrap">
+      <div class="cs-lu-badge-inner" id="cs-lu-badge-inner">🧭</div>
+    </div>
     <div class="cs-lu-level" id="cs-lu-level-name">Esploratore</div>
     <div class="cs-lu-sub" id="cs-lu-sub"></div>
     <button class="cs-lu-btn" onclick="closeCsLevelUp()" data-i18n="cs_lu_btn">Ottimo!</button>
@@ -3105,24 +3128,33 @@ function _renderCineScore(){
   var name=isIT?lv.nameIt:lv.nameEn;
   var progress=_csProgressToNext(d,lvlIdx);
   var cls='lv'+lvlIdx;
+  var isMaestro=lvlIdx>=CS_LEVELS.length-1;
+  var card=document.getElementById('cs-card');
+  var ring=document.getElementById('cs-ring-wrap');
   var icon=document.getElementById('cs-badge-icon');
   var nm=document.getElementById('cs-level-name');
-  var pts=document.getElementById('cs-pts-label');
+  var statsRow=document.getElementById('cs-stats-row');
   var bar=document.getElementById('cs-progress-fill');
   var nextLbl=document.getElementById('cs-next-label');
-  var pw=document.getElementById('cs-progress-wrap');
+  var pt=document.getElementById('cs-progress-track');
   if(!icon)return;
+  if(card)card.className='cs-card '+cls;
+  if(ring)ring.className='cs-ring-wrap '+cls;
   icon.className='cs-badge '+cls;icon.textContent=lv.emoji;
   nm.className='cs-level-name '+cls;nm.textContent=name;
-  pts.innerHTML=(isIT?'':'')+'<strong>'+d.totalPts+'</strong> pt &nbsp;·&nbsp; <strong>'+d.seenCount+'</strong> '+(isIT?'film visti':'films seen')+'&nbsp;·&nbsp;<strong>'+d.recsCount+'</strong> '+(isIT?'consigli':'recs');
-  bar.className='cs-progress-fill '+cls;
-  setTimeout(function(){bar.style.width=Math.max(2,Math.round(progress*100))+'%';},80);
-  if(lvlIdx>=CS_LEVELS.length-1){
-    if(pw)pw.style.display='none';
+  if(statsRow){
+    statsRow.innerHTML='<div class="cs-stat">🎬 <strong>'+d.seenCount+'</strong>&nbsp;'+(isIT?'visti':'seen')+'</div>'+
+      '<div class="cs-stat">🎯 <strong>'+d.recsCount+'</strong>&nbsp;'+(isIT?'consigli':'recs')+'</div>';
+  }
+  if(bar)bar.className='cs-progress-fill '+cls;
+  if(isMaestro){
+    if(pt)pt.style.display='none';
+    if(nextLbl)nextLbl.textContent='';
   }else{
-    if(pw)pw.style.display='';
+    if(pt)pt.style.display='';
+    setTimeout(function(){if(bar)bar.style.width=Math.max(2,Math.round(progress*100))+'%';},120);
     var nextName=isIT?CS_LEVELS[lvlIdx+1].nameIt:CS_LEVELS[lvlIdx+1].nameEn;
-    if(nextLbl)nextLbl.textContent=(isIT?'Verso ':'Toward ')+nextName;
+    if(nextLbl)nextLbl.textContent=(isIT?'→ verso ':'→ toward ')+nextName;
   }
 }
 
@@ -3139,11 +3171,12 @@ function _showCsLevelUp(lvlIdx){
   var lv=CS_LEVELS[lvlIdx];
   var isIT=LANG!=='en';
   var ov=document.getElementById('cs-levelup-ov');
-  var badgeEl=document.getElementById('cs-lu-badge');
+  var _unused=null;
   var nameEl=document.getElementById('cs-lu-level-name');
   var subEl=document.getElementById('cs-lu-sub');
   if(!ov)return;
-  badgeEl.textContent=lv.emoji;
+  var badgeInner=document.getElementById('cs-lu-badge-inner');
+  if(badgeInner){badgeInner.textContent=lv.emoji;badgeInner.className='cs-lu-badge-inner cs-badge '+cls;}
   nameEl.textContent=isIT?lv.nameIt:lv.nameEn;
   nameEl.style.background='';nameEl.style.webkitTextFillColor='';
   var colors=['','linear-gradient(135deg,#64b4ff,#3b82f6)','linear-gradient(135deg,#86efac,#22c55e)','linear-gradient(135deg,#fcd34d,#f97316)','linear-gradient(135deg,#fb923c,#c026d3)','linear-gradient(135deg,#fde68a,#fbbf24,#f59e0b)'];
@@ -3236,7 +3269,7 @@ function openSeenPanel(){
 }
 function closeSeenPanel(){document.getElementById('seenp').classList.remove('on');}
 async function loadProfp(){
-  try{const lp=localStorage.getItem('sw3_prof');if(lp){const d=JSON.parse(lp);['pNome','pCognome','pNascita','pFilm','pRegista','pAttore'].forEach(id=>{if(d[id])document.getElementById(id).value=d[id];});}}catch(e){}
+  try{const lp=localStorage.getItem('sw3_prof');if(lp){const d=JSON.parse(lp);['pNome','pCognome','pNascita','pFilm'].forEach(id=>{const el=document.getElementById(id);if(el&&d[id])el.value=d[id];});}}catch(e){}
   const pt=document.getElementById('premToggle');pt.textContent=isPremium?'Premium ✓':'Free';pt.className=isPremium?'chip on':'chip';
   // Show account box with email if logged in
   if(currentUser&&currentUser.email){
@@ -3247,7 +3280,7 @@ async function loadProfp(){
   }
 }
 async function saveProfp(){
-  const ids=['pNome','pCognome','pNascita','pFilm','pRegista','pAttore'],data={};
+  const ids=['pNome','pCognome','pNascita','pFilm'],data={};
   ids.forEach(i=>data[i]=(document.getElementById(i)||{}).value||'');
   try{localStorage.setItem('sw3_prof',JSON.stringify(data));}catch(e){}
   // Sync all profile fields to Supabase user_data
@@ -4350,7 +4383,7 @@ function _applyUserData(d) {
     if(d.nome){profData.pNome=d.nome;var elN=document.getElementById('pNome');if(elN)elN.value=d.nome;}
     if(d.cognome){profData.pCognome=d.cognome;var elC=document.getElementById('pCognome');if(elC)elC.value=d.cognome;}
     // restore other fields from merged local data
-    ['pNascita','pFilm','pRegista','pAttore'].forEach(function(id){
+    ['pNascita','pFilm'].forEach(function(id){
       if(profData[id]){var el=document.getElementById(id);if(el)el.value=profData[id];}
     });
     try{localStorage.setItem('sw3_prof',JSON.stringify(profData));}catch(e){}
@@ -4889,7 +4922,7 @@ function _onbANext(){
   var err=document.getElementById('onb-a-err');
   if(!nome||!cognome||!nascita){err.textContent='Nome, Cognome e Data di nascita sono obbligatori.';return;}
   err.textContent='';
-  [['nome','pNome'],['cognome','pCognome'],['nascita','pNascita'],['film','pFilm'],['regista','pRegista'],['attore','pAttore']].forEach(function(pair){
+  [['nome','pNome'],['cognome','pCognome'],['nascita','pNascita'],['film','pFilm']].forEach(function(pair){
     var s=document.getElementById('onb-'+pair[0]),d2=document.getElementById(pair[1]);
     if(s&&d2&&s.value.trim())d2.value=s.value.trim();
   });
