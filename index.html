@@ -171,6 +171,8 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:15px;heigh
 #wstr-body{animation:wstr-pulse 1.5s ease-in-out infinite;transform-origin:120px 90px}
 #catw.wake-stand #lfl,#catw.wake-stand #lbl,
 #catw.wake-stand #lfr,#catw.wake-stand #lbr{animation-play-state:paused;transform:rotate(0deg)}
+#catw.cat-hint-pause #lfl,#catw.cat-hint-pause #lbl,
+#catw.cat-hint-pause #lfr,#catw.cat-hint-pause #lbr{animation-play-state:paused;transform:rotate(0deg)}
 /* LOAF CAT */
 #loafcatw{position:fixed;z-index:170;pointer-events:none;opacity:0;transition:opacity .7s ease;left:0;width:220px;height:125px}
 #loafcatw.on{opacity:1;pointer-events:auto;cursor:pointer}
@@ -3272,12 +3274,14 @@ const _catHints={
   it:[
     'Sapevi che posso importare la tua lista di film già visti da Letterboxd? Visita la sezione "Segna i film già visti" 🎬',
     'Per visualizzare lo storico dei film che ti ho consigliato visita la sezione "Il tuo profilo" 📋',
-    'Vuoi evitare assolutamente alcune caratteristiche nel film che ti consiglio? Escludile nella scheda in fondo alla pagina! 🚫'
+    'Vuoi evitare assolutamente alcune caratteristiche nel film che ti consiglio? Escludile nella scheda in fondo alla pagina! 🚫',
+    'Visita tutte le sezioni del menù, potrai salire di livello e ricevere consigli sempre più accurati ⭐'
   ],
   en:[
     'Did you know I can import your watched list from Letterboxd? Visit the "Mark watched films" section 🎬',
     'To see the history of films I\'ve recommended, visit the "Your profile" section 📋',
-    'Want to avoid certain traits in my recommendations? Exclude them in the panel at the bottom of the page! 🚫'
+    'Want to avoid certain traits in my recommendations? Exclude them in the panel at the bottom of the page! 🚫',
+    'Visit all the menu sections — you\'ll level up and get more and more accurate recommendations ⭐'
   ]
 };
 let _catHintIdx=0,_catHintTimer=null;
@@ -3287,6 +3291,7 @@ function _hideCatHint(){
   const bub=document.getElementById('cat-hint-bub');
   if(!bub)return;
   bub.classList.remove('show');
+  const el=catEl();if(el)el.classList.remove('cat-hint-pause');
   setTimeout(()=>{bub.style.display='none';},400);
 }
 
@@ -3309,11 +3314,12 @@ function _showCatHint(){
   bub.style.display='block';
   requestAnimationFrame(()=>bub.classList.add('show'));
   if(_catHintTimer)clearTimeout(_catHintTimer);
-  _catHintTimer=setTimeout(_hideCatHint,5500);
+  _catHintTimer=setTimeout(_hideCatHint,15000);
 }
 
 function _triggerCatHint(){
-  cVX=0;cMode='pause';cTimer=320;
+  cVX=0;cMode='pause';cTimer=900;
+  const el=catEl();if(el)el.classList.add('cat-hint-pause');
   _showCatHint();
 }
 
