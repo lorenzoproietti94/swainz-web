@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="it"><head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>SWAINZ</title><!-- v243 -->
+<title>SWAINZ</title><!-- v244 -->
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600&family=Syne:wght@600;800&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
@@ -515,6 +515,18 @@ body.profp-ads-show #profp-ad-l,body.profp-ads-show #profp-ad-r,body.profp-ads-s
 .cs-progress-fill::after{content:'';position:absolute;top:0;right:0;bottom:0;width:20px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.4));border-radius:4px;animation:cs-shimmer 2s infinite}
 @keyframes cs-shimmer{0%,100%{opacity:0}50%{opacity:1}}
 .cs-next-label{font-size:10px;color:var(--td);margin-top:5px;opacity:.55}
+/* Info button + tooltip */
+.cs-info-btn{position:absolute;bottom:10px;right:10px;width:18px;height:18px;border-radius:50%;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.05);color:rgba(255,255,255,.4);font-size:10px;font-family:'Georgia',serif;font-style:italic;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;z-index:3;line-height:1;padding:0;flex-shrink:0}
+.cs-info-btn:hover{border-color:rgba(255,255,255,.45);background:rgba(255,255,255,.10);color:rgba(255,255,255,.85)}
+#cs-tooltip{position:fixed;z-index:600;max-width:230px;background:rgba(10,10,22,.97);border:1px solid rgba(255,255,255,.12);border-radius:11px;padding:11px 13px;box-shadow:0 8px 32px rgba(0,0,0,.7);pointer-events:none;display:none;font-size:11.5px;line-height:1.55;color:var(--tx)}
+#cs-tooltip.show{display:block;animation:cs-tip-in .15s ease}
+@keyframes cs-tip-in{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+#cs-tooltip::after{content:'';position:absolute;bottom:-6px;right:14px;width:10px;height:10px;background:rgba(10,10,22,.97);border-right:1px solid rgba(255,255,255,.12);border-bottom:1px solid rgba(255,255,255,.12);transform:rotate(45deg)}
+.cs-tip-head{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--or);margin-bottom:7px}
+.cs-tip-item{display:flex;align-items:flex-start;gap:6px;margin-bottom:4px;color:var(--td)}
+.cs-tip-item:last-child{margin-bottom:0}
+.cs-tip-item .cs-tip-dot{flex-shrink:0;margin-top:4px;width:4px;height:4px;border-radius:50%;background:var(--or);opacity:.7}
+.cs-tip-ok{font-size:11px;color:rgba(134,239,172,.8);font-style:italic}
 /* Level-up overlay */
 #cs-levelup-ov{position:fixed;inset:0;z-index:500;display:none;align-items:center;justify-content:center;background:rgba(0,0,10,.82);backdrop-filter:blur(6px)}
 #cs-levelup-ov.show{display:flex;animation:cs-ov-in .4s ease}
@@ -1423,7 +1435,9 @@ body.cat-revealing #today-wrap-mob{visibility:hidden!important;pointer-events:no
               <div class="cs-next-label" id="cs-next-label"></div>
             </div>
           </div>
+          <button class="cs-info-btn" id="cs-info-btn" onmouseenter="showCsTooltip(event)" onmouseleave="hideCsTooltip()" ontouchstart="showCsTooltip(event)"><i>i</i></button>
         </div>
+        <div id="cs-tooltip"><div class="cs-tip-head" id="cs-tip-head"></div><div id="cs-tip-body"></div></div>
         <div style="display:flex;align-items:center;gap:12px;margin-top:8px"><button class="save-btn" onclick="saveProfp()" data-i18n="save">Salva profilo</button><span class="save-ok" id="profOk" data-i18n="saved">✓ Salvato!</span></div>
         <div class="fdiv"></div>
         <div style="display:flex;align-items:center;justify-content:space-between;padding:4px 0">
@@ -3162,7 +3176,88 @@ function _renderCineScore(){
     var nextName=isIT?CS_LEVELS[lvlIdx+1].nameIt:CS_LEVELS[lvlIdx+1].nameEn;
     if(nextLbl)nextLbl.textContent=(isIT?'→ verso ':'→ toward ')+nextName;
   }
+  // Cache for tooltip
+  _csTipData={d:d,lvlIdx:lvlIdx};
 }
+
+// ── Cine-Score info tooltip ───────────────────────────────────────────────
+var _csTipData=null;// cached {d, lvlIdx} from last _renderCineScore call
+function _buildCsTooltip(d,lvlIdx){
+  var isIT=LANG!=='en';
+  var isMaestro=lvlIdx>=CS_LEVELS.length-1;
+  var head=document.getElementById('cs-tip-head');
+  var body=document.getElementById('cs-tip-body');
+  if(!head||!body)return;
+  if(isMaestro){
+    head.textContent='';
+    body.innerHTML='<div class="cs-tip-ok">'+(isIT?'🏆 Hai raggiunto il livello massimo!':'🏆 You have reached the top level!')+'</div>';
+    return;
+  }
+  var next=CS_LEVELS[lvlIdx+1];
+  var nextName=isIT?next.nameIt:next.nameEn;
+  head.textContent=isIT?('→ '+nextName):('→ '+nextName);
+  var items=[];
+  // Points
+  if(d.totalPts<next.minPts){
+    var gap=next.minPts-d.totalPts;
+    items.push(isIT?('accumula ancora <b>'+gap+' pt</b> — segna film impegnativi (Difficile, Documentario, Vecchio…)')
+                   :('earn <b>'+gap+' more pts</b> — mark demanding films (Difficult, Documentary, Old…)'));
+  }
+  // Seen count
+  if(d.seenCount<next.minSeen){
+    var gap=next.minSeen-d.seenCount;
+    items.push(isIT?('segna altri <b>'+gap+' film</b> già visti'):('mark <b>'+gap+' more films</b> as seen'));
+  }
+  // Recs count
+  if(d.recsCount<next.minRecs){
+    var gap=next.minRecs-d.recsCount;
+    items.push(isIT?('chiedi ancora <b>'+gap+' consigli</b> a Swainz'):('ask Swainz for <b>'+gap+' more recommendations</b>'));
+  }
+  // Clusters from seen
+  if(d.seenClusters<next.minSeenCl){
+    var gap=next.minSeenCl-d.seenClusters;
+    items.push(isIT?('diversifica i film visti: ti mancano <b>'+gap+' categorie</b>'):('diversify your watched films: <b>'+gap+' more categories</b> needed'));
+  }
+  // Clusters from recs
+  if(d.recsClusters<next.minRecsCl){
+    var gap=next.minRecsCl-d.recsClusters;
+    items.push(isIT?('esplora nuovi generi nei consigli: mancano <b>'+gap+' categorie</b>'):('explore new genres in your recs: <b>'+gap+' more categories</b>'));
+  }
+  if(!items.length){
+    body.innerHTML='<div class="cs-tip-ok">'+(isIT?'✓ Tutti i requisiti soddisfatti!':'✓ All requirements met!')+'</div>';
+  }else{
+    body.innerHTML=items.map(function(t){return'<div class="cs-tip-item"><div class="cs-tip-dot"></div><div>'+t+'</div></div>';}).join('');
+  }
+}
+function showCsTooltip(e){
+  if(!_csTipData)return;
+  _buildCsTooltip(_csTipData.d,_csTipData.lvlIdx);
+  var tip=document.getElementById('cs-tooltip');
+  var btn=document.getElementById('cs-info-btn');
+  if(!tip||!btn)return;
+  tip.classList.add('show');
+  // Position above the button
+  var br=btn.getBoundingClientRect();
+  var tw=230;
+  var left=Math.max(8,Math.min(br.right-tw,window.innerWidth-tw-8));
+  var top=br.top-tip.offsetHeight-10;
+  if(top<8)top=br.bottom+10;
+  tip.style.left=left+'px';
+  tip.style.top=top+'px';
+  // Reposition after paint (height known)
+  requestAnimationFrame(function(){
+    var th=tip.offsetHeight;
+    var t2=br.top-th-10;
+    if(t2<8)t2=br.bottom+10;
+    tip.style.top=t2+'px';
+    tip.style.left=Math.max(8,Math.min(br.right-tw,window.innerWidth-tw-8))+'px';
+  });
+}
+function hideCsTooltip(){
+  var tip=document.getElementById('cs-tooltip');
+  if(tip)tip.classList.remove('show');
+}
+document.addEventListener('scroll',hideCsTooltip,true);
 
 // ── Level-up detection & fireworks ────────────────────────────────────────
 var _csLuAnimFrame=null;
