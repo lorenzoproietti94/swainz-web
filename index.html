@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="it"><head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>SWAINZ</title><!-- v261 -->
+<title>SWAINZ</title><!-- v262 -->
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600&family=Syne:wght@600;800&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
@@ -1574,7 +1574,7 @@ body.cat-revealing #today-wrap-mob{visibility:hidden!important;pointer-events:no
     <div class="cs-lu-level" id="cs-lu-level-name">Esploratore</div>
     <div class="cs-lu-sub" id="cs-lu-sub"></div>
     <button class="cs-lu-btn" onclick="closeCsLevelUp()" data-i18n="cs_lu_btn">Ottimo!</button>
-    <button class="share-btn" style="margin-top:10px" onclick="shareBadge()">📤 Condividi badge</button>
+    <button class="share-btn" data-share-badge="1" style="margin-top:10px">📤 Condividi badge</button>
   </div>
 </div>
 
@@ -2831,7 +2831,7 @@ function showCard(res,opts={}) {
     <button class="b1" onclick="closeCard();resetFilters()">${t('card_ok')}</button>
     ${opts.hideMore?'':`<button class="b2" onclick="tryAgain()">${t('card_more')}</button>`}
     <button class="b3 ${sn?'marked':''}" id="snbtn" onclick="toggleSeen(${f.id},this)">${sn?t('card_marked'):t('card_mark')}</button>
-    <button class="share-btn" style="width:100%;margin-top:4px;justify-content:center" onclick="shareFilm(${f.id})">📤 Condividi scheda</button>
+    <button class="share-btn" data-share-film="${f.id}" style="width:100%;margin-top:4px;justify-content:center">📤 Condividi scheda</button>
   </div>
 </div>`;
   }
@@ -5315,126 +5315,178 @@ function _onbFinish(){
 }
 // === END ONBOARDING JS ===
 
-/* ════════════════════════════════════════════
-   SHARE — canvas story generation
-   ════════════════════════════════════════════ */
-function _loadImg(src){return new Promise((res,rej)=>{const img=new Image();img.crossOrigin='anonymous';img.onload=()=>res(img);img.onerror=rej;img.src=src;});}
-function _wrapLines(ctx,text,maxW){const words=text.split(' ');const lines=[];let line='';for(const w of words){const t=line?line+' '+w:w;if(ctx.measureText(t).width>maxW&&line){lines.push(line);line=w;}else line=t;}if(line)lines.push(line);return lines;}
-function _rrect(ctx,x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.quadraticCurveTo(x+w,y,x+w,y+r);ctx.lineTo(x+w,y+h-r);ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);ctx.lineTo(x+r,y+h);ctx.quadraticCurveTo(x,y+h,x,y+h-r);ctx.lineTo(x,y+r);ctx.quadraticCurveTo(x,y,x+r,y);ctx.closePath();}
+/* ═══════════════════════════════════════
+   SHARE — event delegation + canvas
+   ═══════════════════════════════════════ */
+(function(){
+  // Delegated click handler for share buttons
+  document.addEventListener('click', function(e){
+    const filmBtn = e.target.closest('[data-share-film]');
+    if(filmBtn){ e.stopPropagation(); _openShareFilm(+filmBtn.dataset.shareFilm||filmBtn.dataset.shareFilm); return; }
+    const badgeBtn = e.target.closest('[data-share-badge]');
+    if(badgeBtn){ e.stopPropagation(); _openShareBadge(); return; }
+  });
 
-async function _genFilmCanvas(f){
-  const W=1080,H=1920,c=document.createElement('canvas');c.width=W;c.height=H;const ctx=c.getContext('2d');
-  ctx.fillStyle='#0a0812';ctx.fillRect(0,0,W,H);
-  let py=160,hasPoster=false;
-  if(f.poster){try{
-    const img=await _loadImg(f.poster);
-    ctx.save();ctx.filter='blur(60px) brightness(0.22) saturate(1.6)';
-    const bw=H*(img.naturalWidth/img.naturalHeight);ctx.drawImage(img,(W-bw)/2,0,bw,H);ctx.restore();
-    const ph=820,pw=Math.round(ph*(img.naturalWidth/img.naturalHeight));
-    const px=(W-pw)/2;_rrect(ctx,px,py,pw,ph,24);ctx.save();ctx.clip();ctx.drawImage(img,px,py,pw,ph);ctx.restore();
-    hasPoster=true;
-  }catch(e){}}
-  const grad=ctx.createLinearGradient(0,hasPoster?550:0,0,H);
-  grad.addColorStop(0,'rgba(10,8,18,0)');grad.addColorStop(0.3,'rgba(10,8,18,.94)');grad.addColorStop(1,'#0a0812');
-  ctx.fillStyle=grad;ctx.fillRect(0,0,W,H);
-  ctx.fillStyle='rgba(255,80,0,.9)';ctx.font='bold 54px Arial';ctx.textAlign='center';ctx.fillText('SWAINZ',W/2,96);
-  ctx.fillStyle='rgba(255,255,255,.3)';ctx.font='28px Arial';ctx.fillText('il consiglio di oggi',W/2,144);
-  const title=LANG==='en'?(TITLE_ORIG[f.id]||f.title):f.title;
-  ctx.fillStyle='#ffffff';ctx.font='bold 82px Arial';
-  const tLines=_wrapLines(ctx,title,W-140);const tY=hasPoster?1080:500;
-  tLines.forEach((l,i)=>ctx.fillText(l,W/2,tY+i*98));
-  const dY=tY+tLines.length*98+36;
-  ctx.fillStyle='rgba(255,255,255,.62)';ctx.font='italic 44px Arial';ctx.fillText('regia di '+f.dir,W/2,dY);
-  ctx.fillStyle='rgba(255,255,255,.4)';ctx.font='40px Arial';ctx.fillText(f.year+'  ·  ⭐ '+f.r+'/10',W/2,dY+62);
-  if(f.tags&&f.tags.length){
-    let tx=80;const tagY=dY+140;ctx.font='30px Arial';
-    f.tags.slice(0,4).forEach(tag=>{
-      const lbl=(typeof tTag==='function'?tTag(tag):tag)||tag;
-      const tw=ctx.measureText(lbl).width+44;if(tx+tw>W-80)return;
-      _rrect(ctx,tx,tagY-38,tw,50,25);ctx.fillStyle='rgba(255,80,0,.22)';ctx.fill();
-      ctx.strokeStyle='rgba(255,80,0,.5)';ctx.lineWidth=1.5;ctx.stroke();
-      ctx.fillStyle='rgba(255,200,140,.9)';ctx.fillText(lbl,tx+22,tagY);tx+=tw+14;
+  function _showShareOv(loadingMsg){
+    const ov=document.getElementById('share-ov');
+    const acts=document.getElementById('share-actions');
+    const prev=document.getElementById('share-preview-img');
+    if(!ov)return false;
+    prev.src='';
+    acts.innerHTML='<p style="color:rgba(255,255,255,.5);text-align:center;padding:20px 0 8px">'+loadingMsg+'</p>';
+    ov.classList.add('on');
+    return {ov,acts,prev};
+  }
+
+  function _loadImg(src){
+    return new Promise(function(res,rej){
+      var img=new Image();img.crossOrigin='anonymous';
+      img.onload=function(){res(img);};img.onerror=rej;
+      img.src=src;
     });
   }
-  ctx.fillStyle='rgba(255,255,255,.22)';ctx.font='30px Arial';ctx.fillText('swainz.it',W/2,H-56);
-  return c;
-}
-
-async function _genBadgeCanvas(emoji,levelName,sub){
-  const W=1080,H=1920,c=document.createElement('canvas');c.width=W;c.height=H;const ctx=c.getContext('2d');
-  const bg=ctx.createRadialGradient(W/2,H*.45,80,W/2,H*.45,820);bg.addColorStop(0,'#1e0a32');bg.addColorStop(1,'#04040e');
-  ctx.fillStyle=bg;ctx.fillRect(0,0,W,H);
-  const glow=ctx.createRadialGradient(W/2,H*.42,0,W/2,H*.42,420);glow.addColorStop(0,'rgba(255,80,0,.4)');glow.addColorStop(1,'transparent');
-  ctx.fillStyle=glow;ctx.fillRect(0,0,W,H);
-  ctx.fillStyle='rgba(255,80,0,.9)';ctx.font='bold 56px Arial';ctx.textAlign='center';ctx.fillText('SWAINZ',W/2,130);
-  ctx.fillStyle='rgba(255,255,255,.4)';ctx.font='34px Arial';ctx.fillText('Nuovo livello sbloccato! 🎉',W/2,186);
-  ctx.font='260px Arial';ctx.textAlign='center';ctx.fillText(emoji,W/2,H*.48);
-  ctx.fillStyle='#ffffff';ctx.font='bold 96px Arial';ctx.fillText(levelName,W/2,H*.58);
-  if(sub){ctx.fillStyle='rgba(255,255,255,.6)';ctx.font='42px Arial';_wrapLines(ctx,sub,W-200).forEach((l,i)=>ctx.fillText(l,W/2,H*.63+i*58));}
-  ctx.fillStyle='rgba(255,255,255,.25)';ctx.font='32px Arial';ctx.fillText('Ho raggiunto questo livello su swainz.it 🎬',W/2,H-70);
-  return c;
-}
-
-async function _doShare(canvas,filename){
-  const blob=await new Promise(r=>canvas.toBlob(r,'image/jpeg',.92));
-  const url=URL.createObjectURL(blob);
-  document.getElementById('share-preview-img').src=url;
-  const acts=document.getElementById('share-actions');acts.innerHTML='';
-  const file=new File([blob],filename,{type:'image/jpeg'});
-  if(navigator.canShare&&navigator.canShare({files:[file]})){
-    const nb=document.createElement('button');nb.className='share-action-btn';
-    nb.innerHTML='<span class="share-action-icon">📱</span><span>Condividi (Instagram, TikTok, WhatsApp…)</span>';
-    nb.onclick=async()=>{try{await navigator.share({files:[file],title:'Swainz'});}catch(e){}};
-    acts.appendChild(nb);
+  function _wrapLines(ctx,text,maxW){
+    var words=text.split(' '),lines=[],line='';
+    for(var i=0;i<words.length;i++){
+      var t=line?line+' '+words[i]:words[i];
+      if(ctx.measureText(t).width>maxW&&line){lines.push(line);line=words[i];}else line=t;
+    }
+    if(line)lines.push(line);return lines;
   }
-  const db=document.createElement('button');db.className='share-action-btn';
-  db.innerHTML='<span class="share-action-icon">⬇️</span><span>Salva immagine sul dispositivo</span>';
-  db.onclick=()=>{const a=document.createElement('a');a.href=url;a.download=filename;a.click();};
-  acts.appendChild(db);
-  const info=document.createElement('p');
-  info.style.cssText='font-size:12px;color:var(--td);margin-top:10px;text-align:center;line-height:1.6';
-  info.textContent='Salva l\'immagine e caricala come storia su Instagram, TikTok, Facebook o YouTube Shorts';
-  acts.appendChild(info);
-  // make sure overlay is visible
-  document.getElementById('share-ov').classList.add('on');
-  setTimeout(()=>URL.revokeObjectURL(url),60000);
-}
+  function _rrect(ctx,x,y,w,h,r){
+    ctx.beginPath();ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);
+    ctx.quadraticCurveTo(x+w,y,x+w,y+r);ctx.lineTo(x+w,y+h-r);
+    ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);ctx.lineTo(x+r,y+h);
+    ctx.quadraticCurveTo(x,y+h,x,y+h-r);ctx.lineTo(x,y+r);
+    ctx.quadraticCurveTo(x,y,x+r,y);ctx.closePath();
+  }
 
-async function shareFilm(filmId){
-  const f=DB.find(x=>x.id===filmId||x.id===+filmId||String(x.id)===String(filmId));
-  if(!f){console.warn('shareFilm: film not found',filmId);return;}
-  // Show overlay immediately with loading state
-  const ov=document.getElementById('share-ov');
-  const acts=document.getElementById('share-actions');
-  const prev=document.getElementById('share-preview-img');
-  prev.src='';acts.innerHTML='<p style="color:var(--td);text-align:center;padding:16px 0">⏳ Generazione immagine…</p>';
-  ov.classList.add('on');
-  try{
-    const c=await _genFilmCanvas(f);
-    await _doShare(c,'swainz-'+f.title.replace(/[^a-z0-9]/gi,'-').toLowerCase()+'.jpg');
-  }catch(e){
-    console.error('shareFilm error:',e);
-    acts.innerHTML='<p style="color:var(--td);text-align:center;padding:16px 0">Errore generazione immagine.<br>Prova a chiudere e riaprire la scheda.</p>';
+  async function _genFilmCanvas(f){
+    var W=1080,H=1920,c=document.createElement('canvas');
+    c.width=W;c.height=H;var ctx=c.getContext('2d');
+    ctx.fillStyle='#0a0812';ctx.fillRect(0,0,W,H);
+    var hasPoster=false;
+    if(f.poster){
+      try{
+        var img=await _loadImg(f.poster);
+        ctx.save();ctx.filter='blur(60px) brightness(0.22) saturate(1.6)';
+        var bw=H*(img.naturalWidth/img.naturalHeight);ctx.drawImage(img,(W-bw)/2,0,bw,H);ctx.restore();
+        var ph=820,pw=Math.round(ph*(img.naturalWidth/img.naturalHeight));
+        var px=(W-pw)/2,py=160;
+        _rrect(ctx,px,py,pw,ph,24);ctx.save();ctx.clip();ctx.drawImage(img,px,py,pw,ph);ctx.restore();
+        hasPoster=true;
+      }catch(ex){}
+    }
+    var grad=ctx.createLinearGradient(0,hasPoster?550:0,0,H);
+    grad.addColorStop(0,'rgba(10,8,18,0)');grad.addColorStop(0.3,'rgba(10,8,18,.94)');grad.addColorStop(1,'#0a0812');
+    ctx.fillStyle=grad;ctx.fillRect(0,0,W,H);
+    ctx.fillStyle='rgba(255,80,0,.9)';ctx.font='bold 54px Arial';ctx.textAlign='center';ctx.fillText('SWAINZ',W/2,96);
+    ctx.fillStyle='rgba(255,255,255,.3)';ctx.font='28px Arial';ctx.fillText('il consiglio di oggi',W/2,144);
+    var title=(typeof LANG!=='undefined'&&LANG==='en'&&typeof TITLE_ORIG!=='undefined')?(TITLE_ORIG[f.id]||f.title):f.title;
+    ctx.fillStyle='#ffffff';ctx.font='bold 82px Arial';
+    var tLines=_wrapLines(ctx,title,W-140),tY=hasPoster?1080:500;
+    for(var i=0;i<tLines.length;i++) ctx.fillText(tLines[i],W/2,tY+i*98);
+    var dY=tY+tLines.length*98+36;
+    ctx.fillStyle='rgba(255,255,255,.62)';ctx.font='italic 44px Arial';ctx.fillText('regia di '+f.dir,W/2,dY);
+    ctx.fillStyle='rgba(255,255,255,.4)';ctx.font='40px Arial';ctx.fillText(f.year+'  ·  ⭐ '+f.r+'/10',W/2,dY+62);
+    if(f.tags&&f.tags.length){
+      var tx2=80,tagY=dY+140;ctx.font='30px Arial';
+      for(var j=0;j<Math.min(f.tags.length,4);j++){
+        var tag=f.tags[j];
+        var lbl=(typeof tTag==='function')?tTag(tag):tag;
+        var tw=ctx.measureText(lbl).width+44;
+        if(tx2+tw>W-80)break;
+        _rrect(ctx,tx2,tagY-38,tw,50,25);ctx.fillStyle='rgba(255,80,0,.22)';ctx.fill();
+        ctx.strokeStyle='rgba(255,80,0,.5)';ctx.lineWidth=1.5;ctx.stroke();
+        ctx.fillStyle='rgba(255,200,140,.9)';ctx.fillText(lbl,tx2+22,tagY);tx2+=tw+14;
+      }
+    }
+    ctx.fillStyle='rgba(255,255,255,.22)';ctx.font='30px Arial';ctx.fillText('swainz.it',W/2,H-56);
+    return c;
   }
-}
-async function shareBadge(){
-  const emoji=(document.getElementById('cs-lu-badge-inner')||{}).textContent||'🏆';
-  const name=(document.getElementById('cs-lu-level-name')||{}).textContent||'';
-  const sub=(document.getElementById('cs-lu-sub')||{}).textContent||'';
-  const ov=document.getElementById('share-ov');
-  const acts=document.getElementById('share-actions');
-  document.getElementById('share-preview-img').src='';
-  acts.innerHTML='<p style="color:var(--td);text-align:center;padding:16px 0">⏳ Generazione immagine…</p>';
-  ov.classList.add('on');
-  try{
-    const c=await _genBadgeCanvas(emoji,name,sub);
-    await _doShare(c,'swainz-badge.jpg');
-  }catch(e){
-    console.error('shareBadge error:',e);
-    acts.innerHTML='<p style="color:var(--td);text-align:center;padding:16px 0">Errore generazione immagine.</p>';
+
+  async function _genBadgeCanvas(emoji,levelName,sub){
+    var W=1080,H=1920,c=document.createElement('canvas');
+    c.width=W;c.height=H;var ctx=c.getContext('2d');
+    var bg=ctx.createRadialGradient(W/2,H*.45,80,W/2,H*.45,820);
+    bg.addColorStop(0,'#1e0a32');bg.addColorStop(1,'#04040e');
+    ctx.fillStyle=bg;ctx.fillRect(0,0,W,H);
+    var glow=ctx.createRadialGradient(W/2,H*.42,0,W/2,H*.42,420);
+    glow.addColorStop(0,'rgba(255,80,0,.4)');glow.addColorStop(1,'transparent');
+    ctx.fillStyle=glow;ctx.fillRect(0,0,W,H);
+    ctx.fillStyle='rgba(255,80,0,.9)';ctx.font='bold 56px Arial';ctx.textAlign='center';ctx.fillText('SWAINZ',W/2,130);
+    ctx.fillStyle='rgba(255,255,255,.4)';ctx.font='34px Arial';ctx.fillText('Nuovo livello sbloccato! 🎉',W/2,186);
+    ctx.font='260px Arial';ctx.fillText(emoji,W/2,H*.48);
+    ctx.fillStyle='#ffffff';ctx.font='bold 96px Arial';ctx.fillText(levelName,W/2,H*.58);
+    if(sub){
+      ctx.fillStyle='rgba(255,255,255,.6)';ctx.font='42px Arial';
+      var sl=_wrapLines(ctx,sub,W-200);
+      for(var i=0;i<sl.length;i++) ctx.fillText(sl[i],W/2,H*.63+i*58);
+    }
+    ctx.fillStyle='rgba(255,255,255,.25)';ctx.font='32px Arial';
+    ctx.fillText('Ho raggiunto questo livello su swainz.it 🎬',W/2,H-70);
+    return c;
   }
-}
-function closeShareOv(){document.getElementById('share-ov').classList.remove('on');}
+
+  async function _finaliseShare(canvas,filename,ui){
+    try{
+      var blob=await new Promise(function(r){canvas.toBlob(r,'image/jpeg',.92);});
+      var url=URL.createObjectURL(blob);
+      if(ui.prev) ui.prev.src=url;
+      var acts=ui.acts;acts.innerHTML='';
+      var file=new File([blob],filename,{type:'image/jpeg'});
+      if(navigator.canShare&&navigator.canShare({files:[file]})){
+        var nb=document.createElement('button');nb.className='share-action-btn';
+        nb.innerHTML='<span class="share-action-icon">📱</span><span>Condividi (Instagram, TikTok, WhatsApp…)</span>';
+        nb.onclick=function(){navigator.share({files:[file],title:'Swainz'}).catch(function(){});};
+        acts.appendChild(nb);
+      }
+      var db=document.createElement('button');db.className='share-action-btn';
+      db.innerHTML='<span class="share-action-icon">⬇️</span><span>Salva immagine sul dispositivo</span>';
+      db.onclick=function(){var a=document.createElement('a');a.href=url;a.download=filename;a.click();};
+      acts.appendChild(db);
+      var info=document.createElement('p');
+      info.style.cssText='font-size:12px;color:rgba(255,255,255,.4);margin-top:10px;text-align:center;line-height:1.6';
+      info.textContent='Salva l\'immagine e caricala come storia su Instagram, TikTok, Facebook o YouTube Shorts';
+      acts.appendChild(info);
+      setTimeout(function(){URL.revokeObjectURL(url);},60000);
+    }catch(ex){
+      if(ui.acts) ui.acts.innerHTML='<p style="color:rgba(255,80,0,.8);text-align:center;padding:16px">Errore: '+ex.message+'</p>';
+    }
+  }
+
+  async function _openShareFilm(filmId){
+    var f=typeof DB!=='undefined'?DB.find(function(x){return x.id===filmId||x.id===+filmId||String(x.id)===String(filmId);}):null;
+    var ui=_showShareOv('⏳ Generazione immagine…');
+    if(!ui)return;
+    if(!f){ui.acts.innerHTML='<p style="color:rgba(255,80,0,.8);text-align:center;padding:16px">Film non trovato (id='+filmId+')</p>';return;}
+    try{
+      var c=await _genFilmCanvas(f);
+      await _finaliseShare(c,'swainz-'+String(f.title||'film').replace(/[^a-z0-9]/gi,'-').toLowerCase()+'.jpg',ui);
+    }catch(ex){
+      ui.acts.innerHTML='<p style="color:rgba(255,80,0,.8);text-align:center;padding:16px">Errore: '+ex.message+'</p>';
+    }
+  }
+
+  async function _openShareBadge(){
+    var emoji=(document.getElementById('cs-lu-badge-inner')||{}).textContent||'🏆';
+    var name=(document.getElementById('cs-lu-level-name')||{}).textContent||'';
+    var sub=(document.getElementById('cs-lu-sub')||{}).textContent||'';
+    var ui=_showShareOv('⏳ Generazione badge…');
+    if(!ui)return;
+    try{
+      var c=await _genBadgeCanvas(emoji,name,sub);
+      await _finaliseShare(c,'swainz-badge.jpg',ui);
+    }catch(ex){
+      ui.acts.innerHTML='<p style="color:rgba(255,80,0,.8);text-align:center;padding:16px">Errore: '+ex.message+'</p>';
+    }
+  }
+
+  window.closeShareOv=function(){
+    var ov=document.getElementById('share-ov');
+    if(ov)ov.classList.remove('on');
+  };
+})();
 </script>
 <!-- SHARE OVERLAY -->
 <div id="share-ov" onclick="if(event.target===this)closeShareOv()">
