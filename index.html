@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="it"><head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>SWAINZ</title><!-- v251 -->
+<title>SWAINZ</title><!-- v253 -->
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600&family=Syne:wght@600;800&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
@@ -313,9 +313,9 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:15px;heigh
 }
 .avatar-box{aspect-ratio:1;border-radius:16px;border:2px dashed rgba(255,255,255,.13);background:rgba(255,255,255,.03);display:flex;align-items:center;justify-content:center;margin-bottom:12px;min-height:80px}
 .avatar-box-inner{text-align:center;color:var(--td);font-size:11.5px;opacity:.55;pointer-events:none}
-.storico-box{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:14px 14px 8px}
+.storico-box{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:14px 14px 8px;display:inline-flex;flex-direction:column;min-width:0}
 .storico-lbl{font-size:9.5px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--or);margin-bottom:10px;opacity:.9}
-.storico-btn{display:flex;align-items:center;gap:9px;padding:10px 14px;border-radius:10px;border:1px solid var(--br);background:var(--cb);color:var(--tx);font-size:12.5px;font-weight:600;cursor:pointer;width:100%;transition:all .2s;margin-bottom:8px;font-family:inherit;text-align:left}
+.storico-btn{display:flex;align-items:center;gap:9px;padding:10px 14px;border-radius:10px;border:1px solid var(--br);background:var(--cb);color:var(--tx);font-size:12.5px;font-weight:600;cursor:pointer;width:100%;transition:all .2s;margin-bottom:8px;font-family:inherit;text-align:left;white-space:nowrap}
 .storico-btn:last-child{margin-bottom:0}
 .storico-btn:hover{border-color:var(--bh);background:rgba(255,255,255,.06)}
 /* ── PANNELLO FILM VISTI ─────────────────────────────────────────────────── */
@@ -1380,6 +1380,16 @@ body.cat-revealing #today-wrap-mob{visibility:hidden!important;pointer-events:no
     <div class="arec-filters">
       <input class="arec-filter-inp" id="arec-f-title" type="text" oninput="_arecApplyFilters()" data-i18n-ph="arec_f_title" placeholder="🔍 Cerca titolo…">
       <input class="arec-filter-inp" id="arec-f-dir"   type="text" oninput="_arecApplyFilters()" data-i18n-ph="arec_f_dir"   placeholder="Regista…" style="max-width:160px">
+      <div class="arec-ms-wrap" id="arec-pl-wrap">
+        <button class="arec-ms-btn" id="arec-pl-btn" onclick="_arecPlToggle(event)">
+          <span id="arec-pl-label">Tutte le piattaforme</span>
+          <span class="arec-ms-chevron">▼</span>
+        </button>
+        <div class="arec-ms-drop" id="arec-pl-drop">
+          <div class="arec-ms-list" id="arec-pl-list"></div>
+          <button class="arec-ms-clear" onclick="_arecPlClear()">✕ Deseleziona tutto</button>
+        </div>
+      </div>
       <div class="arec-ms-wrap" id="arec-ms-wrap">
         <button class="arec-ms-btn" id="arec-ms-btn" onclick="_arecMsToggle(event)">
           <span id="arec-ms-label" data-i18n="arec_f_tag_all">Tutte le caratteristiche</span>
@@ -1664,6 +1674,7 @@ function _openAllRecsRender(){
   const ti=document.getElementById('arec-f-title');if(ti)ti.value='';
   const di=document.getElementById('arec-f-dir');if(di)di.value='';
   _arecSelTags=new Set();
+  _arecSelPlatforms=new Set();
   _arecSort_col='';_arecSort_dir=1;
   ['arec-arr-title','arec-arr-year','arec-arr-dir'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent='↕';});
   ['title','year','dir'].forEach(c=>{const th=document.querySelector(`[data-col="${c}"]`);if(th)th.classList.remove('sorted');});
@@ -1711,6 +1722,10 @@ function _arecGetFiltered(){
     if(qt&&!title.toLowerCase().includes(qt))return false;
     if(qd&&!f.dir.toLowerCase().includes(qd))return false;
     if(_arecSelTags.size&&!e.tags.some(tg=>_arecSelTags.has(tg)))return false;
+    if(_arecSelPlatforms.size){
+      const fp=f.platforms?f.platforms.split(',').map(p=>p.trim()).filter(Boolean):[];
+      if(!fp.some(p=>_arecSelPlatforms.has(p)))return false;
+    }
     return true;
   });
 }
@@ -1766,6 +1781,7 @@ function _arecRenderTable(entries){
 
 /* ── multi-select tag dropdown ─────────────────────────────────────── */
 let _arecAllTags=[];  // all unique tags in current filtered set (for dropdown)
+let _arecSelPlatforms=new Set(); // selected platforms filter
 
 function _arecMsToggle(e){
   e.stopPropagation();
@@ -1843,6 +1859,64 @@ function _arecMsUpdateLabel(){
     ?(t('arec_f_tag_all')||'Tutte le caratteristiche')
     :`${_arecSelTags.size} ${_arecSelTags.size===1?'caratteristica':'caratteristiche'}`;
 }
+
+/* ── platform filter ──────────────────────────────────────────────── */
+function _arecPlToggle(e){
+  e.stopPropagation();
+  const btn=document.getElementById('arec-pl-btn');
+  const drop=document.getElementById('arec-pl-drop');
+  if(!btn||!drop)return;
+  const isOpen=drop.classList.contains('open');
+  if(!isOpen){
+    _arecPlRebuild();
+    drop.classList.add('open');btn.classList.add('open');
+    document.addEventListener('click',_arecPlClickOutside,{once:true});
+  }else{drop.classList.remove('open');btn.classList.remove('open');}
+}
+function _arecPlClickOutside(e){
+  const wrap=document.getElementById('arec-pl-wrap');
+  if(wrap&&!wrap.contains(e.target)){
+    const d=document.getElementById('arec-pl-drop');const b=document.getElementById('arec-pl-btn');
+    if(d)d.classList.remove('open');if(b)b.classList.remove('open');
+  }
+}
+function _arecPlRebuild(){
+  const plSet=new Set();
+  _arecEntries.forEach(e=>{
+    if(e.film.platforms)e.film.platforms.split(',').map(p=>p.trim()).filter(Boolean).forEach(p=>plSet.add(p));
+  });
+  const platforms=[...plSet].sort();
+  const list=document.getElementById('arec-pl-list');
+  if(!list)return;
+  if(!platforms.length){list.innerHTML=`<div class="arec-ms-empty">Nessuna piattaforma</div>`;return;}
+  list.innerHTML=platforms.map(p=>{
+    const sel=_arecSelPlatforms.has(p);
+    const esc=p.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+    return`<label class="arec-ms-opt ${sel?'checked':''}" onclick="_arecPlToggleItem(event,'${esc}')">
+      <input type="checkbox" ${sel?'checked':''} onclick="event.stopPropagation()"> ${p}
+    </label>`;
+  }).join('');
+  _arecPlUpdateLabel();
+}
+function _arecPlToggleItem(e,p){
+  e.stopPropagation();
+  if(_arecSelPlatforms.has(p))_arecSelPlatforms.delete(p);else _arecSelPlatforms.add(p);
+  _arecApplyFilters();
+  _arecPlRebuild();
+}
+function _arecPlClear(){
+  _arecSelPlatforms.clear();
+  _arecApplyFilters();
+  _arecPlRebuild();
+}
+function _arecPlUpdateLabel(){
+  const lbl=document.getElementById('arec-pl-label');
+  if(!lbl)return;
+  lbl.textContent=_arecSelPlatforms.size===0
+    ?'Tutte le piattaforme'
+    :`${_arecSelPlatforms.size} piattaforma${_arecSelPlatforms.size>1?'e':''}`;
+}
+
 function openRecFilm(id){
   const f=DB.find(x=>x.id===id);if(!f)return;
   // raise card above slide panels (z-index 310) so panels stay visible behind
