@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="it"><head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>SWAINZ</title><!-- v248 -->
+<title>SWAINZ</title><!-- v249 -->
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600&family=Syne:wght@600;800&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
@@ -91,6 +91,7 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
 .reset-btn{display:inline-flex;align-items:center;gap:6px;padding:5px 13px 5px 10px;border-radius:20px;border:1px solid var(--br);background:var(--cb);color:var(--td);font-size:11.5px;font-weight:600;letter-spacing:.5px;cursor:pointer;transition:all .25s;font-family:'Inter',sans-serif}
 .reset-btn:hover{border-color:var(--bh);color:var(--tx);background:rgba(255,255,255,.06)}
 .reset-btn:active{transform:scale(.96)}
+.reset-btn.active{border-color:rgba(255,104,32,.7);color:var(--or);background:rgba(255,80,0,.1);box-shadow:0 0 10px rgba(255,80,0,.25)}
 .reset-icon{display:inline-block;font-size:13px;transition:transform .4s ease}
 .reset-btn:hover .reset-icon{transform:rotate(-180deg)}
 .chip.on{border-color:var(--bl);background:var(--ca);color:#fff;box-shadow:0 0 10px rgba(37,99,255,.22)}
@@ -109,7 +110,7 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
 .lab-hdr:hover{background:rgba(255,255,255,.03)}
 .lab-hdr.open{border-bottom:1px solid rgba(255,255,255,.06)}
 .lab-ttl{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:4px;color:var(--td);text-transform:uppercase;position:absolute;left:50%;transform:translateX(-50%);white-space:nowrap;pointer-events:none}
-.lab-ctl{display:flex;align-items:center;gap:8px;align-self:flex-end}
+.lab-ctl{display:flex;align-items:center;gap:8px;align-self:flex-end;margin-left:auto}
 .lab-arr{color:var(--td);font-size:15px;transition:transform .35s;line-height:1;display:inline-block}
 .lab-arr.open{transform:rotate(0deg)}
 .lab-arr.closed{transform:rotate(-90deg)}
@@ -4830,6 +4831,11 @@ function _updateBtnGlow(count){
   if(n>=3)btn.classList.add('glow3');
   else if(n===2)btn.classList.add('glow2');
   else if(n===1)btn.classList.add('glow1');
+  // reset button: illuminato se ci sono filtri attivi (SEL o EXCL o slider != 6.5)
+  const rsl=document.getElementById('rsl');
+  const sliderActive=rsl&&parseFloat(rsl.value)!==6.5;
+  const rb=document.getElementById('resetBtn');
+  if(rb)rb.classList.toggle('active',n>0||sliderActive);
 }
 
 function _computePoolCount(){
