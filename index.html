@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="it"><head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>SWAINZ</title><!-- v247 -->
+<title>SWAINZ</title><!-- v248 -->
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600&family=Syne:wght@600;800&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
@@ -290,6 +290,20 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:15px;heigh
 .prof-left{grid-column:1;grid-row:1/span 2}
 .prof-storico{grid-column:2;grid-row:2}
 .prof-storico-mobile{display:none}
+.prof-avatar-mob{display:none}
+.prof-top-strip{display:block}
+/* prof-left is flex column on all screen sizes; order values maintain desktop visual order */
+.prof-left{display:flex;flex-direction:column}
+#prof-account-box{order:1}
+.prof-top-strip{order:2}
+#pfdiv1{order:3}
+.prof-row-film{order:4}
+#cs-card{order:5}
+#cs-tooltip{order:6}
+.prof-save-row{order:7}
+#pfdiv2{order:8}
+.prof-prem-row{order:9}
+.prof-storico-mobile{order:20}
 @media(max-width:600px){
   .prof-layout{grid-template-columns:1fr;grid-template-rows:auto}
   .prof-avatar-wrap,.prof-left,.prof-storico{grid-column:1;grid-row:unset}
@@ -369,7 +383,25 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:15px;heigh
 .prem-lock-ico{font-size:54px}
 .prem-lock h3{font-family:'Syne',sans-serif;font-size:20px;font-weight:800}
 .prem-lock p{color:var(--td);font-size:13px;max-width:290px;line-height:1.8}
-@media(max-width:600px){.logo-big{font-size:70px;letter-spacing:16px}.fa{padding:16px 10px}.hdr{padding:10px 12px}.hdr-r{gap:6px;align-items:flex-end}.fc-tit{font-size:21px}.cov-n{font-size:48px}#lang-bar{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);gap:10px}#langEn{display:none}#langIt .flag-mobile-svg{display:block;width:22px;height:15px;border-radius:2px}.flag-btn{padding:2px}#profBtn{align-self:flex-end;margin-bottom:0}#mob-lang-drop{display:none;position:fixed;top:40px;right:9px;background:rgba(24,24,24,.97);border:1px solid var(--br);border-radius:10px;overflow:hidden;z-index:52;min-width:120px;box-shadow:0 8px 24px rgba(0,0,0,.5)}.mob-lang-opt{display:flex;align-items:center;gap:8px;padding:10px 14px;width:100%;background:none;border:none;color:var(--tx);font-size:13px;cursor:pointer;font-family:inherit}.mob-lang-opt+.mob-lang-opt{border-top:1px solid var(--br)}}
+@media(max-width:600px){.logo-big{font-size:70px;letter-spacing:16px}.fa{padding:16px 10px}.hdr{padding:10px 12px}.hdr-r{gap:6px;align-items:flex-end}.fc-tit{font-size:21px}.cov-n{font-size:48px}#lang-bar{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);gap:10px}#langEn{display:none}#langIt .flag-mobile-svg{display:block;width:22px;height:15px;border-radius:2px}.flag-btn{padding:2px}#profBtn{align-self:flex-end;margin-bottom:0}#mob-lang-drop{display:none;position:fixed;top:40px;right:9px;background:rgba(24,24,24,.97);border:1px solid var(--br);border-radius:10px;overflow:hidden;z-index:52;min-width:120px;box-shadow:0 8px 24px rgba(0,0,0,.5)}.mob-lang-opt{display:flex;align-items:center;gap:8px;padding:10px 14px;width:100%;background:none;border:none;color:var(--tx);font-size:13px;cursor:pointer;font-family:inherit}.mob-lang-opt+.mob-lang-opt{border-top:1px solid var(--br)}
+#resetBtn{flex-direction:column;align-items:center;padding:4px 8px;gap:1px;font-size:10px;letter-spacing:0;line-height:1;min-width:0}
+#resetBtn .reset-icon{font-size:11px}
+#resetBtn .reset-lbl{display:flex;flex-direction:column;align-items:center;text-align:center;line-height:1.3;font-size:10px}
+.prof-avatar-wrap{display:none!important}
+.prof-avatar-mob{display:block;flex:0 0 calc(50% - 6px);min-width:0}
+.prof-top-strip{display:flex;gap:12px;align-items:flex-start}
+.prof-fields-top{flex:1;min-width:0}
+#prof-account-box{order:1}
+.prof-top-strip{order:2}
+#cs-card{order:3}
+#cs-tooltip{order:4}
+.prof-storico-mobile{order:5;display:flex!important;flex-direction:column}
+#pfdiv1{order:6}
+.prof-row-film{order:7}
+.prof-save-row{order:8}
+#pfdiv2{order:9}
+.prof-prem-row{order:10}
+}
 @media(min-width:601px){#fgc{display:grid;grid-template-columns:1fr 1fr;gap:9px}#fgc .fgrp{margin-bottom:0}}
 
 /* RIGHT SIDEBAR — filtri + futuro slot AdSense */
@@ -990,7 +1022,7 @@ body.cat-revealing #today-wrap-mob{visibility:hidden!important;pointer-events:no
       <div class="lab-hdr open" id="lab-hdr" onclick="toggleLab()">
         <span class="lab-ttl">Swainz Lab &nbsp;🧪</span>
         <div class="lab-ctl">
-          <button class="reset-btn" onclick="event.stopPropagation();resetFilters()" id="resetBtn"><span class="reset-icon">↺</span><span data-i18n="reset_filters">Reset Filtri</span></button>
+          <button class="reset-btn" onclick="event.stopPropagation();resetFilters()" id="resetBtn"><span class="reset-icon">↺</span><span class="reset-lbl"><span data-i18n="reset_w">Reset</span><span data-i18n="filter_w">Filtri</span></span></button>
           <span class="lab-arr open" id="lab-arr">▾</span>
         </div>
       </div>
@@ -1411,19 +1443,19 @@ body.cat-revealing #today-wrap-mob{visibility:hidden!important;pointer-events:no
           <div style="min-width:0"><div style="font-size:11px;color:var(--td);margin-bottom:2px" data-i18n="account_label">Account</div><div id="prof-email" style="font-size:13px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></div></div>
           <button onclick="doLogout()" style="flex-shrink:0;padding:6px 12px;border-radius:8px;border:1px solid rgba(248,113,113,.35);background:rgba(248,113,113,.1);color:#f87171;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap" data-i18n="logout_btn">Esci</button>
         </div>
-        <div class="prof-row"><label class="prof-lbl" data-i18n="prof_nome">Nome</label><input class="prof-inp" id="pNome" data-i18n-ph="prof_nome_ph" placeholder="Es. Marco"></div>
-        <div class="prof-row"><label class="prof-lbl" data-i18n="prof_cog">Cognome</label><input class="prof-inp" id="pCognome" data-i18n-ph="prof_cog_ph" placeholder="Es. Rossi"></div>
-        <div class="prof-row"><label class="prof-lbl" data-i18n="prof_data">Data di nascita</label><input class="prof-inp" type="date" id="pNascita"></div>
-        <div class="prof-storico-mobile">
-          <div class="storico-box" style="margin:12px 0">
-            <div class="storico-lbl">Storico</div>
-            <button class="storico-btn" onclick="openAllRecs()"><span>🎬</span><span data-i18n="allrec_btn">Film consigliati fino a oggi</span></button>
-            <button class="storico-btn" onclick="openSeenPanel()"><span style="color:#4ade80;font-weight:700">✓</span><span>Film già visti</span></button>
+        <!-- top strip: campi base (sinistra) + avatar mobile (destra) -->
+        <div class="prof-top-strip">
+          <div class="prof-fields-top">
+            <div class="prof-row"><label class="prof-lbl" data-i18n="prof_nome">Nome</label><input class="prof-inp" id="pNome" data-i18n-ph="prof_nome_ph" placeholder="Es. Marco"></div>
+            <div class="prof-row"><label class="prof-lbl" data-i18n="prof_cog">Cognome</label><input class="prof-inp" id="pCognome" data-i18n-ph="prof_cog_ph" placeholder="Es. Rossi"></div>
+            <div class="prof-row"><label class="prof-lbl" data-i18n="prof_data">Data di nascita</label><input class="prof-inp" type="date" id="pNascita"></div>
+          </div>
+          <!-- avatar visibile solo su mobile (su desktop usa prof-avatar-wrap) -->
+          <div class="prof-avatar-mob">
+            <div class="avatar-box"><div class="avatar-box-inner"><div style="font-size:38px;margin-bottom:6px">👤</div><div>Avatar</div></div></div>
           </div>
         </div>
-        <div class="fdiv"></div>
-        <div class="prof-row"><label class="prof-lbl">🎬 <span data-i18n="prof_film">Film preferito</span></label><input class="prof-inp" id="pFilm" data-i18n-ph="prof_film_ph" placeholder="Es. Il Padrino"></div>
-        <!-- CINE-SCORE BADGE CARD -->
+        <!-- CINE-SCORE BADGE CARD (prima dello storico su mobile) -->
         <div class="cs-card lv0" id="cs-card">
           <div class="cs-card-label" data-i18n="cs_card_label">IL TUO STATUS</div>
           <div class="cs-card-inner">
@@ -1440,9 +1472,19 @@ body.cat-revealing #today-wrap-mob{visibility:hidden!important;pointer-events:no
           <button class="cs-info-btn" id="cs-info-btn" onmouseenter="showCsTooltip(event)" onmouseleave="hideCsTooltip()" ontouchstart="showCsTooltip(event)"><i>i</i></button>
         </div>
         <div id="cs-tooltip"><div class="cs-tip-head" id="cs-tip-head"></div><div id="cs-tip-body"></div></div>
-        <div style="display:flex;align-items:center;gap:12px;margin-top:8px"><button class="save-btn" onclick="saveProfp()" data-i18n="save">Salva profilo</button><span class="save-ok" id="profOk" data-i18n="saved">✓ Salvato!</span></div>
-        <div class="fdiv"></div>
-        <div style="display:flex;align-items:center;justify-content:space-between;padding:4px 0">
+        <!-- storico mobile: dopo il badge su mobile -->
+        <div class="prof-storico-mobile">
+          <div class="storico-box" style="margin:12px 0">
+            <div class="storico-lbl">Storico</div>
+            <button class="storico-btn" onclick="openAllRecs()"><span>🎬</span><span data-i18n="allrec_btn">Film consigliati fino a oggi</span></button>
+            <button class="storico-btn" onclick="openSeenPanel()"><span style="color:#4ade80;font-weight:700">✓</span><span>Film già visti</span></button>
+          </div>
+        </div>
+        <div class="fdiv" id="pfdiv1"></div>
+        <div class="prof-row prof-row-film"><label class="prof-lbl">🎬 <span data-i18n="prof_film">Film preferito</span></label><input class="prof-inp" id="pFilm" data-i18n-ph="prof_film_ph" placeholder="Es. Il Padrino"></div>
+        <div class="prof-save-row" style="display:flex;align-items:center;gap:12px;margin-top:8px"><button class="save-btn" onclick="saveProfp()" data-i18n="save">Salva profilo</button><span class="save-ok" id="profOk" data-i18n="saved">✓ Salvato!</span></div>
+        <div class="fdiv" id="pfdiv2"></div>
+        <div class="prof-prem-row" style="display:flex;align-items:center;justify-content:space-between;padding:4px 0">
           <div><div style="font-size:12px;font-weight:600" data-i18n="plan_label">Piano attuale</div><div style="font-size:11px;color:var(--td);margin-top:2px" data-i18n="plan_sub">Clicca per simulare Premium (demo)</div></div>
           <button class="chip" id="premToggle" onclick="togglePremium()">Free</button>
         </div>
@@ -4012,7 +4054,7 @@ const T={
     fcp_h2:'Fatti conoscere da Swainz',fcp_p:'Le tue risposte guidano i consigli — modificabili in qualsiasi momento',
     fck_save:'Salva preferenze',fck_saved:'✓ Preferenze salvate!',fck_free_teaser_title:'Passa a Premium!',fck_free_teaser_sub:'Per farti conoscere al meglio da Swainz, sblocca tutte le ulteriori domande personalizzate.',
     prem_lock_title:'Funzione Premium',prem_lock_sub:'Attivalo dal profilo 👤',prem_lock_back:'← Torna',
-    card_badge:'✦ SWAINZ CONSIGLIA',sequel_badge:'Sequel',card_cast:'Cast',card_plt:'Disponibile su',card_plt_none:'Non disponibile in streaming',reset_filters:'Reset Filtri',news_hdr:'🎬 Notizie del giorno',news_load:'Caricamento...',news_err:'Notizie non disponibili',optin_title:'Nessun risultato trovato',nofilm_title:'Nessun film disponibile',nofilm_sub:'Hai esplorato tutti i film compatibili con i tuoi criteri. I filtri verranno azzerati.',optin_sub:'I film compatibili appartengono anche ad altre categorie. Vuoi includerne una?',afp_active:'Filtri attivi',afp_excl:'Esclusi',afp_none:'Nessun filtro',card_why:'Caratteristiche',proposte_title:'Le proposte rapide di Swainz\u00a0\u00a0⚡',fck_prog_label:'Completamento',fck_prog_done:'✓ Profilo completato',cs_title:'Cine-Score',cs_card_label:'IL TUO STATUS',cs_lu_pre:'Nuovo livello sbloccato!',cs_lu_btn:'Ottimo!',cs_pts_fmt:'{{pts}} pt totali',cs_next_fmt:'Avanzamento verso {{next}}',
+    card_badge:'✦ SWAINZ CONSIGLIA',sequel_badge:'Sequel',card_cast:'Cast',card_plt:'Disponibile su',card_plt_none:'Non disponibile in streaming',reset_filters:'Reset Filtri',reset_w:'Reset',filter_w:'Filtri',news_hdr:'🎬 Notizie del giorno',news_load:'Caricamento...',news_err:'Notizie non disponibili',optin_title:'Nessun risultato trovato',nofilm_title:'Nessun film disponibile',nofilm_sub:'Hai esplorato tutti i film compatibili con i tuoi criteri. I filtri verranno azzerati.',optin_sub:'I film compatibili appartengono anche ad altre categorie. Vuoi includerne una?',afp_active:'Filtri attivi',afp_excl:'Esclusi',afp_none:'Nessun filtro',card_why:'Caratteristiche',proposte_title:'Le proposte rapide di Swainz\u00a0\u00a0⚡',fck_prog_label:'Completamento',fck_prog_done:'✓ Profilo completato',cs_title:'Cine-Score',cs_card_label:'IL TUO STATUS',cs_lu_pre:'Nuovo livello sbloccato!',cs_lu_btn:'Ottimo!',cs_pts_fmt:'{{pts}} pt totali',cs_next_fmt:'Avanzamento verso {{next}}',
     card_ok:'🎬 Perfetto, grazie!',card_more:'↺ Altro',card_mark:'👁 Segna visto',card_marked:'✓ Già visto',
     card_none:'Nessun film trovato',card_none_sub:'Prova ad allargare i filtri!',card_edit:'Modifica filtri',
     ac_films:'Film',ac_people:'Persone',
@@ -4080,7 +4122,7 @@ const T={
     fcp_h2:'Let Swainz know you',fcp_p:'Your answers guide the recommendations — editable anytime',
     fck_save:'Save preferences',fck_saved:'✓ Preferences saved!',fck_free_teaser_title:'Try Premium',fck_free_teaser_sub:'Let Swainz get to know you better — unlock the full personalised questionnaire.',
     prem_lock_title:'Premium feature',prem_lock_sub:'Activate it from profile 👤',prem_lock_back:'← Back',
-    card_badge:'✦ SWAINZ RECOMMENDS',sequel_badge:'Sequel',card_cast:'Cast',card_plt:'Available on',card_plt_none:'Not available on streaming',reset_filters:'Reset filters',news_hdr:'🎬 News of the day',news_load:'Loading...',news_err:'News not available',optin_title:'No results found',nofilm_title:'No films available',nofilm_sub:'You have explored all films matching your criteria. Filters will be reset.',optin_sub:'Films matching your criteria also belong to other categories. Would you like to include one?',afp_active:'Active filters',afp_excl:'Excluded',afp_none:'No filters',card_why:'Characteristics',proposte_title:'Swainz Quick Picks\u00a0\u00a0⚡',fck_prog_label:'Completion',fck_prog_done:'✓ Profile complete',cs_title:'Cine-Score',cs_card_label:'YOUR STATUS',cs_lu_pre:'New level unlocked!',cs_lu_btn:'Awesome!',cs_pts_fmt:'{{pts}} total pts',cs_next_fmt:'Progress toward {{next}}',
+    card_badge:'✦ SWAINZ RECOMMENDS',sequel_badge:'Sequel',card_cast:'Cast',card_plt:'Available on',card_plt_none:'Not available on streaming',reset_filters:'Reset filters',reset_w:'Reset',filter_w:'Filters',news_hdr:'🎬 News of the day',news_load:'Loading...',news_err:'News not available',optin_title:'No results found',nofilm_title:'No films available',nofilm_sub:'You have explored all films matching your criteria. Filters will be reset.',optin_sub:'Films matching your criteria also belong to other categories. Would you like to include one?',afp_active:'Active filters',afp_excl:'Excluded',afp_none:'No filters',card_why:'Characteristics',proposte_title:'Swainz Quick Picks\u00a0\u00a0⚡',fck_prog_label:'Completion',fck_prog_done:'✓ Profile complete',cs_title:'Cine-Score',cs_card_label:'YOUR STATUS',cs_lu_pre:'New level unlocked!',cs_lu_btn:'Awesome!',cs_pts_fmt:'{{pts}} total pts',cs_next_fmt:'Progress toward {{next}}',
     card_ok:'🎬 Perfect, thanks!',card_more:'↺ Another',card_mark:'👁 Mark watched',card_marked:'✓ Watched',
     card_none:'No film found',card_none_sub:'Try broadening your filters!',card_edit:'Edit filters',
     ac_films:'Films',ac_people:'People',
