@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="it"><head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>SWAINZ</title><!-- v262 -->
+<title>SWAINZ</title><!-- v263 -->
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600&family=Syne:wght@600;800&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
@@ -1574,7 +1574,7 @@ body.cat-revealing #today-wrap-mob{visibility:hidden!important;pointer-events:no
     <div class="cs-lu-level" id="cs-lu-level-name">Esploratore</div>
     <div class="cs-lu-sub" id="cs-lu-sub"></div>
     <button class="cs-lu-btn" onclick="closeCsLevelUp()" data-i18n="cs_lu_btn">Ottimo!</button>
-    <button class="share-btn" data-share-badge="1" style="margin-top:10px">📤 Condividi badge</button>
+    <button class="share-btn" data-share-badge="1" style="margin-top:10px" onclick="window._swShareBadge()">📤 Condividi badge</button>
   </div>
 </div>
 
@@ -2836,6 +2836,8 @@ function showCard(res,opts={}) {
 </div>`;
   }
   // reset background colour before new poster loads
+  // attach share button handler directly
+  (function(){var sb=el.querySelector('[data-share-film]');if(sb){sb.onclick=function(ev){ev.stopPropagation();var id=sb.getAttribute('data-share-film');_swShareFilm(id);};}})();
   document.getElementById('fc').style.background='';
   document.getElementById('mbk').classList.add('on');
   document.getElementById('fc').classList.add('on');
@@ -5052,7 +5054,125 @@ function _updateCompatibility(){
   else{setTimeout(initRain,0);}
 })();
 
+/* ── SHARE GLOBALS ── */
+window._swShareFilm=function(filmId){
+  var ov=document.getElementById('share-ov');
+  var acts=document.getElementById('share-actions');
+  var prev=document.getElementById('share-preview-img');
+  if(!ov){alert('share overlay not found');return;}
+  prev.src='';
+  acts.innerHTML='<p style="text-align:center;padding:20px;color:rgba(255,255,255,.5)">⏳ Generazione immagine…</p>';
+  ov.classList.add('on');
+  var fid=isNaN(filmId)?filmId:+filmId;
+  var f=DB.find(function(x){return x.id===fid||String(x.id)===String(filmId);});
+  if(!f){acts.innerHTML='<p style="text-align:center;padding:20px;color:rgba(255,80,0,.8)">Film non trovato ('+filmId+')</p>';return;}
+  _swGenFilmImg(f).then(function(c){
+    _swFinalise(c,'swainz-'+String(f.title).replace(/[^a-z0-9]/gi,'-').toLowerCase()+'.jpg',acts,prev);
+  }).catch(function(e){
+    acts.innerHTML='<p style="text-align:center;padding:20px;color:rgba(255,80,0,.8)">Errore: '+e.message+'</p>';
+  });
+};
+window._swShareBadge=function(){
+  var ov=document.getElementById('share-ov');
+  var acts=document.getElementById('share-actions');
+  var prev=document.getElementById('share-preview-img');
+  if(!ov)return;
+  prev.src='';acts.innerHTML='<p style="text-align:center;padding:20px;color:rgba(255,255,255,.5)">⏳ Generazione badge…</p>';
+  ov.classList.add('on');
+  var emoji=(document.getElementById('cs-lu-badge-inner')||{}).textContent||'🏆';
+  var name=(document.getElementById('cs-lu-level-name')||{}).textContent||'Livello';
+  var sub=(document.getElementById('cs-lu-sub')||{}).textContent||'';
+  _swGenBadgeImg(emoji,name,sub).then(function(c){
+    _swFinalise(c,'swainz-badge.jpg',acts,prev);
+  }).catch(function(e){
+    acts.innerHTML='<p style="text-align:center;padding:20px;color:rgba(255,80,0,.8)">Errore: '+e.message+'</p>';
+  });
+};
+window.closeShareOv=function(){var ov=document.getElementById('share-ov');if(ov)ov.classList.remove('on');};
 
+function _swLoadImg(src){return new Promise(function(res,rej){var img=new Image();img.crossOrigin='anonymous';img.onload=function(){res(img);};img.onerror=rej;img.src=src;});}
+function _swLines(ctx,text,maxW){var words=text.split(' '),lines=[],line='';for(var i=0;i<words.length;i++){var t=line?line+' '+words[i]:words[i];if(ctx.measureText(t).width>maxW&&line){lines.push(line);line=words[i];}else line=t;}if(line)lines.push(line);return lines;}
+function _swRR(ctx,x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.quadraticCurveTo(x+w,y,x+w,y+r);ctx.lineTo(x+w,y+h-r);ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);ctx.lineTo(x+r,y+h);ctx.quadraticCurveTo(x,y+h,x,y+h-r);ctx.lineTo(x,y+r);ctx.quadraticCurveTo(x,y,x+r,y);ctx.closePath();}
+
+function _swGenFilmImg(f){
+  var W=1080,H=1920,c=document.createElement('canvas');c.width=W;c.height=H;
+  var ctx=c.getContext('2d');
+  ctx.fillStyle='#0a0812';ctx.fillRect(0,0,W,H);
+  var p=f.poster?_swLoadImg(f.poster).catch(function(){return null;}):Promise.resolve(null);
+  return p.then(function(img){
+    var hasPoster=false;
+    if(img){
+      try{
+        ctx.save();ctx.filter='blur(60px) brightness(0.22) saturate(1.6)';
+        var bw=H*(img.naturalWidth/img.naturalHeight);ctx.drawImage(img,(W-bw)/2,0,bw,H);ctx.restore();
+        var ph=820,pw=Math.round(ph*(img.naturalWidth/img.naturalHeight)),px=(W-pw)/2,py=160;
+        _swRR(ctx,px,py,pw,ph,24);ctx.save();ctx.clip();ctx.drawImage(img,px,py,pw,ph);ctx.restore();
+        hasPoster=true;
+      }catch(e){}
+    }
+    var grad=ctx.createLinearGradient(0,hasPoster?550:0,0,H);
+    grad.addColorStop(0,'rgba(10,8,18,0)');grad.addColorStop(0.3,'rgba(10,8,18,.94)');grad.addColorStop(1,'#0a0812');
+    ctx.fillStyle=grad;ctx.fillRect(0,0,W,H);
+    ctx.fillStyle='rgba(255,80,0,.9)';ctx.font='bold 54px Arial';ctx.textAlign='center';ctx.fillText('SWAINZ',W/2,96);
+    ctx.fillStyle='rgba(255,255,255,.3)';ctx.font='28px Arial';ctx.fillText('il consiglio di oggi',W/2,144);
+    var title=(typeof LANG!='undefined'&&LANG=='en'&&typeof TITLE_ORIG!='undefined')?(TITLE_ORIG[f.id]||f.title):f.title;
+    ctx.fillStyle='#ffffff';ctx.font='bold 82px Arial';
+    var tL=_swLines(ctx,title,W-140),tY=hasPoster?1080:500;
+    for(var i=0;i<tL.length;i++)ctx.fillText(tL[i],W/2,tY+i*98);
+    var dY=tY+tL.length*98+36;
+    ctx.fillStyle='rgba(255,255,255,.62)';ctx.font='italic 44px Arial';ctx.fillText('regia di '+f.dir,W/2,dY);
+    ctx.fillStyle='rgba(255,255,255,.4)';ctx.font='40px Arial';ctx.fillText(f.year+'  ·  ⭐ '+f.r+'/10',W/2,dY+62);
+    if(f.tags&&f.tags.length){
+      var tx=80,tagY=dY+140;ctx.font='30px Arial';
+      for(var j=0;j<Math.min(f.tags.length,4);j++){
+        var lbl=(typeof tTag=='function'?tTag(f.tags[j]):f.tags[j]);
+        var tw=ctx.measureText(lbl).width+44;if(tx+tw>W-80)break;
+        _swRR(ctx,tx,tagY-38,tw,50,25);ctx.fillStyle='rgba(255,80,0,.22)';ctx.fill();
+        ctx.strokeStyle='rgba(255,80,0,.5)';ctx.lineWidth=1.5;ctx.stroke();
+        ctx.fillStyle='rgba(255,200,140,.9)';ctx.fillText(lbl,tx+22,tagY);tx+=tw+14;
+      }
+    }
+    ctx.fillStyle='rgba(255,255,255,.22)';ctx.font='30px Arial';ctx.fillText('swainz.it',W/2,H-56);
+    return c;
+  });
+}
+function _swGenBadgeImg(emoji,levelName,sub){
+  return new Promise(function(res){
+    var W=1080,H=1920,c=document.createElement('canvas');c.width=W;c.height=H;var ctx=c.getContext('2d');
+    var bg=ctx.createRadialGradient(W/2,H*.45,80,W/2,H*.45,820);bg.addColorStop(0,'#1e0a32');bg.addColorStop(1,'#04040e');
+    ctx.fillStyle=bg;ctx.fillRect(0,0,W,H);
+    var glow=ctx.createRadialGradient(W/2,H*.42,0,W/2,H*.42,420);glow.addColorStop(0,'rgba(255,80,0,.4)');glow.addColorStop(1,'transparent');
+    ctx.fillStyle=glow;ctx.fillRect(0,0,W,H);
+    ctx.fillStyle='rgba(255,80,0,.9)';ctx.font='bold 56px Arial';ctx.textAlign='center';ctx.fillText('SWAINZ',W/2,130);
+    ctx.fillStyle='rgba(255,255,255,.4)';ctx.font='34px Arial';ctx.fillText('Nuovo livello sbloccato! 🎉',W/2,186);
+    ctx.font='260px Arial';ctx.fillText(emoji,W/2,H*.48);
+    ctx.fillStyle='#ffffff';ctx.font='bold 96px Arial';ctx.fillText(levelName,W/2,H*.58);
+    if(sub){ctx.fillStyle='rgba(255,255,255,.6)';ctx.font='42px Arial';var sl=_swLines(ctx,sub,W-200);for(var i=0;i<sl.length;i++)ctx.fillText(sl[i],W/2,H*.63+i*58);}
+    ctx.fillStyle='rgba(255,255,255,.25)';ctx.font='32px Arial';ctx.fillText('Ho raggiunto questo livello su swainz.it 🎬',W/2,H-70);
+    res(c);
+  });
+}
+function _swFinalise(canvas,filename,acts,prev){
+  canvas.toBlob(function(blob){
+    var url=URL.createObjectURL(blob);
+    prev.src=url;acts.innerHTML='';
+    var file=new File([blob],filename,{type:'image/jpeg'});
+    if(navigator.canShare&&navigator.canShare({files:[file]})){
+      var nb=document.createElement('button');nb.className='share-action-btn';
+      nb.innerHTML='<span class="share-action-icon">📱</span><span>Condividi (Instagram, TikTok, WhatsApp…)</span>';
+      nb.onclick=function(){navigator.share({files:[file],title:'Swainz'}).catch(function(){});};
+      acts.appendChild(nb);
+    }
+    var db=document.createElement('button');db.className='share-action-btn';
+    db.innerHTML='<span class="share-action-icon">⬇️</span><span>Salva immagine sul dispositivo</span>';
+    db.onclick=function(){var a=document.createElement('a');a.href=url;a.download=filename;a.click();};
+    acts.appendChild(db);
+    var info=document.createElement('p');info.style.cssText='font-size:12px;color:rgba(255,255,255,.4);margin-top:10px;text-align:center;line-height:1.6';
+    info.textContent='Salva l\'immagine e caricala come storia su Instagram, TikTok, Facebook o YouTube Shorts';
+    acts.appendChild(info);
+    setTimeout(function(){URL.revokeObjectURL(url);},60000);
+  },'image/jpeg',.92);
+}
 
 </script>
 <!-- EXCL NOTICE MODAL -->
