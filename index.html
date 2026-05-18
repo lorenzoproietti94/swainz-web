@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="it"><head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>SWAINZ</title><!-- v244 -->
+<title>SWAINZ</title><!-- v247 -->
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600&family=Syne:wght@600;800&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
@@ -68,7 +68,7 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
 .flag-btn img{display:block;width:28px;height:19px;border-radius:2px;object-fit:cover}
 
 /* APP */
-#app{position:relative;min-height:100vh;z-index:1;opacity:0;pointer-events:none;transition:opacity .7s;padding-bottom:110px}
+#app{position:relative;min-height:100vh;z-index:4;opacity:0;pointer-events:none;transition:opacity .7s;padding-bottom:110px}
 #app.on{opacity:1;pointer-events:all}
 .fa{max-width:980px;margin:0 auto;padding:28px 18px}
 .fi{text-align:center;margin-bottom:34px}
@@ -468,6 +468,7 @@ body.profp-ads-show #profp-ad-l,body.profp-ads-show #profp-ad-r,body.profp-ads-s
 .cs-card.lv3::before{background:radial-gradient(ellipse 70% 50% at 50% 0%,rgba(252,211,77,.08),transparent);opacity:1}
 .cs-card.lv4::before{background:radial-gradient(ellipse 70% 50% at 50% 0%,rgba(251,146,60,.08),transparent);opacity:1}
 .cs-card.lv5::before{background:radial-gradient(ellipse 70% 50% at 50% 0%,rgba(253,230,138,.12),transparent);opacity:1}
+.cs-card-label{font-size:9px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:rgba(255,255,255,.28);margin-bottom:10px}
 .cs-card-inner{display:flex;align-items:center;gap:16px}
 /* Badge ring */
 .cs-ring-wrap{flex-shrink:0;width:68px;height:68px;position:relative;display:flex;align-items:center;justify-content:center}
@@ -1424,6 +1425,7 @@ body.cat-revealing #today-wrap-mob{visibility:hidden!important;pointer-events:no
         <div class="prof-row"><label class="prof-lbl">🎬 <span data-i18n="prof_film">Film preferito</span></label><input class="prof-inp" id="pFilm" data-i18n-ph="prof_film_ph" placeholder="Es. Il Padrino"></div>
         <!-- CINE-SCORE BADGE CARD -->
         <div class="cs-card lv0" id="cs-card">
+          <div class="cs-card-label" data-i18n="cs_card_label">IL TUO STATUS</div>
           <div class="cs-card-inner">
             <div class="cs-ring-wrap lv0" id="cs-ring-wrap">
               <div class="cs-badge lv0" id="cs-badge-icon">🎬</div>
@@ -3271,8 +3273,8 @@ function _checkCsLevelUp(){
 function _showCsLevelUp(lvlIdx){
   var lv=CS_LEVELS[lvlIdx];
   var isIT=LANG!=='en';
+  var cls='lv'+lvlIdx;
   var ov=document.getElementById('cs-levelup-ov');
-  var _unused=null;
   var nameEl=document.getElementById('cs-lu-level-name');
   var subEl=document.getElementById('cs-lu-sub');
   if(!ov)return;
@@ -4010,7 +4012,7 @@ const T={
     fcp_h2:'Fatti conoscere da Swainz',fcp_p:'Le tue risposte guidano i consigli — modificabili in qualsiasi momento',
     fck_save:'Salva preferenze',fck_saved:'✓ Preferenze salvate!',fck_free_teaser_title:'Passa a Premium!',fck_free_teaser_sub:'Per farti conoscere al meglio da Swainz, sblocca tutte le ulteriori domande personalizzate.',
     prem_lock_title:'Funzione Premium',prem_lock_sub:'Attivalo dal profilo 👤',prem_lock_back:'← Torna',
-    card_badge:'✦ SWAINZ CONSIGLIA',sequel_badge:'Sequel',card_cast:'Cast',card_plt:'Disponibile su',card_plt_none:'Non disponibile in streaming',reset_filters:'Reset Filtri',news_hdr:'🎬 Notizie del giorno',news_load:'Caricamento...',news_err:'Notizie non disponibili',optin_title:'Nessun risultato trovato',nofilm_title:'Nessun film disponibile',nofilm_sub:'Hai esplorato tutti i film compatibili con i tuoi criteri. I filtri verranno azzerati.',optin_sub:'I film compatibili appartengono anche ad altre categorie. Vuoi includerne una?',afp_active:'Filtri attivi',afp_excl:'Esclusi',afp_none:'Nessun filtro',card_why:'Caratteristiche',proposte_title:'Le proposte rapide di Swainz\u00a0\u00a0⚡',fck_prog_label:'Completamento',fck_prog_done:'✓ Profilo completato',cs_title:'Cine-Score',cs_lu_pre:'Nuovo livello sbloccato!',cs_lu_btn:'Ottimo!',cs_pts_fmt:'{{pts}} pt totali',cs_next_fmt:'Avanzamento verso {{next}}',
+    card_badge:'✦ SWAINZ CONSIGLIA',sequel_badge:'Sequel',card_cast:'Cast',card_plt:'Disponibile su',card_plt_none:'Non disponibile in streaming',reset_filters:'Reset Filtri',news_hdr:'🎬 Notizie del giorno',news_load:'Caricamento...',news_err:'Notizie non disponibili',optin_title:'Nessun risultato trovato',nofilm_title:'Nessun film disponibile',nofilm_sub:'Hai esplorato tutti i film compatibili con i tuoi criteri. I filtri verranno azzerati.',optin_sub:'I film compatibili appartengono anche ad altre categorie. Vuoi includerne una?',afp_active:'Filtri attivi',afp_excl:'Esclusi',afp_none:'Nessun filtro',card_why:'Caratteristiche',proposte_title:'Le proposte rapide di Swainz\u00a0\u00a0⚡',fck_prog_label:'Completamento',fck_prog_done:'✓ Profilo completato',cs_title:'Cine-Score',cs_card_label:'IL TUO STATUS',cs_lu_pre:'Nuovo livello sbloccato!',cs_lu_btn:'Ottimo!',cs_pts_fmt:'{{pts}} pt totali',cs_next_fmt:'Avanzamento verso {{next}}',
     card_ok:'🎬 Perfetto, grazie!',card_more:'↺ Altro',card_mark:'👁 Segna visto',card_marked:'✓ Già visto',
     card_none:'Nessun film trovato',card_none_sub:'Prova ad allargare i filtri!',card_edit:'Modifica filtri',
     ac_films:'Film',ac_people:'Persone',
@@ -4078,7 +4080,7 @@ const T={
     fcp_h2:'Let Swainz know you',fcp_p:'Your answers guide the recommendations — editable anytime',
     fck_save:'Save preferences',fck_saved:'✓ Preferences saved!',fck_free_teaser_title:'Try Premium',fck_free_teaser_sub:'Let Swainz get to know you better — unlock the full personalised questionnaire.',
     prem_lock_title:'Premium feature',prem_lock_sub:'Activate it from profile 👤',prem_lock_back:'← Back',
-    card_badge:'✦ SWAINZ RECOMMENDS',sequel_badge:'Sequel',card_cast:'Cast',card_plt:'Available on',card_plt_none:'Not available on streaming',reset_filters:'Reset filters',news_hdr:'🎬 News of the day',news_load:'Loading...',news_err:'News not available',optin_title:'No results found',nofilm_title:'No films available',nofilm_sub:'You have explored all films matching your criteria. Filters will be reset.',optin_sub:'Films matching your criteria also belong to other categories. Would you like to include one?',afp_active:'Active filters',afp_excl:'Excluded',afp_none:'No filters',card_why:'Characteristics',proposte_title:'Swainz Quick Picks\u00a0\u00a0⚡',fck_prog_label:'Completion',fck_prog_done:'✓ Profile complete',cs_title:'Cine-Score',cs_lu_pre:'New level unlocked!',cs_lu_btn:'Awesome!',cs_pts_fmt:'{{pts}} total pts',cs_next_fmt:'Progress toward {{next}}',
+    card_badge:'✦ SWAINZ RECOMMENDS',sequel_badge:'Sequel',card_cast:'Cast',card_plt:'Available on',card_plt_none:'Not available on streaming',reset_filters:'Reset filters',news_hdr:'🎬 News of the day',news_load:'Loading...',news_err:'News not available',optin_title:'No results found',nofilm_title:'No films available',nofilm_sub:'You have explored all films matching your criteria. Filters will be reset.',optin_sub:'Films matching your criteria also belong to other categories. Would you like to include one?',afp_active:'Active filters',afp_excl:'Excluded',afp_none:'No filters',card_why:'Characteristics',proposte_title:'Swainz Quick Picks\u00a0\u00a0⚡',fck_prog_label:'Completion',fck_prog_done:'✓ Profile complete',cs_title:'Cine-Score',cs_card_label:'YOUR STATUS',cs_lu_pre:'New level unlocked!',cs_lu_btn:'Awesome!',cs_pts_fmt:'{{pts}} total pts',cs_next_fmt:'Progress toward {{next}}',
     card_ok:'🎬 Perfect, thanks!',card_more:'↺ Another',card_mark:'👁 Mark watched',card_marked:'✓ Watched',
     card_none:'No film found',card_none_sub:'Try broadening your filters!',card_edit:'Edit filters',
     ac_films:'Films',ac_people:'People',
