@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="it"><head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>SWAINZ</title><!-- v264 -->
+<title>SWAINZ</title><!-- v265 -->
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600&family=Syne:wght@600;800&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
@@ -5097,109 +5097,95 @@ function _swRR(ctx,x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.lineTo(x+w-r
 function _swGenFilmImg(f){
   var W=1080,H=1920,c=document.createElement('canvas');c.width=W;c.height=H;
   var ctx=c.getContext('2d');
-
-  /* ── background ── */
-  ctx.fillStyle='#09080f';ctx.fillRect(0,0,W,H);
-
+  ctx.fillStyle='#080810';ctx.fillRect(0,0,W,H);
   var p=f.poster?_swLoadImg(f.poster).catch(function(){return null;}):Promise.resolve(null);
   return p.then(function(img){
-
-    /* ── blurred BG from poster ── */
+    /* blurred BG */
     if(img){try{
-      ctx.save();ctx.filter='blur(70px) brightness(0.18) saturate(1.8)';
+      ctx.save();ctx.filter='blur(72px) brightness(0.16) saturate(2)';
       var bw=H*(img.naturalWidth/img.naturalHeight);
       ctx.drawImage(img,(W-bw)/2,0,bw,H);ctx.restore();
     }catch(e){}}
+    ctx.fillStyle='rgba(8,8,16,.45)';ctx.fillRect(0,0,W,H);
 
-    /* ── TOP BADGE "SWAINZ CONSIGLIA" ── */
-    var badgeW=560,badgeH=110,badgeX=(W-badgeW)/2,badgeY=80;
-    // pill background
-    _swRR(ctx,badgeX,badgeY,badgeW,badgeH,55);
-    var bpg=ctx.createLinearGradient(badgeX,0,badgeX+badgeW,0);
-    bpg.addColorStop(0,'#ff4800');bpg.addColorStop(1,'#ff7a00');
-    ctx.fillStyle=bpg;ctx.fill();
-    // inner glow
-    _swRR(ctx,badgeX+2,badgeY+2,badgeW-4,badgeH-4,53);
-    ctx.strokeStyle='rgba(255,255,255,.25)';ctx.lineWidth=2;ctx.stroke();
-    // text
-    ctx.fillStyle='#ffffff';ctx.textAlign='center';
-    ctx.font='bold 52px Arial';
-    ctx.fillText('🎬  SWAINZ  CONSIGLIA',W/2,badgeY+74);
-
-    /* ── poster ── */
-    var posterTop=240,posterH=840,hasPoster=false;
+    /* poster */
+    var maxPH=920,maxPW=820,hasPoster=false;
+    var pTop=190,pLeft=0,pW=0,pH=0;
     if(img){try{
-      var pw=Math.round(posterH*(img.naturalWidth/img.naturalHeight));
-      var px=(W-pw)/2;
-      // shadow
-      ctx.save();ctx.shadowColor='rgba(0,0,0,.7)';ctx.shadowBlur=60;ctx.shadowOffsetY=20;
-      _swRR(ctx,px,posterTop,pw,posterH,28);ctx.fillStyle='#000';ctx.fill();ctx.restore();
-      // clipped image
-      _swRR(ctx,px,posterTop,pw,posterH,28);ctx.save();ctx.clip();
-      ctx.drawImage(img,px,posterTop,pw,posterH);ctx.restore();
+      var rat=img.naturalWidth/img.naturalHeight;
+      if(rat>1){pW=Math.min(maxPW,maxPH*rat);pH=Math.round(pW/rat);}
+      else{pH=Math.min(maxPH,maxPW/rat);pW=Math.round(pH*rat);}
+      pLeft=Math.round((W-pW)/2);
+      ctx.save();ctx.shadowColor='rgba(0,0,0,.8)';ctx.shadowBlur=80;ctx.shadowOffsetY=24;
+      _swRR(ctx,pLeft,pTop,pW,pH,28);ctx.fillStyle='#000';ctx.fill();ctx.restore();
+      _swRR(ctx,pLeft,pTop,pW,pH,28);ctx.save();ctx.clip();
+      ctx.drawImage(img,pLeft,pTop,pW,pH);ctx.restore();
       hasPoster=true;
     }catch(e){}}
 
-    /* ── gradient overlay (bottom half) ── */
-    var gradTop=hasPoster?posterTop+posterH*0.35:600;
-    var grad=ctx.createLinearGradient(0,gradTop,0,H);
-    grad.addColorStop(0,'rgba(9,8,15,0)');
-    grad.addColorStop(0.28,'rgba(9,8,15,.97)');
-    grad.addColorStop(1,'#09080f');
-    ctx.fillStyle=grad;ctx.fillRect(0,gradTop,W,H-gradTop);
-    // also darken very top behind badge
-    var topGrad=ctx.createLinearGradient(0,0,0,240);
-    topGrad.addColorStop(0,'rgba(9,8,15,.7)');topGrad.addColorStop(1,'rgba(9,8,15,0)');
-    ctx.fillStyle=topGrad;ctx.fillRect(0,0,W,240);
+    /* gradients */
+    var tg=ctx.createLinearGradient(0,0,0,210);
+    tg.addColorStop(0,'rgba(8,8,16,.82)');tg.addColorStop(1,'rgba(8,8,16,0)');
+    ctx.fillStyle=tg;ctx.fillRect(0,0,W,210);
+    var posterBottom=hasPoster?pTop+pH:pTop+maxPH;
+    var gs=Math.max(posterBottom-320,pTop+(hasPoster?pH:maxPH)*0.55);
+    var bg=ctx.createLinearGradient(0,gs,0,posterBottom+50);
+    bg.addColorStop(0,'rgba(8,8,16,0)');bg.addColorStop(1,'rgba(8,8,16,1)');
+    ctx.fillStyle=bg;ctx.fillRect(0,gs,W,posterBottom+50-gs);
+    ctx.fillStyle='#080810';ctx.fillRect(0,posterBottom+50,W,H-(posterBottom+50));
 
-    /* ── text block ── */
-    var textTop=hasPoster?posterTop+posterH+60:1160;
+    /* badge — replica fc-bdg */
+    var badgeTxt=(typeof LANG!='undefined'&&LANG=='en')?'\u2736  SWAINZ RECOMMENDS':'\u2736  SWAINZ CONSIGLIA';
+    ctx.font='700 36px Arial';
+    var bTW=ctx.measureText(badgeTxt).width;
+    var bPadX=52,bH=80,bW=bTW+bPadX*2,bX=(W-bW)/2,bY=74;
+    _swRR(ctx,bX,bY,bW,bH,40);
+    ctx.fillStyle='rgba(255,80,0,.10)';ctx.fill();
+    ctx.strokeStyle='rgba(255,104,32,.55)';ctx.lineWidth=2;ctx.stroke();
+    ctx.fillStyle='#ff6820';ctx.textAlign='center';
+    ctx.fillText(badgeTxt,W/2,bY+bH-22);
 
-    // Title
-    var title=(typeof LANG!='undefined'&&LANG=='en'&&typeof TITLE_ORIG!='undefined')?(TITLE_ORIG[f.id]||f.title):f.title;
-    ctx.fillStyle='#ffffff';ctx.textAlign='center';ctx.font='bold 86px Arial';
-    var tL=_swLines(ctx,title,W-120);
-    for(var i=0;i<tL.length;i++)ctx.fillText(tL[i],W/2,textTop+i*100);
-    var afterTitle=textTop+tL.length*100+30;
+    /* text block — below poster */
+    var textStart=posterBottom+68;
+    if(textStart>H-400)textStart=H-400;
 
-    // Director
-    ctx.fillStyle='rgba(255,255,255,.65)';ctx.font='italic 44px Arial';
-    ctx.fillText('regia di '+f.dir,W/2,afterTitle);
+    var title=(typeof LANG!='undefined'&&LANG=='en'&&typeof TITLE_ORIG!='undefined')
+      ?(TITLE_ORIG[f.id]||f.title):f.title;
+    ctx.fillStyle='#ffffff';ctx.textAlign='center';ctx.font='bold 84px Arial';
+    var tL=_swLines(ctx,title,W-120),tY=textStart;
+    for(var i=0;i<tL.length;i++)ctx.fillText(tL[i],W/2,tY+i*96);
+    var cur=tY+tL.length*96+28;
 
-    // Year · Rating
-    ctx.fillStyle='rgba(255,200,100,.75)';ctx.font='600 40px Arial';
-    ctx.fillText(f.year+'  ·  ⭐ '+f.r+'/10',W/2,afterTitle+62);
+    ctx.fillStyle='rgba(255,255,255,.62)';ctx.font='italic 42px Arial';
+    ctx.fillText('regia di '+f.dir,W/2,cur);cur+=58;
+    ctx.fillStyle='rgba(255,195,95,.8)';ctx.font='500 38px Arial';
+    ctx.fillText(f.year+'  \u00b7  \u2b50 '+f.r+'/10',W/2,cur);cur+=76;
 
-    /* ── tags with wrapping ── */
+    /* tags wrapping */
     if(f.tags&&f.tags.length){
-      var TAGS=f.tags.slice(0,8);
       ctx.font='28px Arial';
-      var paddingX=36,paddingY=18,tagH=52,gap=14,rowGap=16;
-      var rowStartX=80,curX=rowStartX,curY=afterTitle+130,rows=0;
-
-      for(var j=0;j<TAGS.length;j++){
-        var lbl=typeof tTag=='function'?tTag(TAGS[j]):TAGS[j];
-        var tw=ctx.measureText(lbl).width+paddingX*2;
-        // wrap if needed
-        if(curX+tw>W-rowStartX&&curX>rowStartX){
-          curX=rowStartX;curY+=tagH+rowGap;rows++;
-          if(rows>2)break;
-        }
-        // pill background
-        _swRR(ctx,curX,curY,tw,tagH,tagH/2);
-        ctx.fillStyle='rgba(255,80,0,.18)';ctx.fill();
-        ctx.strokeStyle='rgba(255,120,30,.6)';ctx.lineWidth=1.5;ctx.stroke();
-        // label
-        ctx.fillStyle='rgba(255,200,140,.95)';ctx.textAlign='left';
-        ctx.fillText(lbl,curX+paddingX,curY+tagH-14);
-        curX+=tw+gap;
+      var pPx=42,tgH=52,gap=12,rGap=14,rowX=80,rowY=cur,rows=0;
+      for(var j=0;j<Math.min(f.tags.length,8);j++){
+        var lbl=typeof tTag=='function'?tTag(f.tags[j]):f.tags[j];
+        var tw=ctx.measureText(lbl).width+pPx*2;
+        if(rowX+tw>W-80&&rowX>80){rowX=80;rowY+=tgH+rGap;rows++;if(rows>1)break;}
+        _swRR(ctx,rowX,rowY,tw,tgH,tgH/2);
+        ctx.fillStyle='rgba(255,104,32,.15)';ctx.fill();
+        ctx.strokeStyle='rgba(255,104,32,.45)';ctx.lineWidth=1.5;ctx.stroke();
+        ctx.fillStyle='rgba(255,210,160,.92)';ctx.textAlign='left';
+        ctx.fillText(lbl,rowX+pPx,rowY+tgH-13);
+        rowX+=tw+gap;
       }
     }
 
-    /* ── watermark ── */
-    ctx.fillStyle='rgba(255,255,255,.2)';ctx.textAlign='center';ctx.font='28px Arial';
-    ctx.fillText('swainz.it',W/2,H-50);
-
+    /* watermark — adaptive colour */
+    var lum=20;
+    try{var pd=ctx.getImageData(W/2-40,H-30,80,1).data;
+      for(var k=0;k<pd.length;k+=4)lum+=(pd[k]*.299+pd[k+1]*.587+pd[k+2]*.114);
+      lum/=(pd.length/4);}catch(e){}
+    ctx.fillStyle=lum>140?'rgba(30,30,40,.75)':'rgba(255,255,255,.72)';
+    ctx.textAlign='center';ctx.font='bold 42px Arial';
+    ctx.fillText('swainz.it',W/2,H-38);
     return c;
   });
 }
