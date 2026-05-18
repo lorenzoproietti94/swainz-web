@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="it"><head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>SWAINZ</title><!-- v258 -->
+<title>SWAINZ</title><!-- v259 -->
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600&family=Syne:wght@600;800&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
@@ -645,6 +645,15 @@ body.profp-ads-show #profp{padding-bottom:96px}
   align-items:flex-start;
   overflow-y:hidden;
 }
+/* force #vp override in case of cascade conflict */
+#vp{
+  display:flex !important;
+  flex-direction:row !important;
+  justify-content:center !important;
+  align-items:flex-start !important;
+  overflow-y:hidden !important;
+  background:rgba(0,0,0,.6) !important;
+}
 .panel-inner{
   display:flex;
   flex-direction:column;
@@ -657,7 +666,7 @@ body.profp-ads-show #profp{padding-bottom:96px}
   background:#1a1a22;
 }
 #vp .panel-inner{
-  width:min(680px,100vw);
+  width:min(500px,100vw);
   background:var(--bg);
 }
 .arec-empty{padding:48px 24px;text-align:center;color:var(--td);font-size:14px}
