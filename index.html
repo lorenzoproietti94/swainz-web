@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="it"><head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>SWAINZ</title><!-- v260 -->
+<title>SWAINZ</title><!-- v261 -->
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600&family=Syne:wght@600;800&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
@@ -5348,7 +5348,13 @@ async function _genFilmCanvas(f){
   ctx.fillStyle='rgba(255,255,255,.4)';ctx.font='40px Arial';ctx.fillText(f.year+'  ·  ⭐ '+f.r+'/10',W/2,dY+62);
   if(f.tags&&f.tags.length){
     let tx=80;const tagY=dY+140;ctx.font='30px Arial';
-    f.tags.slice(0,4).forEach(tag=>{const lbl=tTag(tag);const tw=ctx.measureText(lbl).width+44;if(tx+tw>W-80)return;_rrect(ctx,tx,tagY-38,tw,50,25);ctx.fillStyle='rgba(255,80,0,.22)';ctx.fill();ctx.strokeStyle='rgba(255,80,0,.5)';ctx.lineWidth=1.5;ctx.stroke();ctx.fillStyle='rgba(255,200,140,.9)';ctx.fillText(lbl,tx+22,tagY);tx+=tw+14;});
+    f.tags.slice(0,4).forEach(tag=>{
+      const lbl=(typeof tTag==='function'?tTag(tag):tag)||tag;
+      const tw=ctx.measureText(lbl).width+44;if(tx+tw>W-80)return;
+      _rrect(ctx,tx,tagY-38,tw,50,25);ctx.fillStyle='rgba(255,80,0,.22)';ctx.fill();
+      ctx.strokeStyle='rgba(255,80,0,.5)';ctx.lineWidth=1.5;ctx.stroke();
+      ctx.fillStyle='rgba(255,200,140,.9)';ctx.fillText(lbl,tx+22,tagY);tx+=tw+14;
+    });
   }
   ctx.fillStyle='rgba(255,255,255,.22)';ctx.font='30px Arial';ctx.fillText('swainz.it',W/2,H-56);
   return c;
@@ -5372,7 +5378,6 @@ async function _genBadgeCanvas(emoji,levelName,sub){
 async function _doShare(canvas,filename){
   const blob=await new Promise(r=>canvas.toBlob(r,'image/jpeg',.92));
   const url=URL.createObjectURL(blob);
-  const ov=document.getElementById('share-ov');
   document.getElementById('share-preview-img').src=url;
   const acts=document.getElementById('share-actions');acts.innerHTML='';
   const file=new File([blob],filename,{type:'image/jpeg'});
@@ -5390,19 +5395,44 @@ async function _doShare(canvas,filename){
   info.style.cssText='font-size:12px;color:var(--td);margin-top:10px;text-align:center;line-height:1.6';
   info.textContent='Salva l\'immagine e caricala come storia su Instagram, TikTok, Facebook o YouTube Shorts';
   acts.appendChild(info);
-  ov.classList.add('on');
+  // make sure overlay is visible
+  document.getElementById('share-ov').classList.add('on');
   setTimeout(()=>URL.revokeObjectURL(url),60000);
 }
 
 async function shareFilm(filmId){
-  const f=DB.find(x=>x.id===filmId);if(!f)return;
-  try{const c=await _genFilmCanvas(f);await _doShare(c,'swainz-'+f.title.replace(/[^a-z0-9]/gi,'-').toLowerCase()+'.jpg');}catch(e){console.error(e);}
+  const f=DB.find(x=>x.id===filmId||x.id===+filmId||String(x.id)===String(filmId));
+  if(!f){console.warn('shareFilm: film not found',filmId);return;}
+  // Show overlay immediately with loading state
+  const ov=document.getElementById('share-ov');
+  const acts=document.getElementById('share-actions');
+  const prev=document.getElementById('share-preview-img');
+  prev.src='';acts.innerHTML='<p style="color:var(--td);text-align:center;padding:16px 0">⏳ Generazione immagine…</p>';
+  ov.classList.add('on');
+  try{
+    const c=await _genFilmCanvas(f);
+    await _doShare(c,'swainz-'+f.title.replace(/[^a-z0-9]/gi,'-').toLowerCase()+'.jpg');
+  }catch(e){
+    console.error('shareFilm error:',e);
+    acts.innerHTML='<p style="color:var(--td);text-align:center;padding:16px 0">Errore generazione immagine.<br>Prova a chiudere e riaprire la scheda.</p>';
+  }
 }
 async function shareBadge(){
   const emoji=(document.getElementById('cs-lu-badge-inner')||{}).textContent||'🏆';
   const name=(document.getElementById('cs-lu-level-name')||{}).textContent||'';
   const sub=(document.getElementById('cs-lu-sub')||{}).textContent||'';
-  try{const c=await _genBadgeCanvas(emoji,name,sub);await _doShare(c,'swainz-badge.jpg');}catch(e){console.error(e);}
+  const ov=document.getElementById('share-ov');
+  const acts=document.getElementById('share-actions');
+  document.getElementById('share-preview-img').src='';
+  acts.innerHTML='<p style="color:var(--td);text-align:center;padding:16px 0">⏳ Generazione immagine…</p>';
+  ov.classList.add('on');
+  try{
+    const c=await _genBadgeCanvas(emoji,name,sub);
+    await _doShare(c,'swainz-badge.jpg');
+  }catch(e){
+    console.error('shareBadge error:',e);
+    acts.innerHTML='<p style="color:var(--td);text-align:center;padding:16px 0">Errore generazione immagine.</p>';
+  }
 }
 function closeShareOv(){document.getElementById('share-ov').classList.remove('on');}
 </script>
