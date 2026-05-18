@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="it"><head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>SWAINZ</title><!-- v254 -->
+<title>SWAINZ</title><!-- v255 -->
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600&family=Syne:wght@600;800&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
@@ -636,11 +636,12 @@ body.profp-ads-show #profp{padding-bottom:96px}
 #chip-incompat-tip{position:fixed;display:none;background:rgba(35,8,8,.97);border:1px solid rgba(239,68,68,.45);border-radius:9px;padding:7px 11px;font-size:11px;color:#fca5a5;width:240px;line-height:1.6;z-index:10000;pointer-events:none;box-shadow:0 4px 18px rgba(239,68,68,.22)}
 #chip-tip{position:fixed;display:none;background:rgba(18,18,28,.97);border:1px solid var(--br);border-radius:9px;padding:7px 11px;font-size:11px;color:var(--tx);width:200px;line-height:1.5;z-index:9999;pointer-events:none;box-shadow:0 4px 18px rgba(0,0,0,.5)}
 /* ALL RECS PANEL */
-#allrecsp{z-index:320;display:flex;flex-direction:column;background:#1a1a22}
-/* Override allrecsp and vp to backdrop + centered inner panel */
+#allrecsp{z-index:320;background:#1a1a22}
+/* allrecsp and vp: backdrop + centered inner panel */
 #allrecsp,#vp.slide-panel{
   background:rgba(0,0,0,.6);
   display:flex;
+  flex-direction:row;
   justify-content:center;
   align-items:flex-start;
   overflow-y:hidden;
