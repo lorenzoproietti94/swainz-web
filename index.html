@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="it"><head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>SWAINZ</title><!-- v273 -->
+<title>SWAINZ</title><!-- v274 -->
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600&family=Syne:wght@600;800&family=Teko:wght@700&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
@@ -730,69 +730,6 @@ body.profp-ads-show #profp{padding-bottom:96px}
 .hist-btn:hover{border-color:var(--bh);background:rgba(255,255,255,.06)}
 .fgrp-prem-badge span{font-size:8.5px;font-weight:800;letter-spacing:2.5px;text-transform:uppercase;color:var(--or);opacity:.65;font-family:'Inter',sans-serif;border:1px solid rgba(255,104,32,.3);border-radius:12px;padding:1px 8px;white-space:nowrap}
 
-/* TODAY RECOMMENDATIONS BUTTON + PANEL */
-#today-wrap{display:none;position:relative;pointer-events:all}
-#today-wrap.visible{display:block}
-#today-btn{
-  width:100%;padding:9px 13px;border-radius:11px;
-  border:1px solid rgba(255,104,32,.25);background:rgba(255,104,32,.08);
-  color:var(--or);font-size:11px;font-weight:700;letter-spacing:.5px;
-  cursor:pointer;transition:all .2s;text-align:left;
-  display:flex;align-items:center;justify-content:space-between;gap:6px;
-  box-sizing:border-box;
-}
-#today-btn:hover{border-color:var(--boh);background:rgba(255,104,32,.14)}
-#today-btn .tb-arrow{font-size:10px;transition:transform .2s;color:var(--td)}
-#today-btn.open .tb-arrow{transform:rotate(180deg)}
-#today-panel{
-  display:none;
-  position:absolute;
-  bottom:calc(100% + 6px);
-  left:0;
-  right:0;
-  background:rgba(24,24,24,.98);
-  border:1px solid rgba(255,104,32,.25);
-  border-radius:11px;
-  overflow-y:auto;
-  max-height:300px;
-  box-shadow:0 -8px 32px rgba(0,0,0,.5);
-  z-index:3;
-}
-#today-panel.open{display:block}
-#today-panel::-webkit-scrollbar{width:3px}
-#today-panel::-webkit-scrollbar-thumb{background:var(--br);border-radius:2px}
-.today-row{
-  padding:8px 12px;cursor:pointer;border-bottom:1px solid var(--br);
-  transition:background .15s;
-}
-.today-row:last-child{border-bottom:none}
-.today-row:hover{background:rgba(255,255,255,.05)}
-.today-row-title{font-size:11.5px;font-weight:600;color:var(--tx);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.today-row-sub{font-size:10px;color:var(--td);margin-top:1px}
-
-/* mobile today button — bottom-left */
-#today-wrap-mob{
-  display:none;
-  position:fixed;bottom:88px;left:10px;width:148px;z-index:3;
-  flex-direction:column;align-items:stretch;
-}
-#today-btn-mob{
-  padding:7px 11px;border-radius:11px 11px 11px 11px;
-  border:1px solid rgba(255,104,32,.25);background:rgba(28,28,28,.96);
-  color:var(--or);font-size:10.5px;font-weight:700;
-  cursor:pointer;transition:all .2s;backdrop-filter:blur(18px);
-  display:flex;align-items:center;justify-content:space-between;
-}
-#today-btn-mob:hover{border-color:var(--boh)}
-#today-btn-mob .tb-arrow{font-size:10px;transition:transform .2s;color:var(--td)}
-#today-btn-mob.open .tb-arrow{transform:rotate(180deg)}
-#today-panel-mob{
-  background:rgba(28,28,28,.97);border:1px solid var(--br);
-  border-top:none;border-radius:0 0 11px 11px;
-  overflow:hidden;max-height:0;transition:max-height .3s ease;
-}
-#today-panel-mob.open{max-height:260px;overflow-y:auto}
-
 /* hide sidebar on narrow viewports, show mobile panel instead */
 @media(max-width:1260px){
   #sidebar-r{display:none}
@@ -819,14 +756,12 @@ body.profp-ads-show #profp{padding-bottom:96px}
 @media(max-width:1260px){
   #afp-mobile{display:block}
   #afp-mobile.has-filters{opacity:1}
-  #today-wrap-mob.visible{display:flex}
 }
 #afp-mobile .afp-box{display:none}
 #afp-mobile.has-filters .afp-box{display:block}
 #afp-mobile .afp-sep{height:1px;background:var(--br);margin:8px 0;display:none}
 /* hide mobile panels while cat is revealing */
 body.cat-revealing #afp-mobile,
-body.cat-revealing #today-wrap-mob{visibility:hidden!important;pointer-events:none!important}
 #afp-mobile.has-excl .afp-sep{display:block}
 
   #ls-lang-bar{position:absolute;top:0;left:0;right:0;display:flex;justify-content:center;z-index:10}
@@ -1415,14 +1350,7 @@ body.cat-revealing #today-wrap-mob{visibility:hidden!important;pointer-events:no
   <div id="ad-slot-r">
     <span class="ad-slot-label">ADV</span>
   </div>
-  <div id="today-wrap">
-    <button id="today-btn" onclick="toggleToday()">
-      <span id="today-btn-label" data-i18n="today_btn">🎬 Film consigliati oggi</span>
-      <span class="tb-arrow">▾</span>
-    </button>
-    <div id="today-panel">
-      <div id="today-list"></div>
-    </div>
+</div>
   </div>
 </div>
 
@@ -1446,14 +1374,6 @@ body.cat-revealing #today-wrap-mob{visibility:hidden!important;pointer-events:no
   </div>
 </div>
 
-<!-- MOBILE TODAY BUTTON -->
-<div id="today-wrap-mob">
-  <button id="today-btn-mob" onclick="toggleTodayMob()">
-    <span data-i18n="today_btn">🎬 Film consigliati oggi</span>
-    <span class="tb-arrow">▾</span>
-  </button>
-  <div id="today-panel-mob">
-    <div id="today-list-mob"></div>
   </div>
 </div>
 
@@ -2016,59 +1936,6 @@ function openRecFilm(id){
 
 function loadSeen(){try{const r=localStorage.getItem('sw3_seen');if(r)seenFilms=new Set(JSON.parse(r));}catch(e){}}
 
-// TODAY RECOMMENDATIONS
-const _todayKey='sw3_today_'+new Date().toISOString().slice(0,10);
-const _searchKey='sw3_srch_'+new Date().toISOString().slice(0,10);
-let dailyRecs=[]; // array of film ids shown today
-
-function loadTodayRecs(){
-  try{const r=localStorage.getItem(_todayKey);if(r)dailyRecs=JSON.parse(r);}catch(e){}
-  renderTodayList();
-  if(document.getElementById('allrecsp').classList.contains('on'))_openAllRecsRender();
-  if(dailyRecs.length>0)showTodayBtn();
-}
-function saveTodayRecs(){
-  try{localStorage.setItem(_todayKey,JSON.stringify(dailyRecs));}catch(e){}
-}
-function addTodayRec(id){
-  if(!dailyRecs.includes(id)){dailyRecs.push(id);saveTodayRecs();}
-  showTodayBtn();
-  renderTodayList();
-}
-function showTodayBtn(){
-  document.getElementById('today-wrap').classList.add('visible');
-  const mob=document.getElementById('today-wrap-mob');
-  if(mob)mob.classList.add('visible');
-}
-function renderTodayList(){
-  const films=dailyRecs.map(id=>DB.find(f=>f.id===id)).filter(Boolean);
-  const html=films.length===0?'':films.map(f=>{
-    const title=LANG==='en'?(TITLE_ORIG[f.id]||f.title):f.title;
-    return`<div class="today-row" onclick="openTodayFilm(${f.id})"><div class="today-row-title">${title}</div><div class="today-row-sub">${f.dir} · ${f.year}</div></div>`;
-  }).join('');
-  const el=document.getElementById('today-list');
-  const elM=document.getElementById('today-list-mob');
-  if(el)el.innerHTML=html;
-  if(elM)elM.innerHTML=html.replace(/class="today-row"/g,'class="today-row"');
-}
-function toggleToday(){
-  const btn=document.getElementById('today-btn');
-  const panel=document.getElementById('today-panel');
-  btn.classList.toggle('open');
-  panel.classList.toggle('open');
-}
-function toggleTodayMob(){
-  const btn=document.getElementById('today-btn-mob');
-  const panel=document.getElementById('today-panel-mob');
-  btn.classList.toggle('open');panel.classList.toggle('open');
-}
-function openTodayFilm(id){
-  const f=DB.find(x=>x.id===id);if(!f)return;
-  // close today panels
-  ['today-panel','today-panel-mob'].forEach(pid=>{const p=document.getElementById(pid);if(p)p.classList.remove('open');});
-  ['today-btn','today-btn-mob'].forEach(bid=>{const b=document.getElementById(bid);if(b)b.classList.remove('open');});
-  showCard({f,mx:f.tags||[]},{hideMore:true});
-}
 async function saveSeen(){
   try{localStorage.setItem('sw3_seen',JSON.stringify([...seenFilms]));}catch(e){}
   if(_authToken&&currentUser){
@@ -2362,14 +2229,6 @@ updatePoolCount();
 
 // Event delegation for pill remove buttons (desktop + mobile panels)
 document.addEventListener('click', e=>{
-  // Close today panel if click outside
-  const tw=document.getElementById('today-wrap');
-  const tp=document.getElementById('today-panel');
-  if(tp&&tp.classList.contains('open')&&!tw.contains(e.target)&&!tp.contains(e.target)){
-    tp.classList.remove('open');
-    document.getElementById('today-btn').classList.remove('open');
-  }
-
   const x = e.target.closest('.pill-x');
   if(!x) return;
   const raw = x.dataset.raw;
@@ -2827,7 +2686,6 @@ function showCard(res,opts={}) {
   {
     const{f,mx}=res,sn=seenFilms.has(f.id);
     sessionShown.add(f.id);
-    addTodayRec(f.id);
     addAllRec(f.id, mx||[]);
     const displayTitle=LANG==='en'?(TITLE_ORIG[f.id]||f.title):f.title;
     const descHTML=f.desc_en&&LANG==='en'?f.desc_en:f.desc;
@@ -4506,14 +4364,13 @@ function setLang(l){
   buildUI();
   // re-render fck if open
   if(document.getElementById('fcp').classList.contains('on')){if(isPremium)renderFcp();else renderFcpFree();}
-  renderTodayList();
   if(isPremium){renderNews(LANG);loadNews(LANG);}
 }
 
 (async()=>{
   // Load local prefs first
   try{const lp=localStorage.getItem('sw3_premium');if(lp==='1')isPremium=true;}catch(e){}
-  buildUI();loadSeen();loadFck();loadTodayRecs();loadAllRecs();loadSearchState();if(window.innerWidth<=600){setLang(LANG);}
+  buildUI();loadSeen();loadFck();loadAllRecs();loadSearchState();if(window.innerWidth<=600){setLang(LANG);}
   // Try to restore existing Supabase session → auto-login
   // Handle OAuth redirect callback (hash in URL)
   if(_handleOAuthCallback())return;
