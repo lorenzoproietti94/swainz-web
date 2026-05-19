@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="it"><head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>SWAINZ</title><!-- v269 -->
+<title>SWAINZ</title><!-- v270 -->
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600&family=Syne:wght@600;800&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
@@ -4951,6 +4951,8 @@ function updatePoolCount(){
 
   var count=DB.filter(function(f){
     if(seenFilms.has(f.id))return false;
+    if(sessionShown.has(f.id))return false;
+    if(_allRecIds.has(f.id))return false;
     if(EXCL.size&&f.tags.some(function(t){return EXCL.has(t);}))return false;
     // AND logic: every selected tag must be in film (NO OPT_IN exclusion for count)
     for(var gid in SEL){
@@ -5009,6 +5011,8 @@ function _computePoolCount(){
   const minR=parseFloat(document.getElementById('rsl')?.value||0)||0;
   return DB.filter(function(f){
     if(seenFilms.has(f.id))return false;
+    if(sessionShown.has(f.id))return false;
+    if(_allRecIds.has(f.id))return false;
     if(EXCL.size&&f.tags.some(function(t){return EXCL.has(t);}))return false;
     for(var gid in SEL){
       var sel=SEL[gid];if(!sel.size)continue;
