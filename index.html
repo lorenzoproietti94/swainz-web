@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="it"><head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>SWAINZ</title><!-- v265 -->
+<title>SWAINZ</title><!-- v266 -->
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600&family=Syne:wght@600;800&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
@@ -5110,7 +5110,7 @@ function _swGenFilmImg(f){
 
     /* poster */
     var maxPH=920,maxPW=820,hasPoster=false;
-    var pTop=190,pLeft=0,pW=0,pH=0;
+    var pTop=280,pLeft=0,pW=0,pH=0;
     if(img){try{
       var rat=img.naturalWidth/img.naturalHeight;
       if(rat>1){pW=Math.min(maxPW,maxPH*rat);pH=Math.round(pW/rat);}
@@ -5146,7 +5146,7 @@ function _swGenFilmImg(f){
     ctx.fillText(badgeTxt,W/2,bY+bH-22);
 
     /* text block — below poster */
-    var textStart=posterBottom+68;
+    var textStart=posterBottom+140;
     if(textStart>H-400)textStart=H-400;
 
     var title=(typeof LANG!='undefined'&&LANG=='en'&&typeof TITLE_ORIG!='undefined')
