@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="it"><head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>SWAINZ</title><!-- v271 -->
+<title>SWAINZ</title><!-- v272 -->
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600&family=Syne:wght@600;800&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
@@ -101,7 +101,7 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
 #proposte-rapide::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,80,0,.05) 0%,transparent 60%);pointer-events:none}
 .proposte-title{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:3.5px;color:var(--or);text-transform:uppercase;margin-bottom:13px;opacity:.9;position:relative;text-align:center}
 .proposte-pills{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;min-height:34px;align-items:stretch;position:relative}
-.quick-pill{display:flex;align-items:center;justify-content:center;flex:1;min-width:0;padding:0 18px;border-radius:16px;border:1px solid rgba(255,80,0,.28);background:rgba(255,80,0,.06);color:var(--tx);font-size:13px;font-weight:600;cursor:pointer;transition:all .22s;font-family:inherit;text-align:center;line-height:1.35;letter-spacing:.01em}
+.quick-pill{display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;min-width:0;padding:14px 12px;border-radius:16px;border:1px solid rgba(255,80,0,.28);background:rgba(255,80,0,.06);color:var(--tx);cursor:pointer;transition:all .22s;text-align:center;gap:1px}.quick-pill .qp-tag{font-family:'Syne',sans-serif;font-weight:800;font-size:12px;letter-spacing:.05em;text-transform:uppercase;line-height:1.2;color:var(--tx)}.quick-pill .qp-plus{font-family:'Bebas Neue',sans-serif;font-size:17px;color:var(--or);line-height:1;opacity:.75;margin:1px 0}@media(min-width:601px){.quick-pill .qp-tag{font-size:15px}.quick-pill .qp-plus{font-size:22px;margin:2px 0}}
 .quick-pill:hover{background:rgba(255,80,0,.14);border-color:var(--or);transform:translateY(-2px);box-shadow:0 6px 18px rgba(255,80,0,.2)}
 .quick-pill:active{transform:scale(.96)}
 /* ── SWAINZ LAB ──────────────────────────────────────────────────────────── */
@@ -2531,20 +2531,11 @@ function _renderProposte(){
   ps.forEach(p=>{
     const btn=document.createElement('button');
     btn.className='quick-pill';
-    btn.textContent=tTag(p.tag1)+' + '+tTag(p.tag2);
+    btn.innerHTML='<span class="qp-tag">'+tTag(p.tag1)+'</span><span class="qp-plus">+</span><span class="qp-tag">'+tTag(p.tag2)+'</span>';
     btn.onclick=()=>_activateProposal(p);
     wrap.appendChild(btn);
   });
-  requestAnimationFrame(()=>{
-    const card=document.getElementById('proposte-rapide');
-    const hdr=card&&card.querySelector('.proposte-title');
-    if(!card||!hdr)return;
-    const cardTop=card.getBoundingClientRect().top;
-    const hdrBottom=hdr.getBoundingClientRect().bottom;
-    const hdrH=hdrBottom-cardTop;
-    const btnH=Math.max(44,Math.round(hdrH*3));
-    document.querySelectorAll('.quick-pill').forEach(b=>{b.style.height=btnH+'px';});
-  });
+
 }
 
 function _activateProposal(p){
