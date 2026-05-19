@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="it"><head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>SWAINZ</title><!-- v270 -->
+<title>SWAINZ</title><!-- v271 -->
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600&family=Syne:wght@600;800&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
@@ -2949,14 +2949,47 @@ function closeNoFilm(){
 }
 
 function _getBlockedPool(){
-  // Returns films compatible with user filters but blocked only by OPT_IN tags
-  const check=new Set([...Object.values(SEL)].flatMap(s=>[...s]));
-  _activeOptInTags.forEach(tag=>check.add(tag));
+  // Returns films compatible with ALL user filters but blocked only by OPT_IN tags.
+  // Mirrors findFilm's filter chain exactly (minus OPT_IN check) so that filters
+  // like period/platform/IMDB/FCK prefs are respected. This prevents the opt-in
+  // overlay from showing when the real reason for 0 results is a different filter
+  // (e.g. period "Anni 2020" with no matching films in DB).
+  const minR=parseFloat(document.getElementById('rsl').value);
+  const pltSel=SEL['g7'],perSel=SEL['g8'];
   return DB.filter(f=>{
-    if(seenFilms.has(f.id)||sessionShown.has(f.id))return false;
+    if(seenFilms.has(f.id))return false;
+    if(sessionShown.has(f.id))return false;
+    if(_allRecIds.has(f.id))return false;
+    if(f.r<minR)return false;
+    if(pltSel.size>0){
+      const _noPlat=pltSel.has('Non su piattaforme');
+      if(_noPlat?(!f.plt||f.plt.length>0):!f.plt.some(p=>pltSel.has(p)))return false;
+    }
+    if(perSel.size>0&&![...perSel].some(p=>PERIOD_MAP[p]&&PERIOD_MAP[p](f.year)))return false;
+    if(userPrefs.onlyPlatform&&pltSel.size===0){
+      if(userPrefs.userPlatforms&&userPrefs.userPlatforms.length>0){if(!f.plt||!f.plt.some(p=>userPrefs.userPlatforms.includes(p)))return false;}
+      else{if(!f.plt||f.plt.length===0)return false;}
+    }
+    const _vecchioSel=[...Object.values(SEL)].some(s=>s.has('Vecchio'))||_activeOptInTags.has('Vecchio');
+    if(userPrefs.minYear&&f.year<userPrefs.minYear&&!_vecchioSel)return false;
+    if(userPrefs.excludeHorror&&f.tags.includes('Horror'))return false;
+    if(userPrefs.excludeCrudo&&f.tags.includes('Crudo'))return false;
+    if(userPrefs.excludeDifficile&&f.tags.includes('Difficile'))return false;
+    const _longSel=[...Object.values(SEL)].some(s=>s.has('Lunghissimo')||s.has('Lungo(>2h30)'));
+    if(userPrefs.excludeLong&&!_longSel&&(f.tags.includes('Lunghissimo')||f.tags.includes('Lungo(>2h30)')))return false;
+    if(userPrefs.excludedTags&&userPrefs.excludedTags.size>0&&f.tags.some(tag=>userPrefs.excludedTags.has(tag)))return false;
+    if(userPrefs.excludeConosciutissimo&&f.tags.includes('Conosciutissimo'))return false;
+    const _scifiSel=[...Object.values(SEL)].some(s=>s.has('Fantascienza'));
+    if(userPrefs.excludeScifi&&f.tags.includes('Fantascienza')&&!_scifiSel)return false;
+    const _comedySel=[...Object.values(SEL)].some(s=>s.has('Commedia')||s.has('Comico'));
+    if(userPrefs.excludeComedy&&(f.tags.includes('Commedia')||f.tags.includes('Comico'))&&!_comedySel)return false;
+    const _romSel=[...Object.values(SEL)].some(s=>s.has('Romantico'));
+    if(userPrefs.excludeRomance&&f.tags.includes('Romantico')&&!_romSel)return false;
+    if(userPrefs.reduceItalian&&f.tags.includes('Italiano')&&![...Object.values(SEL)].some(s=>s.has('Italiano')))return false;
+    if(f.tags.includes('Sequel')&&SEQUEL_MAP[f.id]&&!SEQUEL_MAP[f.id].every(pid=>seenFilms.has(pid)))return false;
     if(EXCL.size&&f.tags.some(t=>EXCL.has(t)))return false;
     for(const gid of['g1','g2','g3','g4','g5','g6']){const sel=SEL[gid];if(sel.size>0&&![...sel].every(t=>f.tags.includes(t)))return false;}
-    return true; // don't apply OPT_IN filter here — we want blocked films
+    return true; // OPT_IN filter intentionally NOT applied — we want films blocked only by it
   });
 }
 
