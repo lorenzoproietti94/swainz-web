@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="it"><head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>SWAINZ</title><!-- v274 -->
+<title>SWAINZ</title><!-- v275 -->
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600&family=Syne:wght@600;800&family=Teko:wght@700&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
@@ -136,7 +136,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:15px;heigh
 
 /* CAT */
 #catwrapper{position:fixed;inset:0;overflow:hidden;pointer-events:none;z-index:4}
-#catw{position:absolute;z-index:5;pointer-events:none;opacity:0;will-change:left,bottom,transform}
+#catw{position:absolute;z-index:5;pointer-events:none;opacity:0;will-change:left,bottom,transform}#catw.cat-hint-active{pointer-events:auto;cursor:pointer}
 #catw svg{overflow:visible;filter:drop-shadow(0 0 6px rgba(0,0,0,.5))}
 .mbu{position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%) scale(.35) translateY(10px);background:var(--card);border:1px solid var(--or);border-radius:14px 14px 14px 2px;padding:7px 16px;font-family:'Syne',sans-serif;font-size:13px;font-weight:800;color:var(--or);opacity:0;transition:all .45s cubic-bezier(.34,1.56,.64,1) .05s;white-space:nowrap;box-shadow:0 0 18px var(--gor)}
 #catw.rev .mbu{opacity:1;transform:translateX(-50%) scale(1) translateY(0)}
@@ -3789,13 +3789,15 @@ const _catHints={
   ]
 };
 let _catHintIdx=0,_catHintTimer=null;
+try{const _hi=localStorage.getItem('sw3_hint_idx');if(_hi!==null)_catHintIdx=parseInt(_hi,10)||0;}catch(e){}
 
 function _hideCatHint(){
   if(_catHintTimer){clearTimeout(_catHintTimer);_catHintTimer=null;}
   const bub=document.getElementById('cat-hint-bub');
   if(!bub)return;
   bub.classList.remove('show');
-  const el=catEl();if(el)el.classList.remove('cat-hint-pause');
+  const el=catEl();
+  if(el){el.classList.remove('cat-hint-pause');el.classList.remove('cat-hint-active');el.onclick=null;}
   setTimeout(()=>{bub.style.display='none';},400);
 }
 
@@ -3805,18 +3807,34 @@ function _showCatHint(){
   const hints=_catHints[LANG]||_catHints.it;
   bub.textContent=hints[_catHintIdx];
   _catHintIdx=(_catHintIdx+1)%hints.length;
-  // Position: above the cat, centered on its horizontal center
+  try{localStorage.setItem('sw3_hint_idx',_catHintIdx);}catch(e){}
   const el=catEl();
   if(!el||el.style.opacity==='0')return;
   const r=el.getBoundingClientRect();
   const bW=240;
-  let left=r.left+r.width/2-bW/2;
+  // Position bubble beside the muso: horizontally next to the cat, vertically at head level
+  const musoTop=r.top+r.height*0.10;
+  let left,top;
+  top=Math.max(8,musoTop-10);
+  if(cDir===1){
+    // cat faces right → bubble to the right
+    left=r.right+8;
+    if(left+bW>window.innerWidth-8)left=r.left-bW-8;
+    bub.style.borderRadius='14px 14px 14px 3px'; // tail bottom-left
+  } else {
+    // cat faces left → bubble to the left
+    left=r.left-bW-8;
+    if(left<8)left=r.right+8;
+    bub.style.borderRadius='14px 14px 3px 14px'; // tail bottom-right
+  }
   left=Math.max(8,Math.min(left,window.innerWidth-bW-8));
-  const top=Math.max(8,r.top-110);
   bub.style.left=left+'px';
   bub.style.top=top+'px';
   bub.style.display='block';
   requestAnimationFrame(()=>bub.classList.add('show'));
+  // make cat clickable to dismiss
+  el.classList.add('cat-hint-active');
+  el.onclick=()=>{_hideCatHint();fleeAndReturn();};
   if(_catHintTimer)clearTimeout(_catHintTimer);
   _catHintTimer=setTimeout(_hideCatHint,15000);
 }
