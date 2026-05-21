@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="it"><head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>SWAINZ</title><!-- v279 -->
+<title>SWAINZ</title><!-- v280 -->
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600&family=Syne:wght@600;800&family=Teko:wght@700&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
@@ -1597,7 +1597,7 @@ function _supaTransform(row){
   };
 }
 function _supaFetchPage(page,step,resolve,reject,all){
-  var url=SUPA_URL+'/rest/v1/Movies?select=*&limit='+step+'&offset='+(page*step)+'&order=ID';
+  var url=SUPA_URL+'/rest/v1/Movies?select=*&limit='+step+'&offset='+(page*step)+'&order=id';
   var xhr=new XMLHttpRequest();
   xhr.open('GET',url);
   xhr.setRequestHeader('apikey',SUPA_KEY);
