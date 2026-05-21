@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="it"><head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>SWAINZ</title><!-- v278 -->
+<title>SWAINZ</title><!-- v279 -->
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600&family=Syne:wght@600;800&family=Teko:wght@700&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
@@ -1573,16 +1573,27 @@ let DB=[];
 var SUPA_URL='https://dhddiepwazmkezyhxahe.supabase.co';
 var SUPA_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRoZGRpZXB3YXpta2V6eWh4YWhlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzczNTMxODAsImV4cCI6MjA5MjkyOTE4MH0.g19-zrU_gllMxxsVljeM8CqDkuT6mi6OuJ0AYWHdFOs';
 var SUPA_TAGS=['Angosciante','Animazione','Asiatico','Biografico','Bizzarro','Capolavoro','Catastrofico','CineComic','Claustrofobico','Colossal','Comico','Commedia','Conosciutissimo','Corto(<1h30)','Crimine','Crudo',"D'Autore",'Difficile','Distopia','Documentario','Dramma','Droga','Economico','Epoca Passata','Estetico','Facile','Fantascienza','Grande Colonna Sonora','Grande Interpretazione','Guerra','Horror','Imponente','Italiano','Legal Drama','Lunghissimo','Lungo(>2h30)','Mafia','Musicale','Neorealismo','Noire','Onirico','Oscar','Pazzesco','Personaggio Cattivo','Psichedelico','Psicologico/mentale','Romantico','Sequel','Serial Killer','Sportivo','Storia Avvincente','Tecnologico','Thriller','Triste','Vecchio','Vendetta','Violenza Ironica','Western'];
+function _safeArr(v){
+  if(!v)return[];
+  if(Array.isArray(v))return v.filter(Boolean);
+  var s=String(v);
+  if(s.charAt(0)==='{')s=s.slice(1,s.length-1);
+  return s.split(',').map(function(x){return x.trim().replace(/^"|"$/g,'');}).filter(Boolean);
+}
 function _supaTransform(row){
   return {
-    id:row.ID, title:row.Titolo||'', dir:row.Regista||'', year:row.Anno||0,
+    id:row.ID||row.id,
+    title:row.Titolo||'',
+    dir:row.Regista||'',
+    year:parseInt(row.Anno)||0,
     dur:row.Durata||row.durata||null,
-    cast:row.Cast?row.Cast.split(', ').filter(Boolean):[],
-    plt:Array.isArray(row.Piattaforme)?row.Piattaforme.filter(Boolean):(row.Piattaforme?row.Piattaforme.replace(/^\{|\}$/g,'').split(',').map(function(s){return s.trim().replace(/^"|"$/g,'');}).filter(Boolean):[]),
+    cast:_safeArr(row.Cast),
+    plt:_safeArr(row.Piattaforme),
     r:parseFloat(row['Voto IMDB'])||7.0,
-    desc:row['Descrizione IT']||'', desc_en:row['Descrizione EN']||'',
+    desc:row['Descrizione IT']||row['Descrizione IT ']||'',
+    desc_en:row['Descrizione EN']||row[' Descrizione EN']||'',
     poster:row['poster_url']||'',
-    tags:SUPA_TAGS.filter(function(t){return row[t]===true;})
+    tags:SUPA_TAGS.filter(function(t){return row[t]===true||row[t]==='true';})
   };
 }
 function _supaFetchPage(page,step,resolve,reject,all){
@@ -1591,19 +1602,35 @@ function _supaFetchPage(page,step,resolve,reject,all){
   xhr.open('GET',url);
   xhr.setRequestHeader('apikey',SUPA_KEY);
   xhr.setRequestHeader('Authorization','Bearer '+SUPA_KEY);
-  xhr.timeout=12000;
+  xhr.setRequestHeader('Prefer','count=none');
+  xhr.timeout=25000;
   xhr.onload=function(){
-    if(xhr.status!==200){resolve();return;}
+    if(xhr.status!==200){
+      console.error('[Swainz DB] HTTP '+xhr.status+' — '+xhr.responseText.slice(0,400));
+      resolve();return;
+    }
     try{
       var rows=JSON.parse(xhr.responseText);
-      if(!Array.isArray(rows)||rows.length===0){DB=all.map(_supaTransform);_renderProposte();resolve();return;}
+      if(!Array.isArray(rows)){console.error('[Swainz DB] Response not array:',xhr.responseText.slice(0,200));resolve();return;}
+      if(rows.length===0){
+        DB=all.map(function(r){try{return _supaTransform(r);}catch(e){console.error('[Swainz DB] transform error',e,r);return null;}}).filter(Boolean);
+        _renderProposte();resolve();return;
+      }
       all=all.concat(rows);
-      if(rows.length<step){DB=all.map(_supaTransform);_renderProposte();resolve();return;}
+      console.log('[Swainz DB] page '+page+' loaded '+rows.length+' rows, total so far: '+all.length);
+      if(rows.length<step){
+        DB=all.map(function(r){try{return _supaTransform(r);}catch(e){console.error('[Swainz DB] transform error',e,r);return null;}}).filter(Boolean);
+        console.log('[Swainz DB] DB ready: '+DB.length+' films');
+        _renderProposte();resolve();return;
+      }
       _supaFetchPage(page+1,step,resolve,reject,all);
-    }catch(e){resolve();}
+    }catch(e){
+      console.error('[Swainz DB] parse/transform error:',e);
+      resolve();
+    }
   };
-  xhr.ontimeout=function(){resolve();};
-  xhr.onerror=function(){resolve();};
+  xhr.ontimeout=function(){console.error('[Swainz DB] timeout on page '+page);resolve();};
+  xhr.onerror=function(){console.error('[Swainz DB] network error on page '+page);resolve();};
   xhr.send();
 }
 var _authToken=null;
