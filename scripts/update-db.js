@@ -1,5 +1,5 @@
 /**
- * Swainz — update-db.js  (v192)
+ * Swainz — update-db.js  (v193)
  * ─────────────────────────────────────────────────────────────────────────────
  * Aggiorna ogni notte le colonne:
  *   poster_url   → URL locandina TMDB (w342)
@@ -83,8 +83,6 @@ async function apiFetch(url) {
 }
 
 // ─── TMDB: ricerca film ───────────────────────────────────────────────────────
-// Prova prima con anno esatto, poi senza anno (fallback per titoli con anno
-// leggermente diverso nel DB)
 
 async function tmdbSearch(title, year) {
   const base = `https://api.themoviedb.org/3/search/movie?api_key=${TMDB_API_KEY}&language=it-IT`;
@@ -136,7 +134,7 @@ async function omdbRating(imdbId) {
 // ─── Elaborazione singolo film ────────────────────────────────────────────────
 
 async function processFilm(film) {
-  const { ID, Titolo, Anno } = film;
+  const { id, Titolo, Anno } = film;
 
   const results = await tmdbSearch(Titolo, Anno);
   if (!results.length) {
@@ -144,7 +142,6 @@ async function processFilm(film) {
     return null;
   }
 
-  // trova il miglior match: confronta sia title (IT) che original_title
   let best = null, bestScore = 0;
   for (const r of results) {
     const s = Math.max(dice(Titolo, r.title), dice(Titolo, r.original_title));
@@ -161,23 +158,20 @@ async function processFilm(film) {
 
   const update = {};
 
-  // ── Piattaforme ──
   const providers = await tmdbProviders(best.id);
-  update['Piattaforme'] = providers.join(', ');   // stringa vuota = nessuna piattaforma
+  update['Piattaforme'] = providers;
 
-  // ── poster_url (solo se score ≥ 0.65) ──
   if (bestScore >= 0.65 && best.poster_path) {
     update['poster_url'] = `${POSTER_BASE}${best.poster_path}`;
   }
 
-  // ── Voto IMDB (tutti i match con score ≥ 0.50) ──
   const ext = await tmdbExternalIds(best.id);
   if (ext?.imdb_id) {
     const rating = await omdbRating(ext.imdb_id);
     if (rating !== null) update['Voto IMDB'] = rating;
   }
 
-  return { id: ID, update };
+  return { id, update };
 }
 
 // ─── Main ─────────────────────────────────────────────────────────────────────
@@ -194,16 +188,15 @@ async function main() {
     );
   }
 
-  // ── Fetch tutti i film da Supabase (paginato) ──
   const allFilms = [];
   let from = 0;
   const PAGE = 500;
   while (true) {
     const { data, error } = await DB
       .from('Movies')
-      .select('ID, Titolo, Anno')
+      .select('id, Titolo, Anno')
       .range(from, from + PAGE - 1)
-      .order('ID');
+      .order('id');
     if (error) throw new Error('Supabase fetch error: ' + error.message);
     if (!data?.length) break;
     allFilms.push(...data);
@@ -213,7 +206,6 @@ async function main() {
 
   console.log(`\nFilm nel DB: ${allFilms.length}`);
 
-  // ── Calcola batch del giorno ──
   const numBatches = Math.max(1, Math.ceil(allFilms.length / BATCH_SIZE));
   const batchIndex = Math.floor(Date.now() / 86400000) % numBatches;
   const start      = batchIndex * BATCH_SIZE;
@@ -237,10 +229,10 @@ async function main() {
         const { error } = await DB
           .from('Movies')
           .update(result.update)
-          .eq('ID', result.id);
+          .eq('id', result.id);
 
         if (error) {
-          console.error(`  [ERR]  ID ${result.id} — update Supabase: ${error.message}`);
+          console.error(`  [ERR]  id ${result.id} — update Supabase: ${error.message}`);
           errors++;
         } else {
           updated++;
