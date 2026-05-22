@@ -1,5 +1,5 @@
 /**
- * Swainz — update-db.js  (v193)
+ * Swainz — update-db.js  (v194)
  * ─────────────────────────────────────────────────────────────────────────────
  * Aggiorna ogni notte le colonne:
  *   poster_url   → URL locandina TMDB (w342)
@@ -190,7 +190,7 @@ async function main() {
 
   const allFilms = [];
   let from = 0;
-  const PAGE = 500;
+  const PAGE = 100;  // ridotto per rispettare il limite max_rows di Supabase
   while (true) {
     const { data, error } = await DB
       .from('Movies')
