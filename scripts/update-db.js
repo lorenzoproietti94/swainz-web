@@ -188,20 +188,22 @@ async function main() {
     );
   }
 
+  // Paginazione a cursore: più robusta di .range() con qualsiasi impostazione max_rows
   const allFilms = [];
-  let from = 0;
-  const PAGE = 100;  // ridotto per rispettare il limite max_rows di Supabase
+  const PAGE = 500;
+  let lastId = 0;
   while (true) {
     const { data, error } = await DB
       .from('Movies')
       .select('id, Titolo, Anno')
-      .range(from, from + PAGE - 1)
-      .order('id');
+      .order('id', { ascending: true })
+      .gt('id', lastId)
+      .limit(PAGE);
     if (error) throw new Error('Supabase fetch error: ' + error.message);
     if (!data?.length) break;
     allFilms.push(...data);
+    lastId = data[data.length - 1].id;
     if (data.length < PAGE) break;
-    from += PAGE;
   }
 
   console.log(`\nFilm nel DB: ${allFilms.length}`);
