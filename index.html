@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="it"><head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>SWAINZ</title><!-- v280 -->
+<title>SWAINZ</title><!-- v281 -->
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600&family=Syne:wght@600;800&family=Teko:wght@700&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
@@ -230,6 +230,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:15px;heigh
 .fc-desc-col{flex:1;min-width:0}
 .fc-poster-col{flex-shrink:0;width:168px}
 .fc-poster-col img{width:100%;border-radius:14px;display:block;box-shadow:0 8px 32px rgba(0,0,0,.6);object-fit:cover;aspect-ratio:2/3}
+a.plt-aff-link{text-decoration:none;display:inline-flex;align-items:center;gap:3px;transition:background .15s,border-color .15s,color .15s}a.plt-aff-link:hover{background:rgba(255,104,32,.18);border-color:var(--boh);color:var(--or)}
 .fc-poster-placeholder{width:100%;aspect-ratio:2/3;border-radius:14px;background:rgba(255,255,255,.04);border:1px solid var(--br);display:flex;align-items:center;justify-content:center;color:var(--td);font-size:11px}
 .fc-section-box{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-radius:14px;padding:13px 16px;margin-bottom:12px}
 .fc-section-box .fst{margin-bottom:8px;font-size:10px}
@@ -1670,6 +1671,28 @@ const EXCL=new Set();
 let searches=3,cdEndTime=null,cdInterval=null,seenFilms=new Set();
 let adInterval=null,pendingResult=null,isFirstSearch=true;
 let isPremium=false,userPrefs={},fckAnswers={},currentFilms=[];
+
+// ── AFFILIATE CONFIG v281 ─────────────────────────────────────────────────
+// Sostituisci i placeholder con i tuoi codici dopo la registrazione:
+//  MUBI:        mubi.com/affiliates  (o rete affiliazione partner)
+//  Amazon:      programma-affiliazione.amazon.it  → tag es. "swainz-21"
+//  Disney+:     awin.com → merchant Disney+ Italy
+//  Apple TV+:   partnerize.com / affiliate.itunes.apple.com
+//  Netflix:     nessun programma affiliate pubblico — link diretto senza codice
+const _AFF_MUBI_REF   = 'XXXXX';        // ← inserisci il tuo ref MUBI
+const _AFF_AMAZON_TAG = 'XXXXXX-21';    // ← inserisci il tuo Amazon Associates tag IT
+// Aggiorna questi valori non appena ottieni i codici dai programmi
+function _getPlatformUrl(pName,filmTitle){
+  const t=encodeURIComponent(filmTitle);
+  switch(pName){
+    case 'MUBI':        return 'https://mubi.com/?ref='+_AFF_MUBI_REF;
+    case 'Prime Video': return 'https://www.amazon.it/s?k='+t+'&i=instant-video&tag='+_AFF_AMAZON_TAG;
+    case 'Netflix':     return 'https://www.netflix.com/search?q='+t;
+    case 'Disney+':     return 'https://www.disneyplus.com/search/'+t;
+    case 'Apple TV':    return 'https://tv.apple.com/search?term='+t;
+    default:            return null;
+  }
+}
 const sessionShown=new Set(); // films shown in this session, reset with new day
 
 // ── STORAGE ─────────────────────────────────────────────────────────────
@@ -2606,6 +2629,9 @@ function showAd(result){
   document.getElementById('adskip-pre').textContent=t('ad_skip');
   document.getElementById('adskip-suf').textContent=t('ad_skip2');
   prog.style.transition='none';prog.style.width='0%';
+  // Wire CTA button to MUBI affiliate URL
+  const ctaBtn=document.querySelector('#adov .ad-cta-btn');
+  if(ctaBtn)ctaBtn.onclick=()=>{window.open('https://mubi.com/?ref='+_AFF_MUBI_REF,'_blank','noopener');};
   document.getElementById('adov').classList.add('on');
   let secs=5;ct.textContent=secs;prog.offsetHeight;prog.style.transition='width 5s linear';prog.style.width='100%';
   if(adInterval)clearInterval(adInterval);
@@ -2738,7 +2764,7 @@ function showCard(res,opts={}) {
     <div class="fc-poster-col">${posterHTML}</div>
   </div>
   ${f.tags.length?`<div class="fc-section-box"><div class="fst">${t('card_why')}</div><div class="mcs">${sequelBadge}${f.tags.map(m=>`<span class="mc2">✓ ${tTag(m)}</span>`).join('')}</div></div>`:''}
-  <div class="fc-section-box"><div class="fst">${t('card_plt')}</div><div class="mcs">${f.plt.length?f.plt.map(p=>`<span class="mc2 b">📺 ${p}</span>`).join(''):`<span style="color:var(--td);font-size:12px;opacity:.7">${t('card_plt_none')}</span>`}</div></div>
+  <div class="fc-section-box"><div class="fst">${t('card_plt')}</div><div class="mcs">${f.plt.length?f.plt.map(p=>{const u=_getPlatformUrl(p,f.title);return u?`<a class="mc2 b plt-aff-link" href="${u}" target="_blank" rel="noopener noreferrer nofollow">📺 ${p} ↗</a>`:`<span class="mc2 b">📺 ${p}</span>`;}).join(''):`<span style="color:var(--td);font-size:12px;opacity:.7">${t('card_plt_none')}</span>`}</div></div>
   <div class="fcact">
     <button class="b1" onclick="closeCard();resetFilters()">${t('card_ok')}</button>
     ${opts.hideMore?'':`<button class="b2" onclick="tryAgain()">${t('card_more')}</button>`}
