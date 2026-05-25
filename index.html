@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="it"><head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>SWAINZ</title><!-- v289 -->
+<title>SWAINZ</title><!-- v290 -->
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600&family=Syne:wght@600;800&family=Teko:wght@700&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
@@ -1490,7 +1490,7 @@ body.cat-revealing #afp-mobile,
 
 <!-- PROFILO -->
 <div id="profp" class="slide-panel">
-  <div class="vph"><button class="vp-back" onclick="closeProfp()" data-i18n="back">← Torna</button><div class="vph-t"><h2 data-i18n="prof_h2">Il tuo profilo</h2><p data-i18n="prof_p">Informazioni personali — non influenzano i consigli di Swainz</p></div></div>
+  <div class="vph"><button class="vp-back" onclick="closeProfp()" data-i18n="back">← Torna</button><div class="vph-t"><h2 data-i18n="prof_h2">Il tuo profilo</h2><p data-i18n="prof_p">Informazioni personali — non influenzano i consigli di Swainz</p></div><div id="prem-free" style="display:flex;flex-shrink:0"><button class="prem-upgrade-btn" onclick="openUpgradePanel()" style="width:auto;white-space:nowrap;padding:8px 16px;font-size:12px;margin-top:0">⭐ Premium →</button></div><div id="prem-active" style="display:none;flex-shrink:0;align-items:center;gap:8px"><span style="font-size:11px;font-weight:700;color:var(--or);white-space:nowrap">⭐ Premium attivo</span><button class="prem-manage-btn" onclick="openCustomerPortal()">Gestisci</button></div></div>
   <div class="vpb">
     <div class="prof-layout">
       <div class="prof-avatar-wrap">
@@ -1540,19 +1540,7 @@ body.cat-revealing #afp-mobile,
         </div>
         <div class="fdiv" id="pfdiv1"></div>
         <div class="prof-row prof-row-film"><label class="prof-lbl">🎬 <span data-i18n="prof_film">Film preferito</span></label><input class="prof-inp" id="pFilm" data-i18n-ph="prof_film_ph" placeholder="Es. Il Padrino"></div>
-        <div class="prof-save-row" style="display:flex;align-items:center;gap:12px;margin-top:8px;flex-wrap:wrap">
-          <button class="save-btn" onclick="saveProfp()" data-i18n="save">Salva profilo</button>
-          <span class="save-ok" id="profOk" data-i18n="saved">✓ Salvato!</span>
-          <!-- FREE: bottone upgrade affiancato al salva -->
-          <div id="prem-free" style="margin-left:auto">
-            <button class="prem-upgrade-btn" onclick="openUpgradePanel()" style="white-space:nowrap;padding:8px 14px;font-size:12px;width:auto">⭐ Passa a Premium →</button>
-          </div>
-          <!-- PREMIUM: stato attivo affiancato al salva -->
-          <div id="prem-active" style="display:none;margin-left:auto;align-items:center;gap:10px">
-            <span style="font-size:12px;font-weight:600;color:var(--or)">⭐ Premium</span>
-            <button class="prem-manage-btn" onclick="openCustomerPortal()">Gestisci</button>
-          </div>
-        </div>
+        <div class="prof-save-row" style="display:flex;align-items:center;gap:12px;margin-top:8px"><button class="save-btn" onclick="saveProfp()" data-i18n="save">Salva profilo</button><span class="save-ok" id="profOk" data-i18n="saved">✓ Salvato!</span></div>
         <div class="fdiv" id="pfdiv2"></div>
       </div>
       <div class="prof-storico">
