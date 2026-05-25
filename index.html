@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="it"><head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>SWAINZ</title><!-- v281 -->
+<title>SWAINZ</title><!-- v282 -->
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600&family=Syne:wght@600;800&family=Teko:wght@700&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
@@ -402,47 +402,6 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:15px;heigh
 .prof-save-row{order:8}
 #pfdiv2{order:9}
 .prof-prem-row{order:10}
-
-/* ── UPGRADE PAGE (slide-in) ────────────────────────────────────────────── */
-#upgrade-ov{position:fixed;inset:0;z-index:400;background:rgba(8,8,16,.99);transform:translateX(100%);transition:transform .45s cubic-bezier(.77,0,.18,1);overflow-y:auto}
-#upgrade-ov.on{transform:translateX(0)}
-.upg-inner{max-width:620px;margin:0 auto;padding:28px 20px 60px}
-.upg-back{display:inline-flex;align-items:center;gap:7px;background:none;border:none;color:var(--td);font-size:13px;cursor:pointer;padding:0;margin-bottom:28px;transition:color .15s;font-family:'Inter',sans-serif}
-.upg-back:hover{color:var(--tx)}
-.upg-title{font-family:'Bebas Neue',sans-serif;font-size:48px;letter-spacing:4px;text-align:center;margin-bottom:6px;background:linear-gradient(135deg,#5090ff,var(--or));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-.upg-sub{text-align:center;color:var(--td);font-size:13px;margin-bottom:36px;line-height:1.7}
-.upg-plans{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px}
-@media(max-width:480px){.upg-plans{grid-template-columns:1fr}}
-.upg-plan{border:1px solid var(--br);border-radius:16px;padding:24px 20px;display:flex;flex-direction:column;gap:12px;transition:border-color .2s,box-shadow .2s,transform .2s;position:relative;background:rgba(14,14,22,.7)}
-.upg-plan:hover{border-color:rgba(255,104,32,.45);box-shadow:0 0 28px rgba(255,80,0,.1);transform:translateY(-2px)}
-.upg-plan.best{border-color:rgba(255,104,32,.6);background:rgba(255,80,0,.06)}
-.upg-best-badge{position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:var(--or);color:#fff;font-size:9px;font-weight:800;letter-spacing:2px;text-transform:uppercase;padding:4px 14px;border-radius:20px;white-space:nowrap}
-.upg-plan-name{font-size:10px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--or)}
-.upg-plan-price{font-family:'Bebas Neue',sans-serif;font-size:52px;letter-spacing:2px;line-height:1;color:#fff}
-.upg-plan-price span{font-family:'Inter',sans-serif;font-size:14px;font-weight:400;color:var(--td);letter-spacing:0}
-.upg-plan-note{font-size:11px;color:var(--td);min-height:16px}
-.upg-plan-features{list-style:none;padding:0;margin:4px 0 0;display:flex;flex-direction:column;gap:6px}
-.upg-plan-features li{font-size:12px;color:var(--tx);display:flex;align-items:center;gap:8px}
-.upg-plan-features li::before{content:'✓';color:var(--or);font-weight:700;flex-shrink:0;font-size:11px}
-.upg-btn{width:100%;padding:14px;border-radius:11px;border:none;font-family:'Syne',sans-serif;font-size:14px;font-weight:800;cursor:pointer;transition:all .2s;margin-top:auto}
-.upg-btn-monthly{background:rgba(255,255,255,.08);color:#fff;border:1px solid rgba(255,255,255,.15)}
-.upg-btn-monthly:hover{background:rgba(255,255,255,.14)}
-.upg-btn-yearly{background:linear-gradient(135deg,var(--or2),#1040c0);color:#fff}
-.upg-btn-yearly:hover{box-shadow:0 0 24px rgba(255,80,0,.4);transform:translateY(-1px)}
-.upg-btn:disabled{opacity:.5;cursor:not-allowed;transform:none!important;box-shadow:none!important}
-.upg-footer{text-align:center;font-size:11px;color:var(--td);line-height:1.8}
-/* ── PROFILO: stato abbonamento ─────────────────────────────────────────── */
-.prof-sub-status{display:flex;align-items:center;justify-content:space-between;padding:4px 0;gap:12px}
-.prof-sub-info{display:flex;flex-direction:column;gap:2px}
-.prof-sub-label{font-size:12px;font-weight:600}
-.prof-sub-detail{font-size:11px;color:var(--td)}
-.prof-sub-btn{padding:7px 16px;border-radius:20px;border:1px solid rgba(255,104,32,.45);background:rgba(255,80,0,.08);color:var(--or);font-size:12px;font-weight:600;cursor:pointer;transition:all .2s;white-space:nowrap;font-family:'Inter',sans-serif}
-.prof-sub-btn:hover{background:rgba(255,80,0,.15);border-color:var(--or)}
-.prof-upgrade-btn{width:100%;padding:11px;border-radius:10px;border:none;background:linear-gradient(135deg,var(--or2),#1040c0);color:#fff;font-family:'Syne',sans-serif;font-size:13px;font-weight:800;cursor:pointer;transition:all .2s}
-.prof-upgrade-btn:hover{box-shadow:0 0 18px rgba(255,80,0,.35);transform:translateY(-1px)}
-/* ── PAYMENT SUCCESS TOAST ──────────────────────────────────────────────── */
-#payment-toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(20px);background:#1a2a1a;border:1px solid rgba(74,222,128,.35);border-radius:14px;padding:14px 22px;font-size:13px;color:#4ade80;font-weight:600;z-index:800;opacity:0;pointer-events:none;transition:all .35s;white-space:nowrap;box-shadow:0 8px 32px rgba(0,0,0,.5)}
-#payment-toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
 }
 @media(min-width:601px){#fgc{display:grid;grid-template-columns:1fr 1fr;gap:9px}#fgc .fgrp{margin-bottom:0}}
 
@@ -983,6 +942,48 @@ body.cat-revealing #afp-mobile,
 #profp #prof-account-box{background:rgba(18,18,28,.97) !important}
 #profp .storico-box,.storico-btn{background:rgba(14,14,22,.96)}
 #profp .fdiv{background:rgba(255,255,255,.06)}
+
+/* ── UPGRADE PANEL (slide-in, stesso pattern di .slide-panel) ──────────── */
+#upgrade-panel{position:fixed;inset:0;z-index:315;background:rgba(8,8,16,.99);transform:translateX(100%);transition:transform .45s cubic-bezier(.77,0,.18,1);overflow-y:auto}
+#upgrade-panel.on{transform:translateX(0)}
+.upg-inner{max-width:600px;margin:0 auto;padding:24px 20px 60px}
+.upg-back{display:inline-flex;align-items:center;gap:7px;background:none;border:none;color:var(--td);font-size:13px;cursor:pointer;padding:0;margin-bottom:32px;transition:color .15s;font-family:'Inter',sans-serif}
+.upg-back:hover{color:var(--tx)}
+.upg-logo{font-family:'Bebas Neue',sans-serif;font-size:52px;letter-spacing:6px;text-align:center;margin-bottom:6px;background:linear-gradient(135deg,#5090ff,var(--or));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.upg-tagline{text-align:center;color:var(--td);font-size:13px;margin-bottom:36px;line-height:1.7}
+.upg-plans{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:28px}
+@media(max-width:480px){.upg-plans{grid-template-columns:1fr;gap:20px}}
+.upg-plan{border:1px solid var(--br);border-radius:16px;padding:24px 20px;display:flex;flex-direction:column;gap:12px;position:relative;background:rgba(14,14,22,.8);transition:border-color .2s,transform .2s,box-shadow .2s}
+.upg-plan:hover{border-color:rgba(255,104,32,.45);transform:translateY(-2px);box-shadow:0 8px 28px rgba(255,80,0,.1)}
+.upg-plan.best{border-color:rgba(255,104,32,.6);background:rgba(255,80,0,.06)}
+.upg-badge{position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:var(--or);color:#fff;font-size:9px;font-weight:800;letter-spacing:2px;text-transform:uppercase;padding:4px 14px;border-radius:20px;white-space:nowrap}
+.upg-plan-name{font-size:10px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--or)}
+.upg-price{font-family:'Bebas Neue',sans-serif;font-size:54px;letter-spacing:2px;line-height:1;color:#fff}
+.upg-price span{font-family:'Inter',sans-serif;font-size:13px;font-weight:400;color:var(--td);letter-spacing:0}
+.upg-note{font-size:11px;color:var(--td)}
+.upg-features{list-style:none;padding:0;margin:4px 0 0;display:flex;flex-direction:column;gap:6px}
+.upg-features li{font-size:12px;color:var(--tx);display:flex;align-items:center;gap:8px}
+.upg-features li::before{content:'✓';color:var(--or);font-weight:700;flex-shrink:0}
+.upg-cta{width:100%;padding:14px;border-radius:11px;border:none;font-family:'Syne',sans-serif;font-size:14px;font-weight:800;cursor:pointer;transition:all .2s;margin-top:auto}
+.upg-cta:disabled{opacity:.5;cursor:not-allowed;transform:none!important;box-shadow:none!important}
+.upg-cta-month{background:rgba(255,255,255,.09);color:#fff;border:1px solid rgba(255,255,255,.16)}
+.upg-cta-month:hover:not(:disabled){background:rgba(255,255,255,.15)}
+.upg-cta-year{background:linear-gradient(135deg,var(--or2),#1040c0);color:#fff}
+.upg-cta-year:hover:not(:disabled){box-shadow:0 0 24px rgba(255,80,0,.4);transform:translateY(-1px)}
+.upg-foot{text-align:center;font-size:11px;color:var(--td);line-height:1.9}
+/* ── Sezione premium nel profilo ──────────────────────────────────────── */
+#prem-free{display:flex;flex-direction:column;gap:10px;padding:4px 0}
+#prem-active{display:flex;align-items:center;justify-content:space-between;padding:4px 0;gap:12px}
+.prem-active-info{display:flex;flex-direction:column;gap:2px}
+.prem-active-label{font-size:12px;font-weight:600;color:var(--or)}
+.prem-active-sub{font-size:11px;color:var(--td)}
+.prem-manage-btn{padding:7px 16px;border-radius:20px;border:1px solid rgba(255,104,32,.45);background:rgba(255,80,0,.08);color:var(--or);font-size:12px;font-weight:600;cursor:pointer;transition:all .2s;white-space:nowrap;font-family:'Inter',sans-serif}
+.prem-manage-btn:hover{background:rgba(255,80,0,.16);border-color:var(--or)}
+.prem-upgrade-btn{width:100%;padding:12px;border-radius:10px;border:none;background:linear-gradient(135deg,var(--or2),#1040c0);color:#fff;font-family:'Syne',sans-serif;font-size:13px;font-weight:800;cursor:pointer;transition:all .2s}
+.prem-upgrade-btn:hover{box-shadow:0 0 18px rgba(255,80,0,.35);transform:translateY(-1px)}
+/* ── Payment toast ─────────────────────────────────────────────────────── */
+#payment-toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(20px);background:#0f1f0f;border:1px solid rgba(74,222,128,.35);border-radius:14px;padding:14px 24px;font-size:13px;color:#4ade80;font-weight:600;z-index:800;opacity:0;pointer-events:none;transition:all .35s;white-space:nowrap;box-shadow:0 8px 32px rgba(0,0,0,.5)}
+#payment-toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
 </style></head>
 <body>
 <div id="deco"><span class="o1"></span><span class="b1"></span></div>
@@ -1544,8 +1545,23 @@ body.cat-revealing #afp-mobile,
         <div class="prof-row prof-row-film"><label class="prof-lbl">🎬 <span data-i18n="prof_film">Film preferito</span></label><input class="prof-inp" id="pFilm" data-i18n-ph="prof_film_ph" placeholder="Es. Il Padrino"></div>
         <div class="prof-save-row" style="display:flex;align-items:center;gap:12px;margin-top:8px"><button class="save-btn" onclick="saveProfp()" data-i18n="save">Salva profilo</button><span class="save-ok" id="profOk" data-i18n="saved">✓ Salvato!</span></div>
         <div class="fdiv" id="pfdiv2"></div>
-        <div class="prof-prem-row" id="prof-prem-row">
-          <!-- Contenuto iniettato da renderPremSection() -->
+        <div class="prof-prem-row">
+          <!-- Versione FREE -->
+          <div id="prem-free">
+            <div>
+              <div style="font-size:12px;font-weight:600">Piano attuale: <span style="color:var(--td)">Free</span></div>
+              <div style="font-size:11px;color:var(--td);margin-top:2px">Filtri limitati · 3 consigli al giorno</div>
+            </div>
+            <button class="prem-upgrade-btn" onclick="openUpgradePanel()">⭐ Passa a Premium →</button>
+          </div>
+          <!-- Versione PREMIUM -->
+          <div id="prem-active" style="display:none">
+            <div class="prem-active-info">
+              <div class="prem-active-label">⭐ Premium attivo</div>
+              <div class="prem-active-sub">Tutti i filtri sbloccati</div>
+            </div>
+            <button class="prem-manage-btn" onclick="openCustomerPortal()">Gestisci abbonamento</button>
+          </div>
         </div>
       </div>
       <div class="prof-storico">
@@ -1612,7 +1628,6 @@ body.cat-revealing #afp-mobile,
 let DB=[];
 var SUPA_URL='https://dhddiepwazmkezyhxahe.supabase.co';
 var SUPA_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRoZGRpZXB3YXpta2V6eWh4YWhlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzczNTMxODAsImV4cCI6MjA5MjkyOTE4MH0.g19-zrU_gllMxxsVljeM8CqDkuT6mi6OuJ0AYWHdFOs';
-// ── STRIPE ───────────────────────────────────────────────────────────────
 var STRIPE_PRICE_MONTHLY='price_1TaiWyRzBS2zhcmvClKPoCBK';
 var STRIPE_PRICE_YEARLY='price_1TaiWyRzBS2zhcmvWVVT1RzF';
 var EDGE_URL=SUPA_URL+'/functions/v1';
@@ -2508,6 +2523,7 @@ function buildUI(){
   // Ad slots: only for free users
   const sl=document.getElementById('sidebar-l');
   if(sl){sl.classList.toggle('free-show',!isPremium);}
+  _updatePremUI();
   const ar=document.getElementById('ad-slot-r');
   if(ar){ar.style.display=isPremium?'none':'flex';}
   const np=document.getElementById('news-panel');
@@ -3200,7 +3216,7 @@ function markAllSeen(){
 }
 
 // ── PROFILO ──────────────────────────────────────────────────────────────
-function openProfp(){document.getElementById('profp').classList.add('on');loadProfp();renderPremSection();if(!isPremium)document.body.classList.add('profp-ads-show');if(currentUser&&localStorage.getItem('sw3_onboarded')!=='1'){try{localStorage.setItem('sw3_onboarded','1');}catch(e){}}setTimeout(_renderCineScore,120);setTimeout(_checkCsLevelUp,400);}
+function openProfp(){document.getElementById('profp').classList.add('on');loadProfp();if(!isPremium)document.body.classList.add('profp-ads-show');if(currentUser&&localStorage.getItem('sw3_onboarded')!=='1'){try{localStorage.setItem('sw3_onboarded','1');}catch(e){}}setTimeout(_renderCineScore,120);setTimeout(_checkCsLevelUp,400);}
 function closeProfp(){document.getElementById('profp').classList.remove('on');document.body.classList.remove('profp-ads-show');}
 
 // ── CINE-SCORE SYSTEM ─────────────────────────────────────────────────────
@@ -3535,7 +3551,7 @@ function openSeenPanel(){
 function closeSeenPanel(){document.getElementById('seenp').classList.remove('on');}
 async function loadProfp(){
   try{const lp=localStorage.getItem('sw3_prof');if(lp){const d=JSON.parse(lp);['pNome','pCognome','pNascita','pFilm'].forEach(id=>{const el=document.getElementById(id);if(el&&d[id])el.value=d[id];});}}catch(e){}
-  renderPremSection();
+  _updatePremUI();
   // Show account box with email if logged in
   if(currentUser&&currentUser.email){
     const box=document.getElementById('prof-account-box');
@@ -3561,77 +3577,56 @@ async function saveProfp(){
   }
   const ok=document.getElementById('profOk');ok.classList.add('show');setTimeout(()=>ok.classList.remove('show'),2200);
 }
-// ── PREMIUM / STRIPE FUNCTIONS (v281) ───────────────────────────────────
+// ── STRIPE + PREMIUM UI (v282) ───────────────────────────────────────────
 
-function renderPremSection(){
-  const row=document.getElementById('prof-prem-row');
-  if(!row)return;
-  if(isPremium){
-    row.innerHTML=`<div class="prof-sub-status">
-      <div class="prof-sub-info">
-        <div class="prof-sub-label" style="color:var(--or)">⭐ Premium attivo</div>
-        <div class="prof-sub-detail">Tutti i filtri sbloccati</div>
-      </div>
-      <button class="prof-sub-btn" onclick="openCustomerPortal()">Gestisci abbonamento</button>
-    </div>`;
-  } else {
-    row.innerHTML=`<div style="display:flex;flex-direction:column;gap:10px;padding:4px 0">
-      <div>
-        <div style="font-size:12px;font-weight:600">Piano attuale: <span style="color:var(--td)">Free</span></div>
-        <div style="font-size:11px;color:var(--td);margin-top:2px">Filtri limitati · 3 consigli al giorno</div>
-      </div>
-      <button class="prof-upgrade-btn" onclick="openUpgradeModal()">⭐ Passa a Premium →</button>
-    </div>`;
-  }
+function _updatePremUI(){
+  var free=document.getElementById('prem-free');
+  var active=document.getElementById('prem-active');
+  if(free)free.style.display=isPremium?'none':'flex';
+  if(active)active.style.display=isPremium?'flex':'none';
 }
 
-function openUpgradeModal(){
+function openUpgradePanel(){
   if(!currentUser){
     alert(LANG==='en'?'Sign in to upgrade to Premium.':'Accedi per passare a Premium.');
     return;
   }
-  // Chiudi il pannello profilo prima di aprire la pagina piani
   closeProfp();
   setTimeout(function(){
-    document.getElementById('upgrade-ov').classList.add('on');
-  },120);
+    document.getElementById('upgrade-panel').classList.add('on');
+  },50);
 }
 
-function closeUpgradeModal(){
-  document.getElementById('upgrade-ov').classList.remove('on');
+function closeUpgradePanel(){
+  document.getElementById('upgrade-panel').classList.remove('on');
 }
 
 function startCheckout(priceId){
   if(!currentUser){alert(LANG==='en'?'Sign in first.':'Accedi prima.');return;}
-  const btnM=document.getElementById('upg-btn-monthly');
-  const btnY=document.getElementById('upg-btn-yearly');
+  var btnM=document.getElementById('upg-btn-m');
+  var btnY=document.getElementById('upg-btn-y');
   if(btnM)btnM.disabled=true;
   if(btnY)btnY.disabled=true;
-  const originalText=priceId===STRIPE_PRICE_MONTHLY?'Abbonati mensilmente':'Abbonati annualmente';
-  const btn=priceId===STRIPE_PRICE_MONTHLY?btnM:btnY;
+  var btn=priceId===STRIPE_PRICE_MONTHLY?btnM:btnY;
+  var orig=btn?btn.textContent:'';
   if(btn)btn.textContent='⏳ Attendere...';
   fetch(EDGE_URL+'/create-checkout',{
     method:'POST',
-    headers:{'Content-Type':'application/json','Authorization':'Bearer '+_authToken},
-    body:JSON.stringify({
-      user_id:currentUser.id,
-      price_id:priceId,
-      email:currentUser.email||''
-    })
+    headers:{'Content-Type':'application/json','Authorization':'Bearer '+(_authToken||'')},
+    body:JSON.stringify({user_id:currentUser.id,price_id:priceId,email:currentUser.email||''})
   })
-  .then(r=>r.json())
-  .then(data=>{
-    if(data.url){
-      window.location.href=data.url;
-    } else {
-      if(btn)btn.textContent=originalText;
+  .then(function(r){return r.json();})
+  .then(function(data){
+    if(data.url){window.location.href=data.url;}
+    else{
+      if(btn)btn.textContent=orig;
       if(btnM)btnM.disabled=false;
       if(btnY)btnY.disabled=false;
       alert('Errore: '+(data.error||'Riprova tra poco.'));
     }
   })
-  .catch(err=>{
-    if(btn)btn.textContent=originalText;
+  .catch(function(){
+    if(btn)btn.textContent=orig;
     if(btnM)btnM.disabled=false;
     if(btnY)btnY.disabled=false;
     alert('Errore di rete. Riprova.');
@@ -3640,38 +3635,30 @@ function startCheckout(priceId){
 
 function openCustomerPortal(){
   if(!currentUser){alert(LANG==='en'?'Sign in first.':'Accedi prima.');return;}
-  closeUpgradeModal();
+  closeUpgradePanel();
   fetch(EDGE_URL+'/customer-portal',{
     method:'POST',
-    headers:{'Content-Type':'application/json','Authorization':'Bearer '+_authToken},
+    headers:{'Content-Type':'application/json','Authorization':'Bearer '+(_authToken||'')},
     body:JSON.stringify({user_id:currentUser.id})
   })
-  .then(r=>r.json())
-  .then(data=>{
+  .then(function(r){return r.json();})
+  .then(function(data){
     if(data.url){window.location.href=data.url;}
     else alert('Errore: '+(data.error||'Riprova tra poco.'));
   })
-  .catch(()=>alert('Errore di rete. Riprova.'));
+  .catch(function(){alert('Errore di rete. Riprova.');});
 }
 
 function _handlePaymentReturn(){
-  const params=new URLSearchParams(window.location.search);
-  if(params.get('payment')==='success'){
-    // Pulisci URL senza reload
-    window.history.replaceState({},'',window.location.pathname);
-    // Forza reload dati da Supabase per aggiornare is_premium
-    if(_authToken&&currentUser){
-      _loadUserData(function(d){
-        if(d){_applyUserData(d);buildUI();renderPremSection();}
-        // Mostra toast di benvenuto
-        const toast=document.getElementById('payment-toast');
-        if(toast){
-          toast.classList.add('on');
-          setTimeout(()=>toast.classList.remove('on'),4000);
-        }
-      });
-    }
-  }
+  var params=new URLSearchParams(window.location.search);
+  if(params.get('payment')!=='success')return;
+  window.history.replaceState({},'',window.location.pathname);
+  if(!_authToken||!currentUser)return;
+  _loadUserData(function(d){
+    if(d){_applyUserData(d);buildUI();_updatePremUI();}
+    var toast=document.getElementById('payment-toast');
+    if(toast){toast.classList.add('on');setTimeout(function(){toast.classList.remove('on');},4000);}
+  });
 }
 
 // ── FATTI CONOSCERE ───────────────────────────────────────────────────────
@@ -5794,49 +5781,49 @@ function _onbFinish(){
   </div>
 </div>
 
-<!-- ── UPGRADE PAGE ───────────────────────────────────────────────────── -->
-<div id="upgrade-ov">
+
+<!-- ── UPGRADE PANEL ─────────────────────────────────────────────────── -->
+<div id="upgrade-panel">
   <div class="upg-inner">
-    <button class="upg-back" onclick="closeUpgradeModal()">← Torna indietro</button>
-    <div class="upg-title">PREMIUM</div>
-    <div class="upg-sub">Sblocca tutti i filtri, consigli illimitati e niente pubblicità.<br>Scegli il piano più adatto a te.</div>
+    <button class="upg-back" onclick="closeUpgradePanel()">← Torna indietro</button>
+    <div class="upg-logo">PREMIUM</div>
+    <div class="upg-tagline">Sblocca tutti i filtri, consigli illimitati e niente pubblicità.<br>Scegli il piano più adatto a te.</div>
     <div class="upg-plans">
       <div class="upg-plan">
         <div class="upg-plan-name">Mensile</div>
-        <div class="upg-plan-price">€4<span>,99/mese</span></div>
-        <div class="upg-plan-note">Cancella quando vuoi</div>
-        <ul class="upg-plan-features">
+        <div class="upg-price">€4<span>,99/mese</span></div>
+        <div class="upg-note">Cancella quando vuoi</div>
+        <ul class="upg-features">
           <li>Tutti i filtri avanzati</li>
           <li>Consigli illimitati</li>
           <li>Niente pubblicità</li>
           <li>Pannello news cinema</li>
           <li>FCK completo</li>
         </ul>
-        <button class="upg-btn upg-btn-monthly" id="upg-btn-monthly" onclick="startCheckout(STRIPE_PRICE_MONTHLY)">Inizia — €4,99/mese</button>
+        <button class="upg-cta upg-cta-month" id="upg-btn-m" onclick="startCheckout(STRIPE_PRICE_MONTHLY)">Inizia — €4,99/mese</button>
       </div>
       <div class="upg-plan best">
-        <div class="upg-best-badge">✦ MIGLIOR VALORE</div>
+        <div class="upg-badge">✦ MIGLIOR VALORE</div>
         <div class="upg-plan-name">Annuale</div>
-        <div class="upg-plan-price">€39<span>,99/anno</span></div>
-        <div class="upg-plan-note">Equivale a €3,33/mese · Risparmi €20</div>
-        <ul class="upg-plan-features">
+        <div class="upg-price">€39<span>,99/anno</span></div>
+        <div class="upg-note">Equivale a €3,33/mese · Risparmi €20</div>
+        <ul class="upg-features">
           <li>Tutti i filtri avanzati</li>
           <li>Consigli illimitati</li>
           <li>Niente pubblicità</li>
           <li>Pannello news cinema</li>
           <li>FCK completo</li>
         </ul>
-        <button class="upg-btn upg-btn-yearly" id="upg-btn-yearly" onclick="startCheckout(STRIPE_PRICE_YEARLY)">Inizia — €39,99/anno</button>
+        <button class="upg-cta upg-cta-year" id="upg-btn-y" onclick="startCheckout(STRIPE_PRICE_YEARLY)">Inizia — €39,99/anno</button>
       </div>
     </div>
-    <div class="upg-footer">
+    <div class="upg-foot">
       🔒 Pagamento sicuro tramite Stripe · Disdici in qualsiasi momento<br>
       Hai già un abbonamento? <span style="color:var(--or);cursor:pointer;text-decoration:underline" onclick="openCustomerPortal()">Gestiscilo qui</span>
     </div>
   </div>
 </div>
 
-<!-- ── PAYMENT SUCCESS TOAST ─────────────────────────────────────────── -->
+<!-- ── PAYMENT TOAST ──────────────────────────────────────────────────── -->
 <div id="payment-toast">🎉 Benvenuto in Premium!</div>
-
 </body></html>
