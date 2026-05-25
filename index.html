@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="it"><head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>SWAINZ</title><!-- v290 -->
+<title>SWAINZ</title><!-- v291 -->
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600&family=Syne:wght@600;800&family=Teko:wght@700&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
@@ -1490,7 +1490,25 @@ body.cat-revealing #afp-mobile,
 
 <!-- PROFILO -->
 <div id="profp" class="slide-panel">
-  <div class="vph"><button class="vp-back" onclick="closeProfp()" data-i18n="back">← Torna</button><div class="vph-t"><h2 data-i18n="prof_h2">Il tuo profilo</h2><p data-i18n="prof_p">Informazioni personali — non influenzano i consigli di Swainz</p></div><div id="prem-free" style="display:flex;flex-shrink:0"><button class="prem-upgrade-btn" onclick="openUpgradePanel()" style="width:auto;white-space:nowrap;padding:8px 16px;font-size:12px;margin-top:0">⭐ Premium →</button></div><div id="prem-active" style="display:none;flex-shrink:0;align-items:center;gap:8px"><span style="font-size:11px;font-weight:700;color:var(--or);white-space:nowrap">⭐ Premium attivo</span><button class="prem-manage-btn" onclick="openCustomerPortal()">Gestisci</button></div></div>
+  <div class="vph" style="display:flex;align-items:center;gap:14px;padding:16px 22px">
+    <button class="vp-back" onclick="closeProfp()" data-i18n="back" style="flex-shrink:0">← Torna</button>
+    <!-- Centro: titolo + CTA premium -->
+    <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center">
+      <h2 style="font-family:'Syne',sans-serif;font-size:16px;font-weight:800;margin:0" data-i18n="prof_h2">Il tuo profilo</h2>
+      <!-- FREE -->
+      <div id="prem-free" style="display:flex;flex-direction:column;align-items:center;gap:4px">
+        <span style="font-size:10px;color:var(--td);letter-spacing:.5px">Piano Free · filtri limitati</span>
+        <button class="prem-upgrade-btn" onclick="openUpgradePanel()" style="width:auto;white-space:nowrap;padding:7px 18px;font-size:12px;margin-top:0">⭐ Passa a Premium</button>
+      </div>
+      <!-- PREMIUM -->
+      <div id="prem-active" style="display:none;flex-direction:column;align-items:center;gap:4px">
+        <span style="font-size:10px;color:var(--or);font-weight:700;letter-spacing:.5px">⭐ PIANO PREMIUM ATTIVO</span>
+        <button class="prem-manage-btn" onclick="openCustomerPortal()">Gestisci abbonamento</button>
+      </div>
+    </div>
+    <!-- Spacer per bilanciare il back button -->
+    <div style="flex-shrink:0;width:64px"></div>
+  </div>
   <div class="vpb">
     <div class="prof-layout">
       <div class="prof-avatar-wrap">
