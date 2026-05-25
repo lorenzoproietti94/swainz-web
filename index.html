@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="it"><head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>SWAINZ</title><!-- v286 -->
+<title>SWAINZ</title><!-- v287 -->
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600&family=Syne:wght@600;800&family=Teko:wght@700&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
@@ -284,7 +284,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:15px;heigh
 .vph-t{flex:1}
 .vph-t h2{font-family:'Syne',sans-serif;font-size:18px;font-weight:800}
 .vph-t p{color:var(--td);font-size:11.5px;margin-top:3px;line-height:1.6;max-width:500px}
-.vpb{padding:22px 24px;max-width:780px;margin:0 auto;position:relative;z-index:1}
+.vpb{padding:22px 24px 140px;max-width:780px;margin:0 auto;position:relative;z-index:1}
 /* ── PROFILO 2-COL LAYOUT ─────────────────────────────────────────────────── */
 .prof-layout{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:auto 1fr;gap:16px;align-items:start}
 .prof-avatar-wrap{grid-column:2;grid-row:1}
@@ -977,7 +977,7 @@ body.cat-revealing #afp-mobile,
 .prem-manage-btn{padding:7px 14px;border-radius:20px;border:1px solid rgba(255,104,32,.45);background:rgba(255,80,0,.08);color:var(--or);font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;font-family:'Inter',sans-serif;transition:all .2s}
 .prem-manage-btn:hover{background:rgba(255,80,0,.16);border-color:var(--or)}
 /* ── body lock quando un pannello è aperto ──────────────────────────────── */
-body.panel-open{overflow:hidden}
+/* scroll lock gestito via JS in _panelOpen/_panelClose */
 /* ── payment toast ───────────────────────────────────────────────────────── */
 #payment-toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(20px);background:#0f1f0f;border:1px solid rgba(74,222,128,.35);border-radius:14px;padding:14px 24px;font-size:13px;color:#4ade80;font-weight:600;z-index:800;opacity:0;pointer-events:none;transition:all .35s;white-space:nowrap;box-shadow:0 8px 32px rgba(0,0,0,.5)}
 #payment-toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
@@ -3574,15 +3574,28 @@ async function saveProfp(){
   }
   const ok=document.getElementById('profOk');ok.classList.add('show');setTimeout(()=>ok.classList.remove('show'),2200);
 }
-// ── SCROLL LOCK ──────────────────────────────────────────────────────────
+// ── SCROLL LOCK (tecnica save/restore, funziona su tutti i browser) ────────
 var _panelCount=0;
+var _bodyScrollY=0;
 function _panelOpen(){
+  if(_panelCount===0){
+    _bodyScrollY=window.scrollY||window.pageYOffset||0;
+    document.body.style.position='fixed';
+    document.body.style.top=(-_bodyScrollY)+'px';
+    document.body.style.width='100%';
+    document.body.style.overflow='hidden';
+  }
   _panelCount++;
-  document.body.classList.add('panel-open');
 }
 function _panelClose(){
   _panelCount=Math.max(0,_panelCount-1);
-  if(_panelCount===0)document.body.classList.remove('panel-open');
+  if(_panelCount===0){
+    document.body.style.position='';
+    document.body.style.top='';
+    document.body.style.width='';
+    document.body.style.overflow='';
+    window.scrollTo(0,_bodyScrollY);
+  }
 }
 
 // ── STRIPE + PREMIUM UI (v285) ───────────────────────────────────────────
