@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="it"><head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>SWAINZ</title><!-- v295 -->
+<title>SWAINZ</title><!-- v296 -->
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600&family=Syne:wght@600;800&family=Teko:wght@700&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
@@ -3623,12 +3623,20 @@ function _handlePaymentReturn(){
   var p=new URLSearchParams(window.location.search);
   if(p.get('payment')!=='success')return;
   window.history.replaceState({},'',window.location.pathname);
-  if(!_authToken||!currentUser)return;
-  _loadUserData(function(d){
-    if(d){_applyUserData(d);buildUI();_updatePremUI();}
-    var t=document.getElementById('payment-toast');
-    if(t){t.classList.add('on');setTimeout(function(){t.classList.remove('on');},4000);}
-  });
+  // Toast immediato, indipendente dalla sessione
+  var t=document.getElementById('payment-toast');
+  if(t){t.classList.add('on');setTimeout(function(){t.classList.remove('on');},4500);}
+  // Ricarica dati DB quando la sessione è pronta (polling leggero)
+  var attempts=0;
+  var poll=setInterval(function(){
+    attempts++;
+    if(attempts>20){clearInterval(poll);return;}
+    if(!_authToken||!currentUser)return;
+    clearInterval(poll);
+    _loadUserData(function(d){
+      if(d){_applyUserData(d);buildUI();_updatePremUI();}
+    });
+  },300);
 }
 
 // ── FATTI CONOSCERE ───────────────────────────────────────────────────────
@@ -4715,6 +4723,9 @@ function _applyUserData(d) {
   if(d.is_premium){
     isPremium=true;
     try{localStorage.setItem('sw3_premium','1');}catch(e){}
+  } else {
+    isPremium=false;
+    try{localStorage.setItem('sw3_premium','0');}catch(e){}
   }
   var _prof=d.profile;
   if(_prof&&typeof _prof==='string'){try{_prof=JSON.parse(_prof);}catch(e){_prof=null;}}
