@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="it"><head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>SWAINZ</title><!-- v293 -->
+<title>SWAINZ</title><!-- v294 -->
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600&family=Syne:wght@600;800&family=Teko:wght@700&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
@@ -981,6 +981,27 @@ body.cat-revealing #afp-mobile,
 /* ── payment toast ───────────────────────────────────────────────────────── */
 #payment-toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(20px);background:#0f1f0f;border:1px solid rgba(74,222,128,.35);border-radius:14px;padding:14px 24px;font-size:13px;color:#4ade80;font-weight:600;z-index:800;opacity:0;pointer-events:none;transition:all .35s;white-space:nowrap;box-shadow:0 8px 32px rgba(0,0,0,.5)}
 #payment-toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* ── animazione glow bottone premium ────────────────────────────────────── */
+@keyframes prem-glow{
+  0%,100%{box-shadow:0 0 8px rgba(255,80,0,.5),0 0 20px rgba(80,100,255,.3)}
+  50%{box-shadow:0 0 18px rgba(255,80,0,.8),0 0 36px rgba(80,100,255,.55),0 0 6px #fff2}
+}
+@keyframes prem-shimmer{
+  0%{background-position:200% center}
+  100%{background-position:-200% center}
+}
+.vph-prem-btn,.hdr-prem-btn{
+  background:linear-gradient(90deg,var(--or2),#1040c0,var(--or2));
+  background-size:200% auto;
+  animation:prem-glow 2.2s ease-in-out infinite, prem-shimmer 3s linear infinite;
+  border:none;border-radius:8px;color:#fff;
+  font-family:'Syne',sans-serif;font-weight:800;cursor:pointer;
+  transition:transform .2s,filter .2s;
+}
+.vph-prem-btn{padding:6px 14px;font-size:12px;white-space:nowrap}
+.hdr-prem-btn{padding:7px 16px;font-size:12px;white-space:nowrap}
+.vph-prem-btn:hover,.hdr-prem-btn:hover{transform:translateY(-1px);filter:brightness(1.15)}
 </style></head>
 <body>
 <div id="deco"><span class="o1"></span><span class="b1"></span></div>
@@ -1022,6 +1043,7 @@ body.cat-revealing #afp-mobile,
     <div class="logo-sm">SWAINZ</div>
     <div class="hdr-r">
       <div class="bdg" id="bdg" style="display:none"><span data-i18n="bdg_label">Consigli rimasti</span>&nbsp;<span class="bdg-n" id="cnt">3</span></div>
+      <div id="hdr-prem-wrap" style="display:flex;align-items:center"></div>
       <div class="nav-drop-wrap" id="navDropWrap">
         <button class="nav-drop-btn" id="navDropBtn" onclick="toggleNavDrop()" aria-haspopup="true" aria-expanded="false" title="Menu">
           <span class="hbr-wrap" aria-hidden="true">
@@ -3559,10 +3581,20 @@ async function saveProfp(){
 }
 // ── STRIPE + PREMIUM UI (v293) ───────────────────────────────────────────
 function _updatePremUI(){
+  // Header profilo
   var pf=document.getElementById('prem-free');
   var pa=document.getElementById('prem-active');
   if(pf)pf.style.display=isPremium?'none':'flex';
   if(pa)pa.style.display=isPremium?'flex':'none';
+  // Header principale
+  var hw=document.getElementById('hdr-prem-wrap');
+  if(hw){
+    if(isPremium){
+      hw.innerHTML='';
+    } else {
+      hw.innerHTML='<button class="hdr-prem-btn" onclick="openUpgradePanel()">⭐ Premium</button>';
+    }
+  }
 }
 function openUpgradePanel(){
   if(!currentUser){alert(LANG==='en'?'Sign in to upgrade.':'Accedi per passare a Premium.');return;}
@@ -5728,7 +5760,7 @@ function _onbFinish(){
     <div class="upg-plans">
       <div class="upg-plan">
         <div class="upg-plan-name">Mensile</div>
-        <div class="upg-price">€4<span>,99/mese</span></div>
+        <div class="upg-price">€2<span>,50/mese</span></div>
         <div class="upg-note">Cancella quando vuoi</div>
         <ul class="upg-features">
           <li>Tutti i filtri avanzati</li>
@@ -5737,13 +5769,13 @@ function _onbFinish(){
           <li>Pannello news cinema</li>
           <li>FCK completo</li>
         </ul>
-        <button class="upg-cta upg-cta-month" id="upg-btn-m" onclick="startCheckout(STRIPE_PRICE_MONTHLY)">Inizia — €4,99/mese</button>
+        <button class="upg-cta upg-cta-month" id="upg-btn-m" onclick="startCheckout(STRIPE_PRICE_MONTHLY)">Inizia — €2,50/mese</button>
       </div>
       <div class="upg-plan best">
         <div class="upg-badge">✦ MIGLIOR VALORE</div>
         <div class="upg-plan-name">Annuale</div>
-        <div class="upg-price">€39<span>,99/anno</span></div>
-        <div class="upg-note">Equivale a €3,33/mese · Risparmi €20</div>
+        <div class="upg-price">€20<span>,00/anno</span></div>
+        <div class="upg-note">Equivale a €1,67/mese · Risparmi €10</div>
         <ul class="upg-features">
           <li>Tutti i filtri avanzati</li>
           <li>Consigli illimitati</li>
@@ -5751,7 +5783,7 @@ function _onbFinish(){
           <li>Pannello news cinema</li>
           <li>FCK completo</li>
         </ul>
-        <button class="upg-cta upg-cta-year" id="upg-btn-y" onclick="startCheckout(STRIPE_PRICE_YEARLY)">Inizia — €39,99/anno</button>
+        <button class="upg-cta upg-cta-year" id="upg-btn-y" onclick="startCheckout(STRIPE_PRICE_YEARLY)">Inizia — €20,00/anno</button>
       </div>
     </div>
     <div class="upg-foot">
