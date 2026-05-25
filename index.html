@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="it"><head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>SWAINZ</title><!-- v287 -->
+<title>SWAINZ</title><!-- v288 -->
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600&family=Syne:wght@600;800&family=Teko:wght@700&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
@@ -1540,26 +1540,20 @@ body.cat-revealing #afp-mobile,
         </div>
         <div class="fdiv" id="pfdiv1"></div>
         <div class="prof-row prof-row-film"><label class="prof-lbl">🎬 <span data-i18n="prof_film">Film preferito</span></label><input class="prof-inp" id="pFilm" data-i18n-ph="prof_film_ph" placeholder="Es. Il Padrino"></div>
-        <div class="prof-save-row" style="display:flex;align-items:center;gap:12px;margin-top:8px"><button class="save-btn" onclick="saveProfp()" data-i18n="save">Salva profilo</button><span class="save-ok" id="profOk" data-i18n="saved">✓ Salvato!</span></div>
-        <div class="fdiv" id="pfdiv2"></div>
-        <div class="prof-prem-row" style="display:flex;flex-direction:column;padding:4px 0;gap:8px">
-          <div id="prem-free" style="display:flex;flex-direction:column;gap:8px">
-            <div style="display:flex;align-items:center;justify-content:space-between">
-              <div>
-                <div style="font-size:12px;font-weight:600">Piano attuale: <span style="color:var(--td)">Free</span></div>
-                <div style="font-size:11px;color:var(--td);margin-top:2px">Filtri limitati · 3 consigli al giorno</div>
-              </div>
-            </div>
-            <button class="prem-upgrade-btn" onclick="openUpgradePanel()">⭐ Passa a Premium →</button>
+        <div class="prof-save-row" style="display:flex;align-items:center;gap:12px;margin-top:8px;flex-wrap:wrap">
+          <button class="save-btn" onclick="saveProfp()" data-i18n="save">Salva profilo</button>
+          <span class="save-ok" id="profOk" data-i18n="saved">✓ Salvato!</span>
+          <!-- FREE: bottone upgrade affiancato al salva -->
+          <div id="prem-free" style="margin-left:auto">
+            <button class="prem-upgrade-btn" onclick="openUpgradePanel()" style="white-space:nowrap;padding:8px 14px;font-size:12px">⭐ Passa a Premium →</button>
           </div>
-          <div id="prem-active" style="display:none;align-items:center;justify-content:space-between">
-            <div>
-              <div style="font-size:12px;font-weight:600;color:var(--or)">⭐ Premium attivo</div>
-              <div style="font-size:11px;color:var(--td);margin-top:2px">Tutti i filtri sbloccati</div>
-            </div>
-            <button class="prem-manage-btn" onclick="openCustomerPortal()">Gestisci abbonamento</button>
+          <!-- PREMIUM: stato attivo affiancato al salva -->
+          <div id="prem-active" style="display:none;margin-left:auto;align-items:center;gap:10px">
+            <span style="font-size:12px;font-weight:600;color:var(--or)">⭐ Premium</span>
+            <button class="prem-manage-btn" onclick="openCustomerPortal()">Gestisci</button>
           </div>
         </div>
+        <div class="fdiv" id="pfdiv2"></div>
       </div>
       <div class="prof-storico">
         <div class="storico-box">
