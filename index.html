@@ -230,7 +230,6 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:15px;heigh
 .fc-desc-col{flex:1;min-width:0}
 .fc-poster-col{flex-shrink:0;width:168px}
 .fc-poster-col img{width:100%;border-radius:14px;display:block;box-shadow:0 8px 32px rgba(0,0,0,.6);object-fit:cover;aspect-ratio:2/3}
-a.plt-aff-link{text-decoration:none;display:inline-flex;align-items:center;gap:3px;transition:background .15s,border-color .15s,color .15s}a.plt-aff-link:hover{background:rgba(255,104,32,.18);border-color:var(--boh);color:var(--or)}
 .fc-poster-placeholder{width:100%;aspect-ratio:2/3;border-radius:14px;background:rgba(255,255,255,.04);border:1px solid var(--br);display:flex;align-items:center;justify-content:center;color:var(--td);font-size:11px}
 .fc-section-box{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-radius:14px;padding:13px 16px;margin-bottom:12px}
 .fc-section-box .fst{margin-bottom:8px;font-size:10px}
@@ -403,6 +402,48 @@ a.plt-aff-link{text-decoration:none;display:inline-flex;align-items:center;gap:3
 .prof-save-row{order:8}
 #pfdiv2{order:9}
 .prof-prem-row{order:10}
+
+/* ── UPGRADE MODAL ─────────────────────────────────────────────────────── */
+#upgrade-ov{position:fixed;inset:0;z-index:500;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.72);opacity:0;pointer-events:none;transition:opacity .25s;padding:16px}
+#upgrade-ov.on{opacity:1;pointer-events:all}
+#upgrade-modal{background:#12121e;border:1px solid rgba(255,255,255,.1);border-radius:20px;width:100%;max-width:560px;padding:32px 28px;position:relative;transform:translateY(14px);transition:transform .28s}
+#upgrade-ov.on #upgrade-modal{transform:translateY(0)}
+.upg-close{position:absolute;top:14px;right:16px;background:none;border:none;color:var(--td);font-size:20px;cursor:pointer;line-height:1;padding:4px 8px;border-radius:6px;transition:color .15s}
+.upg-close:hover{color:var(--tx)}
+.upg-title{font-family:'Syne',sans-serif;font-size:22px;font-weight:800;text-align:center;margin-bottom:4px}
+.upg-sub{text-align:center;color:var(--td);font-size:13px;margin-bottom:24px;line-height:1.6}
+.upg-plans{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:20px}
+@media(max-width:480px){.upg-plans{grid-template-columns:1fr}}
+.upg-plan{border:1px solid var(--br);border-radius:14px;padding:20px 18px;display:flex;flex-direction:column;gap:10px;transition:border-color .2s,box-shadow .2s;position:relative}
+.upg-plan:hover{border-color:rgba(255,104,32,.5);box-shadow:0 0 20px rgba(255,80,0,.12)}
+.upg-plan.best{border-color:rgba(255,104,32,.55);background:rgba(255,80,0,.05)}
+.upg-best-badge{position:absolute;top:-11px;left:50%;transform:translateX(-50%);background:var(--or);color:#fff;font-size:9px;font-weight:800;letter-spacing:2px;text-transform:uppercase;padding:3px 12px;border-radius:20px;white-space:nowrap}
+.upg-plan-name{font-size:11px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:var(--or)}
+.upg-plan-price{font-family:'Bebas Neue',sans-serif;font-size:42px;letter-spacing:2px;line-height:1;color:#fff}
+.upg-plan-price span{font-family:'Inter',sans-serif;font-size:14px;font-weight:400;color:var(--td);letter-spacing:0}
+.upg-plan-note{font-size:11px;color:var(--td);min-height:16px}
+.upg-plan-features{list-style:none;padding:0;margin:4px 0 0;display:flex;flex-direction:column;gap:5px}
+.upg-plan-features li{font-size:12px;color:var(--tx);display:flex;align-items:center;gap:7px}
+.upg-plan-features li::before{content:'✓';color:var(--or);font-weight:700;flex-shrink:0}
+.upg-btn{width:100%;padding:13px;border-radius:10px;border:none;font-family:'Syne',sans-serif;font-size:14px;font-weight:800;cursor:pointer;transition:all .2s;margin-top:auto}
+.upg-btn-monthly{background:rgba(255,255,255,.08);color:#fff;border:1px solid rgba(255,255,255,.15)}
+.upg-btn-monthly:hover{background:rgba(255,255,255,.14)}
+.upg-btn-yearly{background:linear-gradient(135deg,var(--or2),#1040c0);color:#fff}
+.upg-btn-yearly:hover{box-shadow:0 0 22px rgba(255,80,0,.4);transform:translateY(-1px)}
+.upg-btn:disabled{opacity:.5;cursor:not-allowed;transform:none!important}
+.upg-footer{text-align:center;font-size:11px;color:var(--td);line-height:1.7}
+/* ── PROFILO: stato abbonamento ─────────────────────────────────────────── */
+.prof-sub-status{display:flex;align-items:center;justify-content:space-between;padding:4px 0;gap:12px}
+.prof-sub-info{display:flex;flex-direction:column;gap:2px}
+.prof-sub-label{font-size:12px;font-weight:600}
+.prof-sub-detail{font-size:11px;color:var(--td)}
+.prof-sub-btn{padding:7px 16px;border-radius:20px;border:1px solid rgba(255,104,32,.45);background:rgba(255,80,0,.08);color:var(--or);font-size:12px;font-weight:600;cursor:pointer;transition:all .2s;white-space:nowrap;font-family:'Inter',sans-serif}
+.prof-sub-btn:hover{background:rgba(255,80,0,.15);border-color:var(--or)}
+.prof-upgrade-btn{width:100%;padding:11px;border-radius:10px;border:none;background:linear-gradient(135deg,var(--or2),#1040c0);color:#fff;font-family:'Syne',sans-serif;font-size:13px;font-weight:800;cursor:pointer;transition:all .2s}
+.prof-upgrade-btn:hover{box-shadow:0 0 18px rgba(255,80,0,.35);transform:translateY(-1px)}
+/* ── PAYMENT SUCCESS TOAST ──────────────────────────────────────────────── */
+#payment-toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(20px);background:#1a2a1a;border:1px solid rgba(74,222,128,.35);border-radius:14px;padding:14px 22px;font-size:13px;color:#4ade80;font-weight:600;z-index:800;opacity:0;pointer-events:none;transition:all .35s;white-space:nowrap;box-shadow:0 8px 32px rgba(0,0,0,.5)}
+#payment-toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
 }
 @media(min-width:601px){#fgc{display:grid;grid-template-columns:1fr 1fr;gap:9px}#fgc .fgrp{margin-bottom:0}}
 
@@ -1504,9 +1545,8 @@ body.cat-revealing #afp-mobile,
         <div class="prof-row prof-row-film"><label class="prof-lbl">🎬 <span data-i18n="prof_film">Film preferito</span></label><input class="prof-inp" id="pFilm" data-i18n-ph="prof_film_ph" placeholder="Es. Il Padrino"></div>
         <div class="prof-save-row" style="display:flex;align-items:center;gap:12px;margin-top:8px"><button class="save-btn" onclick="saveProfp()" data-i18n="save">Salva profilo</button><span class="save-ok" id="profOk" data-i18n="saved">✓ Salvato!</span></div>
         <div class="fdiv" id="pfdiv2"></div>
-        <div class="prof-prem-row" style="display:flex;align-items:center;justify-content:space-between;padding:4px 0">
-          <div><div style="font-size:12px;font-weight:600" data-i18n="plan_label">Piano attuale</div><div style="font-size:11px;color:var(--td);margin-top:2px" data-i18n="plan_sub">Clicca per simulare Premium (demo)</div></div>
-          <button class="chip" id="premToggle" onclick="togglePremium()">Free</button>
+        <div class="prof-prem-row" id="prof-prem-row">
+          <!-- Contenuto iniettato da renderPremSection() -->
         </div>
       </div>
       <div class="prof-storico">
@@ -1573,6 +1613,10 @@ body.cat-revealing #afp-mobile,
 let DB=[];
 var SUPA_URL='https://dhddiepwazmkezyhxahe.supabase.co';
 var SUPA_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRoZGRpZXB3YXpta2V6eWh4YWhlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzczNTMxODAsImV4cCI6MjA5MjkyOTE4MH0.g19-zrU_gllMxxsVljeM8CqDkuT6mi6OuJ0AYWHdFOs';
+// ── STRIPE ───────────────────────────────────────────────────────────────
+var STRIPE_PRICE_MONTHLY='price_1TaiWyRzBS2zhcmvClKPoCBK';
+var STRIPE_PRICE_YEARLY='price_1TaiWyRzBS2zhcmvWVVT1RzF';
+var EDGE_URL=SUPA_URL+'/functions/v1';
 var SUPA_TAGS=['Angosciante','Animazione','Asiatico','Biografico','Bizzarro','Capolavoro','Catastrofico','CineComic','Claustrofobico','Colossal','Comico','Commedia','Conosciutissimo','Corto(<1h30)','Crimine','Crudo',"D'Autore",'Difficile','Distopia','Documentario','Dramma','Droga','Economico','Epoca Passata','Estetico','Facile','Fantascienza','Grande Colonna Sonora','Grande Interpretazione','Guerra','Horror','Imponente','Italiano','Legal Drama','Lunghissimo','Lungo(>2h30)','Mafia','Musicale','Neorealismo','Noire','Onirico','Oscar','Pazzesco','Personaggio Cattivo','Psichedelico','Psicologico/mentale','Romantico','Sequel','Serial Killer','Sportivo','Storia Avvincente','Tecnologico','Thriller','Triste','Vecchio','Vendetta','Violenza Ironica','Western'];
 function _safeArr(v){
   if(!v)return[];
@@ -1671,28 +1715,6 @@ const EXCL=new Set();
 let searches=3,cdEndTime=null,cdInterval=null,seenFilms=new Set();
 let adInterval=null,pendingResult=null,isFirstSearch=true;
 let isPremium=false,userPrefs={},fckAnswers={},currentFilms=[];
-
-// ── AFFILIATE CONFIG v281 ─────────────────────────────────────────────────
-// Sostituisci i placeholder con i tuoi codici dopo la registrazione:
-//  MUBI:        mubi.com/affiliates  (o rete affiliazione partner)
-//  Amazon:      programma-affiliazione.amazon.it  → tag es. "swainz-21"
-//  Disney+:     awin.com → merchant Disney+ Italy
-//  Apple TV+:   partnerize.com / affiliate.itunes.apple.com
-//  Netflix:     nessun programma affiliate pubblico — link diretto senza codice
-const _AFF_MUBI_REF   = 'XXXXX';        // ← inserisci il tuo ref MUBI
-const _AFF_AMAZON_TAG = 'swainz0a-21';  // Amazon Associates IT
-// Aggiorna questi valori non appena ottieni i codici dai programmi
-function _getPlatformUrl(pName,filmTitle){
-  const t=encodeURIComponent(filmTitle);
-  switch(pName){
-    case 'MUBI':        return 'https://mubi.com/?ref='+_AFF_MUBI_REF;
-    case 'Prime Video': return 'https://www.amazon.it/s?k='+t+'&i=instant-video&tag='+_AFF_AMAZON_TAG;
-    case 'Netflix':     return 'https://www.netflix.com/search?q='+t;
-    case 'Disney+':     return 'https://www.disneyplus.com/search/'+t;
-    case 'Apple TV':    return 'https://tv.apple.com/search?term='+t;
-    default:            return null;
-  }
-}
 const sessionShown=new Set(); // films shown in this session, reset with new day
 
 // ── STORAGE ─────────────────────────────────────────────────────────────
@@ -2486,6 +2508,7 @@ function buildUI(){
   c.innerHTML='';if(c2)c2.innerHTML='';
   // Ad slots: only for free users
   const sl=document.getElementById('sidebar-l');
+  renderPremSection();
   if(sl){sl.classList.toggle('free-show',!isPremium);}
   const ar=document.getElementById('ad-slot-r');
   if(ar){ar.style.display=isPremium?'none':'flex';}
@@ -2629,9 +2652,6 @@ function showAd(result){
   document.getElementById('adskip-pre').textContent=t('ad_skip');
   document.getElementById('adskip-suf').textContent=t('ad_skip2');
   prog.style.transition='none';prog.style.width='0%';
-  // Wire CTA button to MUBI affiliate URL
-  const ctaBtn=document.querySelector('#adov .ad-cta-btn');
-  if(ctaBtn)ctaBtn.onclick=()=>{window.open('https://mubi.com/?ref='+_AFF_MUBI_REF,'_blank','noopener');};
   document.getElementById('adov').classList.add('on');
   let secs=5;ct.textContent=secs;prog.offsetHeight;prog.style.transition='width 5s linear';prog.style.width='100%';
   if(adInterval)clearInterval(adInterval);
@@ -2764,7 +2784,7 @@ function showCard(res,opts={}) {
     <div class="fc-poster-col">${posterHTML}</div>
   </div>
   ${f.tags.length?`<div class="fc-section-box"><div class="fst">${t('card_why')}</div><div class="mcs">${sequelBadge}${f.tags.map(m=>`<span class="mc2">✓ ${tTag(m)}</span>`).join('')}</div></div>`:''}
-  <div class="fc-section-box"><div class="fst">${t('card_plt')}</div><div class="mcs">${f.plt.length?f.plt.map(p=>{const u=_getPlatformUrl(p,f.title);return u?`<a class="mc2 b plt-aff-link" href="${u}" target="_blank" rel="noopener noreferrer nofollow">📺 ${p} ↗</a>`:`<span class="mc2 b">📺 ${p}</span>`;}).join(''):`<span style="color:var(--td);font-size:12px;opacity:.7">${t('card_plt_none')}</span>`}</div></div>
+  <div class="fc-section-box"><div class="fst">${t('card_plt')}</div><div class="mcs">${f.plt.length?f.plt.map(p=>`<span class="mc2 b">📺 ${p}</span>`).join(''):`<span style="color:var(--td);font-size:12px;opacity:.7">${t('card_plt_none')}</span>`}</div></div>
   <div class="fcact">
     <button class="b1" onclick="closeCard();resetFilters()">${t('card_ok')}</button>
     ${opts.hideMore?'':`<button class="b2" onclick="tryAgain()">${t('card_more')}</button>`}
@@ -3517,7 +3537,7 @@ function openSeenPanel(){
 function closeSeenPanel(){document.getElementById('seenp').classList.remove('on');}
 async function loadProfp(){
   try{const lp=localStorage.getItem('sw3_prof');if(lp){const d=JSON.parse(lp);['pNome','pCognome','pNascita','pFilm'].forEach(id=>{const el=document.getElementById(id);if(el&&d[id])el.value=d[id];});}}catch(e){}
-  const pt=document.getElementById('premToggle');pt.textContent=isPremium?'Premium ✓':'Free';pt.className=isPremium?'chip on':'chip';
+  renderPremSection();
   // Show account box with email if logged in
   if(currentUser&&currentUser.email){
     const box=document.getElementById('prof-account-box');
@@ -3543,7 +3563,117 @@ async function saveProfp(){
   }
   const ok=document.getElementById('profOk');ok.classList.add('show');setTimeout(()=>ok.classList.remove('show'),2200);
 }
-function togglePremium(){isPremium=!isPremium;const pt=document.getElementById('premToggle');pt.textContent=isPremium?'Premium ✓':'Free';pt.className=isPremium?'chip on':'chip';document.getElementById('bdg').style.display=isPremium?'none':'flex';try{localStorage.setItem('sw3_premium',isPremium?'1':'0');}catch(e){}buildUI();}
+// ── PREMIUM / STRIPE FUNCTIONS (v281) ───────────────────────────────────
+
+function renderPremSection(){
+  const row=document.getElementById('prof-prem-row');
+  if(!row)return;
+  if(isPremium){
+    row.innerHTML=`<div class="prof-sub-status">
+      <div class="prof-sub-info">
+        <div class="prof-sub-label" style="color:var(--or)">⭐ Premium attivo</div>
+        <div class="prof-sub-detail">Tutti i filtri sbloccati</div>
+      </div>
+      <button class="prof-sub-btn" onclick="openCustomerPortal()">Gestisci abbonamento</button>
+    </div>`;
+  } else {
+    row.innerHTML=`<div style="display:flex;flex-direction:column;gap:10px;padding:4px 0">
+      <div>
+        <div style="font-size:12px;font-weight:600">Piano attuale: <span style="color:var(--td)">Free</span></div>
+        <div style="font-size:11px;color:var(--td);margin-top:2px">Filtri limitati · 3 consigli al giorno</div>
+      </div>
+      <button class="prof-upgrade-btn" onclick="openUpgradeModal()">⭐ Passa a Premium</button>
+    </div>`;
+  }
+}
+
+function openUpgradeModal(){
+  if(!currentUser){
+    // Non loggato: mostra login prima
+    alert(LANG==='en'?'Sign in to upgrade to Premium.':'Accedi per passare a Premium.');
+    return;
+  }
+  document.getElementById('upgrade-ov').classList.add('on');
+  document.body.style.overflow='hidden';
+}
+
+function closeUpgradeModal(){
+  document.getElementById('upgrade-ov').classList.remove('on');
+  document.body.style.overflow='';
+}
+
+function startCheckout(priceId){
+  if(!currentUser){alert(LANG==='en'?'Sign in first.':'Accedi prima.');return;}
+  const btnM=document.getElementById('upg-btn-monthly');
+  const btnY=document.getElementById('upg-btn-yearly');
+  if(btnM)btnM.disabled=true;
+  if(btnY)btnY.disabled=true;
+  const originalText=priceId===STRIPE_PRICE_MONTHLY?'Abbonati mensilmente':'Abbonati annualmente';
+  const btn=priceId===STRIPE_PRICE_MONTHLY?btnM:btnY;
+  if(btn)btn.textContent='⏳ Attendere...';
+  fetch(EDGE_URL+'/create-checkout',{
+    method:'POST',
+    headers:{'Content-Type':'application/json','Authorization':'Bearer '+_authToken},
+    body:JSON.stringify({
+      user_id:currentUser.id,
+      price_id:priceId,
+      email:currentUser.email||''
+    })
+  })
+  .then(r=>r.json())
+  .then(data=>{
+    if(data.url){
+      window.location.href=data.url;
+    } else {
+      if(btn)btn.textContent=originalText;
+      if(btnM)btnM.disabled=false;
+      if(btnY)btnY.disabled=false;
+      alert('Errore: '+(data.error||'Riprova tra poco.'));
+    }
+  })
+  .catch(err=>{
+    if(btn)btn.textContent=originalText;
+    if(btnM)btnM.disabled=false;
+    if(btnY)btnY.disabled=false;
+    alert('Errore di rete. Riprova.');
+  });
+}
+
+function openCustomerPortal(){
+  if(!currentUser){alert(LANG==='en'?'Sign in first.':'Accedi prima.');return;}
+  closeUpgradeModal();
+  fetch(EDGE_URL+'/customer-portal',{
+    method:'POST',
+    headers:{'Content-Type':'application/json','Authorization':'Bearer '+_authToken},
+    body:JSON.stringify({user_id:currentUser.id})
+  })
+  .then(r=>r.json())
+  .then(data=>{
+    if(data.url){window.location.href=data.url;}
+    else alert('Errore: '+(data.error||'Riprova tra poco.'));
+  })
+  .catch(()=>alert('Errore di rete. Riprova.'));
+}
+
+function _handlePaymentReturn(){
+  const params=new URLSearchParams(window.location.search);
+  if(params.get('payment')==='success'){
+    // Pulisci URL senza reload
+    window.history.replaceState({},'',window.location.pathname);
+    // Forza reload dati da Supabase per aggiornare is_premium
+    if(_authToken&&currentUser){
+      _loadUserData(function(d){
+        if(d){_applyUserData(d);buildUI();renderPremSection();}
+        // Mostra toast di benvenuto
+        const toast=document.getElementById('payment-toast');
+        if(toast){
+          toast.classList.add('on');
+          setTimeout(()=>toast.classList.remove('on'),4000);
+        }
+      });
+    }
+  }
+}
 
 // ── FATTI CONOSCERE ───────────────────────────────────────────────────────
 function applyFck(ans){userPrefs={};if(ans.q1==='recent')userPrefs.minYear=2000;else if(ans.q1==='from80')userPrefs.minYear=1980;if(ans.q2==='short')userPrefs.excludeLong=true;if(ans.q3==='no'){userPrefs.excludeHorror=true;userPrefs.excludeCrudo=true;}else if(ans.q3==='some')userPrefs.excludeCrudo=true;if(ans.q4==='commercial'){userPrefs.boostTags=['Colossal','CineComic'];userPrefs.excludeDifficile=true;}else if(ans.q4==='auteur')userPrefs.boostTags=["D'Autore","Capolavoro"];if(ans.q6==='never')userPrefs.excludeDifficile=true;else if(ans.q6==='sometimes')userPrefs.difficileOptIn=true;else userPrefs.excludeDifficile=false;userPrefs.onlyPlatform=ans.q7==='yes';
@@ -4445,6 +4575,7 @@ function setLang(l){
   // Try to restore existing Supabase session → auto-login
   // Handle OAuth redirect callback (hash in URL)
   if(_handleOAuthCallback())return;
+  _handlePaymentReturn();
   _restoreSession(function(valid){
     if(!valid)return;
     _dbReady.then(function(){
@@ -5663,5 +5794,48 @@ function _onbFinish(){
     <div class="share-actions" id="share-actions"></div>
   </div>
 </div>
+
+<!-- ── UPGRADE MODAL ──────────────────────────────────────────────────── -->
+<div id="upgrade-ov" onclick="if(event.target===this)closeUpgradeModal()">
+  <div id="upgrade-modal">
+    <button class="upg-close" onclick="closeUpgradeModal()">✕</button>
+    <div class="upg-title">⭐ Passa a Premium</div>
+    <div class="upg-sub">Sblocca tutti i filtri, consigli illimitati<br>e niente più pubblicità.</div>
+    <div class="upg-plans">
+      <div class="upg-plan">
+        <div class="upg-plan-name">Mensile</div>
+        <div class="upg-plan-price">€4<span>,99/mese</span></div>
+        <div class="upg-plan-note">Cancella quando vuoi</div>
+        <ul class="upg-plan-features">
+          <li>Filtri avanzati</li>
+          <li>Consigli illimitati</li>
+          <li>Niente pubblicità</li>
+          <li>Pannello news</li>
+        </ul>
+        <button class="upg-btn upg-btn-monthly" id="upg-btn-monthly" onclick="startCheckout(STRIPE_PRICE_MONTHLY)">Abbonati mensilmente</button>
+      </div>
+      <div class="upg-plan best">
+        <div class="upg-best-badge">✦ MIGLIOR VALORE</div>
+        <div class="upg-plan-name">Annuale</div>
+        <div class="upg-plan-price">€39<span>,99/anno</span></div>
+        <div class="upg-plan-note">Risparmi €19,89 rispetto al mensile</div>
+        <ul class="upg-plan-features">
+          <li>Filtri avanzati</li>
+          <li>Consigli illimitati</li>
+          <li>Niente pubblicità</li>
+          <li>Pannello news</li>
+        </ul>
+        <button class="upg-btn upg-btn-yearly" id="upg-btn-yearly" onclick="startCheckout(STRIPE_PRICE_YEARLY)">Abbonati annualmente</button>
+      </div>
+    </div>
+    <div class="upg-footer">
+      Pagamento sicuro tramite Stripe · Disdici in qualsiasi momento<br>
+      Hai già un abbonamento? <span style="color:var(--or);cursor:pointer;text-decoration:underline" onclick="openCustomerPortal()">Gestiscilo qui</span>
+    </div>
+  </div>
+</div>
+
+<!-- ── PAYMENT SUCCESS TOAST ─────────────────────────────────────────── -->
+<div id="payment-toast">🎉 Benvenuto in Premium!</div>
 
 </body></html>
