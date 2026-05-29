@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="it"><head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>SWAINZ</title><!-- v296 -->
+<title>SWAINZ</title><!-- v297 -->
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600&family=Syne:wght@600;800&family=Teko:wght@700&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
@@ -1313,6 +1313,14 @@ body.cat-revealing #afp-mobile,
     </svg>
   </div>
 </div>
+<div id="sw-footer">
+  <div class="sw-footer-links">
+    <button onclick="openPrivacy()" data-i18n="footer_privacy">Privacy Policy</button>
+    <button onclick="openTerms()" data-i18n="footer_terms">Termini di Servizio</button>
+  </div>
+  <p>© 2025 Swainz · <span data-i18n="footer_rights">Tutti i diritti riservati</span></p>
+</div>
+
 
   <div class="cta-w" style="flex-direction:column;gap:0"><div id="pool-count"></div><button id="gobtn" class="cta" onclick="go()" data-i18n="cta_btn">✦ &nbsp;Chiedi a Swainz &nbsp;✦</button></div>
 </div>
@@ -4268,7 +4276,7 @@ const T={
     fcp_h2:'Fatti conoscere da Swainz',fcp_p:'Le tue risposte guidano i consigli — modificabili in qualsiasi momento',
     fck_save:'Salva preferenze',fck_saved:'✓ Preferenze salvate!',fck_free_teaser_title:'Passa a Premium!',fck_free_teaser_sub:'Per farti conoscere al meglio da Swainz, sblocca tutte le ulteriori domande personalizzate.',
     prem_lock_title:'Funzione Premium',prem_lock_sub:'Attivalo dal profilo 👤',prem_lock_back:'← Torna',
-    card_badge:'✦ SWAINZ CONSIGLIA',sequel_badge:'Sequel',card_cast:'Cast',card_plt:'Disponibile su',card_plt_none:'Non disponibile in streaming',reset_filters:'Reset Filtri',reset_w:'Reset',filter_w:'Filtri',news_hdr:'🎬 Notizie del giorno',news_load:'Caricamento...',news_err:'Notizie non disponibili',optin_title:'Nessun risultato trovato',nofilm_title:'Nessun film disponibile',nofilm_sub:'Hai esplorato tutti i film compatibili con i tuoi criteri. I filtri verranno azzerati.',optin_sub:'I film compatibili appartengono anche ad altre categorie. Vuoi includerne una?',afp_active:'Filtri attivi',afp_excl:'Esclusi',afp_none:'Nessun filtro',card_why:'Caratteristiche',proposte_title:'Le proposte rapide di Swainz\u00a0\u00a0⚡',fck_prog_label:'Completamento',fck_prog_done:'✓ Profilo completato',cs_title:'Cine-Score',cs_card_label:'IL TUO STATUS',cs_lu_pre:'Nuovo livello sbloccato!',cs_lu_btn:'Ottimo!',cs_pts_fmt:'{{pts}} pt totali',cs_next_fmt:'Avanzamento verso {{next}}',
+    card_badge:'✦ SWAINZ CONSIGLIA',footer_privacy:'Privacy Policy',footer_terms:'Termini di Servizio',footer_rights:'Tutti i diritti riservati',sequel_badge:'Sequel',card_cast:'Cast',card_plt:'Disponibile su',card_plt_none:'Non disponibile in streaming',reset_filters:'Reset Filtri',reset_w:'Reset',filter_w:'Filtri',news_hdr:'🎬 Notizie del giorno',news_load:'Caricamento...',news_err:'Notizie non disponibili',optin_title:'Nessun risultato trovato',nofilm_title:'Nessun film disponibile',nofilm_sub:'Hai esplorato tutti i film compatibili con i tuoi criteri. I filtri verranno azzerati.',optin_sub:'I film compatibili appartengono anche ad altre categorie. Vuoi includerne una?',afp_active:'Filtri attivi',afp_excl:'Esclusi',afp_none:'Nessun filtro',card_why:'Caratteristiche',proposte_title:'Le proposte rapide di Swainz\u00a0\u00a0⚡',fck_prog_label:'Completamento',fck_prog_done:'✓ Profilo completato',cs_title:'Cine-Score',cs_card_label:'IL TUO STATUS',cs_lu_pre:'Nuovo livello sbloccato!',cs_lu_btn:'Ottimo!',cs_pts_fmt:'{{pts}} pt totali',cs_next_fmt:'Avanzamento verso {{next}}',
     card_ok:'🎬 Perfetto, grazie!',card_more:'↺ Altro',card_mark:'👁 Segna visto',card_marked:'✓ Già visto',
     card_none:'Nessun film trovato',card_none_sub:'Prova ad allargare i filtri!',card_edit:'Modifica filtri',
     ac_films:'Film',ac_people:'Persone',
@@ -4336,7 +4344,7 @@ const T={
     fcp_h2:'Let Swainz know you',fcp_p:'Your answers guide the recommendations — editable anytime',
     fck_save:'Save preferences',fck_saved:'✓ Preferences saved!',fck_free_teaser_title:'Try Premium',fck_free_teaser_sub:'Let Swainz get to know you better — unlock the full personalised questionnaire.',
     prem_lock_title:'Premium feature',prem_lock_sub:'Activate it from profile 👤',prem_lock_back:'← Back',
-    card_badge:'✦ SWAINZ RECOMMENDS',sequel_badge:'Sequel',card_cast:'Cast',card_plt:'Available on',card_plt_none:'Not available on streaming',reset_filters:'Reset filters',reset_w:'Reset',filter_w:'Filters',news_hdr:'🎬 News of the day',news_load:'Loading...',news_err:'News not available',optin_title:'No results found',nofilm_title:'No films available',nofilm_sub:'You have explored all films matching your criteria. Filters will be reset.',optin_sub:'Films matching your criteria also belong to other categories. Would you like to include one?',afp_active:'Active filters',afp_excl:'Excluded',afp_none:'No filters',card_why:'Characteristics',proposte_title:'Swainz Quick Picks\u00a0\u00a0⚡',fck_prog_label:'Completion',fck_prog_done:'✓ Profile complete',cs_title:'Cine-Score',cs_card_label:'YOUR STATUS',cs_lu_pre:'New level unlocked!',cs_lu_btn:'Awesome!',cs_pts_fmt:'{{pts}} total pts',cs_next_fmt:'Progress toward {{next}}',
+    card_badge:'✦ SWAINZ RECOMMENDS',footer_privacy:'Privacy Policy',footer_terms:'Terms of Service',footer_rights:'All rights reserved',sequel_badge:'Sequel',card_cast:'Cast',card_plt:'Available on',card_plt_none:'Not available on streaming',reset_filters:'Reset filters',reset_w:'Reset',filter_w:'Filters',news_hdr:'🎬 News of the day',news_load:'Loading...',news_err:'News not available',optin_title:'No results found',nofilm_title:'No films available',nofilm_sub:'You have explored all films matching your criteria. Filters will be reset.',optin_sub:'Films matching your criteria also belong to other categories. Would you like to include one?',afp_active:'Active filters',afp_excl:'Excluded',afp_none:'No filters',card_why:'Characteristics',proposte_title:'Swainz Quick Picks\u00a0\u00a0⚡',fck_prog_label:'Completion',fck_prog_done:'✓ Profile complete',cs_title:'Cine-Score',cs_card_label:'YOUR STATUS',cs_lu_pre:'New level unlocked!',cs_lu_btn:'Awesome!',cs_pts_fmt:'{{pts}} total pts',cs_next_fmt:'Progress toward {{next}}',
     card_ok:'🎬 Perfect, thanks!',card_more:'↺ Another',card_mark:'👁 Mark watched',card_marked:'✓ Watched',
     card_none:'No film found',card_none_sub:'Try broadening your filters!',card_edit:'Edit filters',
     ac_films:'Films',ac_people:'People',
@@ -5750,6 +5758,33 @@ function _onbFinish(){
     if(ov)ov.classList.remove('on');
   };
 })();
+
+// ── Legal panels ──────────────────────────────────────────────────────────────
+function openPrivacy(){
+  var p=document.getElementById('privacyp');
+  if(!p)return;
+  _panelOpen();
+  p.classList.add('on');
+}
+function closePrivacy(){
+  var p=document.getElementById('privacyp');
+  if(!p)return;
+  p.classList.remove('on');
+  _panelClose();
+}
+function openTerms(){
+  var p=document.getElementById('termsp');
+  if(!p)return;
+  _panelOpen();
+  p.classList.add('on');
+}
+function closeTerms(){
+  var p=document.getElementById('termsp');
+  if(!p)return;
+  p.classList.remove('on');
+  _panelClose();
+}
+
 </script>
 <!-- SHARE OVERLAY -->
 <div id="share-ov" onclick="if(event.target===this)closeShareOv()">
@@ -5799,9 +5834,236 @@ function _onbFinish(){
     </div>
     <div class="upg-foot">
       🔒 Pagamento sicuro tramite Stripe · Disdici in qualsiasi momento<br>
-      Hai già un abbonamento? <span style="color:var(--or);cursor:pointer;text-decoration:underline" onclick="openCustomerPortal()">Gestiscilo qui</span>
+      Hai già un abbonamento? <span style="color:var(--or);cursor:pointer;text-decoration:underline" onclick="openCustomerPortal()">Gestiscilo qui</span><br><span style="margin-top:6px;display:inline-block"><button onclick="openPrivacy()" style="background:none;border:none;color:rgba(85,96,112,.7);font-size:10px;cursor:pointer;font-family:inherit;text-decoration:underline">Privacy Policy</button> &nbsp;·&nbsp; <button onclick="openTerms()" style="background:none;border:none;color:rgba(85,96,112,.7);font-size:10px;cursor:pointer;font-family:inherit;text-decoration:underline">Termini di Servizio</button></span>
     </div>
   </div>
 </div>
+
+<!-- PRIVACY POLICY PANEL -->
+<div id="privacyp" class="slide-panel">
+  <button class="legal-back" onclick="closePrivacy()">← <span data-i18n="back_btn">Torna indietro</span></button>
+  <div class="legal-inner">
+    <div class="legal-logo">SWAINZ</div>
+    <h1 class="legal-h1">Privacy Policy</h1>
+    <p class="legal-upd">Ultimo aggiornamento: giugno 2025 · In vigore dal: giugno 2025</p>
+
+    <div class="legal-sec">
+      <h2>1. Titolare del Trattamento</h2>
+      <p>Il Titolare del trattamento dei dati personali è il soggetto che gestisce il sito e il servizio Swainz (swainz.it). Per esercitare i tuoi diritti o per qualsiasi informazione relativa al trattamento dei tuoi dati, puoi scrivere all'indirizzo email: <a href="mailto:privacy@swainz.it">privacy@swainz.it</a></p>
+    </div>
+
+    <div class="legal-sec">
+      <h2>2. Dati Raccolti</h2>
+      <p>Swainz raccoglie i seguenti dati personali:</p>
+      <ul>
+        <li><strong>Dati di registrazione:</strong> indirizzo email, nome, cognome, data di nascita (opzionale), metodo di autenticazione (email/password, Google, Facebook)</li>
+        <li><strong>Dati di utilizzo:</strong> film segnati come visti, cronologia dei consigli ricevuti, preferenze impostate tramite il questionario FCK, filtri selezionati</li>
+        <li><strong>Dati di pagamento:</strong> il numero di carta e i dati finanziari sono gestiti esclusivamente da Stripe e non transitano né vengono conservati sui nostri server. Conserviamo solo l'ID cliente Stripe, l'ID abbonamento e lo stato dell'abbonamento</li>
+        <li><strong>Dati tecnici:</strong> indirizzo IP (gestito da Vercel/Supabase), log di accesso tecnici necessari al funzionamento del servizio</li>
+      </ul>
+      <p>Swainz <strong>non raccoglie</strong> dati sensibili (salute, opinioni politiche, religione, ecc.) e non effettua profilazione automatica finalizzata a decisioni che producono effetti giuridici sull'utente.</p>
+    </div>
+
+    <div class="legal-sec">
+      <h2>3. Finalità e Basi Giuridiche del Trattamento</h2>
+      <table class="legal-table">
+        <tr><th>Finalità</th><th>Base giuridica (GDPR)</th></tr>
+        <tr><td>Creazione e gestione dell'account utente</td><td>Esecuzione del contratto (art. 6.1.b)</td></tr>
+        <tr><td>Erogazione del servizio di raccomandazione</td><td>Esecuzione del contratto (art. 6.1.b)</td></tr>
+        <tr><td>Gestione dell'abbonamento Premium e dei pagamenti</td><td>Esecuzione del contratto (art. 6.1.b)</td></tr>
+        <tr><td>Invio di comunicazioni relative al servizio</td><td>Esecuzione del contratto (art. 6.1.b)</td></tr>
+        <tr><td>Adempimenti fiscali e contabili</td><td>Obbligo legale (art. 6.1.c)</td></tr>
+        <tr><td>Miglioramento del servizio e analisi aggregate</td><td>Legittimo interesse (art. 6.1.f)</td></tr>
+      </table>
+    </div>
+
+    <div class="legal-sec">
+      <h2>4. Destinatari dei Dati — Servizi di Terze Parti</h2>
+      <p>I tuoi dati possono essere condivisi con i seguenti fornitori, che agiscono come Responsabili del trattamento ai sensi dell'art. 28 GDPR:</p>
+      <table class="legal-table">
+        <tr><th>Fornitore</th><th>Servizio</th><th>Paese</th><th>Garanzie</th></tr>
+        <tr><td><strong>Supabase Inc.</strong></td><td>Database, autenticazione, storage dati</td><td>USA</td><td>Standard Contractual Clauses (SCCs)</td></tr>
+        <tr><td><strong>Stripe, Inc.</strong></td><td>Elaborazione pagamenti</td><td>USA/Irlanda</td><td>Decisione di adeguatezza UE-USA (DPF)</td></tr>
+        <tr><td><strong>Vercel Inc.</strong></td><td>Hosting e distribuzione</td><td>USA</td><td>Standard Contractual Clauses (SCCs)</td></tr>
+        <tr><td><strong>Google LLC</strong></td><td>Autenticazione OAuth (opzionale)</td><td>USA</td><td>Decisione di adeguatezza UE-USA (DPF)</td></tr>
+        <tr><td><strong>Meta Platforms</strong></td><td>Autenticazione OAuth (opzionale)</td><td>USA</td><td>Decisione di adeguatezza UE-USA (DPF)</td></tr>
+      </table>
+      <p>I dati trasferiti verso paesi terzi (USA) sono protetti da adeguate garanzie come indicato nella tabella. Non vendiamo, cediamo o noleggiamo i tuoi dati personali a terzi per finalità di marketing.</p>
+    </div>
+
+    <div class="legal-sec">
+      <h2>5. Periodo di Conservazione</h2>
+      <ul>
+        <li><strong>Dati dell'account:</strong> conservati per tutta la durata del rapporto contrattuale. In caso di cancellazione dell'account, i dati vengono eliminati entro 30 giorni, salvo obblighi legali</li>
+        <li><strong>Dati fiscali e di fatturazione:</strong> conservati per 10 anni ai sensi della normativa fiscale italiana</li>
+        <li><strong>Log tecnici:</strong> conservati per un massimo di 90 giorni</li>
+        <li><strong>Dati di utilizzo (film visti, preferenze):</strong> conservati per tutta la durata dell'account e cancellati con esso</li>
+      </ul>
+    </div>
+
+    <div class="legal-sec">
+      <h2>6. I Tuoi Diritti (GDPR Artt. 15–22)</h2>
+      <p>In qualità di interessato, hai i seguenti diritti che puoi esercitare in qualsiasi momento scrivendo a <a href="mailto:privacy@swainz.it">privacy@swainz.it</a>:</p>
+      <ul>
+        <li><strong>Diritto di accesso (art. 15):</strong> ottenere conferma del trattamento e una copia dei tuoi dati</li>
+        <li><strong>Diritto di rettifica (art. 16):</strong> correggere dati inesatti o incompleti</li>
+        <li><strong>Diritto alla cancellazione (art. 17):</strong> richiedere l'eliminazione dei tuoi dati ("diritto all'oblio")</li>
+        <li><strong>Diritto di limitazione (art. 18):</strong> limitare il trattamento in determinate circostanze</li>
+        <li><strong>Diritto alla portabilità (art. 20):</strong> ricevere i tuoi dati in formato strutturato e leggibile da macchina</li>
+        <li><strong>Diritto di opposizione (art. 21):</strong> opporti al trattamento basato su legittimo interesse</li>
+        <li><strong>Diritto di reclamo:</strong> presentare reclamo all'Autorità Garante per la Protezione dei Dati Personali (<a href="https://www.garanteprivacy.it" target="_blank">garanteprivacy.it</a>)</li>
+      </ul>
+      <p>Daremo riscontro alle richieste entro 30 giorni, prorogabili di ulteriori 60 giorni in casi complessi.</p>
+    </div>
+
+    <div class="legal-sec">
+      <h2>7. Cookie e Tecnologie di Tracciamento</h2>
+      <p>Swainz utilizza esclusivamente:</p>
+      <ul>
+        <li><strong>Cookie tecnici strettamente necessari:</strong> per mantenere la sessione di autenticazione e le preferenze dell'utente (es. lingua). Questi cookie sono indispensabili al funzionamento del servizio e non richiedono consenso</li>
+        <li><strong>LocalStorage:</strong> per conservare preferenze, film visti, storico consigli e impostazioni direttamente nel tuo browser. Questi dati non vengono inviati a server di terze parti</li>
+      </ul>
+      <p>Swainz <strong>non utilizza</strong> cookie di profilazione, cookie di terze parti per pubblicità o sistemi di analytics basati su cookie che richiedano il tuo consenso preventivo.</p>
+    </div>
+
+    <div class="legal-sec">
+      <h2>8. Sicurezza dei Dati</h2>
+      <p>Adottiamo misure tecniche e organizzative adeguate per proteggere i tuoi dati: trasmissioni cifrate tramite HTTPS/TLS, accesso ai dati limitato al personale autorizzato, gestione dei pagamenti delegata a Stripe (certificato PCI-DSS), autenticazione sicura tramite Supabase Auth.</p>
+    </div>
+
+    <div class="legal-sec">
+      <h2>9. Minori</h2>
+      <p>Il servizio è rivolto a persone di età pari o superiore a 16 anni. Non raccogliamo consapevolmente dati personali di minori di 16 anni. Se sei genitore o tutore e ritieni che tuo figlio ci abbia fornito dati personali, contattaci a <a href="mailto:privacy@swainz.it">privacy@swainz.it</a>.</p>
+    </div>
+
+    <div class="legal-sec">
+      <h2>10. Modifiche alla Privacy Policy</h2>
+      <p>Ci riserviamo il diritto di aggiornare questa Privacy Policy. In caso di modifiche sostanziali, ti informeremo tramite email o tramite avviso visibile nell'app. La data di "Ultimo aggiornamento" in cima al documento indica la versione vigente.</p>
+    </div>
+
+    <div class="legal-divider"></div>
+    <div class="legal-sec">
+      <p style="font-size:12px;color:var(--td);text-align:center">Per qualsiasi domanda: <a href="mailto:privacy@swainz.it">privacy@swainz.it</a></p>
+    </div>
+  </div>
+</div>
+
+<!-- TERMINI DI SERVIZIO PANEL -->
+<div id="termsp" class="slide-panel">
+  <button class="legal-back" onclick="closeTerms()">← <span data-i18n="back_btn">Torna indietro</span></button>
+  <div class="legal-inner">
+    <div class="legal-logo">SWAINZ</div>
+    <h1 class="legal-h1">Termini di Servizio</h1>
+    <p class="legal-upd">Ultimo aggiornamento: giugno 2025 · In vigore dal: giugno 2025</p>
+
+    <div class="legal-sec">
+      <h2>1. Descrizione del Servizio</h2>
+      <p>Swainz (disponibile su swainz.it) è un servizio web di raccomandazione cinematografica personalizzata. Il servizio propone suggerimenti di film in base alle preferenze dell'utente, gestite tramite un sistema di filtri, un questionario di profilazione (FCK) e un database di oltre 1.000 titoli.</p>
+      <p>Il servizio è disponibile in due versioni: <strong>Free</strong> (con limitazioni) e <strong>Premium</strong> (a pagamento, con funzionalità complete).</p>
+    </div>
+
+    <div class="legal-sec">
+      <h2>2. Accettazione dei Termini</h2>
+      <p>Utilizzando Swainz, l'utente dichiara di aver letto, compreso e accettato integralmente i presenti Termini di Servizio e la <button onclick="closeTerms();setTimeout(openPrivacy,150)" style="background:none;border:none;color:var(--or);cursor:pointer;font-size:inherit;font-family:inherit;text-decoration:underline;padding:0">Privacy Policy</button>.</p>
+      <p>Se non accetti questi Termini, ti preghiamo di non utilizzare il servizio.</p>
+    </div>
+
+    <div class="legal-sec">
+      <h2>3. Registrazione e Account</h2>
+      <ul>
+        <li>Per accedere al servizio è necessario registrarsi fornendo un indirizzo email valido o autenticandosi tramite Google o Facebook</li>
+        <li>L'utente è responsabile della riservatezza delle proprie credenziali di accesso</li>
+        <li>L'età minima per utilizzare il servizio è <strong>16 anni</strong>. Registrandoti dichiari di avere almeno 16 anni</li>
+        <li>È consentito un solo account per persona. La creazione di account multipli può comportare la sospensione del servizio</li>
+        <li>Swainz si riserva il diritto di sospendere o cancellare account che violino i presenti Termini</li>
+      </ul>
+    </div>
+
+    <div class="legal-sec">
+      <h2>4. Piani Free e Premium</h2>
+      <table class="legal-table">
+        <tr><th>Funzionalità</th><th>Free</th><th>Premium</th></tr>
+        <tr><td>Consigli giornalieri</td><td>3 al giorno</td><td>Illimitati</td></tr>
+        <tr><td>Gruppi filtro</td><td>Base (g1, g3, g7, g8)</td><td>Tutti (g1–g8)</td></tr>
+        <tr><td>Questionario FCK</td><td>Parziale</td><td>Completo</td></tr>
+        <tr><td>Pannello news cinema</td><td>Non disponibile</td><td>Disponibile</td></tr>
+        <tr><td>Pubblicità</td><td>Presente</td><td>Assente</td></tr>
+      </table>
+      <p>Le funzionalità del piano Free possono essere modificate in qualsiasi momento, salvo preavviso ragionevole agli utenti registrati.</p>
+    </div>
+
+    <div class="legal-sec">
+      <h2>5. Abbonamento Premium — Prezzi e Pagamenti</h2>
+      <ul>
+        <li><strong>Piano Mensile:</strong> €2,50/mese con rinnovo automatico mensile</li>
+        <li><strong>Piano Annuale:</strong> €20,00/anno con rinnovo automatico annuale (equivale a €1,67/mese)</li>
+      </ul>
+      <p>I pagamenti sono elaborati in modo sicuro tramite <strong>Stripe</strong>. Attivando un abbonamento, l'utente autorizza il rinnovo automatico alla scadenza del periodo scelto, salvo cancellazione preventiva.</p>
+      <p>I prezzi indicati sono comprensivi di tutte le tasse applicabili. Swainz si riserva il diritto di modificare i prezzi, comunicandolo agli abbonati attivi con almeno 30 giorni di preavviso via email.</p>
+    </div>
+
+    <div class="legal-sec">
+      <h2>6. Cancellazione e Diritto di Recesso</h2>
+      <p><strong>Cancellazione dell'abbonamento:</strong> l'utente può cancellare l'abbonamento in qualsiasi momento tramite il portale clienti Stripe accessibile dalla sezione Profilo dell'app. La cancellazione è efficace alla fine del periodo già pagato; l'accesso Premium rimane attivo fino alla scadenza naturale.</p>
+      <p><strong>Diritto di recesso (D.Lgs. 206/2005 – Codice del Consumo):</strong> l'utente consumatore ha diritto di recedere dal contratto entro 14 giorni dall'acquisto senza dover fornire motivazioni. Tuttavia, attivando l'abbonamento, l'utente acconsente espressamente all'esecuzione immediata del servizio digitale e riconosce che, avendo già fruito del servizio, il diritto di recesso decade ai sensi dell'art. 59, comma 1, lett. o) del Codice del Consumo.</p>
+      <p>Per richiedere il recesso prima dell'attivazione del servizio, contatta <a href="mailto:support@swainz.it">support@swainz.it</a> entro 14 giorni dall'acquisto.</p>
+    </div>
+
+    <div class="legal-sec">
+      <h2>7. Rimborsi</h2>
+      <p>Non sono previsti rimborsi parziali per periodi di abbonamento non utilizzati, salvo diversa valutazione discrezionale da parte di Swainz in casi eccezionali. Per richieste di rimborso scrivi a <a href="mailto:support@swainz.it">support@swainz.it</a>.</p>
+    </div>
+
+    <div class="legal-sec">
+      <h2>8. Proprietà Intellettuale</h2>
+      <ul>
+        <li>Il codice sorgente, il design, il logo, il nome "Swainz" e i contenuti originali del servizio sono di proprietà esclusiva del Titolare e sono protetti dalla normativa sul diritto d'autore</li>
+        <li>Le informazioni sui film (titoli, registi, cast, trame) sono derivate da fonti pubbliche e da database come TMDB e IMDb, ciascuno soggetto ai propri termini di utilizzo</li>
+        <li>È vietato copiare, riprodurre, distribuire, modificare o creare opere derivate dal servizio senza autorizzazione scritta</li>
+      </ul>
+    </div>
+
+    <div class="legal-sec">
+      <h2>9. Limitazione di Responsabilità</h2>
+      <p>Swainz è un servizio di <strong>raccomandazione</strong>: i suggerimenti cinematografici hanno carattere puramente indicativo e soggettivo. Il Titolare non garantisce che i film consigliati siano disponibili sulle piattaforme indicate al momento della consultazione, in quanto la disponibilità dei contenuti streaming può cambiare senza preavviso.</p>
+      <p>Il servizio è fornito "così com'è" e "come disponibile". Il Titolare non risponde di danni diretti o indiretti derivanti dall'uso o dall'impossibilità di usare il servizio, interruzioni temporanee, errori o imprecisioni nelle informazioni sui film.</p>
+      <p>La responsabilità del Titolare è in ogni caso limitata all'importo pagato dall'utente negli ultimi 12 mesi.</p>
+    </div>
+
+    <div class="legal-sec">
+      <h2>10. Condotta dell'Utente</h2>
+      <p>L'utente si impegna a non:</p>
+      <ul>
+        <li>Tentare di aggirare le limitazioni del piano Free con mezzi tecnici o fraudolenti</li>
+        <li>Accedere ai dati di altri utenti o al backend del servizio in modo non autorizzato</li>
+        <li>Usare il servizio per scopi illeciti o contrari alla buona fede</li>
+        <li>Condividere le credenziali dell'account con terzi</li>
+      </ul>
+    </div>
+
+    <div class="legal-sec">
+      <h2>11. Modifiche al Servizio e ai Termini</h2>
+      <p>Il Titolare si riserva il diritto di modificare, sospendere o interrompere il servizio o parti di esso in qualsiasi momento, con o senza preavviso per modifiche non sostanziali.</p>
+      <p>In caso di modifiche sostanziali ai presenti Termini, gli utenti registrati saranno informati via email con almeno 15 giorni di anticipo. L'uso continuato del servizio dopo tale data costituisce accettazione dei nuovi Termini.</p>
+    </div>
+
+    <div class="legal-sec">
+      <h2>12. Legge Applicabile e Foro Competente</h2>
+      <p>I presenti Termini sono regolati dalla legge italiana. Per qualsiasi controversia derivante dall'uso del servizio, il foro competente è quello del domicilio del consumatore, ai sensi della normativa italiana a tutela del consumatore (D.Lgs. 206/2005).</p>
+      <p>Per gli utenti professionisti, il foro esclusivo è quello del luogo di sede del Titolare.</p>
+    </div>
+
+    <div class="legal-sec">
+      <h2>13. Contatti</h2>
+      <p>Per qualsiasi domanda relativa ai presenti Termini: <a href="mailto:support@swainz.it">support@swainz.it</a></p>
+    </div>
+
+    <div class="legal-divider"></div>
+    <div class="legal-sec">
+      <p style="font-size:12px;color:var(--td);text-align:center">Swainz · swainz.it · <a href="mailto:support@swainz.it">support@swainz.it</a></p>
+    </div>
+  </div>
+</div>
+
 <div id="payment-toast">🎉 Benvenuto in Premium!</div>
 </body></html>
