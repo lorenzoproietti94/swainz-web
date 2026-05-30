@@ -1315,8 +1315,9 @@ body.cat-revealing #afp-mobile,
 </div>
 <div id="sw-footer">
   <div class="sw-footer-links">
-    <button onclick="openPrivacy()" data-i18n="footer_privacy">Privacy Policy</button>
-    <button onclick="openTerms()" data-i18n="footer_terms">Termini di Servizio</button>
+    <span class="sw-footer-link" onclick="openPrivacy()" data-i18n="footer_privacy">Privacy Policy</span>
+    <span class="sw-footer-sep">·</span>
+    <span class="sw-footer-link" onclick="openTerms()" data-i18n="footer_terms">Termini di Servizio</span>
   </div>
   <p>© 2025 Swainz · <span data-i18n="footer_rights">Tutti i diritti riservati</span></p>
 </div>
@@ -5760,30 +5761,10 @@ function _onbFinish(){
 })();
 
 // ── Legal panels ──────────────────────────────────────────────────────────────
-function openPrivacy(){
-  var p=document.getElementById('privacyp');
-  if(!p)return;
-  _panelOpen();
-  p.classList.add('on');
-}
-function closePrivacy(){
-  var p=document.getElementById('privacyp');
-  if(!p)return;
-  p.classList.remove('on');
-  _panelClose();
-}
-function openTerms(){
-  var p=document.getElementById('termsp');
-  if(!p)return;
-  _panelOpen();
-  p.classList.add('on');
-}
-function closeTerms(){
-  var p=document.getElementById('termsp');
-  if(!p)return;
-  p.classList.remove('on');
-  _panelClose();
-}
+function openPrivacy(){var p=document.getElementById('privacyp');if(p)p.classList.add('on');}
+function closePrivacy(){var p=document.getElementById('privacyp');if(p)p.classList.remove('on');}
+function openTerms(){var p=document.getElementById('termsp');if(p)p.classList.add('on');}
+function closeTerms(){var p=document.getElementById('termsp');if(p)p.classList.remove('on');}
 
 </script>
 <!-- SHARE OVERLAY -->
@@ -5834,7 +5815,7 @@ function closeTerms(){
     </div>
     <div class="upg-foot">
       🔒 Pagamento sicuro tramite Stripe · Disdici in qualsiasi momento<br>
-      Hai già un abbonamento? <span style="color:var(--or);cursor:pointer;text-decoration:underline" onclick="openCustomerPortal()">Gestiscilo qui</span><br><span style="margin-top:6px;display:inline-block"><button onclick="openPrivacy()" style="background:none;border:none;color:rgba(85,96,112,.7);font-size:10px;cursor:pointer;font-family:inherit;text-decoration:underline">Privacy Policy</button> &nbsp;·&nbsp; <button onclick="openTerms()" style="background:none;border:none;color:rgba(85,96,112,.7);font-size:10px;cursor:pointer;font-family:inherit;text-decoration:underline">Termini di Servizio</button></span>
+      Hai già un abbonamento? <span style="color:var(--or);cursor:pointer;text-decoration:underline" onclick="openCustomerPortal()">Gestiscilo qui</span><br><span style="margin-top:8px;display:flex;justify-content:center;gap:10px;align-items:center"><span onclick="openPrivacy()" style="color:rgba(120,135,155,.65);font-size:10px;cursor:pointer;">Privacy Policy</span><span style="color:rgba(85,96,112,.4);font-size:10px">·</span><span onclick="openTerms()" style="color:rgba(120,135,155,.65);font-size:10px;cursor:pointer;">Termini di Servizio</span></span>
     </div>
   </div>
 </div>
