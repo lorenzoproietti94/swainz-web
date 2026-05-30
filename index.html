@@ -1002,6 +1002,36 @@ body.cat-revealing #afp-mobile,
 .vph-prem-btn{padding:6px 14px;font-size:12px;white-space:nowrap}
 .hdr-prem-btn{padding:7px 16px;font-size:12px;white-space:nowrap}
 .vph-prem-btn:hover,.hdr-prem-btn:hover{transform:translateY(-1px);filter:brightness(1.15)}
+
+/* ── LEGAL PANELS (Privacy & Terms) ── */
+#privacyp,#termsp{z-index:330;background:#0a0a14;display:flex;flex-direction:column}
+.legal-inner{max-width:760px;margin:0 auto;width:100%;padding:28px 24px 60px;flex:1;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
+.legal-back{display:flex;align-items:center;gap:8px;background:none;border:none;color:var(--td);font-size:13px;cursor:pointer;padding:16px 24px 0;font-family:'Inter',sans-serif;transition:color .2s}
+.legal-back:hover{color:var(--tx)}
+.legal-logo{font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:5px;color:var(--or);margin-bottom:4px}
+.legal-h1{font-family:'Syne',sans-serif;font-size:26px;font-weight:800;margin-bottom:6px;line-height:1.2}
+.legal-upd{font-size:11px;color:var(--td);margin-bottom:32px;letter-spacing:.5px}
+.legal-sec{margin-bottom:28px}
+.legal-sec h2{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--or);margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid rgba(255,104,32,.18)}
+.legal-sec p{font-size:13.5px;color:rgba(184,200,222,.85);line-height:1.75;margin-bottom:10px}
+.legal-sec ul{padding-left:18px;margin-bottom:10px}
+.legal-sec ul li{font-size:13.5px;color:rgba(184,200,222,.85);line-height:1.75;margin-bottom:5px}
+.legal-sec ul li::marker{color:var(--or)}
+.legal-sec strong{color:var(--tx)}
+.legal-sec a{color:var(--or);text-decoration:none}
+.legal-sec a:hover{text-decoration:underline}
+.legal-table{width:100%;border-collapse:collapse;margin:10px 0 14px;font-size:12.5px}
+.legal-table th{text-align:left;padding:8px 12px;background:rgba(255,104,32,.1);color:var(--or);font-weight:600;border:1px solid rgba(255,255,255,.07)}
+.legal-table td{padding:8px 12px;border:1px solid rgba(255,255,255,.06);color:rgba(184,200,222,.8);line-height:1.55;vertical-align:top}
+.legal-table tr:nth-child(even) td{background:rgba(255,255,255,.025)}
+.legal-divider{height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.07),transparent);margin:32px 0}
+/* ── APP FOOTER ── */
+#sw-footer{text-align:center;padding:16px 18px 20px;margin-top:8px;width:100%}
+#sw-footer p{font-size:11px;color:rgba(85,96,112,.6);margin-top:4px}
+.sw-footer-links{display:flex;justify-content:center;align-items:center;gap:8px;margin-bottom:4px;flex-wrap:wrap}
+.sw-footer-link{color:rgba(140,155,175,.7);font-size:12px;cursor:pointer;transition:color .2s}
+.sw-footer-link:hover{color:rgba(190,205,225,.9)}
+.sw-footer-sep{color:rgba(85,96,112,.4);font-size:12px;user-select:none}
 </style></head>
 <body>
 <div id="deco"><span class="o1"></span><span class="b1"></span></div>
@@ -1121,6 +1151,14 @@ body.cat-revealing #afp-mobile,
       </div>
     </div>
     <div id="ad-slot-bottom"><span class="ad-slot-label">ADV</span></div>
+  <div id="sw-footer">
+    <div class="sw-footer-links">
+      <span class="sw-footer-link" onclick="openPrivacy()">Privacy Policy</span>
+      <span class="sw-footer-sep">·</span>
+      <span class="sw-footer-link" onclick="openTerms()">Termini di Servizio</span>
+    </div>
+    <p>© 2025 Swainz</p>
+  </div>
   </div>
 
 <!-- CAT WALKING (inside app so z-index is relative to app stacking context — below cta-w z-index:10) -->
@@ -1311,14 +1349,6 @@ body.cat-revealing #afp-mobile,
       <line x1="195" y1="112" x2="216" y2="116" stroke="#3a3a5a" stroke-width="1" opacity="0.6"/>
       <line x1="195" y1="115" x2="218" y2="121" stroke="#3a3a5a" stroke-width="1" opacity="0.6"/>
     </svg>
-  </div>
-  <div id="sw-footer">
-    <div class="sw-footer-links">
-      <span class="sw-footer-link" onclick="openPrivacy()" data-i18n="footer_privacy">Privacy Policy</span>
-      <span class="sw-footer-sep">·</span>
-      <span class="sw-footer-link" onclick="openTerms()" data-i18n="footer_terms">Termini di Servizio</span>
-    </div>
-    <p>© 2025 Swainz · <span data-i18n="footer_rights">Tutti i diritti riservati</span></p>
   </div>
 </div>
 
