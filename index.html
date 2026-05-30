@@ -1,7 +1,7 @@
 <!DOCTYPE html><html lang="it"><head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>SWAINZ</title><!-- v299 -->
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600&family=Syne:wght@600;800&family=Teko:wght@700&display=swap" rel="stylesheet">
+<title>SWAINZ</title><!-- v300 -->
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600&family=Syne:wght@600;700;800&family=Teko:wght@500;700&family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 :root{--bg:#080810;--card:rgba(14,14,22,.82);--bl:#2563ff;--bl2:#1a3dbf;--or:#ff6820;--or2:#b53000;--gbl:rgba(37,99,255,.28);--gor:rgba(255,104,32,.26);--tx:#b8c8de;--td:#556070;--br:rgba(255,255,255,.07);--bh:rgba(255,255,255,.18);--bro:rgba(255,104,32,.28);--boh:rgba(255,104,32,.55);--cb:rgba(255,255,255,.03);--ca:rgba(37,99,255,.18);--coa:rgba(255,104,32,.08)}
@@ -1032,6 +1032,195 @@ body.cat-revealing #afp-mobile,
 .sw-footer-link{color:rgba(140,155,175,.7);font-size:12px;cursor:pointer;transition:color .2s}
 .sw-footer-link:hover{color:rgba(190,205,225,.9)}
 .sw-footer-sep{color:rgba(85,96,112,.4);font-size:12px;user-select:none}
+
+/* ════════════════════════════════════════════════════════════════════════
+   SWAINZ v300 — CINEMATIC DARK LUXURY REFINEMENT LAYER
+   Overrides applied on top of the base sheet. Logic & structure untouched.
+   ════════════════════════════════════════════════════════════════════════ */
+:root{
+  /* deeper, warmer-cooled cinematic base */
+  --bg:#070710;
+  --bg2:#0b0b16;
+  --card:rgba(17,18,28,.72);
+  --card-solid:rgba(15,16,25,.96);
+  /* brand accent preserved, with a refined gradient companion */
+  --or:#ff6820; --or-lit:#ff8a4d; --or2:#9e2b08;
+  --bl:#3a7bff; --bl2:#1733a8;
+  --gold:#e9c178;
+  --tx:#c4d2e6; --tx-hi:#eef3fb; --td:#6a7488;
+  /* hairline borders, more luminous */
+  --br:rgba(255,255,255,.06);
+  --bh:rgba(255,255,255,.16);
+  --bro:rgba(255,104,32,.30);
+  --boh:rgba(255,138,77,.62);
+  --cb:rgba(255,255,255,.025);
+  --ca:rgba(58,123,255,.16);
+  --coa:rgba(255,104,32,.07);
+  /* signature shadows */
+  --sh-soft:0 2px 8px rgba(0,0,0,.4),0 8px 28px rgba(0,0,0,.32);
+  --sh-card:0 1px 0 rgba(255,255,255,.04) inset,0 18px 48px -16px rgba(0,0,0,.7);
+  --sh-or:0 0 0 1px rgba(255,104,32,.18),0 8px 32px -6px rgba(255,104,32,.4);
+  --ease:cubic-bezier(.22,1,.36,1);
+}
+/* faint film-grain + vignette over everything for atmosphere */
+html,body{font-family:'Inter',sans-serif;-webkit-font-smoothing:antialiased;letter-spacing:.005em}
+body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:1;
+  background:radial-gradient(130% 130% at 50% -10%,transparent 55%,rgba(0,0,0,.45) 100%);
+  mix-blend-mode:multiply}
+body::before{
+  background:
+    radial-gradient(ellipse 78% 58% at -8% 102%,rgba(255,104,32,.16) 0,transparent 56%),
+    radial-gradient(ellipse 64% 52% at 108% -4%,rgba(58,123,255,.14) 0,transparent 56%),
+    radial-gradient(ellipse 120% 80% at 50% 120%,rgba(255,104,32,.05) 0,transparent 60%)!important}
+#deco .o1{border-color:rgba(255,104,32,.10);box-shadow:0 0 120px rgba(255,104,32,.06) inset}
+#deco .b1{border-color:rgba(58,123,255,.09);box-shadow:0 0 120px rgba(58,123,255,.05) inset}
+
+/* ─── DISPLAY TYPE: Fraunces for editorial titling ─── */
+.fi h2,.fc-tit,.vph-t h2,.prem-lock h3,.cov-title{
+  font-family:'Fraunces','Syne',serif!important;font-weight:500;letter-spacing:-.012em;
+  font-optical-sizing:auto;color:var(--tx-hi)}
+.fc-tit{font-weight:600;letter-spacing:-.02em}
+.logo-sm,.logo-big,.ad-logo{
+  background:linear-gradient(118deg,#7ea8ff 0%,#c4d2e6 38%,var(--or-lit) 72%,var(--or) 100%)!important;
+  -webkit-background-clip:text!important;background-clip:text;-webkit-text-fill-color:transparent!important}
+
+/* ─── LOGIN: cinematic gradient veil + refined entry ─── */
+#ls::before{background:
+  linear-gradient(165deg,rgba(4,5,16,.62) 0%,rgba(6,8,26,.5) 42%,rgba(14,4,2,.66) 100%),
+  radial-gradient(80% 70% at 50% 116%,rgba(255,104,32,.22),transparent 60%)!important}
+.logo-big{filter:drop-shadow(0 0 44px rgba(255,104,32,.32)) drop-shadow(0 2px 2px rgba(0,0,0,.5));
+  animation:lux-rise .9s var(--ease) both}
+.logo-tag{font-family:'Syne',sans-serif;letter-spacing:4px;animation:lux-rise 1s var(--ease) .08s both}
+.lbs{animation:lux-rise 1s var(--ease) .16s both}
+.lb{border-radius:14px;background:rgba(20,21,32,.55);backdrop-filter:blur(14px);
+  transition:transform .35s var(--ease),box-shadow .35s var(--ease),border-color .35s var(--ease),background .35s var(--ease)}
+.lb:hover{transform:translateY(-2px);box-shadow:var(--sh-soft);background:rgba(28,30,44,.7)}
+.lb.demo{background:linear-gradient(118deg,var(--or2),var(--or) 55%,#c44a12);box-shadow:var(--sh-or)}
+.lb.demo:hover{box-shadow:0 0 0 1px rgba(255,138,77,.4),0 14px 44px -8px rgba(255,104,32,.6);transform:translateY(-3px)}
+@keyframes lux-rise{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+
+/* ─── HEADER: floating glass bar ─── */
+.hdr{padding:13px 26px;
+  background:linear-gradient(180deg,rgba(8,9,18,.86),rgba(8,9,18,.66))!important;
+  backdrop-filter:blur(30px) saturate(140%);-webkit-backdrop-filter:blur(30px) saturate(140%);
+  border-bottom:1px solid rgba(255,255,255,.05)!important;
+  box-shadow:0 1px 0 rgba(255,255,255,.03) inset,0 12px 40px -18px rgba(0,0,0,.9)!important}
+.logo-sm{letter-spacing:9px;filter:drop-shadow(0 0 18px rgba(255,104,32,.18))}
+.bdg{background:rgba(255,255,255,.025);border:1px solid var(--br);border-radius:22px;
+  box-shadow:0 1px 0 rgba(255,255,255,.03) inset}
+.bdg-n{color:var(--or-lit)}
+.nav-drop-btn,.icon-btn,.lang-btn{transition:all .3s var(--ease)}
+.nav-drop-menu{background:rgba(13,14,24,.92);backdrop-filter:blur(24px);
+  border:1px solid rgba(255,255,255,.08);box-shadow:0 18px 56px -12px rgba(0,0,0,.85),0 1px 0 rgba(255,255,255,.04) inset}
+.nav-drop-item:hover{background:linear-gradient(90deg,rgba(255,104,32,.14),transparent);color:var(--or-lit)}
+
+/* ─── FILTER GROUPS: layered glass cards ─── */
+#app{padding-bottom:120px}
+.fi p{color:var(--td);letter-spacing:.02em}
+.fgrp{border-radius:18px;background:var(--card);
+  border:1px solid var(--br);backdrop-filter:blur(16px) saturate(130%);
+  -webkit-backdrop-filter:blur(16px) saturate(130%);
+  box-shadow:var(--sh-card);transition:border-color .35s var(--ease),box-shadow .35s var(--ease),transform .35s var(--ease)}
+.fgrp:hover{border-color:var(--bh);box-shadow:var(--sh-card),0 0 0 1px rgba(255,255,255,.04);transform:translateY(-1px)}
+.fght{letter-spacing:3.4px;font-family:'Syne',sans-serif;font-weight:700}
+.fght.bl{color:#6f9bff}.fght.or{color:var(--or-lit)}
+.fgb{padding:0 18px 17px}
+
+/* ─── CHIPS: tactile, glowing on select ─── */
+.chip{border-radius:11px;background:rgba(255,255,255,.022);border:1px solid var(--br);
+  letter-spacing:.01em;transition:all .22s var(--ease);position:relative;overflow:hidden}
+.chip:hover{border-color:var(--bh);background:rgba(255,255,255,.06);transform:translateY(-1px)}
+.chip.on{border-color:rgba(58,123,255,.6);
+  background:linear-gradient(135deg,rgba(58,123,255,.22),rgba(58,123,255,.1));
+  color:#fff;box-shadow:0 0 0 1px rgba(58,123,255,.3),0 6px 20px -6px rgba(58,123,255,.5)}
+.chip.ex.on{border-color:var(--or);
+  background:linear-gradient(135deg,rgba(255,104,32,.2),rgba(255,104,32,.08));
+  color:var(--or-lit);box-shadow:0 0 0 1px rgba(255,104,32,.3),0 6px 20px -6px rgba(255,104,32,.5)}
+
+/* ─── PROPOSTE RAPIDE & LAB: richer material ─── */
+#proposte-rapide{border-radius:20px;border:1px solid rgba(255,104,32,.22);
+  background:linear-gradient(150deg,rgba(28,17,10,.96),rgba(18,12,8,.97));
+  box-shadow:var(--sh-card),0 0 0 1px rgba(255,104,32,.06)}
+.proposte-title{color:var(--or-lit);letter-spacing:4px}
+.quick-pill{border-radius:15px;border:1px solid rgba(255,104,32,.24);
+  background:linear-gradient(135deg,rgba(255,104,32,.08),rgba(255,104,32,.02));
+  transition:all .28s var(--ease)}
+.quick-pill:hover{border-color:var(--or-lit);transform:translateY(-3px);
+  box-shadow:0 12px 30px -10px rgba(255,104,32,.5),0 0 0 1px rgba(255,138,77,.3)}
+.quick-pill .qp-plus{color:var(--or-lit)}
+.lab-box{border-radius:20px;border:1px solid rgba(58,123,255,.16);
+  background:linear-gradient(150deg,rgba(10,14,26,.97),rgba(8,10,20,.97));box-shadow:var(--sh-card)}
+.lab-ttl{letter-spacing:5px}
+
+/* ─── CTA: cinematic sweep ─── */
+.cta-w{background:linear-gradient(to top,rgba(7,7,16,.99) 50%,rgba(7,7,16,.78) 78%,transparent)}
+.cta{border-radius:48px;letter-spacing:3.4px;font-family:'Syne',sans-serif;font-weight:800;
+  background:linear-gradient(120deg,var(--or2) 0%,var(--or) 30%,var(--or-lit) 46%,var(--bl) 60%,var(--bl2) 100%);
+  background-size:280% 100%;background-position:88% 50%;
+  box-shadow:0 8px 36px -8px rgba(255,104,32,.4),0 1px 0 rgba(255,255,255,.18) inset;
+  transition:all .55s var(--ease)}
+.cta:hover{background-position:12% 50%;transform:translateY(-2px);
+  box-shadow:0 14px 50px -8px rgba(58,123,255,.5),0 1px 0 rgba(255,255,255,.22) inset}
+
+/* ─── FILM CARD: the hero moment ─── */
+#mbk{background:rgba(3,4,12,.8);backdrop-filter:blur(14px)}
+#fc{border-radius:24px;border:1px solid rgba(255,104,32,.28);
+  background:linear-gradient(165deg,rgba(14,15,24,.97),rgba(10,10,18,.98));
+  box-shadow:0 0 0 1px rgba(255,255,255,.04) inset,0 0 80px -20px rgba(255,104,32,.28),
+    0 40px 100px -30px rgba(0,0,0,.95);backdrop-filter:blur(24px) saturate(140%)}
+.fc-bdg{background:linear-gradient(135deg,rgba(255,104,32,.14),rgba(255,104,32,.04));
+  border:1px solid var(--bro);color:var(--or-lit);letter-spacing:2.4px;border-radius:22px}
+.fc-tit{font-size:30px}
+.fc-poster-col img{border-radius:16px;box-shadow:0 12px 44px -10px rgba(0,0,0,.8),0 0 0 1px rgba(255,255,255,.06)}
+.fc-section-box{border-radius:16px;background:rgba(255,255,255,.028);border:1px solid rgba(255,255,255,.06)}
+.fst{color:#6f9bff;letter-spacing:3px}
+.mc2{border-radius:22px;border:1px solid var(--bro);
+  background:linear-gradient(135deg,rgba(255,104,32,.08),rgba(255,104,32,.02));color:var(--or-lit)}
+.mc2.b{border-color:rgba(58,123,255,.3);background:rgba(58,123,255,.06);color:#6f9bff}
+.b1{border-radius:13px;background:linear-gradient(120deg,var(--or2),var(--or) 60%,var(--or-lit));
+  font-family:'Syne',sans-serif;box-shadow:var(--sh-or);transition:all .3s var(--ease)}
+.b1:hover{transform:translateY(-2px);box-shadow:0 0 0 1px rgba(255,138,77,.4),0 12px 36px -8px rgba(255,104,32,.6)}
+.b2,.b3{border-radius:13px;transition:all .3s var(--ease)}
+.rn{color:var(--gold)}.st span{color:var(--gold)}
+
+/* ─── SLIDE PANELS / PROFILE / FCK ─── */
+.slide-panel{background:linear-gradient(165deg,rgba(9,10,20,.99),rgba(6,7,15,.99))}
+.vph{background:linear-gradient(180deg,rgba(8,9,18,.92),rgba(8,9,18,.72));
+  backdrop-filter:blur(30px) saturate(140%);border-bottom:1px solid rgba(255,255,255,.05)}
+.prof-inp,.sw input,.fck-opt,.storico-btn,.frow{border-radius:13px;transition:all .26s var(--ease)}
+.prof-inp:focus,.sw input:focus{border-color:var(--boh);
+  box-shadow:0 0 0 3px rgba(255,104,32,.1)}
+.prof-lbl{color:#6f9bff;letter-spacing:2.2px}
+.fck-q{border-radius:16px;background:var(--card);border:1px solid var(--br);
+  backdrop-filter:blur(12px);box-shadow:var(--sh-card)}
+.fck-qt{font-family:'Syne',sans-serif}
+.fck-opt.sel{border-color:var(--or);
+  background:linear-gradient(135deg,rgba(255,104,32,.16),rgba(255,104,32,.05));color:var(--or-lit)}
+.save-btn{border-radius:13px;background:linear-gradient(120deg,var(--or2),var(--or) 60%,var(--or-lit));
+  font-family:'Syne',sans-serif;box-shadow:var(--sh-or);transition:all .3s var(--ease)}
+.save-btn:hover{transform:translateY(-2px);box-shadow:0 0 0 1px rgba(255,138,77,.4),0 12px 36px -8px rgba(255,104,32,.6)}
+
+/* ─── COUNTDOWN / AD overlays ─── */
+.cov-n{background:linear-gradient(135deg,var(--or-lit),var(--bl));-webkit-background-clip:text}
+.cov-back,.ad-cta-btn{border-radius:12px;transition:all .3s var(--ease)}
+.ad-box{border-radius:18px;box-shadow:var(--sh-card)}
+
+/* ─── FOOTER (legal) ─── */
+.sw-footer-link{transition:color .25s var(--ease)}
+.sw-footer-link:hover{color:var(--or-lit)}
+
+/* ─── orchestrated reveal for main filter column on app open ─── */
+#app.on .fi{animation:lux-rise .7s var(--ease) both}
+#app.on #proposte-rapide{animation:lux-rise .7s var(--ease) .06s both}
+#app.on .fgrp{animation:lux-rise .7s var(--ease) both}
+#app.on .fgrp:nth-of-type(1){animation-delay:.10s}
+#app.on .fgrp:nth-of-type(2){animation-delay:.15s}
+#app.on .fgrp:nth-of-type(3){animation-delay:.20s}
+#app.on .fgrp:nth-of-type(4){animation-delay:.25s}
+#app.on .lab-box{animation:lux-rise .7s var(--ease) .3s both}
+@media(prefers-reduced-motion:reduce){
+  *{animation-duration:.01ms!important;transition-duration:.01ms!important}
+}
 </style></head>
 <body>
 <div id="deco"><span class="o1"></span><span class="b1"></span></div>
