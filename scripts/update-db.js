@@ -1,5 +1,5 @@
 /**
- * Swainz — update-db.js  (v194)
+ * Swainz — update-db.js  (v195)
  * ─────────────────────────────────────────────────────────────────────────────
  * Aggiorna ogni notte le colonne:
  *   poster_url   → URL locandina TMDB (w342)
@@ -14,6 +14,9 @@
  *   0.50–0.65 → aggiorna solo Piattaforme + Voto IMDB (niente poster)
  *   0.65–0.75 → LOW CONF  — aggiorna tutto, logga avviso
  *   > 0.75  → HIGH CONF  — aggiorna tutto normalmente
+ *
+ * v195 — log diagnostico [NO_IMDB_ID]: segnala i film per cui TMDB
+ *         non restituisce imdb_id (causa probabile del Voto IMDB = NULL)
  */
 
 import { createClient } from '@supabase/supabase-js';
@@ -169,6 +172,11 @@ async function processFilm(film) {
   if (ext?.imdb_id) {
     const rating = await omdbRating(ext.imdb_id);
     if (rating !== null) update['Voto IMDB'] = rating;
+  } else {
+    // v195 — log diagnostico: TMDB non ha imdb_id per questo film.
+    // Se questo log appare spesso per film con Voto IMDB = NULL,
+    // significa che il collegamento TMDB→IMDB manca e OMDB non viene mai chiamato.
+    console.log(`  [NO_IMDB_ID] ${Titolo} (${Anno}) — tmdb_id=${best.id}, nessun imdb_id restituito da TMDB`);
   }
 
   return { id, update };
@@ -218,7 +226,7 @@ async function main() {
     `(film ${start + 1}–${start + batch.length})\n`
   );
 
-  let updated = 0, skipped = 0, errors = 0;
+  let updated = 0, skipped = 0, errors = 0, noImdbId = 0;
 
   for (let i = 0; i < batch.length; i++) {
     const film = batch[i];
@@ -226,6 +234,14 @@ async function main() {
 
     try {
       const result = await processFilm(film);
+
+      // Conta i [NO_IMDB_ID] nel totale finale
+      // (il log è già stampato dentro processFilm)
+      if (result && !('Voto IMDB' in result.update) &&
+          Object.keys(result.update).some(k => k !== 'poster_url')) {
+        // film processato ma senza voto — potrebbe essere NO_IMDB_ID o OMDB null
+        noImdbId++;
+      }
 
       if (result && Object.keys(result.update).length > 0) {
         const { error } = await DB
@@ -251,9 +267,10 @@ async function main() {
   }
 
   console.log('\n═══════════════════════════════════════════════════════');
-  console.log(`  ✅ Aggiornati:  ${updated}`);
-  console.log(`  ⏭  Saltati:     ${skipped}`);
-  console.log(`  ❌ Errori:      ${errors}`);
+  console.log(`  ✅ Aggiornati:         ${updated}`);
+  console.log(`  ⏭  Saltati:            ${skipped}`);
+  console.log(`  ⚠️  Senza Voto IMDB:   ${noImdbId}`);
+  console.log(`  ❌ Errori:             ${errors}`);
   console.log('  Fine: ' + new Date().toISOString());
   console.log('═══════════════════════════════════════════════════════');
 }
