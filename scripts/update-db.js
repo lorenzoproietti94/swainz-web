@@ -1,13 +1,13 @@
 /**
- * Swainz — update-db.js  (v195)
+ * Swainz — update-db.js  (v196)
  * ─────────────────────────────────────────────────────────────────────────────
  * Aggiorna ogni notte le colonne:
  *   poster_url   → URL locandina TMDB (w342)
  *   Piattaforme  → Netflix, Prime Video, ecc. (watch/providers IT)
- *   Voto IMDB    → voto reale via OMDB
+ *   Voto IMDB    → vote_average da TMDB (stessa scala 0–10, zero chiamate extra)
  *
  * Variabili d'ambiente richieste (GitHub Secrets):
- *   SUPABASE_URL, SUPABASE_SERVICE_KEY, TMDB_API_KEY, OMDB_API_KEY
+ *   SUPABASE_URL, SUPABASE_SERVICE_KEY, TMDB_API_KEY
  *
  * Soglie Dice similarity (bigrammi sul titolo):
  *   < 0.50  → SKIP totale
@@ -15,8 +15,9 @@
  *   0.65–0.75 → LOW CONF  — aggiorna tutto, logga avviso
  *   > 0.75  → HIGH CONF  — aggiorna tutto normalmente
  *
- * v195 — log diagnostico [NO_IMDB_ID]: segnala i film per cui TMDB
- *         non restituisce imdb_id (causa probabile del Voto IMDB = NULL)
+ * v196 — Voto IMDB ora letto da best.vote_average (già presente nel risultato
+ *         tmdbSearch, zero chiamate API aggiuntive). Rimossi tmdbExternalIds
+ *         e omdbRating. Rimossa dipendenza da OMDB_API_KEY.
  */
 
 import { createClient } from '@supabase/supabase-js';
@@ -26,7 +27,6 @@ import { createClient } from '@supabase/supabase-js';
 const SUPABASE_URL        = process.env.SUPABASE_URL;
 const SUPABASE_SERVICE_KEY= process.env.SUPABASE_SERVICE_KEY;
 const TMDB_API_KEY        = process.env.TMDB_API_KEY;
-const OMDB_API_KEY        = process.env.OMDB_API_KEY;
 
 const POSTER_BASE  = 'https://image.tmdb.org/t/p/w342';
 const BATCH_SIZE   = 950;
@@ -114,26 +114,6 @@ async function tmdbProviders(tmdbId) {
   ];
 }
 
-// ─── TMDB: external_ids (→ imdb_id) ──────────────────────────────────────────
-
-async function tmdbExternalIds(tmdbId) {
-  return apiFetch(
-    `https://api.themoviedb.org/3/movie/${tmdbId}/external_ids?api_key=${TMDB_API_KEY}`
-  );
-}
-
-// ─── OMDB: voto IMDB reale ────────────────────────────────────────────────────
-
-async function omdbRating(imdbId) {
-  if (!imdbId) return null;
-  const data = await apiFetch(
-    `https://www.omdbapi.com/?i=${imdbId}&apikey=${OMDB_API_KEY}`
-  );
-  if (!data || data.Response !== 'True') return null;
-  const r = parseFloat(data.imdbRating);
-  return isNaN(r) ? null : r;
-}
-
 // ─── Elaborazione singolo film ────────────────────────────────────────────────
 
 async function processFilm(film) {
@@ -161,22 +141,19 @@ async function processFilm(film) {
 
   const update = {};
 
+  // Piattaforme — richiede una chiamata API separata
   const providers = await tmdbProviders(best.id);
   update['Piattaforme'] = providers;
 
+  // Poster — già nel risultato search, condizionato alla soglia confidenza
   if (bestScore >= 0.65 && best.poster_path) {
     update['poster_url'] = `${POSTER_BASE}${best.poster_path}`;
   }
 
-  const ext = await tmdbExternalIds(best.id);
-  if (ext?.imdb_id) {
-    const rating = await omdbRating(ext.imdb_id);
-    if (rating !== null) update['Voto IMDB'] = rating;
-  } else {
-    // v195 — log diagnostico: TMDB non ha imdb_id per questo film.
-    // Se questo log appare spesso per film con Voto IMDB = NULL,
-    // significa che il collegamento TMDB→IMDB manca e OMDB non viene mai chiamato.
-    console.log(`  [NO_IMDB_ID] ${Titolo} (${Anno}) — tmdb_id=${best.id}, nessun imdb_id restituito da TMDB`);
+  // Voto IMDB — già nel risultato search, zero chiamate extra
+  const voto = best.vote_average;
+  if (typeof voto === 'number' && voto > 0) {
+    update['Voto IMDB'] = Math.round(voto * 10) / 10;
   }
 
   return { id, update };
@@ -189,10 +166,10 @@ async function main() {
   console.log('  Swainz DB Update   |   ' + new Date().toISOString());
   console.log('═══════════════════════════════════════════════════════');
 
-  if (!SUPABASE_URL || !SUPABASE_SERVICE_KEY || !TMDB_API_KEY || !OMDB_API_KEY) {
+  if (!SUPABASE_URL || !SUPABASE_SERVICE_KEY || !TMDB_API_KEY) {
     throw new Error(
       'Variabili d\'ambiente mancanti! Controlla: ' +
-      'SUPABASE_URL, SUPABASE_SERVICE_KEY, TMDB_API_KEY, OMDB_API_KEY'
+      'SUPABASE_URL, SUPABASE_SERVICE_KEY, TMDB_API_KEY'
     );
   }
 
@@ -226,7 +203,7 @@ async function main() {
     `(film ${start + 1}–${start + batch.length})\n`
   );
 
-  let updated = 0, skipped = 0, errors = 0, noImdbId = 0;
+  let updated = 0, skipped = 0, errors = 0;
 
   for (let i = 0; i < batch.length; i++) {
     const film = batch[i];
@@ -234,14 +211,6 @@ async function main() {
 
     try {
       const result = await processFilm(film);
-
-      // Conta i [NO_IMDB_ID] nel totale finale
-      // (il log è già stampato dentro processFilm)
-      if (result && !('Voto IMDB' in result.update) &&
-          Object.keys(result.update).some(k => k !== 'poster_url')) {
-        // film processato ma senza voto — potrebbe essere NO_IMDB_ID o OMDB null
-        noImdbId++;
-      }
 
       if (result && Object.keys(result.update).length > 0) {
         const { error } = await DB
@@ -267,10 +236,9 @@ async function main() {
   }
 
   console.log('\n═══════════════════════════════════════════════════════');
-  console.log(`  ✅ Aggiornati:         ${updated}`);
-  console.log(`  ⏭  Saltati:            ${skipped}`);
-  console.log(`  ⚠️  Senza Voto IMDB:   ${noImdbId}`);
-  console.log(`  ❌ Errori:             ${errors}`);
+  console.log(`  ✅ Aggiornati:  ${updated}`);
+  console.log(`  ⏭  Saltati:     ${skipped}`);
+  console.log(`  ❌ Errori:      ${errors}`);
   console.log('  Fine: ' + new Date().toISOString());
   console.log('═══════════════════════════════════════════════════════');
 }
