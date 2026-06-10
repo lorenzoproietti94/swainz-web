@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="it"><head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>SWAINZ</title><!-- v301 · ember/antracite skin -->
+<title>SWAINZ</title><!-- v302 · ember/antracite refined -->
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600&family=Syne:wght@600;800&family=Teko:wght@700&family=Rajdhani:wght@500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
@@ -1242,6 +1242,135 @@ input[type=range]::-webkit-slider-thumb{
   body::after{background-size:100% 4px,34px 34px,34px 34px;opacity:.3}
   .lbs{width:300px}
 }
+
+
+/* ═══════════════════════════════════════════════════════════════
+   REFINEMENTS v302 — leggibilità tag + dettagli HUD raffinati
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── leggibilità: testi tag più chiari ─────────────────────────── */
+:root{--tx:#dadde2;--td:#989ea8}
+.chip{color:#e9ebf0;font-weight:600;font-size:13.5px}
+.chip:hover{color:#fff}
+.chip.on{color:#fff;font-weight:700}
+.chip.chip-sm{opacity:1;color:#d6dae1}
+.mc2{color:#ffc878;border-color:rgba(255,160,70,.45);font-weight:600}
+.quick-pill .qp-tag{color:#f1f3f6}
+.fst{color:#ffc873}
+.lab-ttl{color:#b9bfc8}
+.bdg{color:#aab0ba}
+.sl label{color:#9aa1ab}
+
+/* ── bordo a flusso energetico (anello conico rotante) ─────────── */
+@property --gA{syntax:'<angle>';inherits:false;initial-value:0deg}
+@keyframes ring-rot{to{--gA:360deg}}
+
+#fc::before{
+  content:'';position:absolute;inset:0;z-index:60;pointer-events:none;
+  border-radius:inherit;padding:1px;
+  background:conic-gradient(from var(--gA),
+    transparent 0deg, rgba(255,122,24,.05) 40deg, var(--or) 70deg, var(--amb) 95deg,
+    transparent 130deg, transparent 215deg,
+    rgba(255,176,69,.55) 255deg, transparent 300deg);
+  -webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);
+  -webkit-mask-composite:xor;mask-composite:exclude;
+  animation:ring-rot 5s linear infinite;
+}
+.lbs::after{
+  content:'';position:absolute;inset:0;z-index:2;pointer-events:none;
+  border-radius:inherit;padding:1px;
+  background:conic-gradient(from var(--gA),
+    transparent 0deg, rgba(255,122,24,.6) 60deg, rgba(255,176,69,.4) 90deg, transparent 140deg,
+    transparent 230deg, rgba(255,122,24,.3) 285deg, transparent 330deg);
+  -webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);
+  -webkit-mask-composite:xor;mask-composite:exclude;
+  animation:ring-rot 8s linear infinite;
+  opacity:.85;
+}
+.lab-box::after{
+  content:'';position:absolute;inset:0;z-index:6;pointer-events:none;
+  border-radius:inherit;padding:1px;
+  background:conic-gradient(from var(--gA),
+    transparent 0deg, rgba(255,122,24,.45) 70deg, rgba(255,176,69,.3) 100deg, transparent 150deg,
+    transparent 250deg, rgba(255,150,60,.25) 300deg, transparent 340deg);
+  -webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);
+  -webkit-mask-composite:xor;mask-composite:exclude;
+  animation:ring-rot 11s linear infinite;
+  opacity:.8;
+}
+
+/* ── righello HUD sotto gli header dei pannelli ────────────────── */
+.vph::after{
+  height:6px;opacity:.8;
+  background:
+    repeating-linear-gradient(90deg,rgba(255,150,60,.35) 0 1px,transparent 1px 16px) left bottom/62% 4px no-repeat,
+    linear-gradient(90deg,var(--or),rgba(255,122,24,.3) 45%,rgba(255,176,69,.25) 75%,transparent) left bottom/100% 1px no-repeat;
+}
+.hdr::after{
+  height:6px;opacity:.75;
+  background:
+    repeating-linear-gradient(90deg,rgba(255,150,60,.3) 0 1px,transparent 1px 18px) center bottom/min(48%,520px) 4px no-repeat,
+    linear-gradient(90deg,transparent,var(--or) 18%,rgba(255,122,24,.7) 50%,rgba(255,176,69,.6) 82%,transparent) left bottom/100% 1px no-repeat;
+}
+
+/* ── rivetti agli angoli dei moduli filtro ─────────────────────── */
+.fgrp::before{
+  content:'';position:absolute;inset:0;pointer-events:none;border-radius:inherit;z-index:3;
+  background:
+    radial-gradient(circle,var(--amb) 0 1.2px,transparent 1.8px) no-repeat 8px 8px/4px 4px,
+    radial-gradient(circle,var(--amb) 0 1.2px,transparent 1.8px) no-repeat calc(100% - 8px) 8px/4px 4px,
+    radial-gradient(circle,var(--amb) 0 1.2px,transparent 1.8px) no-repeat 8px calc(100% - 8px)/4px 4px,
+    radial-gradient(circle,var(--amb) 0 1.2px,transparent 1.8px) no-repeat calc(100% - 8px) calc(100% - 8px)/4px 4px;
+  opacity:.45;transition:opacity .25s;
+}
+.fgrp:hover::before{opacity:.95}
+
+/* ── traccia PCB sulle proposte rapide ─────────────────────────── */
+.quick-pill::after{
+  content:'';position:absolute;top:7px;right:7px;width:15px;height:15px;pointer-events:none;
+  border-top:1px solid rgba(255,176,69,.55);border-right:1px solid rgba(255,176,69,.55);
+  border-top-right-radius:7px;opacity:.65;transition:all .25s;
+}
+.quick-pill:hover::after{width:22px;height:22px;opacity:1;
+  filter:drop-shadow(0 0 4px rgba(255,176,69,.6))}
+
+/* ── sezioni scheda film: accento e linea di coda ──────────────── */
+.fc-section-box{box-shadow:inset 2px 0 0 rgba(255,122,24,.4)}
+.fst{display:flex;align-items:center}
+.fst::after{content:'';flex:1;height:1px;margin-left:10px;
+  background:linear-gradient(90deg,rgba(255,160,70,.45),transparent)}
+.fc-poster-col img{transition:transform .35s ease,box-shadow .35s ease}
+.fc-poster-col img:hover{transform:translateY(-4px) scale(1.015);
+  box-shadow:0 16px 44px rgba(0,0,0,.7),0 0 26px rgba(255,122,24,.28)}
+
+/* ── slider con tacche di misura ───────────────────────────────── */
+input[type=range]{
+  height:8px;border-radius:0;
+  background:
+    repeating-linear-gradient(90deg,rgba(255,150,60,.28) 0 1px,transparent 1px 10%) center/100% 7px no-repeat,
+    linear-gradient(90deg,rgba(255,122,24,.55),rgba(255,176,69,.4)) center/100% 2px no-repeat;
+}
+
+/* ── indicatori di stato pulsanti ──────────────────────────────── */
+@keyframes dot-pulse{0%,100%{opacity:1;box-shadow:0 0 8px var(--or)}50%{opacity:.35;box-shadow:0 0 2px var(--or)}}
+.bdg::before{content:'';width:5px;height:5px;border-radius:50%;background:var(--or);
+  flex-shrink:0;animation:dot-pulse 2.2s ease-in-out infinite}
+.logo-sm{position:relative;padding-right:16px}
+.logo-sm::after{content:'';position:absolute;right:0;top:6px;width:5px;height:5px;border-radius:50%;
+  background:var(--or);animation:dot-pulse 2.8s ease-in-out infinite}
+
+/* ── micro-glow sui menu e bottoni icona ───────────────────────── */
+.nav-drop-menu{box-shadow:0 12px 40px rgba(0,0,0,.65),0 0 0 1px rgba(255,150,60,.08),0 0 30px rgba(255,122,24,.07)}
+.icon-btn{transition:all .25s}
+.icon-btn:hover{transform:translateY(-1px)}
+
+@media (prefers-reduced-motion:reduce){
+  #fc::before,.lbs::after,.lab-box::after{animation:none}
+  .bdg::before,.logo-sm::after{animation:none}
+}
+
+/* fix: marker ▸ come flex item con spaziatura propria */
+.fst::before{content:'▸';margin-right:6px;color:var(--or)}
 
 </style></head>
 <body>
