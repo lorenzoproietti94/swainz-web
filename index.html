@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="it"><head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>SWAINZ</title><!-- v303 · ember/antracite refined -->
+<title>SWAINZ</title><!-- v304 · mascotte ridisegnata -->
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600&family=Syne:wght@600;800&family=Teko:wght@700&family=Rajdhani:wght@500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
@@ -1465,6 +1465,30 @@ input[type=range]{
   .arec-td-title{font-size:14px}
 }
 
+
+/* ═══ MASCOTTE v304 — gatto ridisegnato + movimenti naturali ═══ */
+@keyframes legf{0%,100%{transform:rotate(-15deg)}50%{transform:rotate(15deg)}}
+@keyframes legb{0%,100%{transform:rotate(15deg)}50%{transform:rotate(-15deg)}}
+#lbl{animation:legb .52s cubic-bezier(.45,.05,.55,.95) infinite}
+#lfl{animation:legf .52s cubic-bezier(.45,.05,.55,.95) infinite .13s}
+#lbr{animation:legb .52s cubic-bezier(.45,.05,.55,.95) infinite .26s}
+#lfr{animation:legf .52s cubic-bezier(.45,.05,.55,.95) infinite .39s}
+@keyframes taila{0%,100%{transform:rotate(-3deg)}50%{transform:rotate(13deg)}}
+@keyframes tailtipa{0%,100%{transform:rotate(7deg)}50%{transform:rotate(-13deg)}}
+#tailg{animation:taila 2.9s ease-in-out infinite}
+#tailtip{animation:tailtipa 2.9s ease-in-out infinite .4s}
+@keyframes cat-blink{0%,93.5%,100%{transform:scaleY(1)}95.5%{transform:scaleY(.07)}97.5%{transform:scaleY(1)}}
+#eyesg{animation:cat-blink 6.8s ease-in-out infinite}
+@keyframes earTw{0%,90%,100%{transform:rotate(0)}93%{transform:rotate(-9deg)}96%{transform:rotate(3deg)}}
+#earLg{animation:earTw 9s ease-in-out infinite 2s}
+#earRg{animation:earTw 12s ease-in-out infinite 6s}
+@keyframes headbob{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(-1.6px) rotate(-1.1deg)}}
+#headg{animation:headbob 1.04s ease-in-out infinite}
+#catw.wake-stand #headg{animation:none}
+#cat-hint-bub{max-width:240px}
+@media (prefers-reduced-motion:reduce){
+  #tailg,#tailtip,#eyesg,#earLg,#earRg,#headg{animation:none}
+}
 </style></head>
 <body>
 <div id="deco"><span class="o1"></span><span class="b1"></span></div>
@@ -1605,43 +1629,110 @@ input[type=range]{
 <div id="catw">
   <div class="mbu">Mrrrow! 🎬</div>
   <svg viewBox="0 0 260 170" width="220" xmlns="http://www.w3.org/2000/svg" overflow="visible">
-    <defs>
-      <radialGradient id="eyeG" cx="38%" cy="32%" r="62%"><stop offset="0%" stop-color="#ffe040"/><stop offset="45%" stop-color="#ff6820"/><stop offset="100%" stop-color="#9a1800"/></radialGradient>
-      <radialGradient id="eyeGlow" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#ff6820" stop-opacity="0.5"/><stop offset="100%" stop-color="#ff6820" stop-opacity="0"/></radialGradient>
-      <filter id="eGlow" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="3.5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
-    </defs>
-    <g id="tailg"><path d="M30 118 C8 100 2 72 14 50 C24 32 46 24 52 10" stroke="#141414" stroke-width="11" fill="none" stroke-linecap="round"/><path d="M31 115 C11 98 5 72 16 52 C25 35 46 27 51 13" stroke="#222" stroke-width="4" fill="none" stroke-linecap="round" opacity="0.5"/></g>
-    <g id="lbl" style="transform-origin:80px 135px"><path d="M72 130 Q70 148 68 156" stroke="#141414" stroke-width="11" fill="none" stroke-linecap="round"/><ellipse cx="65" cy="158" rx="10" ry="5" fill="#141414"/></g>
-    <g id="lbr" style="transform-origin:100px 135px"><path d="M96 132 Q97 150 98 158" stroke="#141414" stroke-width="11" fill="none" stroke-linecap="round"/><ellipse cx="98" cy="160" rx="10" ry="5" fill="#141414"/></g>
-    <ellipse cx="128" cy="118" rx="82" ry="34" fill="#141414"/>
-    <ellipse cx="128" cy="128" rx="60" ry="18" fill="#1e1e1e" opacity="0.6"/>
-    <g id="lfl" style="transform-origin:158px 135px"><path d="M152 136 Q153 152 154 162" stroke="#141414" stroke-width="12" fill="none" stroke-linecap="round"/><ellipse cx="154" cy="164" rx="11" ry="5" fill="#141414"/></g>
-    <g id="lfr" style="transform-origin:176px 133px"><path d="M174 134 Q178 150 180 160" stroke="#1a1a1a" stroke-width="12" fill="none" stroke-linecap="round"/><ellipse cx="180" cy="162" rx="11" ry="5" fill="#1a1a1a"/></g>
-    <path d="M190 100 Q196 112 195 124" stroke="#141414" stroke-width="28" fill="none" stroke-linecap="round"/>
-    <ellipse cx="208" cy="82" rx="34" ry="30" fill="#141414"/>
-    <ellipse cx="206" cy="96" rx="22" ry="14" fill="#141414"/>
-    <polygon points="188,58 180,32 204,56" fill="#141414"/>
-    <polygon points="224,55 236,30 218,54" fill="#141414"/>
-    <polygon points="190,57 183,38 202,55" fill="#2d1520" opacity="0.85"/>
-    <polygon points="222,54 232,36 219,53" fill="#2d1520" opacity="0.85"/>
-    <ellipse id="eg1" cx="195" cy="78" rx="13" ry="10" fill="url(#eyeGlow)" filter="url(#eGlow)"/>
-    <ellipse id="eg2" cx="217" cy="77" rx="12" ry="10" fill="url(#eyeGlow)" filter="url(#eGlow)" style="animation-delay:.65s"/>
-    <path d="M 187 80 Q 191 73 196 73 Q 201 73 203 78 Q 200 83 195 83 Q 189 82 187 80 Z" fill="url(#eyeG)" filter="url(#eGlow)"/>
-    <path d="M 209 78 Q 212 71 217 71 Q 223 71 225 76 Q 222 81 217 81 Q 210 81 209 78 Z" fill="url(#eyeG)" filter="url(#eGlow)"/>
-    <ellipse cx="195" cy="78" rx="1.8" ry="4.5" fill="#050205" opacity="0.95"/>
-    <ellipse cx="217" cy="76" rx="1.8" ry="4.5" fill="#050205" opacity="0.95"/>
-    <circle cx="193" cy="75" r="1.4" fill="rgba(255,255,200,.55)"/>
-    <circle cx="215" cy="73" r="1.4" fill="rgba(255,255,200,.55)"/>
-    <path d="M 201 89 L 205 86 L 209 89 Q 206 93 205 92 Q 204 93 201 89 Z" fill="#7a2a3a"/>
-    <path class="mc" d="M 200 90 Q 205 93 210 90" stroke="#b06060" fill="none" stroke-width="1.8" stroke-linecap="round" opacity="0.75"/>
-    <g class="mo"><path d="M 198 91 Q 201 83 205 82 Q 209 83 212 91" stroke="#2a1a2a" fill="none" stroke-width="1.5" stroke-linecap="round"/><path d="M 198 91 Q 205 103 212 91 Q 208 98 205 99 Q 202 98 198 91 Z" fill="#c02840"/><ellipse cx="205" cy="98" rx="4.5" ry="2.8" fill="#ff4a6a"/></g>
-    <line x1="196" y1="88" x2="168" y2="82" stroke="#3a3a5a" stroke-width="1.1" opacity="0.65"/>
-    <line x1="196" y1="91" x2="166" y2="91" stroke="#3a3a5a" stroke-width="1.1" opacity="0.65"/>
-    <line x1="196" y1="94" x2="170" y2="100" stroke="#3a3a5a" stroke-width="1.1" opacity="0.65"/>
-    <line x1="212" y1="88" x2="238" y2="82" stroke="#3a3a5a" stroke-width="1.1" opacity="0.65"/>
-    <line x1="212" y1="91" x2="240" y2="91" stroke="#3a3a5a" stroke-width="1.1" opacity="0.65"/>
-    <line x1="212" y1="94" x2="236" y2="100" stroke="#3a3a5a" stroke-width="1.1" opacity="0.65"/>
-  </svg>
+  <defs>
+    <radialGradient id="eyeG" cx="42%" cy="30%" r="70%">
+      <stop offset="0%" stop-color="#ffe85e"/><stop offset="48%" stop-color="#ffc41e"/><stop offset="100%" stop-color="#e87b00"/>
+    </radialGradient>
+    <radialGradient id="eyeGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#ffb028" stop-opacity="0.5"/><stop offset="100%" stop-color="#ffb028" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="eGlow" x="-60%" y="-60%" width="220%" height="220%">
+      <feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <linearGradient id="bodyG" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#261b15"/><stop offset="100%" stop-color="#16100c"/>
+    </linearGradient>
+  </defs>
+
+  <ellipse cx="128" cy="162" rx="82" ry="6" fill="#6b5a78" opacity="0.22"/>
+
+  <!-- TAIL -->
+  <g id="tailg" style="transform-origin:58px 100px">
+    <path d="M58 102 C36 100 19 88 17 64" stroke="#1d1411" stroke-width="8" fill="none" stroke-linecap="round"/>
+    <g id="tailtip" style="transform-origin:17px 64px">
+      <path d="M17 64 C16 43 30 35 41 20" stroke="#1d1411" stroke-width="7" fill="none" stroke-linecap="round"/>
+    </g>
+  </g>
+
+  <!-- BACK LEGS -->
+  <g id="lbl" style="transform-origin:76px 112px">
+    <path d="M76 112 Q68 136 66 157" stroke="#171110" stroke-width="8.5" fill="none" stroke-linecap="round"/>
+    <ellipse cx="65" cy="159" rx="8" ry="4" fill="#171110"/>
+  </g>
+  <g id="lbr" style="transform-origin:96px 112px">
+    <path d="M96 114 Q96 138 97 158" stroke="#1f1612" stroke-width="8.5" fill="none" stroke-linecap="round"/>
+    <ellipse cx="97" cy="160" rx="8" ry="4" fill="#1f1612"/>
+  </g>
+
+  <!-- BODY -->
+  <path d="M54 94
+           C54 78 64 70 84 68
+           C104 63 134 62 154 68
+           C170 73 179 83 181 93
+           C182 102 177 109 165 113
+           C145 119 112 120 92 117
+           C68 113 54 110 54 94 Z"
+        fill="url(#bodyG)" stroke="#403028" stroke-width="1.3" stroke-opacity="0.5"/>
+  <path d="M96 116 C118 120 146 118 162 111 C151 119 116 121 96 116 Z" fill="#cf8044" opacity="0.55"/>
+  <path d="M76 78 Q64 95 75 112" stroke="#f59a3c" stroke-width="3.2" fill="none" stroke-linecap="round" opacity="0.85"/>
+  <path d="M152 76 Q159 87 155 100" stroke="#f59a3c" stroke-width="2.4" fill="none" stroke-linecap="round" opacity="0.55"/>
+
+  <!-- FRONT LEGS -->
+  <g id="lfl" style="transform-origin:146px 110px">
+    <path d="M146 110 Q145 136 145 158" stroke="#171110" stroke-width="9" fill="none" stroke-linecap="round"/>
+    <ellipse cx="145" cy="160" rx="8.5" ry="4" fill="#171110"/>
+  </g>
+  <g id="lfr" style="transform-origin:164px 108px">
+    <path d="M164 108 Q168 135 170 157" stroke="#1f1612" stroke-width="9" fill="none" stroke-linecap="round"/>
+    <ellipse cx="170" cy="159" rx="8.5" ry="4" fill="#1f1612"/>
+  </g>
+
+  <!-- NECK + HEAD -->
+  <g id="headg" style="transform-origin:192px 80px">
+    <path d="M168 86 Q186 76 202 60" stroke="#211712" stroke-width="21" fill="none" stroke-linecap="round"/>
+    <ellipse cx="214" cy="50" rx="26" ry="23" fill="#211712"/>
+    <polygon points="191,57 181,64 192,67" fill="#211712"/>
+    <ellipse cx="212" cy="64" rx="17" ry="10.5" fill="#211712"/>
+    <!-- EARS -->
+    <g id="earLg" style="transform-origin:201px 31px">
+      <polygon points="191,35 184,2 215,28" fill="#1d1411"/>
+      <polygon points="193,31 188,10 208,26" fill="#9c6b74" opacity="0.9"/>
+    </g>
+    <g id="earRg" style="transform-origin:229px 28px">
+      <polygon points="219,28 240,1 233,32" fill="#1d1411"/>
+      <polygon points="222,25 236,8 230,28" fill="#9c6b74" opacity="0.9"/>
+    </g>
+    <!-- eye glow -->
+    <ellipse id="eg1" cx="203" cy="48" rx="11" ry="9" fill="url(#eyeGlow)" filter="url(#eGlow)"/>
+    <ellipse id="eg2" cx="226" cy="46" rx="10" ry="8" fill="url(#eyeGlow)" filter="url(#eGlow)" style="animation-delay:.65s"/>
+    <!-- EYES -->
+    <g id="eyesg" style="transform-origin:214px 48px">
+      <path d="M192 50 Q195 41 202 42 Q208 43 210 49 Q207 56 200 55 Q194 54 192 50 Z" fill="url(#eyeG)" filter="url(#eGlow)"/>
+      <path d="M218 47 Q221 39 227 39 Q233 40 235 45 Q233 52 226 52 Q220 51 218 47 Z" fill="url(#eyeG)" filter="url(#eGlow)"/>
+      <ellipse cx="201" cy="48" rx="1.9" ry="4.6" fill="#1a0f0c"/>
+      <ellipse cx="226" cy="45" rx="1.8" ry="4.3" fill="#1a0f0c"/>
+      <circle cx="199" cy="44.5" r="1.4" fill="rgba(255,255,235,.85)"/>
+      <circle cx="224" cy="41.5" r="1.3" fill="rgba(255,255,235,.85)"/>
+      <path d="M192 47 Q199 41 210 46" stroke="#16100c" stroke-width="2.6" fill="none" stroke-linecap="round" opacity="0.9"/>
+      <path d="M218 44 Q224 38 235 43" stroke="#16100c" stroke-width="2.6" fill="none" stroke-linecap="round" opacity="0.9"/>
+    </g>
+    <!-- nose + mouth -->
+    <path d="M208 67 L212.5 63.8 L217 67 Q213.8 71.2 212.5 70.3 Q211.2 71.2 208 67 Z" fill="#9c6b74"/>
+    <path class="mc" d="M207 69 Q212.5 73 218 69" stroke="#b07f88" fill="none" stroke-width="1.6" stroke-linecap="round" opacity="0.8"/>
+    <g class="mo">
+      <path d="M206 70 Q209 62 212.5 61 Q216 62 219 70" stroke="#2a1a1a" fill="none" stroke-width="1.5" stroke-linecap="round"/>
+      <path d="M206 70 Q212.5 82 219 70 Q215 77 212.5 78 Q210 77 206 70 Z" fill="#c02840"/>
+      <ellipse cx="212.5" cy="76" rx="4.2" ry="2.4" fill="#ff4a6a"/>
+    </g>
+    <!-- whiskers -->
+    <line x1="204" y1="65" x2="181" y2="60" stroke="#d8d3cf" stroke-width="1" opacity="0.5"/>
+    <line x1="204" y1="68" x2="179" y2="69" stroke="#d8d3cf" stroke-width="1" opacity="0.5"/>
+    <line x1="204" y1="71" x2="183" y2="77" stroke="#d8d3cf" stroke-width="1" opacity="0.5"/>
+    <line x1="221" y1="64" x2="249" y2="57" stroke="#d8d3cf" stroke-width="1" opacity="0.5"/>
+    <line x1="221" y1="67" x2="252" y2="67" stroke="#d8d3cf" stroke-width="1" opacity="0.5"/>
+    <line x1="221" y1="70" x2="247" y2="77" stroke="#d8d3cf" stroke-width="1" opacity="0.5"/>
+  </g>
+</svg>
 </div>
 </div>
 
@@ -1653,44 +1744,44 @@ input[type=range]{
   <div id="wake-sleep" class="wake-phase" style="width:220px;height:125px">
     <svg viewBox="0 0 220 125" width="220" xmlns="http://www.w3.org/2000/svg" overflow="visible">
       <defs>
-        <radialGradient id="eyeGW" cx="38%" cy="32%" r="62%"><stop offset="0%" stop-color="#ffe040"/><stop offset="45%" stop-color="#ff6820"/><stop offset="100%" stop-color="#9a1800"/></radialGradient>
+        <radialGradient id="eyeGW" cx="38%" cy="32%" r="62%"><stop offset="0%" stop-color="#ffe85e"/><stop offset="45%" stop-color="#ffc41e"/><stop offset="100%" stop-color="#e87b00"/></radialGradient>
         <filter id="eGlowW" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="3.5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
       </defs>
       <g id="ws-stir-g">
         <!-- tail -->
-        <path d="M 28 88 C 8 74 2 52 14 40 C 24 28 46 22 50 11" stroke="#141414" stroke-width="10" fill="none" stroke-linecap="round"/>
+        <path d="M 28 88 C 8 74 2 52 14 40 C 24 28 46 22 50 11" stroke="#1d1411" stroke-width="10" fill="none" stroke-linecap="round"/>
         <!-- body (breathing) -->
         <g id="ws-body">
-          <ellipse cx="108" cy="90" rx="80" ry="26" fill="#141414"/>
-          <ellipse cx="108" cy="102" rx="58" ry="13" fill="#1a1a1a" opacity="0.5"/>
-          <ellipse cx="52" cy="106" rx="16" ry="7" fill="#111"/>
-          <ellipse cx="80" cy="108" rx="15" ry="6" fill="#111"/>
+          <ellipse cx="108" cy="90" rx="80" ry="26" fill="#1f1612"/>
+          <ellipse cx="108" cy="102" rx="58" ry="13" fill="#241a14" opacity="0.5"/>
+          <ellipse cx="52" cy="106" rx="16" ry="7" fill="#15100d"/>
+          <ellipse cx="80" cy="108" rx="15" ry="6" fill="#15100d"/>
         </g>
         <!-- neck + head -->
-        <path d="M 158 84 Q 164 92 165 100" stroke="#141414" stroke-width="24" fill="none" stroke-linecap="round"/>
-        <ellipse cx="170" cy="63" rx="31" ry="28" fill="#141414"/>
-        <ellipse cx="168" cy="76" rx="21" ry="13" fill="#141414"/>
+        <path d="M 158 84 Q 164 92 165 100" stroke="#1d1411" stroke-width="24" fill="none" stroke-linecap="round"/>
+        <ellipse cx="170" cy="63" rx="31" ry="28" fill="#1f1612"/>
+        <ellipse cx="168" cy="76" rx="21" ry="13" fill="#1f1612"/>
         <!-- ears -->
-        <polygon points="153,45 145,21 168,43" fill="#141414"/>
-        <polygon points="186,42 197,19 181,41" fill="#141414"/>
-        <polygon points="155,44 148,27 166,42" fill="#2d1520" opacity="0.85"/>
-        <polygon points="184,41 194,24 181,40" fill="#2d1520" opacity="0.85"/>
+        <polygon points="153,45 145,21 168,43" fill="#1f1612"/>
+        <polygon points="186,42 197,19 181,41" fill="#1f1612"/>
+        <polygon points="155,44 148,27 166,42" fill="#9c6b74" opacity="0.85"/>
+        <polygon points="184,41 194,24 181,40" fill="#9c6b74" opacity="0.85"/>
         <!-- eyes: fully closed orange lines -->
-        <path d="M 155 65 Q 161 68 168 65" stroke="#ff6820" stroke-width="1.6" fill="none" stroke-linecap="round" opacity="0.55"/>
-        <path d="M 172 63 Q 178 66 185 63" stroke="#ff6820" stroke-width="1.6" fill="none" stroke-linecap="round" opacity="0.55"/>
+        <path d="M 155 65 Q 161 68 168 65" stroke="#f5a032" stroke-width="1.6" fill="none" stroke-linecap="round" opacity="0.55"/>
+        <path d="M 172 63 Q 178 66 185 63" stroke="#f5a032" stroke-width="1.6" fill="none" stroke-linecap="round" opacity="0.55"/>
         <!-- nose -->
-        <path d="M 162 79 L 166 76 L 170 79 Q 167 83 166 82 Q 165 83 162 79 Z" fill="#7a2a3a"/>
+        <path d="M 162 79 L 166 76 L 170 79 Q 167 83 166 82 Q 165 83 162 79 Z" fill="#9c6b74"/>
         <!-- mouth -->
         <path d="M 162 82 Q 166 84 170 82" stroke="#6a3a3a" fill="none" stroke-width="1.2" stroke-linecap="round" opacity="0.4"/>
         <!-- whiskers -->
-        <line x1="158" y1="79" x2="132" y2="74" stroke="#3a3a5a" stroke-width="1" opacity="0.5"/>
-        <line x1="158" y1="82" x2="130" y2="82" stroke="#3a3a5a" stroke-width="1" opacity="0.5"/>
-        <line x1="172" y1="79" x2="198" y2="74" stroke="#3a3a5a" stroke-width="1" opacity="0.5"/>
-        <line x1="172" y1="82" x2="200" y2="82" stroke="#3a3a5a" stroke-width="1" opacity="0.5"/>
+        <line x1="158" y1="79" x2="132" y2="74" stroke="#d8d3cf" stroke-width="1" opacity="0.5"/>
+        <line x1="158" y1="82" x2="130" y2="82" stroke="#d8d3cf" stroke-width="1" opacity="0.5"/>
+        <line x1="172" y1="79" x2="198" y2="74" stroke="#d8d3cf" stroke-width="1" opacity="0.5"/>
+        <line x1="172" y1="82" x2="200" y2="82" stroke="#d8d3cf" stroke-width="1" opacity="0.5"/>
         <!-- ZZZ floating -->
-        <text class="zzz1" x="196" y="55" font-family="'Bebas Neue',sans-serif" font-size="13" fill="#ff6820" opacity="0.7">z</text>
-        <text class="zzz2" x="205" y="43" font-family="'Bebas Neue',sans-serif" font-size="17" fill="#ff6820" opacity="0.6">z</text>
-        <text class="zzz3" x="215" y="29" font-family="'Bebas Neue',sans-serif" font-size="21" fill="#ff6820" opacity="0.5">Z</text>
+        <text class="zzz1" x="196" y="55" font-family="'Bebas Neue',sans-serif" font-size="13" fill="#f5a032" opacity="0.7">z</text>
+        <text class="zzz2" x="205" y="43" font-family="'Bebas Neue',sans-serif" font-size="17" fill="#f5a032" opacity="0.6">z</text>
+        <text class="zzz3" x="215" y="29" font-family="'Bebas Neue',sans-serif" font-size="21" fill="#f5a032" opacity="0.5">Z</text>
       </g>
     </svg>
   </div>
@@ -1699,43 +1790,43 @@ input[type=range]{
   <div id="wake-rise" class="wake-phase" style="width:220px;height:125px">
     <svg viewBox="0 0 220 125" width="220" xmlns="http://www.w3.org/2000/svg" overflow="visible">
       <!-- tail still curled -->
-      <path d="M 25 100 C 8 86 2 64 14 50 C 24 37 44 32 48 20" stroke="#141414" stroke-width="10" fill="none" stroke-linecap="round"/>
+      <path d="M 25 100 C 8 86 2 64 14 50 C 24 37 44 32 48 20" stroke="#1d1411" stroke-width="10" fill="none" stroke-linecap="round"/>
       <!-- rear body still low -->
-      <ellipse cx="82" cy="100" rx="52" ry="18" fill="#141414"/>
+      <ellipse cx="82" cy="100" rx="52" ry="18" fill="#1f1612"/>
       <!-- body angling upward toward front -->
-      <path d="M 108 90 Q 140 76 162 66" stroke="#141414" stroke-width="26" fill="none" stroke-linecap="round"/>
+      <path d="M 108 90 Q 140 76 162 66" stroke="#1d1411" stroke-width="26" fill="none" stroke-linecap="round"/>
       <!-- front paws pushing off ground -->
-      <path d="M 148 83 Q 138 97 130 109" stroke="#141414" stroke-width="11" fill="none" stroke-linecap="round"/>
-      <ellipse cx="128" cy="111" rx="11" ry="5" fill="#141414"/>
-      <path d="M 160 76 Q 152 92 146 104" stroke="#141414" stroke-width="10" fill="none" stroke-linecap="round"/>
-      <ellipse cx="144" cy="106" rx="10" ry="5" fill="#141414"/>
+      <path d="M 148 83 Q 138 97 130 109" stroke="#1d1411" stroke-width="11" fill="none" stroke-linecap="round"/>
+      <ellipse cx="128" cy="111" rx="11" ry="5" fill="#1f1612"/>
+      <path d="M 160 76 Q 152 92 146 104" stroke="#1d1411" stroke-width="10" fill="none" stroke-linecap="round"/>
+      <ellipse cx="144" cy="106" rx="10" ry="5" fill="#1f1612"/>
       <!-- head lifting -->
-      <ellipse cx="185" cy="50" rx="28" ry="25" fill="#141414"/>
-      <ellipse cx="183" cy="62" rx="18" ry="11" fill="#141414"/>
+      <ellipse cx="185" cy="50" rx="28" ry="25" fill="#1f1612"/>
+      <ellipse cx="183" cy="62" rx="18" ry="11" fill="#1f1612"/>
       <!-- ears -->
-      <polygon points="171,36 163,15 183,34" fill="#141414"/>
-      <polygon points="197,33 207,13 193,32" fill="#141414"/>
-      <polygon points="173,35 167,20 181,33" fill="#2d1520" opacity="0.85"/>
-      <polygon points="195,32 204,16 192,31" fill="#2d1520" opacity="0.85"/>
+      <polygon points="171,36 163,15 183,34" fill="#1f1612"/>
+      <polygon points="197,33 207,13 193,32" fill="#1f1612"/>
+      <polygon points="173,35 167,20 181,33" fill="#9c6b74" opacity="0.85"/>
+      <polygon points="195,32 204,16 192,31" fill="#9c6b74" opacity="0.85"/>
       <!-- eye glows -->
-      <ellipse cx="177" cy="51" rx="9" ry="7" fill="#ff6820" opacity="0.2" filter="url(#eGlowW)"/>
-      <ellipse cx="192" cy="50" rx="8" ry="6" fill="#ff6820" opacity="0.2" filter="url(#eGlowW)"/>
+      <ellipse cx="177" cy="51" rx="9" ry="7" fill="#f5a032" opacity="0.2" filter="url(#eGlowW)"/>
+      <ellipse cx="192" cy="50" rx="8" ry="6" fill="#f5a032" opacity="0.2" filter="url(#eGlowW)"/>
       <!-- eyes half open: bottom half visible, top half covered by lid -->
       <path d="M 171 53 Q 176 48 182 53 Q 179 57 174 56 Z" fill="url(#eyeGW)" filter="url(#eGlowW)"/>
       <path d="M 186 51 Q 191 47 196 51 Q 193 56 189 55 Z" fill="url(#eyeGW)" filter="url(#eGlowW)"/>
-      <path d="M 170 53 Q 176 49 182 53" fill="#141414" opacity="0.88"/>
-      <path d="M 185 51 Q 191 48 196 51" fill="#141414" opacity="0.88"/>
-      <ellipse cx="176" cy="53" rx="1.5" ry="2.5" fill="#050205" opacity="0.9"/>
-      <ellipse cx="191" cy="52" rx="1.5" ry="2.5" fill="#050205" opacity="0.9"/>
+      <path d="M 170 53 Q 176 49 182 53" fill="#1f1612" opacity="0.88"/>
+      <path d="M 185 51 Q 191 48 196 51" fill="#1f1612" opacity="0.88"/>
+      <ellipse cx="176" cy="53" rx="1.5" ry="2.5" fill="#1a0f0c" opacity="0.9"/>
+      <ellipse cx="191" cy="52" rx="1.5" ry="2.5" fill="#1a0f0c" opacity="0.9"/>
       <!-- nose -->
-      <path d="M 177 65 L 181 62 L 185 65 Q 182 69 181 68 Q 180 69 177 65 Z" fill="#7a2a3a"/>
+      <path d="M 177 65 L 181 62 L 185 65 Q 182 69 181 68 Q 180 69 177 65 Z" fill="#9c6b74"/>
       <!-- mouth -->
-      <path d="M 177 68 Q 181 70 185 68" stroke="#8a5050" fill="none" stroke-width="1.3" stroke-linecap="round" opacity="0.5"/>
+      <path d="M 177 68 Q 181 70 185 68" stroke="#b07f88" fill="none" stroke-width="1.3" stroke-linecap="round" opacity="0.5"/>
       <!-- whiskers -->
-      <line x1="173" y1="65" x2="150" y2="61" stroke="#3a3a5a" stroke-width="1" opacity="0.55"/>
-      <line x1="173" y1="68" x2="148" y2="68" stroke="#3a3a5a" stroke-width="1" opacity="0.55"/>
-      <line x1="186" y1="65" x2="210" y2="61" stroke="#3a3a5a" stroke-width="1" opacity="0.55"/>
-      <line x1="186" y1="68" x2="211" y2="68" stroke="#3a3a5a" stroke-width="1" opacity="0.55"/>
+      <line x1="173" y1="65" x2="150" y2="61" stroke="#d8d3cf" stroke-width="1" opacity="0.55"/>
+      <line x1="173" y1="68" x2="148" y2="68" stroke="#d8d3cf" stroke-width="1" opacity="0.55"/>
+      <line x1="186" y1="65" x2="210" y2="61" stroke="#d8d3cf" stroke-width="1" opacity="0.55"/>
+      <line x1="186" y1="68" x2="211" y2="68" stroke="#d8d3cf" stroke-width="1" opacity="0.55"/>
     </svg>
   </div>
 
@@ -1743,50 +1834,50 @@ input[type=range]{
   <div id="wake-stretch" class="wake-phase" style="width:260px;height:140px">
     <svg viewBox="0 0 260 140" width="260" xmlns="http://www.w3.org/2000/svg" overflow="visible">
       <!-- tail: raised high on the left -->
-      <path d="M 28 105 C 12 88 6 66 18 50 C 28 36 46 30 48 16" stroke="#141414" stroke-width="10" fill="none" stroke-linecap="round"/>
+      <path d="M 28 105 C 12 88 6 66 18 50 C 28 36 46 30 48 16" stroke="#1d1411" stroke-width="10" fill="none" stroke-linecap="round"/>
       <!-- back legs planted -->
-      <path d="M 62 118 Q 60 128 58 135" stroke="#141414" stroke-width="11" fill="none" stroke-linecap="round"/>
-      <ellipse cx="56" cy="136" rx="11" ry="5" fill="#141414"/>
-      <path d="M 80 112 Q 80 124 80 132" stroke="#141414" stroke-width="10" fill="none" stroke-linecap="round"/>
-      <ellipse cx="80" cy="133" rx="10" ry="5" fill="#141414"/>
+      <path d="M 62 118 Q 60 128 58 135" stroke="#1d1411" stroke-width="11" fill="none" stroke-linecap="round"/>
+      <ellipse cx="56" cy="136" rx="11" ry="5" fill="#1f1612"/>
+      <path d="M 80 112 Q 80 124 80 132" stroke="#1d1411" stroke-width="10" fill="none" stroke-linecap="round"/>
+      <ellipse cx="80" cy="133" rx="10" ry="5" fill="#1f1612"/>
       <!-- rear body elevated -->
-      <ellipse cx="75" cy="98" rx="38" ry="20" fill="#141414" transform="rotate(-18,75,98)"/>
+      <ellipse cx="75" cy="98" rx="38" ry="20" fill="#1f1612" transform="rotate(-18,75,98)"/>
       <!-- body descending slope right -->
       <g id="wstr-body">
-        <path d="M 92 92 Q 132 82 165 108" stroke="#141414" stroke-width="30" fill="none" stroke-linecap="round"/>
+        <path d="M 92 92 Q 132 82 165 108" stroke="#1d1411" stroke-width="30" fill="none" stroke-linecap="round"/>
       </g>
       <!-- front body low -->
-      <ellipse cx="176" cy="112" rx="28" ry="14" fill="#141414"/>
+      <ellipse cx="176" cy="112" rx="28" ry="14" fill="#1f1612"/>
       <!-- front paws fully extended right -->
-      <path d="M 172 118 Q 192 124 214 127" stroke="#141414" stroke-width="11" fill="none" stroke-linecap="round"/>
-      <ellipse cx="216" cy="128" rx="13" ry="5" fill="#141414"/>
-      <path d="M 174 122 Q 194 129 216 133" stroke="#141414" stroke-width="10" fill="none" stroke-linecap="round"/>
-      <ellipse cx="218" cy="134" rx="12" ry="5" fill="#141414"/>
+      <path d="M 172 118 Q 192 124 214 127" stroke="#1d1411" stroke-width="11" fill="none" stroke-linecap="round"/>
+      <ellipse cx="216" cy="128" rx="13" ry="5" fill="#1f1612"/>
+      <path d="M 174 122 Q 194 129 216 133" stroke="#1d1411" stroke-width="10" fill="none" stroke-linecap="round"/>
+      <ellipse cx="218" cy="134" rx="12" ry="5" fill="#1f1612"/>
       <!-- head low, angled forward/down -->
-      <ellipse cx="192" cy="100" rx="24" ry="21" fill="#141414"/>
-      <ellipse cx="190" cy="110" rx="15" ry="9" fill="#141414"/>
+      <ellipse cx="192" cy="100" rx="24" ry="21" fill="#1f1612"/>
+      <ellipse cx="190" cy="110" rx="15" ry="9" fill="#1f1612"/>
       <!-- ears slightly flattened -->
-      <polygon points="180,87 173,67 192,86" fill="#141414"/>
-      <polygon points="203,85 211,66 200,84" fill="#141414"/>
-      <polygon points="182,86 176,71 190,85" fill="#2d1520" opacity="0.85"/>
-      <polygon points="201,84 208,69 199,83" fill="#2d1520" opacity="0.85"/>
+      <polygon points="180,87 173,67 192,86" fill="#1f1612"/>
+      <polygon points="203,85 211,66 200,84" fill="#1f1612"/>
+      <polygon points="182,86 176,71 190,85" fill="#9c6b74" opacity="0.85"/>
+      <polygon points="201,84 208,69 199,83" fill="#9c6b74" opacity="0.85"/>
       <!-- eyes squinting with effort -->
-      <ellipse cx="184" cy="100" rx="8" ry="5" fill="#ff6820" opacity="0.18" filter="url(#eGlowW)"/>
-      <ellipse cx="199" cy="99" rx="7" ry="5" fill="#ff6820" opacity="0.18" filter="url(#eGlowW)"/>
+      <ellipse cx="184" cy="100" rx="8" ry="5" fill="#f5a032" opacity="0.18" filter="url(#eGlowW)"/>
+      <ellipse cx="199" cy="99" rx="7" ry="5" fill="#f5a032" opacity="0.18" filter="url(#eGlowW)"/>
       <path d="M 178 101 Q 182 96 187 101 Q 185 105 181 104 Z" fill="url(#eyeGW)" filter="url(#eGlowW)"/>
       <path d="M 193 100 Q 197 95 202 100 Q 200 104 196 104 Z" fill="url(#eyeGW)" filter="url(#eGlowW)"/>
       <!-- top eyelids (squinting) -->
-      <path d="M 177 101 Q 182 97 187 101" fill="#141414" opacity="0.9"/>
-      <path d="M 192 100 Q 197 96 202 100" fill="#141414" opacity="0.9"/>
-      <ellipse cx="182" cy="101" rx="1.4" ry="2.2" fill="#050205" opacity="0.9"/>
-      <ellipse cx="197" cy="100" rx="1.4" ry="2.2" fill="#050205" opacity="0.9"/>
+      <path d="M 177 101 Q 182 97 187 101" fill="#1f1612" opacity="0.9"/>
+      <path d="M 192 100 Q 197 96 202 100" fill="#1f1612" opacity="0.9"/>
+      <ellipse cx="182" cy="101" rx="1.4" ry="2.2" fill="#1a0f0c" opacity="0.9"/>
+      <ellipse cx="197" cy="100" rx="1.4" ry="2.2" fill="#1a0f0c" opacity="0.9"/>
       <!-- nose -->
-      <path d="M 184 112 L 188 109 L 192 112 Q 189 116 188 115 Q 187 116 184 112 Z" fill="#7a2a3a"/>
+      <path d="M 184 112 L 188 109 L 192 112 Q 189 116 188 115 Q 187 116 184 112 Z" fill="#9c6b74"/>
       <!-- whiskers angled down -->
-      <line x1="180" y1="112" x2="158" y2="117" stroke="#3a3a5a" stroke-width="1" opacity="0.6"/>
-      <line x1="180" y1="115" x2="157" y2="122" stroke="#3a3a5a" stroke-width="1" opacity="0.6"/>
-      <line x1="195" y1="112" x2="216" y2="116" stroke="#3a3a5a" stroke-width="1" opacity="0.6"/>
-      <line x1="195" y1="115" x2="218" y2="121" stroke="#3a3a5a" stroke-width="1" opacity="0.6"/>
+      <line x1="180" y1="112" x2="158" y2="117" stroke="#d8d3cf" stroke-width="1" opacity="0.6"/>
+      <line x1="180" y1="115" x2="157" y2="122" stroke="#d8d3cf" stroke-width="1" opacity="0.6"/>
+      <line x1="195" y1="112" x2="216" y2="116" stroke="#d8d3cf" stroke-width="1" opacity="0.6"/>
+      <line x1="195" y1="115" x2="218" y2="121" stroke="#d8d3cf" stroke-width="1" opacity="0.6"/>
     </svg>
   </div>
 </div>
@@ -1803,44 +1894,44 @@ input[type=range]{
 <div id="loafcatw">
   <svg viewBox="0 0 220 125" width="220" xmlns="http://www.w3.org/2000/svg" overflow="visible">
     <defs>
-      <radialGradient id="eyeGL" cx="38%" cy="32%" r="62%"><stop offset="0%" stop-color="#ffe040"/><stop offset="45%" stop-color="#ff6820"/><stop offset="100%" stop-color="#9a1800"/></radialGradient>
+      <radialGradient id="eyeGL" cx="38%" cy="32%" r="62%"><stop offset="0%" stop-color="#ffe85e"/><stop offset="45%" stop-color="#ffc41e"/><stop offset="100%" stop-color="#e87b00"/></radialGradient>
       <filter id="eGlowL" x="-80%" y="-80%" width="260%" height="260%"><feGaussianBlur stdDeviation="4" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
     </defs>
     <g id="loaf-settle-g">
-      <path d="M 28 88 C 8 74 2 52 14 40 C 24 28 46 22 50 11" stroke="#141414" stroke-width="10" fill="none" stroke-linecap="round"/>
-      <path d="M 29 86 C 11 73 6 53 17 42 C 27 30 46 25 49 14" stroke="#222" stroke-width="3.5" fill="none" stroke-linecap="round" opacity="0.5"/>
+      <path d="M 28 88 C 8 74 2 52 14 40 C 24 28 46 22 50 11" stroke="#1d1411" stroke-width="10" fill="none" stroke-linecap="round"/>
+      <path d="M 29 86 C 11 73 6 53 17 42 C 27 30 46 25 49 14" stroke="#2e211a" stroke-width="3.5" fill="none" stroke-linecap="round" opacity="0.5"/>
       <g id="loaf-body-g">
-        <ellipse cx="108" cy="90" rx="80" ry="26" fill="#141414"/>
-        <ellipse cx="108" cy="102" rx="58" ry="13" fill="#1a1a1a" opacity="0.5"/>
-        <ellipse cx="52" cy="106" rx="16" ry="7" fill="#111"/>
-        <ellipse cx="80" cy="108" rx="15" ry="6" fill="#111"/>
+        <ellipse cx="108" cy="90" rx="80" ry="26" fill="#1f1612"/>
+        <ellipse cx="108" cy="102" rx="58" ry="13" fill="#241a14" opacity="0.5"/>
+        <ellipse cx="52" cy="106" rx="16" ry="7" fill="#15100d"/>
+        <ellipse cx="80" cy="108" rx="15" ry="6" fill="#15100d"/>
       </g>
-      <path d="M 158 84 Q 164 92 165 100" stroke="#141414" stroke-width="24" fill="none" stroke-linecap="round"/>
-      <ellipse cx="170" cy="63" rx="31" ry="28" fill="#141414"/>
-      <ellipse cx="168" cy="76" rx="21" ry="13" fill="#141414"/>
-      <g id="loaf-earL"><polygon points="153,45 145,21 168,43" fill="#141414"/><polygon points="155,44 148,27 166,42" fill="#2d1520" opacity="0.85"/></g>
-      <g id="loaf-earR"><polygon points="186,42 197,19 181,41" fill="#141414"/><polygon points="184,41 194,24 181,40" fill="#2d1520" opacity="0.85"/></g>
-      <ellipse cx="161" cy="63" rx="11" ry="8" fill="#ff6820" opacity="0.2" filter="url(#eGlowL)"/>
-      <ellipse cx="180" cy="63" rx="10" ry="8" fill="#ff6820" opacity="0.2" filter="url(#eGlowL)"/>
+      <path d="M 158 84 Q 164 92 165 100" stroke="#1d1411" stroke-width="24" fill="none" stroke-linecap="round"/>
+      <ellipse cx="170" cy="63" rx="31" ry="28" fill="#1f1612"/>
+      <ellipse cx="168" cy="76" rx="21" ry="13" fill="#1f1612"/>
+      <g id="loaf-earL"><polygon points="153,45 145,21 168,43" fill="#1f1612"/><polygon points="155,44 148,27 166,42" fill="#9c6b74" opacity="0.85"/></g>
+      <g id="loaf-earR"><polygon points="186,42 197,19 181,41" fill="#1f1612"/><polygon points="184,41 194,24 181,40" fill="#9c6b74" opacity="0.85"/></g>
+      <ellipse cx="161" cy="63" rx="11" ry="8" fill="#f5a032" opacity="0.2" filter="url(#eGlowL)"/>
+      <ellipse cx="180" cy="63" rx="10" ry="8" fill="#f5a032" opacity="0.2" filter="url(#eGlowL)"/>
       <g id="loaf-eyes">
         <path d="M 153 65 Q 157 59 162 59 Q 167 59 169 64 Q 166 69 161 68 Q 155 68 153 65 Z" fill="url(#eyeGL)" filter="url(#eGlowL)"/>
-        <ellipse cx="161" cy="64" rx="1.8" ry="4" fill="#050205" opacity="0.95"/>
+        <ellipse cx="161" cy="64" rx="1.8" ry="4" fill="#1a0f0c" opacity="0.95"/>
         <path d="M 171 63 Q 174 58 179 57 Q 185 57 187 62 Q 184 67 179 67 Q 172 67 171 63 Z" fill="url(#eyeGL)" filter="url(#eGlowL)"/>
-        <ellipse cx="179" cy="62" rx="1.8" ry="4" fill="#050205" opacity="0.95"/>
+        <ellipse cx="179" cy="62" rx="1.8" ry="4" fill="#1a0f0c" opacity="0.95"/>
         <circle cx="159" cy="61" r="1.4" fill="rgba(255,255,200,.45)"/>
         <circle cx="177" cy="60" r="1.4" fill="rgba(255,255,200,.45)"/>
-        <path d="M 152 65 Q 156 57 162 57 Q 168 57 170 62 Q 165 59 160 60 Q 155 61 152 65 Z" fill="#141414"/>
-        <path d="M 170 63 Q 173 56 179 56 Q 186 56 188 61 Q 183 58 178 59 Q 173 60 170 63 Z" fill="#141414"/>
+        <path d="M 152 65 Q 156 57 162 57 Q 168 57 170 62 Q 165 59 160 60 Q 155 61 152 65 Z" fill="#1f1612"/>
+        <path d="M 170 63 Q 173 56 179 56 Q 186 56 188 61 Q 183 58 178 59 Q 173 60 170 63 Z" fill="#1f1612"/>
       </g>
-      <path d="M 162 79 L 166 76 L 170 79 Q 167 83 166 82 Q 165 83 162 79 Z" fill="#7a2a3a"/>
+      <path d="M 162 79 L 166 76 L 170 79 Q 167 83 166 82 Q 165 83 162 79 Z" fill="#9c6b74"/>
       <path d="M 161 82 Q 166 88 171 82" stroke="#cc8888" fill="none" stroke-width="2.4" stroke-linecap="round"/>
       <g id="loaf-whiskers">
-        <line x1="158" y1="79" x2="132" y2="74" stroke="#3a3a5a" stroke-width="1" opacity="0.6"/>
-        <line x1="158" y1="82" x2="130" y2="82" stroke="#3a3a5a" stroke-width="1" opacity="0.6"/>
-        <line x1="158" y1="85" x2="133" y2="90" stroke="#3a3a5a" stroke-width="1" opacity="0.6"/>
-        <line x1="172" y1="79" x2="198" y2="74" stroke="#3a3a5a" stroke-width="1" opacity="0.6"/>
-        <line x1="172" y1="82" x2="200" y2="82" stroke="#3a3a5a" stroke-width="1" opacity="0.6"/>
-        <line x1="172" y1="85" x2="196" y2="90" stroke="#3a3a5a" stroke-width="1" opacity="0.6"/>
+        <line x1="158" y1="79" x2="132" y2="74" stroke="#d8d3cf" stroke-width="1" opacity="0.6"/>
+        <line x1="158" y1="82" x2="130" y2="82" stroke="#d8d3cf" stroke-width="1" opacity="0.6"/>
+        <line x1="158" y1="85" x2="133" y2="90" stroke="#d8d3cf" stroke-width="1" opacity="0.6"/>
+        <line x1="172" y1="79" x2="198" y2="74" stroke="#d8d3cf" stroke-width="1" opacity="0.6"/>
+        <line x1="172" y1="82" x2="200" y2="82" stroke="#d8d3cf" stroke-width="1" opacity="0.6"/>
+        <line x1="172" y1="85" x2="196" y2="90" stroke="#d8d3cf" stroke-width="1" opacity="0.6"/>
       </g>
     </g>
   </svg>
