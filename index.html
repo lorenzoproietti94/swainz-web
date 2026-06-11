@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="it"><head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>SWAINZ</title><!-- v302 · ember/antracite refined -->
+<title>SWAINZ</title><!-- v303 · ember/antracite refined -->
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600&family=Syne:wght@600;800&family=Teko:wght@700&family=Rajdhani:wght@500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
@@ -1245,7 +1245,7 @@ input[type=range]::-webkit-slider-thumb{
 
 
 /* ═══════════════════════════════════════════════════════════════
-   REFINEMENTS v302 — leggibilità tag + dettagli HUD raffinati
+   REFINEMENTS v303 — leggibilità, dettagli HUD, fumetti, tabella
    ═══════════════════════════════════════════════════════════════ */
 
 /* ── leggibilità: testi tag più chiari ─────────────────────────── */
@@ -1255,63 +1255,10 @@ input[type=range]::-webkit-slider-thumb{
 .chip.on{color:#fff;font-weight:700}
 .chip.chip-sm{opacity:1;color:#d6dae1}
 .mc2{color:#ffc878;border-color:rgba(255,160,70,.45);font-weight:600}
-.quick-pill .qp-tag{color:#f1f3f6}
 .fst{color:#ffc873}
 .lab-ttl{color:#b9bfc8}
 .bdg{color:#aab0ba}
 .sl label{color:#9aa1ab}
-
-/* ── bordo a flusso energetico (anello conico rotante) ─────────── */
-@property --gA{syntax:'<angle>';inherits:false;initial-value:0deg}
-@keyframes ring-rot{to{--gA:360deg}}
-
-#fc::before{
-  content:'';position:absolute;inset:0;z-index:60;pointer-events:none;
-  border-radius:inherit;padding:1px;
-  background:conic-gradient(from var(--gA),
-    transparent 0deg, rgba(255,122,24,.05) 40deg, var(--or) 70deg, var(--amb) 95deg,
-    transparent 130deg, transparent 215deg,
-    rgba(255,176,69,.55) 255deg, transparent 300deg);
-  -webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);
-  -webkit-mask-composite:xor;mask-composite:exclude;
-  animation:ring-rot 5s linear infinite;
-}
-.lbs::after{
-  content:'';position:absolute;inset:0;z-index:2;pointer-events:none;
-  border-radius:inherit;padding:1px;
-  background:conic-gradient(from var(--gA),
-    transparent 0deg, rgba(255,122,24,.6) 60deg, rgba(255,176,69,.4) 90deg, transparent 140deg,
-    transparent 230deg, rgba(255,122,24,.3) 285deg, transparent 330deg);
-  -webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);
-  -webkit-mask-composite:xor;mask-composite:exclude;
-  animation:ring-rot 8s linear infinite;
-  opacity:.85;
-}
-.lab-box::after{
-  content:'';position:absolute;inset:0;z-index:6;pointer-events:none;
-  border-radius:inherit;padding:1px;
-  background:conic-gradient(from var(--gA),
-    transparent 0deg, rgba(255,122,24,.45) 70deg, rgba(255,176,69,.3) 100deg, transparent 150deg,
-    transparent 250deg, rgba(255,150,60,.25) 300deg, transparent 340deg);
-  -webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);
-  -webkit-mask-composite:xor;mask-composite:exclude;
-  animation:ring-rot 11s linear infinite;
-  opacity:.8;
-}
-
-/* ── righello HUD sotto gli header dei pannelli ────────────────── */
-.vph::after{
-  height:6px;opacity:.8;
-  background:
-    repeating-linear-gradient(90deg,rgba(255,150,60,.35) 0 1px,transparent 1px 16px) left bottom/62% 4px no-repeat,
-    linear-gradient(90deg,var(--or),rgba(255,122,24,.3) 45%,rgba(255,176,69,.25) 75%,transparent) left bottom/100% 1px no-repeat;
-}
-.hdr::after{
-  height:6px;opacity:.75;
-  background:
-    repeating-linear-gradient(90deg,rgba(255,150,60,.3) 0 1px,transparent 1px 18px) center bottom/min(48%,520px) 4px no-repeat,
-    linear-gradient(90deg,transparent,var(--or) 18%,rgba(255,122,24,.7) 50%,rgba(255,176,69,.6) 82%,transparent) left bottom/100% 1px no-repeat;
-}
 
 /* ── rivetti agli angoli dei moduli filtro ─────────────────────── */
 .fgrp::before{
@@ -1325,18 +1272,165 @@ input[type=range]::-webkit-slider-thumb{
 }
 .fgrp:hover::before{opacity:.95}
 
-/* ── traccia PCB sulle proposte rapide ─────────────────────────── */
-.quick-pill::after{
-  content:'';position:absolute;top:7px;right:7px;width:15px;height:15px;pointer-events:none;
-  border-top:1px solid rgba(255,176,69,.55);border-right:1px solid rgba(255,176,69,.55);
-  border-top-right-radius:7px;opacity:.65;transition:all .25s;
+/* ── PROPOSTE RAPIDE: moduli a scansione ───────────────────────── */
+.quick-pill{
+  position:relative;overflow:hidden;border-radius:10px;
+  border:1px solid rgba(255,122,24,.24);
+  background:linear-gradient(180deg,rgba(45,42,38,.92),rgba(33,34,38,.92));
+  box-shadow:none;
+  transition:border-color .3s,box-shadow .3s,background .3s;
 }
-.quick-pill:hover::after{width:22px;height:22px;opacity:1;
-  filter:drop-shadow(0 0 4px rgba(255,176,69,.6))}
+.quick-pill::before{
+  content:'';position:absolute;left:14%;right:14%;bottom:0;height:2px;pointer-events:none;
+  background:linear-gradient(90deg,transparent,var(--or),transparent);
+  opacity:.4;transition:all .35s ease;
+}
+.quick-pill::after{
+  content:'';position:absolute;top:-4px;bottom:-4px;width:55%;left:-75%;pointer-events:none;
+  background:linear-gradient(105deg,transparent,rgba(255,150,60,.17),transparent);
+  transform:skewX(-14deg);transition:left .45s ease;
+}
+.quick-pill:hover{
+  transform:none;
+  border-color:rgba(255,122,24,.62);
+  background:linear-gradient(180deg,rgba(50,45,40,.95),rgba(36,36,40,.95));
+  box-shadow:inset 0 -16px 30px -20px rgba(255,122,24,.55);
+}
+.quick-pill:hover::after{left:118%}
+.quick-pill:hover::before{left:4%;right:4%;opacity:1;box-shadow:0 0 12px rgba(255,122,24,.7)}
+.quick-pill:active{transform:scale(.97)}
+.quick-pill .qp-tag{
+  font-family:'Syne',sans-serif;font-weight:800;font-size:15px;
+  letter-spacing:.02em;text-transform:none;color:#f1f3f6;
+  transition:color .25s;
+}
+.quick-pill:hover .qp-tag{color:#fff}
+.quick-pill .qp-plus{
+  font-family:'Share Tech Mono',monospace;font-size:19px;color:var(--or);
+  opacity:.8;transition:transform .4s cubic-bezier(.34,1.4,.64,1),opacity .25s,text-shadow .25s;
+}
+.quick-pill:hover .qp-plus{
+  transform:rotate(180deg) scale(1.12);opacity:1;
+  text-shadow:0 0 12px rgba(255,122,24,.85);
+}
+
+/* ── FUMETTI MASCOTTE: console felina ──────────────────────────── */
+#cat-hint-bub{
+  max-width:272px;
+  background:linear-gradient(165deg,rgba(45,42,39,.97),rgba(32,33,37,.985));
+  border:1px solid rgba(255,150,60,.42);
+  border-radius:14px 14px 14px 3px;
+  padding:12px 16px 12px 17px;
+  font-family:'Rajdhani',sans-serif;font-size:14.5px;font-weight:600;
+  color:#eef0f4;line-height:1.5;letter-spacing:.2px;
+  box-shadow:
+    0 12px 34px rgba(0,0,0,.55),
+    0 0 24px rgba(255,122,24,.13),
+    inset 0 1px 0 rgba(255,255,255,.07),
+    inset 3px 0 0 rgba(255,122,24,.75);
+}
+#cat-hint-bub::before{
+  content:'';position:absolute;top:0;left:16px;right:30%;height:1px;
+  background:linear-gradient(90deg,var(--or),transparent);opacity:.8;
+}
+#cat-hint-bub::after{
+  content:'';position:absolute;top:7px;right:9px;width:11px;height:11px;
+  border-top:1px solid rgba(255,176,69,.6);border-right:1px solid rgba(255,176,69,.6);
+  border-top-right-radius:6px;
+}
+.onb-cat-bubble{
+  background:linear-gradient(165deg,rgba(45,42,39,.97),rgba(32,33,37,.985));
+  border:1px solid rgba(255,150,60,.45);
+  border-radius:13px 13px 2px 13px;
+  padding:10px 14px;
+  font-family:'Rajdhani',sans-serif;font-size:13.5px;font-weight:600;
+  color:#ffc878;line-height:1.45;letter-spacing:.2px;
+  box-shadow:0 8px 24px rgba(0,0,0,.5),0 0 18px rgba(255,122,24,.16),inset 0 1px 0 rgba(255,255,255,.06);
+}
+
+/* ── TABELLA "FILM CONSIGLIATI FINO A OGGI" ────────────────────── */
+.arec-filters{
+  background:rgba(36,37,41,.96);backdrop-filter:blur(8px);
+  padding:14px 18px 12px;gap:9px;
+  border-bottom:1px solid rgba(255,150,60,.18);
+}
+.arec-filter-inp{
+  background:rgba(26,27,30,.9);border:1px solid rgba(255,150,60,.16);
+  border-radius:10px;padding:8px 12px;
+  font-family:'Share Tech Mono',monospace;font-size:12px;letter-spacing:.3px;
+  transition:border-color .2s,box-shadow .2s;
+}
+.arec-filter-inp:focus{border-color:var(--or);box-shadow:0 0 0 1px rgba(255,122,24,.25),inset 0 0 12px rgba(255,122,24,.07)}
+.arec-ms-btn{
+  background:rgba(26,27,30,.9);border:1px solid rgba(255,150,60,.16);
+  border-radius:10px;padding:8px 12px;
+  font-family:'Rajdhani',sans-serif;font-weight:600;font-size:12.5px;
+}
+.arec-ms-btn:hover,.arec-ms-btn.open{border-color:var(--or);color:#fff}
+.arec-ms-drop{
+  background:rgba(38,39,43,.98);border:1px solid rgba(255,150,60,.35);
+  border-radius:12px;box-shadow:0 14px 44px rgba(0,0,0,.6),0 0 24px rgba(255,122,24,.08);
+}
+.arec-ms-opt:hover{background:rgba(255,122,24,.09)}
+.arec-ms-opt.checked{color:#ffb45e;box-shadow:inset 3px 0 0 var(--or)}
+.arec-count{
+  padding:9px 18px 7px;
+  font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:.6px;
+  color:#9aa1ab;text-transform:uppercase;
+}
+.arec-count strong{color:var(--or);font-size:13px;text-shadow:0 0 10px rgba(255,122,24,.4)}
+.arec-count::before{content:'▸ ';color:rgba(255,122,24,.6)}
+
+.arec-table{border-collapse:separate;border-spacing:0 6px;padding:0 10px 12px}
+.arec-thead th{
+  font-family:'Rajdhani',sans-serif;font-size:12px;font-weight:700;
+  letter-spacing:.14em;color:#a8aeb8;
+  padding:10px 14px 8px;border-bottom:none;
+  background:rgba(36,37,41,.97);
+}
+.arec-thead th::after{
+  content:'';display:block;height:2px;margin-top:6px;border-radius:2px;
+  background:linear-gradient(90deg,rgba(255,150,60,.25),transparent);
+  transition:background .2s;
+}
+.arec-thead th:hover{color:#fff}
+.arec-thead th.sorted{color:var(--or);text-shadow:0 0 10px rgba(255,122,24,.35)}
+.arec-thead th.sorted::after{background:linear-gradient(90deg,var(--or),rgba(255,176,69,.4) 60%,transparent);box-shadow:0 0 8px rgba(255,122,24,.5)}
+
+.arec-tbody tr{border-bottom:none;transition:background .15s}
+.arec-tbody tr td{
+  background:rgba(42,43,48,.5);border-top:1px solid rgba(255,255,255,.045);
+  border-bottom:1px solid rgba(0,0,0,.25);
+  padding:11px 14px;font-size:13.5px;vertical-align:middle;
+  transition:background .15s,border-color .15s;
+}
+.arec-tbody tr td:first-child{border-radius:10px 0 0 10px;border-left:2px solid rgba(255,122,24,.18)}
+.arec-tbody tr td:last-child{border-radius:0 10px 10px 0;border-right:1px solid rgba(255,255,255,.04)}
+.arec-tbody tr:hover td{background:rgba(52,50,50,.72);border-top-color:rgba(255,150,60,.18)}
+.arec-tbody tr:hover td:first-child{border-left-color:var(--or)}
+.arec-td-title{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:15px;color:#eceef2;transition:color .15s}
+.arec-tbody tr:hover .arec-td-title{color:#ffb56a}
+.arec-td-year{font-family:'Share Tech Mono',monospace;font-size:12px;color:#9aa1ab}
+.arec-td-dir{color:#9aa1ab;font-size:12.5px}
+.arec-tag{
+  font-size:10.5px;padding:3px 9px;border-radius:7px;
+  border:1px solid rgba(255,150,60,.32);background:rgba(255,122,24,.09);
+  color:#ffb56a;font-weight:600;letter-spacing:.2px;
+}
+.arec-tbody tr[onclick] td:last-child{position:relative;padding-right:30px}
+.arec-tbody tr[onclick] td:last-child::after{
+  content:'›';position:absolute;right:12px;top:50%;
+  transform:translate(6px,-50%);opacity:0;
+  color:var(--or);font-size:18px;font-weight:700;
+  transition:all .2s ease;
+}
+.arec-tbody tr[onclick]:hover td:last-child::after{opacity:1;transform:translate(0,-50%)}
+.arec-empty{font-family:'Rajdhani',sans-serif;font-size:15px}
 
 /* ── sezioni scheda film: accento e linea di coda ──────────────── */
 .fc-section-box{box-shadow:inset 2px 0 0 rgba(255,122,24,.4)}
 .fst{display:flex;align-items:center}
+.fst::before{content:'▸';margin-right:6px;color:var(--or)}
 .fst::after{content:'';flex:1;height:1px;margin-left:10px;
   background:linear-gradient(90deg,rgba(255,160,70,.45),transparent)}
 .fc-poster-col img{transition:transform .35s ease,box-shadow .35s ease}
@@ -1351,13 +1445,10 @@ input[type=range]{
     linear-gradient(90deg,rgba(255,122,24,.55),rgba(255,176,69,.4)) center/100% 2px no-repeat;
 }
 
-/* ── indicatori di stato pulsanti ──────────────────────────────── */
+/* ── indicatore di stato sul badge contatore ───────────────────── */
 @keyframes dot-pulse{0%,100%{opacity:1;box-shadow:0 0 8px var(--or)}50%{opacity:.35;box-shadow:0 0 2px var(--or)}}
 .bdg::before{content:'';width:5px;height:5px;border-radius:50%;background:var(--or);
   flex-shrink:0;animation:dot-pulse 2.2s ease-in-out infinite}
-.logo-sm{position:relative;padding-right:16px}
-.logo-sm::after{content:'';position:absolute;right:0;top:6px;width:5px;height:5px;border-radius:50%;
-  background:var(--or);animation:dot-pulse 2.8s ease-in-out infinite}
 
 /* ── micro-glow sui menu e bottoni icona ───────────────────────── */
 .nav-drop-menu{box-shadow:0 12px 40px rgba(0,0,0,.65),0 0 0 1px rgba(255,150,60,.08),0 0 30px rgba(255,122,24,.07)}
@@ -1365,12 +1456,14 @@ input[type=range]{
 .icon-btn:hover{transform:translateY(-1px)}
 
 @media (prefers-reduced-motion:reduce){
-  #fc::before,.lbs::after,.lab-box::after{animation:none}
-  .bdg::before,.logo-sm::after{animation:none}
+  .bdg::before{animation:none}
+  .quick-pill::after{display:none}
 }
-
-/* fix: marker ▸ come flex item con spaziatura propria */
-.fst::before{content:'▸';margin-right:6px;color:var(--or)}
+@media (max-width:600px){
+  .quick-pill .qp-tag{font-size:13px}
+  .arec-table{border-spacing:0 5px;padding:0 6px 10px}
+  .arec-td-title{font-size:14px}
+}
 
 </style></head>
 <body>
