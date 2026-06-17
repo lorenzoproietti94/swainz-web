@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="it"><head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>SWAINZ</title><!-- v311 · mascotte: fix sprint stuck-right, walk-in re-entry from side, working jump (+testCatJump) -->
+<title>SWAINZ</title><!-- v313 · mascotte: rientro in camminata graduale dal margine laterale (niente snap sul bordo scheda) -->
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600&family=Syne:wght@600;800&family=Teko:wght@700&family=Rajdhani:wght@500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
@@ -4293,38 +4293,45 @@ function _hintSpot(){
       if(d<best){best=d;card=br;}
     }
   });
-  if(!card)return null;                       // not on a card → no hint
+  if(!card)return null;                        // not on a card → no hint
 
   const top=Math.max(HINT_MARGIN,(r.top+r.height*0.10)-10);
-  const need=HINT_BW+HINT_GAP+HINT_MARGIN;
-  const nearLeft  = (catCx - card.left)  < card.width*0.45;   // cat at card's LEFT portion
-  const nearRight = (card.right - catCx)  < card.width*0.45;  // cat at card's RIGHT portion
+  const need=HINT_BW+HINT_GAP+HINT_MARGIN;     // horizontal room the bubble needs
 
-  // band (vertical span) the bubble would occupy, to test overlap with neighbour cards
-  const bandTop=top, bandBot=top+90;
-  const overlaps=(x0,x1)=>cards.some(br=>{
+  // cat must be at the OUTER corner of the card (within 30% of an edge), not its middle
+  const nearLeft  = (catCx - card.left)  < card.width*0.30;
+  const nearRight = (card.right - catCx) < card.width*0.30;
+  if(!nearLeft && !nearRight)return null;      // cat in the middle of a card → no hint
+
+  // The bubble occupies the full vertical span of THIS card on the chosen side; if ANY other
+  // card overlaps that vertical span within the bubble's horizontal area, the spot is invalid.
+  // This is what stops a centre-of-page card (which always has a neighbour beside it) from showing a hint.
+  const bandTop=Math.min(top, card.top)-4;
+  const bandBot=Math.max(top+90, card.bottom)+4;
+  const sideBlocked=(x0,x1)=>cards.some(br=>{
     if(br===card)return false;
     const vOverlap = br.bottom>bandTop && br.top<bandBot;
     const hOverlap = br.right>x0 && br.left<x1;
     return vOverlap && hOverlap;
   });
 
-  // LEFT side: only if cat is at the card's left corner AND there's clear margin to the page edge
+  // LEFT: cat at card's left corner AND clear page margin on the left (no neighbour card there)
   if(nearLeft){
     const left=card.left-HINT_BW-HINT_GAP;
-    if(card.left>=need && !overlaps(left,card.left-HINT_GAP)){
+    if(card.left>=need && !sideBlocked(left, card.left-2)){
       return {left:Math.max(HINT_MARGIN,left), top, side:'left'};
     }
   }
-  // RIGHT side: only if cat is at the card's right corner AND there's clear margin to the page edge
+  // RIGHT: cat at card's right corner AND clear page margin on the right
   if(nearRight){
     const left=card.right+HINT_GAP;
-    if((W-card.right)>=need && !overlaps(left,left+HINT_BW)){
+    if((W-card.right)>=need && !sideBlocked(card.right+2, left+HINT_BW)){
       return {left:Math.min(left,W-HINT_BW-HINT_MARGIN), top, side:'right'};
     }
   }
-  return null;                                 // centre of page / neighbour in the way → no hint
+  return null;                                 // no clear lateral page margin → no hint
 }
+
 
 function _showCatHint(){
   const spot=_hintSpot();
@@ -4531,8 +4538,14 @@ function catLoop(){
   if(!isEntering&&(cX>window.innerWidth+8||cX<-CAT_W-8)){
     hideCat();isFleeing=false;reappearCat(1200+Math.random()*900);cRaf=null;return;
   }
-  // clear entering flag once cat is inside viewport
-  if(isEntering&&cX>-CAT_W+10&&cX<window.innerWidth){isEntering=false;}
+  // clear entering flag only once the cat has WALKED IN as far as its platform's usable edge,
+  // so it traverses the whole empty side-margin on foot (revealing gradually) instead of
+  // snapping onto the card the moment it crosses the viewport edge.
+  if(isEntering){
+    const eb=xBounds();
+    if(cDir===1 && cX>=eb.lo){ cX=eb.lo; isEntering=false; }       // entered from left → stop at left edge of card
+    else if(cDir===-1 && cX<=eb.hi){ cX=eb.hi; isEntering=false; } // entered from right → stop at right edge of card
+  }
 
   // BOB + TILT
   if(cMode==='walk'||cMode==='sprint')cBob+=cMode==='sprint'?0.26:0.12;
