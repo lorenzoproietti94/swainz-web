@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="it"><head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>SWAINZ</title><!-- v310 · mascotte: hint solo agli angoli esterni delle schede di bordo (mai al centro pagina) -->
+<title>SWAINZ</title><!-- v311 · mascotte: fix sprint stuck-right, walk-in re-entry from side, working jump (+testCatJump) -->
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600&family=Syne:wght@600;800&family=Teko:wght@700&family=Rajdhani:wght@500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
@@ -4174,7 +4174,7 @@ function wakeUpSequence(){
 // ══════════════════════════════════════════════════════════════════════════
 const CAT_W=225,CAT_H=158,WSPD=1.8,SSPD=4.8,FLEE_SPD=6.4,GRAV=0.46,CROUCH_DUR=900; // v309: SSPD 6.2->4.8, FLEE 8->6.4 to match sprint clip cadence
 let cX=0,cY=0,cVX=WSPD,cVY=0,cDir=1;
-let cMode='walk',cTimer=120,cGroundY=0,cTargetGY=0;
+let cMode='walk',cTimer=120,cGroundY=0,cTargetGY=0,cTargetX=null;
 let cBob=0,cCrouchTimer=0,isFleeing=false,isEntering=false;
 let cRaf=null,cHideTimer=null,cLoafT=null;
 let platforms=[];
@@ -4201,6 +4201,25 @@ function diffPlat(){
   const ci=platIdx();
   const others=platforms.filter((_,i)=>i!==ci);
   return others[Math.floor(Math.random()*others.length)];
+}
+
+// v311: pick a HIGHER platform that is horizontally reachable, for the upward leap.
+// Returns null if none — caller then keeps walking.
+function higherPlat(){
+  if(!platforms.length)return null;
+  const reach=520; // max horizontal gap the cat will attempt
+  const cand=platforms.filter(p=>{
+    if(p.y<=cGroundY+8)return false;            // must be higher
+    if(p.y-cGroundY>360)return false;           // not absurdly high
+    // horizontal overlap/closeness: some part of target within reach of cat
+    const catCx=cX+CAT_W/2;
+    const tgtCx=(p.x1+p.x2)/2;
+    return Math.abs(tgtCx-catCx)<reach && (p.x2-p.x1)>CAT_W;
+  });
+  if(!cand.length)return null;
+  // prefer the closest-in-height reachable platform
+  cand.sort((a,b)=>(a.y-cGroundY)-(b.y-cGroundY));
+  return cand[0];
 }
 
 function xBounds(){
@@ -4344,19 +4363,25 @@ function reappearCat(ms){
     cHideTimer=null;
     platforms=readPlatforms();
     const H=window.innerHeight,W=window.innerWidth;
+    // choose a platform to walk in on (prefer a mid-height one)
     let p=platforms.find(pl=>pl.y>CAT_H+10&&pl.y<H-10);
     if(!p){p={y:Math.round(H*0.42),x1:40,x2:Math.min(W-10,650)};}
-    isFleeing=false;isEntering=true;cMode='walk';cBob=Math.random()*Math.PI*2;cCrouchTimer=0;
-    cGroundY=p.y;cTargetGY=p.y;cY=p.y;
+    // v311: always re-enter WALKING from one screen side (never a random on-screen spot)
     const fromLeft=Math.random()<0.5;
+    isFleeing=false;isEntering=true;_seqActive=false;
+    cMode='walk';cVY=0;cBob=Math.random()*Math.PI*2;cCrouchTimer=0;
+    cGroundY=p.y;cTargetGY=p.y;cY=p.y;
     cDir=fromLeft?1:-1;
-    cX=fromLeft?-(CAT_W+380):W+380;
+    cX=fromLeft?-(CAT_W+40):(W+40);   // start just off the chosen side
     cVX=WSPD*cDir;cTimer=999;
     const el=catEl();
     el.style.transition='none';el.style.filter='';
     el.style.left=cX+'px';el.style.bottom=cY+'px';
     el.style.transform=`scaleX(${cDir===-1?-1:1})`;
     el.style.opacity='1';
+    el.classList.remove('cat-clickable','cat-hint-active');
+    // force the walking clip for the entrance
+    _csPrevMode='walk';_spriteSet('walk');_showClip('walk');
     if(!cRaf)catLoop();
   },ms||2000);
 }
@@ -4459,18 +4484,12 @@ function catLoop(){
   if(cTimer<=0&&cMode!=='jump'&&!isFleeing&&!isEntering){
     const r=Math.random();
     if(r<0.33){cMode='walk';cVX=WSPD*cDir;cTimer=100+Math.random()*140;}
-    else if(r<0.48){cMode='sprint';cVX=SSPD*cDir;cTimer=18+Math.random()*28;}
-    else if(r<0.65){
-      // v309: jump only to a HIGHER platform (leap1->leap2). Downward jumps need a dedicated
-      //       jumpdown clip (not yet available) — for now fall back to walking.
-      const tp=diffPlat();
-      if(tp && tp.y>cGroundY+8){
-        // v309: takeoff velocity sized to the height gap so the apex lands at the arrival edge.
-        // small +1.6 margin gives leap2 a short descent onto the card.
-        const dh=tp.y-cGroundY;
-        cMode='jump';cVY=Math.sqrt(2*GRAV*dh)+1.6;cTargetGY=tp.y;cTimer=350;
-        _playLeapSequence(()=>{_spriteSet('walk');_showClip('walk');});
-      }else{cMode='walk';cVX=WSPD*cDir;cTimer=80;}
+    else if(r<0.46){cMode='sprint';cVX=SSPD*cDir;cTimer=18+Math.random()*28;}
+    else if(r<0.66){
+      // v311: jump to a HIGHER reachable platform (leap1->leap2). Travels horizontally toward it.
+      const tp=higherPlat();
+      if(tp){ _launchLeap(tp); }
+      else{cMode='walk';cVX=WSPD*cDir;cTimer=80;}
     }
     else if(r<0.80){cMode='pause';cVX=0;cTimer=20+Math.random()*40;}
     else{enterCrouch();if(cMode!=='crouch'){cMode='walk';cTimer=80;}}
@@ -4483,6 +4502,7 @@ function catLoop(){
     if(_leapPhase===1 && cVY<=0){ _leapToPhase2(); }
     if(cVY<0&&cY<=cTargetGY){
       cY=cTargetGY;cGroundY=cTargetGY;cVY=0;
+      if(cTargetX!==null){cX=cTargetX;cTargetX=null;}   // v311: snap onto target landing x
       cMode='walk';cVX=WSPD*cDir;cTimer=80+Math.random()*80;
       _endLeap(); // land: finish leap2 -> walk exactly when paws meet the arrival edge
     }
@@ -4491,7 +4511,7 @@ function catLoop(){
   // HORIZONTAL
   if(cMode==='pause')cVX*=0.82;
   cX+=cVX;
-  if(!isFleeing&&!isEntering){
+  if(!isFleeing&&!isEntering&&cMode!=='jump'){
     const b=xBounds();
     if(cX>b.hi){
       if(cMode!=='jump'&&Math.random()<0.18){_startOrganicFlee(1);}
@@ -4505,8 +4525,10 @@ function catLoop(){
   // v309: while fleeing, guarantee constant velocity in the flee direction (never stall in place)
   if(isFleeing&&cMode==='sprint'){ cVX=FLEE_SPD*cDir; }
 
-  // off screen (organic exit or flee) — skip check while entering
-  if(!isEntering&&(cX>window.innerWidth+130||cX<-CAT_W-30)){
+  // off screen (organic exit or flee) — skip check while entering.
+  // v311: symmetric, tight thresholds so the cat leaves the viewport the instant it's fully out
+  // (old +130 right margin made it 'run in place' at the right edge for ~20 frames).
+  if(!isEntering&&(cX>window.innerWidth+8||cX<-CAT_W-8)){
     hideCat();isFleeing=false;reappearCat(1200+Math.random()*900);cRaf=null;return;
   }
   // clear entering flag once cat is inside viewport
@@ -5796,7 +5818,43 @@ function _playWakeSequence(done){
     });
   });
 }
-// Leap sequence v309: physics-driven.
+// v311: launch an upward leap toward platform tp — sets vertical impulse to reach its
+// height at the apex, and a horizontal velocity so the cat travels onto the target,
+// then plays the physics-driven leap1->leap2 sequence.
+// v311: manual test trigger — call testCatJump() from the console to force a leap.
+// Returns info about what happened so the jump can be verified on demand.
+window.testCatJump=function(){
+  platforms=readPlatforms();
+  if(isFleeing||isEntering||cMode==='jump'){return 'cat busy ('+cMode+') — retry in a moment';}
+  let tp=higherPlat();
+  if(!tp){
+    // no naturally-reachable higher platform: synthesize one above the cat for the test
+    const aboveY=Math.min(cGroundY+180, window.innerHeight-20);
+    tp={y:aboveY, x1:Math.max(20,cX-60), x2:Math.min(window.innerWidth-20, cX+CAT_W+60)};
+  }
+  cMode='pause';cTimer=0;
+  _launchLeap(tp);
+  return 'jumping to y='+tp.y+' (from y='+Math.round(cGroundY)+')';
+};
+
+function _launchLeap(tp){
+  const dh=Math.max(8,tp.y-cGroundY);
+  // land near the closer inner part of the target platform
+  const catCx=cX+CAT_W/2;
+  const tgtCx=(tp.x1+tp.x2)/2;
+  cTargetX=Math.max(tp.x1+4, Math.min(tp.x2-CAT_W-4, tgtCx-CAT_W/2));
+  cTargetGY=tp.y;
+  cVY=Math.sqrt(2*GRAV*dh)+1.6;                 // apex reaches arrival height (+small margin)
+  // time to apex ~ cVY/GRAV; horizontal speed to cover the gap by landing
+  const tApex=cVY/GRAV;
+  const totalT=tApex*1.7;                        // up + a bit of descent
+  cVX=((cTargetX)-cX)/Math.max(12,totalT);
+  cDir=cVX>=0?1:-1;
+  cMode='jump';cTimer=350;
+  _playLeapSequence(()=>{_spriteSet('walk');_showClip('walk');});
+}
+
+// Leap sequence v311: physics-driven.
 // leap1 = takeoff/ascent (plays while cat rises toward arrival height).
 // At the apex (cVY<=0) the loop calls _leapToPhase2() which swaps to leap2 (the airborne
 // descent + landing on the arrival card edge). leap2 ends into walk when the cat touches down.
