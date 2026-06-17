@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="it"><head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>SWAINZ</title><!-- v309 · mascotte: fix leap up-only, sprint stuck/size/speed, walk align, hint side-placement, click-to-sprint -->
+<title>SWAINZ</title><!-- v310 · mascotte: hint solo agli angoli esterni delle schede di bordo (mai al centro pagina) -->
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600&family=Syne:wght@600;800&family=Teko:wght@700&family=Rajdhani:wght@500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
@@ -4254,61 +4254,85 @@ function _hideCatHint(){
   setTimeout(()=>{bub.style.display='none';},400);
 }
 
-function _showCatHint(){
-  const bub=document.getElementById('cat-hint-bub');
-  if(!bub)return;
-  const hints=_catHints[LANG]||_catHints.it;
-  bub.textContent=hints[_catHintIdx];
-  _catHintIdx=(_catHintIdx+1)%hints.length;
-  try{localStorage.setItem('sw3_hint_idx',_catHintIdx);}catch(e){}
+// v310: the hint bubble may ONLY appear when the cat sits at the OUTER corner of a card,
+// with free page margin on that side (no other card to cover). Returns the placement
+// {left, side, top} if eligible, or null if the bubble would overlap another card / has no room.
+const HINT_BW=240, HINT_GAP=12, HINT_MARGIN=8;
+function _hintSpot(){
   const el=catEl();
-  if(!el||el.style.opacity==='0')return;
+  if(!el||el.style.opacity==='0')return null;
   const r=el.getBoundingClientRect();
-  const bW=240, W=window.innerWidth, gap=12;
+  const W=window.innerWidth;
+  const catCx=r.left+r.width/2;
 
-  // v309: place the bubble to the SIDE of the card the cat is standing on, in the free margin,
-  // so it never covers the card's content. Fall back to beside the cat if no card is found.
+  // find the card the cat is standing on (horizontally over it, feet near its top edge)
   let card=null,best=1e9;
-  document.querySelectorAll('.fgrp').forEach(b=>{
-    const br=b.getBoundingClientRect();
-    const catCx=r.left+r.width/2;
-    // card the cat is horizontally over and whose top edge is near the cat's feet
+  const cards=[...document.querySelectorAll('.fgrp')].map(b=>b.getBoundingClientRect());
+  cards.forEach(br=>{
     if(catCx>=br.left-30 && catCx<=br.right+30){
       const d=Math.abs(br.top-r.bottom);
       if(d<best){best=d;card=br;}
     }
   });
+  if(!card)return null;                       // not on a card → no hint
 
-  let left,top;
-  top=Math.max(8,(r.top+r.height*0.10)-10);
-  if(card){
-    const spaceR=W-card.right, spaceL=card.left;
-    if(spaceR>=bW+gap+8){            // room to the right of the card
-      left=card.right+gap; bub.style.borderRadius='14px 14px 14px 3px';
-    }else if(spaceL>=bW+gap+8){      // room to the left of the card
-      left=card.left-bW-gap; bub.style.borderRadius='14px 14px 3px 14px';
-    }else{                           // narrow card: hug whichever side has more room, clamped
-      if(spaceR>=spaceL){left=Math.min(card.right+gap,W-bW-8);bub.style.borderRadius='14px 14px 14px 3px';}
-      else{left=Math.max(8,card.left-bW-gap);bub.style.borderRadius='14px 14px 3px 14px';}
+  const top=Math.max(HINT_MARGIN,(r.top+r.height*0.10)-10);
+  const need=HINT_BW+HINT_GAP+HINT_MARGIN;
+  const nearLeft  = (catCx - card.left)  < card.width*0.45;   // cat at card's LEFT portion
+  const nearRight = (card.right - catCx)  < card.width*0.45;  // cat at card's RIGHT portion
+
+  // band (vertical span) the bubble would occupy, to test overlap with neighbour cards
+  const bandTop=top, bandBot=top+90;
+  const overlaps=(x0,x1)=>cards.some(br=>{
+    if(br===card)return false;
+    const vOverlap = br.bottom>bandTop && br.top<bandBot;
+    const hOverlap = br.right>x0 && br.left<x1;
+    return vOverlap && hOverlap;
+  });
+
+  // LEFT side: only if cat is at the card's left corner AND there's clear margin to the page edge
+  if(nearLeft){
+    const left=card.left-HINT_BW-HINT_GAP;
+    if(card.left>=need && !overlaps(left,card.left-HINT_GAP)){
+      return {left:Math.max(HINT_MARGIN,left), top, side:'left'};
     }
-  }else{
-    // no card: place beside the cat per facing direction
-    if(cDir===1){left=r.right+8;if(left+bW>W-8)left=r.left-bW-8;bub.style.borderRadius='14px 14px 14px 3px';}
-    else{left=r.left-bW-8;if(left<8)left=r.right+8;bub.style.borderRadius='14px 14px 3px 14px';}
   }
-  left=Math.max(8,Math.min(left,W-bW-8));
-  bub.style.left=left+'px';
-  bub.style.top=top+'px';
+  // RIGHT side: only if cat is at the card's right corner AND there's clear margin to the page edge
+  if(nearRight){
+    const left=card.right+HINT_GAP;
+    if((W-card.right)>=need && !overlaps(left,left+HINT_BW)){
+      return {left:Math.min(left,W-HINT_BW-HINT_MARGIN), top, side:'right'};
+    }
+  }
+  return null;                                 // centre of page / neighbour in the way → no hint
+}
+
+function _showCatHint(){
+  const spot=_hintSpot();
+  if(!spot)return false;                       // not eligible → caller should not pause
+  const bub=document.getElementById('cat-hint-bub');
+  if(!bub)return false;
+  const hints=_catHints[LANG]||_catHints.it;
+  bub.textContent=hints[_catHintIdx];
+  _catHintIdx=(_catHintIdx+1)%hints.length;
+  try{localStorage.setItem('sw3_hint_idx',_catHintIdx);}catch(e){}
+
+  bub.style.borderRadius = spot.side==='right' ? '14px 14px 14px 3px' : '14px 14px 3px 14px';
+  bub.style.left=spot.left+'px';
+  bub.style.top=spot.top+'px';
   bub.style.display='block';
   requestAnimationFrame(()=>bub.classList.add('show'));
-  // make cat clickable to dismiss
+  const el=catEl();
   el.classList.add('cat-hint-active');
   el.onclick=()=>{_hideCatHint();fleeAndReturn();};
   if(_catHintTimer)clearTimeout(_catHintTimer);
   _catHintTimer=setTimeout(_hideCatHint,15000);
+  return true;
 }
 
 function _triggerCatHint(){
+  // v310: only stop & show if there's a valid lateral spot; otherwise keep walking (no muted pause)
+  if(!_hintSpot())return;
   cVX=0;cMode='pause';cTimer=900;
   const el=catEl();if(el)el.classList.add('cat-hint-pause');
   _showCatHint();
