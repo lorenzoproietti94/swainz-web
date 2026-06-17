@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="it"><head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>SWAINZ</title><!-- v306b · video puliti (ombre/bande rimosse) -->
+<title>SWAINZ</title><!-- v309 · mascotte: fix leap up-only, sprint stuck/size/speed, walk align, hint side-placement, click-to-sprint -->
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600&family=Syne:wght@600;800&family=Teko:wght@700&family=Rajdhani:wght@500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
@@ -136,7 +136,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:15px;heigh
 
 /* CAT */
 #catwrapper{position:fixed;inset:0;overflow:hidden;pointer-events:none;z-index:4}
-#catw{position:absolute;z-index:5;pointer-events:none;opacity:0;will-change:left,bottom,transform}#catw.cat-hint-active{pointer-events:auto;cursor:pointer}
+#catw{position:absolute;z-index:5;pointer-events:none;opacity:0;will-change:left,bottom,transform}#catw.cat-hint-active{pointer-events:auto;cursor:pointer}#catw.cat-clickable{pointer-events:auto;cursor:pointer}
 #catw svg{overflow:visible;filter:drop-shadow(0 0 6px rgba(0,0,0,.5))}
 .mbu{position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%) scale(.35) translateY(10px);background:var(--card);border:1px solid var(--or);border-radius:14px 14px 14px 2px;padding:7px 16px;font-family:'Syne',sans-serif;font-size:13px;font-weight:800;color:var(--or);opacity:0;transition:all .45s cubic-bezier(.34,1.56,.64,1) .05s;white-space:nowrap;box-shadow:0 0 18px var(--gor)}
 #catw.rev .mbu{opacity:1;transform:translateX(-50%) scale(1) translateY(0)}
@@ -1543,7 +1543,7 @@ input[type=range]{
 .cw-vid{position:absolute;left:50%;bottom:0;transform:translateX(-50%) scaleX(-1);height:150px;width:auto;
   opacity:0;pointer-events:none;
   filter:drop-shadow(0 4px 8px rgba(0,0,0,.5)) drop-shadow(0 0 15px rgba(255,122,24,.12))}
-.cw-vid-sprint{height:124px}
+.cw-vid-sprint{height:150px} /* v309 aligned */
 #catw[data-pose="walk"] .cw-vid-walk{opacity:1}
 #catw[data-pose="sprint"] .cw-vid-sprint{opacity:1}
 /* the video cats face left; site logic flips via scaleX on #catw when moving right */
@@ -1559,7 +1559,8 @@ input[type=range]{
   transition:opacity .18s ease;
   filter:drop-shadow(0 4px 8px rgba(0,0,0,.5)) drop-shadow(0 0 15px rgba(255,122,24,.12))}
 /* per-pool display sizing (keep cat visually consistent across clips) */
-.cw-vid-sprint{height:120px}
+.cw-vid-sprint{height:150px}            /* v309: match walk height (was 120px, cat looked smaller) */
+.cw-vid-walk{bottom:-8px}               /* v309: drop walk so paws sit exactly on the card edge (clip has bottom margin) */
 .cw-vid-loaf{height:104px}
 .cw-vid-sleep{height:96px}
 .cw-vid-meow,.cw-vid-sit{height:156px}
@@ -4171,7 +4172,7 @@ function wakeUpSequence(){
 // ══════════════════════════════════════════════════════════════════════════
 // CAT ANIMATION — clean rewrite
 // ══════════════════════════════════════════════════════════════════════════
-const CAT_W=225,CAT_H=158,WSPD=1.8,SSPD=6.2,FLEE_SPD=8,GRAV=0.46,CROUCH_DUR=900;
+const CAT_W=225,CAT_H=158,WSPD=1.8,SSPD=4.8,FLEE_SPD=6.4,GRAV=0.46,CROUCH_DUR=900; // v309: SSPD 6.2->4.8, FLEE 8->6.4 to match sprint clip cadence
 let cX=0,cY=0,cVX=WSPD,cVY=0,cDir=1;
 let cMode='walk',cTimer=120,cGroundY=0,cTargetGY=0;
 let cBob=0,cCrouchTimer=0,isFleeing=false,isEntering=false;
@@ -4263,23 +4264,39 @@ function _showCatHint(){
   const el=catEl();
   if(!el||el.style.opacity==='0')return;
   const r=el.getBoundingClientRect();
-  const bW=240;
-  // Position bubble beside the muso: horizontally next to the cat, vertically at head level
-  const musoTop=r.top+r.height*0.10;
+  const bW=240, W=window.innerWidth, gap=12;
+
+  // v309: place the bubble to the SIDE of the card the cat is standing on, in the free margin,
+  // so it never covers the card's content. Fall back to beside the cat if no card is found.
+  let card=null,best=1e9;
+  document.querySelectorAll('.fgrp').forEach(b=>{
+    const br=b.getBoundingClientRect();
+    const catCx=r.left+r.width/2;
+    // card the cat is horizontally over and whose top edge is near the cat's feet
+    if(catCx>=br.left-30 && catCx<=br.right+30){
+      const d=Math.abs(br.top-r.bottom);
+      if(d<best){best=d;card=br;}
+    }
+  });
+
   let left,top;
-  top=Math.max(8,musoTop-10);
-  if(cDir===1){
-    // cat faces right → bubble to the right
-    left=r.right+8;
-    if(left+bW>window.innerWidth-8)left=r.left-bW-8;
-    bub.style.borderRadius='14px 14px 14px 3px'; // tail bottom-left
-  } else {
-    // cat faces left → bubble to the left
-    left=r.left-bW-8;
-    if(left<8)left=r.right+8;
-    bub.style.borderRadius='14px 14px 3px 14px'; // tail bottom-right
+  top=Math.max(8,(r.top+r.height*0.10)-10);
+  if(card){
+    const spaceR=W-card.right, spaceL=card.left;
+    if(spaceR>=bW+gap+8){            // room to the right of the card
+      left=card.right+gap; bub.style.borderRadius='14px 14px 14px 3px';
+    }else if(spaceL>=bW+gap+8){      // room to the left of the card
+      left=card.left-bW-gap; bub.style.borderRadius='14px 14px 3px 14px';
+    }else{                           // narrow card: hug whichever side has more room, clamped
+      if(spaceR>=spaceL){left=Math.min(card.right+gap,W-bW-8);bub.style.borderRadius='14px 14px 14px 3px';}
+      else{left=Math.max(8,card.left-bW-gap);bub.style.borderRadius='14px 14px 3px 14px';}
+    }
+  }else{
+    // no card: place beside the cat per facing direction
+    if(cDir===1){left=r.right+8;if(left+bW>W-8)left=r.left-bW-8;bub.style.borderRadius='14px 14px 14px 3px';}
+    else{left=r.left-bW-8;if(left<8)left=r.right+8;bub.style.borderRadius='14px 14px 3px 14px';}
   }
-  left=Math.max(8,Math.min(left,window.innerWidth-bW-8));
+  left=Math.max(8,Math.min(left,W-bW-8));
   bub.style.left=left+'px';
   bub.style.top=top+'px';
   bub.style.display='block';
@@ -4320,12 +4337,26 @@ function reappearCat(ms){
   },ms||2000);
 }
 
+// v309: organic edge flee — direction-correct, forces sprint clip, failsafe hide
+function _startOrganicFlee(dir){
+  isFleeing=true;cMode='sprint';cDir=dir;cVX=FLEE_SPD*dir;cTimer=9999;
+  _seqActive=false;_csPrevMode='sprint';_spriteSet('sprint');_showClip('sprint');
+  if(cHideTimer){clearTimeout(cHideTimer);}
+  cHideTimer=setTimeout(()=>{hideCat();reappearCat(1500);},2200); // never stay stuck running in place
+}
+
 function fleeAndReturn(){
   if(cLoafT){clearTimeout(cLoafT);cLoafT=null;}
   if(cHideTimer){clearTimeout(cHideTimer);cHideTimer=null;}
   if(cRaf){cancelAnimationFrame(cRaf);cRaf=null;}
   exitCrouch();
+  _hideCatHint();
+  // v309: flee toward the NEAREST horizontal edge so the cat actually leaves quickly (no stall at far side)
+  const W=window.innerWidth;
+  cDir = (cX + CAT_W/2 < W/2) ? -1 : 1;
   isFleeing=true;cMode='sprint';cVX=FLEE_SPD*cDir;cTimer=9999;
+  // v309: always show the sprint clip when fleeing (was keeping whatever pose it was in)
+  _seqActive=false;_csPrevMode='sprint';_spriteSet('sprint');_showClip('sprint');
   const el=catEl();
   el.style.transition='none';el.style.opacity='1';
   el.style.left=cX+'px';el.style.bottom=cGroundY+'px';
@@ -4360,6 +4391,11 @@ function initCat(){
   _buildVidStage();_spriteSet('walk');_showClip('walk');
   cBob=0;cCrouchTimer=0;isFleeing=false;
   const el=catEl();
+  // v309: click on a STATIC cat -> sprint off-screen (only pause/crouch, not walk/sprint/jump)
+  el.onclick=()=>{
+    if(el.classList.contains('cat-hint-active'))return; // hint has its own handler
+    if(cMode==='pause'||cMode==='crouch') fleeAndReturn();
+  };
   el.style.transition='none';el.style.filter='';
   el.style.left=cX+'px';el.style.bottom=cY+'px';
   el.style.transform='scaleX(1)';el.style.opacity='1';
@@ -4401,9 +4437,16 @@ function catLoop(){
     if(r<0.33){cMode='walk';cVX=WSPD*cDir;cTimer=100+Math.random()*140;}
     else if(r<0.48){cMode='sprint';cVX=SSPD*cDir;cTimer=18+Math.random()*28;}
     else if(r<0.65){
+      // v309: jump only to a HIGHER platform (leap1->leap2). Downward jumps need a dedicated
+      //       jumpdown clip (not yet available) — for now fall back to walking.
       const tp=diffPlat();
-      if(tp){cMode='jump';cVY=10+Math.random()*4;cTargetGY=tp.y;cTimer=350;_playLeapSequence(()=>{_spriteSet('walk');_showClip('walk');});}
-      else{cMode='walk';cTimer=80;}
+      if(tp && tp.y>cGroundY+8){
+        // v309: takeoff velocity sized to the height gap so the apex lands at the arrival edge.
+        // small +1.6 margin gives leap2 a short descent onto the card.
+        const dh=tp.y-cGroundY;
+        cMode='jump';cVY=Math.sqrt(2*GRAV*dh)+1.6;cTargetGY=tp.y;cTimer=350;
+        _playLeapSequence(()=>{_spriteSet('walk');_showClip('walk');});
+      }else{cMode='walk';cVX=WSPD*cDir;cTimer=80;}
     }
     else if(r<0.80){cMode='pause';cVX=0;cTimer=20+Math.random()*40;}
     else{enterCrouch();if(cMode!=='crouch'){cMode='walk';cTimer=80;}}
@@ -4412,9 +4455,12 @@ function catLoop(){
   // PHYSICS
   if(cMode==='jump'){
     cVY-=GRAV;cY+=cVY;
+    // v309: switch to leap2 (descent/landing) at the apex of the arc
+    if(_leapPhase===1 && cVY<=0){ _leapToPhase2(); }
     if(cVY<0&&cY<=cTargetGY){
       cY=cTargetGY;cGroundY=cTargetGY;cVY=0;
       cMode='walk';cVX=WSPD*cDir;cTimer=80+Math.random()*80;
+      _endLeap(); // land: finish leap2 -> walk exactly when paws meet the arrival edge
     }
   }else{cY=cGroundY;}
 
@@ -4424,14 +4470,16 @@ function catLoop(){
   if(!isFleeing&&!isEntering){
     const b=xBounds();
     if(cX>b.hi){
-      if(cMode!=='jump'&&Math.random()<0.18){isFleeing=true;cMode='sprint';cVX=FLEE_SPD;cTimer=9999;}
+      if(cMode!=='jump'&&Math.random()<0.18){_startOrganicFlee(1);}
       else{cDir=-1;cVX=-Math.abs(cVX);cX=b.hi;if(!isEntering&&cMode!=='jump'&&Math.random()<0.30)_triggerCatHint();}
     }
     if(cX<b.lo){
-      if(cMode!=='jump'&&Math.random()<0.18){isFleeing=true;cMode='sprint';cDir=-1;cVX=-FLEE_SPD;cTimer=9999;}
+      if(cMode!=='jump'&&Math.random()<0.18){_startOrganicFlee(-1);}
       else{cDir=1;cVX=Math.abs(cVX);cX=b.lo;if(!isEntering&&cMode!=='jump'&&Math.random()<0.30)_triggerCatHint();}
     }
   }
+  // v309: while fleeing, guarantee constant velocity in the flee direction (never stall in place)
+  if(isFleeing&&cMode==='sprint'){ cVX=FLEE_SPD*cDir; }
 
   // off screen (organic exit or flee) — skip check while entering
   if(!isEntering&&(cX>window.innerWidth+130||cX<-CAT_W-30)){
@@ -4452,6 +4500,9 @@ function catLoop(){
   el.style.left=cX+'px';
   el.style.bottom=(cY+bY)+'px';
   el.style.transform=`scaleX(${cDir===-1?-1:1}) rotate(${rD}deg)`;
+  // v309: clickable only when static (pause/crouch) and not fleeing/entering/hinting
+  const _static=(cMode==='pause'||cMode==='crouch')&&!isFleeing&&!isEntering&&!el.classList.contains('cat-hint-active');
+  el.classList.toggle('cat-clickable',_static);
   _setPose();
   cRaf=requestAnimationFrame(catLoop);
 }
@@ -5662,7 +5713,7 @@ function _showClip(pool, idx, onended){
   el.loop=_LOOP_POOLS.has(pool);
   el.style.opacity='1';
   try{ el.currentTime=0; }catch(e){}
-  el.playbackRate=1.0;
+  el.playbackRate = (pool==='sprint') ? 1.35 : 1.0;  // v309: speed sprint clip so paw cadence matches screen speed
   const p=el.play(); if(p&&p.catch)p.catch(()=>{});
   if(!el.loop){
     el.onended=()=>{ el.onended=null; if(onended)onended(); };
@@ -5721,17 +5772,28 @@ function _playWakeSequence(done){
     });
   });
 }
-// Leap sequence: leap1 -> leap2 -> (land into walk)
+// Leap sequence v309: physics-driven.
+// leap1 = takeoff/ascent (plays while cat rises toward arrival height).
+// At the apex (cVY<=0) the loop calls _leapToPhase2() which swaps to leap2 (the airborne
+// descent + landing on the arrival card edge). leap2 ends into walk when the cat touches down.
+let _leapPhase=0;   // 0 = none, 1 = ascending (leap1), 2 = descending/landing (leap2)
 function _playLeapSequence(done){
-  _seqActive=true;
+  _seqActive=true;_leapPhase=1;_leapDone=done||null;
   _spriteSet('leap1');
-  _showClip('leap1',null,()=>{
-    _spriteSet('leap2');
-    _showClip('leap2',null,()=>{
-      _seqActive=false;
-      if(done)done();
-    });
-  });
+  _showClip('leap1',null,null); // loop-managed; no auto-advance on clip end
+}
+let _leapDone=null;
+function _leapToPhase2(){
+  if(_leapPhase!==1)return;
+  _leapPhase=2;
+  _spriteSet('leap2');
+  _showClip('leap2',null,null);
+}
+function _endLeap(){
+  if(_leapPhase===0)return;
+  _leapPhase=0;_seqActive=false;
+  const d=_leapDone;_leapDone=null;
+  if(d)d(); else {_spriteSet('walk');_showClip('walk');}
 }
 
 </script>
