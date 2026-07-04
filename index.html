@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="it"><head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>SWAINZ</title><!-- v313 · mascotte: rientro in camminata graduale dal margine laterale (niente snap sul bordo scheda) -->
+<title>SWAINZ</title><!-- v314 · fix: findFilm rispetta EXCL · refresh token con retry 401 · polling is_premium post-pagamento · CTA premium nell'overlay ads · hardening RLS documentato (swainz_rls_v314.sql) -->
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600&family=Syne:wght@600;800&family=Teko:wght@700&family=Rajdhani:wght@500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
@@ -2936,6 +2936,7 @@ function findFilm(){
     if(seenFilms.has(f.id))return false;
     if(sessionShown.has(f.id))return false;
     if(_allRecIds.has(f.id))return false;
+    if(EXCL.size&&f.tags.some(t=>EXCL.has(t)))return false; // v314: chip di esclusione applicati anche al motore consigli (prima erano ignorati)
     if(f.r<minR)return false;
     if(pltSel.size>0){
       const _noPlat=pltSel.has('Non su piattaforme');
@@ -3034,7 +3035,13 @@ function showAd(result){
 function closeAd(goPremium){
   document.getElementById('adov').classList.remove('on');
   if(adInterval){clearInterval(adInterval);adInterval=null;}
-  if(goPremium){alert('Funzionalità Premium — integra Stripe! 🐾');return;}
+  // v314: apre il vero pannello upgrade (prima: alert demo pre-Stripe).
+  // Il consiglio in sospeso non va perso: la scheda viene mostrata sotto il pannello.
+  if(goPremium){
+    if(pendingResult!==null&&pendingResult!==undefined){const res=pendingResult;pendingResult=null;showCard(res);}
+    openUpgradePanel();
+    return;
+  }
   if(pendingResult!==null&&pendingResult!==undefined){const res=pendingResult;pendingResult=null;revealCat();setTimeout(()=>showCard(res),2500);}
 }
 
@@ -3933,7 +3940,13 @@ async function saveProfp(){
       profile: data,   // full profile blob with all fields
       updated_at: new Date().toISOString()
     };
-    _saveUserData(patch);
+    // v314: feedback onesto — check verde solo se il salvataggio su Supabase riesce davvero
+    _saveUserData(patch, function(success){
+      const ok=document.getElementById('profOk');
+      if(success){ok.classList.add('show');setTimeout(()=>ok.classList.remove('show'),2200);}
+      else alert(LANG==='en'?'Save failed. Check your connection and try again.':'Salvataggio non riuscito. Controlla la connessione e riprova.');
+    });
+    return;
   }
   const ok=document.getElementById('profOk');ok.classList.add('show');setTimeout(()=>ok.classList.remove('show'),2200);
 }
@@ -3984,16 +3997,33 @@ function _handlePaymentReturn(){
   // Toast immediato, indipendente dalla sessione
   var t=document.getElementById('payment-toast');
   if(t){t.classList.add('on');setTimeout(function(){t.classList.remove('on');},4500);}
-  // Ricarica dati DB quando la sessione è pronta (polling leggero)
+  // v314: doppio polling — (1) attende la sessione, (2) attende che il webhook Stripe
+  // abbia scritto is_premium=true. Prima veniva letto una sola volta: se il webhook
+  // era più lento del redirect, _applyUserData forzava isPremium=false subito dopo
+  // il toast "Benvenuto in Premium!".
   var attempts=0;
   var poll=setInterval(function(){
     attempts++;
     if(attempts>20){clearInterval(poll);return;}
     if(!_authToken||!currentUser)return;
     clearInterval(poll);
-    _loadUserData(function(d){
-      if(d){_applyUserData(d);buildUI();_updatePremUI();}
-    });
+    var tries=0,MAX_TRIES=14; // 14 × 1.5s ≈ 21s di attesa massima per il webhook
+    (function checkPremium(){
+      tries++;
+      _loadUserData(function(d){
+        if(d&&d.is_premium){
+          _applyUserData(d);buildUI();_updatePremUI();
+        }else if(tries<MAX_TRIES){
+          setTimeout(checkPremium,1500);
+        }else{
+          // webhook non ancora arrivato: applica comunque i dati (stato reale del DB)
+          if(d){_applyUserData(d);buildUI();_updatePremUI();}
+          alert(LANG==='en'
+            ?'Payment received! Premium activation may take a minute — reload the page shortly.'
+            :'Pagamento ricevuto! L\'attivazione Premium può richiedere qualche istante — ricarica la pagina tra poco.');
+        }
+      });
+    })();
   },300);
 }
 
@@ -5001,6 +5031,19 @@ function _saveSession(res) {
       expires_at: exp
     }));
   } catch(e) {}
+  _scheduleTokenRefresh(exp); // v314
+}
+
+// v314: rinnovo proattivo del token ~2 minuti prima della scadenza (sessioni lunghe con tab aperta).
+var _tokRefreshTimer = null;
+function _scheduleTokenRefresh(expiresAt) {
+  if (_tokRefreshTimer) { clearTimeout(_tokRefreshTimer); _tokRefreshTimer = null; }
+  if (!expiresAt) return;
+  var delay = Math.max(30000, expiresAt - Date.now() - 120000); // mai meno di 30s
+  _tokRefreshTimer = setTimeout(function() {
+    if (!_refreshToken) return;
+    _tryRefreshSession(function(){}); // _saveSession (nel refresh riuscito) rischedula automaticamente
+  }, delay);
 }
 
 function _clearSession() {
@@ -5008,7 +5051,7 @@ function _clearSession() {
   try { localStorage.removeItem('sw3_session'); } catch(e) {}
 }
 
-function _supaXHR(method, path, body, token, cb) {
+function _supaXHR(method, path, body, token, cb, _retried) {
   var xhr = new XMLHttpRequest();
   xhr.open(method, SUPA_URL + path);
   xhr.setRequestHeader('apikey', SUPA_KEY);
@@ -5019,6 +5062,15 @@ function _supaXHR(method, path, body, token, cb) {
   xhr.onload = function() {
     var res = null;
     try { res = JSON.parse(xhr.responseText); } catch(e) {}
+    // v314: token utente scaduto a metà sessione → refresh e retry (una sola volta).
+    // Prima la richiesta falliva in silenzio con 401 e i salvataggi andavano persi.
+    if (xhr.status === 401 && token && token === _authToken && !_retried) {
+      _tryRefreshSession(function(ok) {
+        if (ok) _supaXHR(method, path, body, _authToken, cb, true);
+        else cb(xhr.status, res);
+      });
+      return;
+    }
     cb(xhr.status, res);
   };
   xhr.ontimeout = xhr.onerror = function() { cb(0, null); };
@@ -5050,6 +5102,7 @@ function _restoreSession(cb) {
     _authToken = s.access_token;
     _refreshToken = s.refresh_token;
     currentUser = s.user;
+    _scheduleTokenRefresh(s.expires_at); // v314
     cb(true);
   }
 }
@@ -6057,13 +6110,13 @@ function _renderOnbB(){
     if(q.id==='q7'){
       var s7=fckAnswers.q7||'',s7b=new Set(fckAnswers.q7b||[]);
       h+='<div class="fck-q"><div class="fck-qt">'+t('fck_q7')+'</div><div class="fck-opts">';
-      q.opts.forEach(function(o){h+='<button class="fck-opt '+(s7===o.v?'sel':'')+'" onclick="selFck('q7',''+o.v+'',this)">'+o.t+'</button>';});
+      q.opts.forEach(function(o){h+='<button class="fck-opt '+(s7===o.v?'sel':'')+'" onclick="selFck(\'q7\',\''+o.v+'\',this)">'+o.t+'</button>';});
       h+='</div><div class="fck-q7b" id="fck-q7b" style="'+(s7==='yes'?'':'display:none')+'"><div class="fck-qt fck-qt-sub">'+t('fck_q7b')+'</div><div class="fck-opts fck-opts-plt">';
-      plt7.forEach(function(p){h+='<button class="fck-opt '+(s7b.has(p)?'sel':'')+'" onclick="toggleFckQ7b(''+p+'',this)">'+p+'</button>';});
+      plt7.forEach(function(p){h+='<button class="fck-opt '+(s7b.has(p)?'sel':'')+'" onclick="toggleFckQ7b(\''+p+'\',this)">'+p+'</button>';});
       h+='</div></div></div>';
     } else {
       h+='<div class="fck-q"><div class="fck-qt">'+t('fck_'+q.id)+'</div><div class="fck-opts">';
-      q.opts.forEach(function(o){h+='<button class="fck-opt '+(fckAnswers[q.id]===o.v?'sel':'')+'" onclick="selFck(''+q.id+'',''+o.v+'',this)">'+o.t+'</button>';});
+      q.opts.forEach(function(o){h+='<button class="fck-opt '+(fckAnswers[q.id]===o.v?'sel':'')+'" onclick="selFck(\''+q.id+'\',\''+o.v+'\',this)">'+o.t+'</button>';});
       h+='</div></div>';
     }
   });
@@ -6088,7 +6141,7 @@ function _renderOnbChips(cid,gid,items){
   var h='';
   items.forEach(function(tag){
     var safe=tag.replace(/'/g,"\\x27").replace(/"/g,'&quot;');
-    h+='<div class="onb-chip '+(SEL[gid]&&SEL[gid].has(tag)?'on':'')+'" onclick="_onbToggleChip(''+gid+'',''+safe+'',this)">'+tTag(tag)+'</div>';
+    h+='<div class="onb-chip '+(SEL[gid]&&SEL[gid].has(tag)?'on':'')+'" onclick="_onbToggleChip(\''+gid+'\',\''+safe+'\',this)">'+tTag(tag)+'</div>';
   });
   el.innerHTML=h;
 }
