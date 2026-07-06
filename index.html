@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="it"><head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>SWAINZ</title><!-- v314 · fix: findFilm rispetta EXCL · refresh token con retry 401 · polling is_premium post-pagamento · CTA premium nell'overlay ads · hardening RLS documentato (swainz_rls_v314.sql) -->
+<title>SWAINZ</title><!-- v324 · punto 14: date legali aggiornate (Ultimo aggiornamento: luglio 2026, In vigore dal: giugno 2026, entrambi i pannelli) — identificazione Titolare/P.IVA in attesa dei dati reali · punto 15: rimosso il dead code FCK_Q (mai referenziato, conteneva la q5 fantasma) -->
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600&family=Syne:wght@600;800&family=Teko:wght@700&family=Rajdhani:wght@500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
@@ -1946,7 +1946,7 @@ input[type=range]{
     <div class="cs-lu-level" id="cs-lu-level-name">Esploratore</div>
     <div class="cs-lu-sub" id="cs-lu-sub"></div>
     <button class="cs-lu-btn" onclick="closeCsLevelUp()" data-i18n="cs_lu_btn">Ottimo!</button>
-    <button class="share-btn" data-share-badge="1" style="margin-top:10px" onclick="window._swShareBadge()">📤 Condividi badge</button>
+    <button class="share-btn" style="margin-top:10px" onclick="window._swShareBadge()">📤 Condividi badge</button>
   </div>
 </div>
 
@@ -1993,11 +1993,20 @@ var STRIPE_PRICE_YEARLY='price_1TaiWyRzBS2zhcmvWVVT1RzF';
 var EDGE_URL=SUPA_URL+'/functions/v1';
 var SUPA_TAGS=['Angosciante','Animazione','Asiatico','Biografico','Bizzarro','Capolavoro','Catastrofico','CineComic','Claustrofobico','Colossal','Comico','Commedia','Conosciutissimo','Corto(<1h30)','Crimine','Crudo',"D'Autore",'Difficile','Distopia','Documentario','Dramma','Droga','Economico','Epoca Passata','Estetico','Facile','Fantascienza','Grande Colonna Sonora','Grande Interpretazione','Guerra','Horror','Imponente','Italiano','Legal Drama','Lunghissimo','Lungo(>2h30)','Mafia','Musicale','Neorealismo','Noire','Onirico','Oscar','Pazzesco','Personaggio Cattivo','Psichedelico','Psicologico/mentale','Romantico','Sequel','Serial Killer','Sportivo','Storia Avvincente','Tecnologico','Thriller','Triste','Vecchio','Vendetta','Violenza Ironica','Western'];
 function _safeArr(v){
+  // v321: normalizzazione unica per tutti i formati di Piattaforme.
+  // Alias legacy → nome canonico usato dai filtri (es. 'Apple TV+' → 'Apple TV').
+  var fix=function(x){x=String(x).trim().replace(/^"|"$/g,'');return x==='Apple TV+'?'Apple TV':x;};
   if(!v)return[];
-  if(Array.isArray(v))return v.filter(Boolean);
-  var s=String(v);
-  if(s.charAt(0)==='{')s=s.slice(1,s.length-1);
-  return s.split(',').map(function(x){return x.trim().replace(/^"|"$/g,'');}).filter(Boolean);
+  if(Array.isArray(v))return v.filter(Boolean).map(fix);
+  var s=String(v).trim();
+  // formato JSON ('["Disney+"]') — è ciò che scrive update-db.js; prima
+  // produceva un valore spazzatura con parentesi/virgolette incluse.
+  if(s.charAt(0)==='['){
+    try{var a=JSON.parse(s);if(Array.isArray(a))return a.filter(Boolean).map(fix);}catch(e){}
+    s=s.slice(1,s.length-1); // JSON malformato: fallback split
+  }
+  if(s.charAt(0)==='{')s=s.slice(1,s.length-1); // literal Postgres {a,"b c"}
+  return s.split(',').map(fix).filter(Boolean);
 }
 function _supaTransform(row){
   return {
@@ -2071,22 +2080,41 @@ const GROUPS=[
   {id:'g6',title:'⏱ Durata',col:'or',multi:false,tags:["Corto(<1h30)","Lungo(>2h30)","Lunghissimo"]}
 ];
 const PERIOD_MAP={"Anni '60 e prima":y=>y<=1969,"Anni '70":y=>y>=1970&&y<=1979,"Anni '80":y=>y>=1980&&y<=1989,"Anni '90":y=>y>=1990&&y<=1999,"Anni 2000":y=>y>=2000&&y<=2009,"Anni 2010":y=>y>=2010&&y<=2019,"Anni 2020":y=>y>=2020};
-const FCK_Q=[
-  {id:'q1',text:'Come ti rapporti con i film del passato?',opts:[{t:'Solo film recenti (dal 2000)',v:'recent'},{t:"Apprezzo anche gli anni '80 e '90",v:'from80'},{t:'Amo tutti i film, classici compresi',v:'all'}]},
-  {id:'q2',text:'Quanto tempo hai?',opts:[{t:'Preferisco film brevi (< 90 min)',v:'short'},{t:'La durata non mi preoccupa',v:'any'},{t:'Amo i film lunghi ed epici',v:'long'}]},
-  {id:'q3',text:"Come ti rapporti con l'horror?",opts:[{t:'Non li sopporto',v:'no'},{t:'Solo se non troppo estremi',v:'some'},{t:'Li adoro!',v:'yes'}]},
-  {id:'q4',text:"Apprezzi il cinema d'autore?",opts:[{t:'Preferisco blockbuster',v:'commercial'},{t:"Amo il cinema d'autore",v:'auteur'},{t:'Un buon mix',v:'both'}]},
-  {id:'q5',text:'Che esperienza cerchi?',opts:[{t:'Voglio divertirmi',v:'light'},{t:'Voglio pensare',v:'deep'},{t:'Cerco brividi',v:'thrill'},{t:'Storie romantiche',v:'emo'}]}
-];
+// v324 (punto 15): rimosso il vecchio array FCK_Q — dead code mai referenziato, conteneva la domanda fantasma q5. Le domande reali vivono nelle chiavi fck_q* dell'oggetto T e nei renderer.
 
 // ── STATE ───────────────────────────────────────────────────────────────
 const SEL={};GROUPS.forEach(g=>SEL[g.id]=new Set());
 
 // Tags that are opt-in only: films tagged with these are excluded unless the user explicitly selected them
 const OPT_IN_TAGS=new Set(['Musicale','CineComic','Western','Vecchio','Documentario','Crudo','Asiatico','Lunghissimo','Difficile','Sequel']);
-const SEQUEL_MAP={17:[393],49:[46],101:[98],102:[101],150:[151],307:[306],308:[307],362:[361],381:[380],411:[410],584:[413],677:[323],735:[734],757:[756],877:[734],894:[877],899:[898],911:[908],912:[795],938:[370]};
+const SEQUEL_MAP={17:[393],49:[46],101:[98],102:[101],150:[151],238:[237],239:[238],270:[272],292:[199],307:[306],308:[307],345:[344],362:[361],372:[371],381:[380],411:[410],560:[558],584:[413],677:[323],735:[734],757:[756],877:[734],894:[877],899:[898],911:[908],912:[795],938:[370],939:[938],1047:[735],1191:[684],1236:[221],1257:[939],1321:[1339],1323:[1178],1338:[1367],1339:[2300],1351:[380],1367:[1561],1404:[56],1410:[1323],1452:[1484],1498:[17],1581:[1607],1607:[1629],1629:[2323],1646:[538],1772:[1771],1887:[1886],2031:[1124],2098:[2108],2233:[2243],2300:[2315],2315:[2323]}; // v319: rimosse le catene Aldo G&G e Zalone (storie autonome, resta il gating OPT_IN del tag Sequel) // v318: mappa completa da audit catalogo (2401 film, 67 tag Sequel)
 const EXCL=new Set();
 let searches=3,cdEndTime=null,cdInterval=null,seenFilms=new Set();
+// ── v317: contatore ricerche giornaliero ──────────────────────────────────
+// _searchKey non era MAI stata dichiarata (dichiarazione persa in un edit
+// passato): tutti gli accessi lanciavano ReferenceError silenziati dai
+// try/catch → ricerche mai persistite (ogni reload = 3 fresche) e restore
+// del countdown morto. Ripristinata con semantica coerente col testo UI
+// ("aspetta domani"): data LOCALE (non UTC) e reset alla MEZZANOTTE locale
+// (non 24h rolling). La chiave viene ricalcolata a ogni uso, così una tab
+// aperta oltre la mezzanotte passa da sola al nuovo giorno.
+function _todayKey(){const d=new Date();return 'sw3_srch_'+d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+function _nextMidnight(){const d=new Date();d.setHours(24,0,0,0);return d.getTime();}
+let _searchKey=_todayKey();
+function _syncSearchDay(){
+  const k=_todayKey();
+  if(k===_searchKey)return;
+  // giorno cambiato con la tab aperta: nuova chiave, contatore pieno, countdown chiuso
+  try{localStorage.removeItem(_searchKey);localStorage.removeItem('sw3_cd');}catch(e){}
+  _searchKey=k;
+  if(!isPremium){
+    searches=3;isFirstSearch=true;
+    const cnt=document.getElementById('cnt');if(cnt)cnt.textContent=searches;
+  }
+  if(cdInterval){clearInterval(cdInterval);cdInterval=null;}
+  cdEndTime=null;
+  const cov=document.getElementById('cov');if(cov)cov.classList.remove('on');
+}
 let adInterval=null,pendingResult=null,isFirstSearch=true;
 let isPremium=false,userPrefs={},fckAnswers={},currentFilms=[];
 const sessionShown=new Set(); // films shown in this session, reset with new day
@@ -2392,6 +2420,7 @@ function loadFck(){try{const r=localStorage.getItem('sw3_fck');if(r){fckAnswers=
 function closeExclModal(){document.getElementById('excl-modal').classList.remove('show');}
 
 const TITLE_ORIG={
+  5:"The Basketball Diaries",
   7:"Catch Me If You Can",
   12:"Django Unchained",
   13:"The Great Gatsby",
@@ -2399,70 +2428,204 @@ const TITLE_ORIG={
   17:"The Godfather Part II",
   19:"The Deer Hunter",
   20:"Raging Bull",
+  21:"The King of Comedy",
   22:"Once Upon a Time in America",
+  24:"The Mission",
   26:"Goodfellas",
+  27:"Awakenings",
+  29:"A Bronx Tale",
   37:"Unforgiven",
   38:"The Shawshank Redemption",
+  39:"Se7en",
   41:"Bruce Almighty",
+  43:"Unleashed",
   45:"Lucky Number Slevin",
   46:"The Dark Knight",
   49:"The Dark Knight Rises",
   50:"The Usual Suspects",
+  51:"A Time to Kill",
   56:"Gladiator",
   58:"Master and Commander: The Far Side of the World",
   59:"3:10 to Yuma",
+  63:"The Pelican Brief",
   65:"The Bone Collector",
+  67:"The Hurricane",
   69:"The Equalizer",
+  71:"They Call Me Jeeg",
   72:"12 Monkeys",
   73:"Seven Years in Tibet",
   75:"Snatch",
   78:"The Curious Case of Benjamin Button",
   79:"Inglourious Basterds",
+  81:"12 Years a Slave",
+  83:"The Big Short",
+  84:"Toxic Love",
+  86:"Layer Cake",
   93:"Edward Scissorhands",
   95:"Fear and Loathing in Las Vegas",
+  98:"Pirates of the Caribbean: The Curse of the Black Pearl",
   100:"Public Enemies",
+  101:"Pirates of the Caribbean: Dead Man's Chest",
+  102:"Pirates of the Caribbean: At World's End",
   103:"Boogie Nights",
+  105:"An Average Little Man",
+  106:"Big Deal on Madonna Street",
+  107:"Seduced and Abandoned",
+  108:"Scent of a Woman",
+  109:"Ugly, Dirty and Bad",
+  110:"The Railroad Man",
   111:"Divorce Italian Style",
+  112:"A Special Day",
+  113:"The Seduction of Mimi",
+  114:"Two Women",
+  115:"Bicycle Thieves",
+  116:"Poverty and Nobility",
+  118:"Yesterday, Today and Tomorrow",
   119:"Investigation of a Citizen Above Suspicion",
+  120:"Rome, Open City",
+  122:"Shoeshine",
+  123:"Seven Samurai",
+  124:"The Birds",
+  126:"Greenery Will Bloom Again",
+  127:"Two Days, One Night",
   129:"The Ides of March",
   136:"Pearl Harbor",
+  137:"Before Sunrise",
+  139:"Fantozzi 2",
+  141:"Crash",
+  143:"Three Days of the Condor",
   144:"The War of the Roses",
+  145:"City of Women",
   146:"Chinatown",
+  147:"A Good Year",
+  148:"The Perfect Storm",
+  149:"The Ignorant Fairies",
+  150:"Angels & Demons",
+  151:"The Da Vinci Code",
+  152:"Any Given Sunday",
+  153:"Whatever Works",
+  154:"Broken Embraces",
+  155:"The End Is My Beginning",
+  156:"Falling Down",
+  157:"Don't Be Bad",
+  161:"Force Majeure",
+  163:"Memoirs of a Geisha",
+  166:"Sideways",
   168:"House of Sand and Fog",
+  169:"Something's Gotta Give",
+  170:"The Barbarian Invasions",
+  172:"Evil",
+  175:"About Schmidt",
+  179:"I Am Sam",
+  181:"Iris",
+  183:"A Few Good Men",
   184:"Kate & Leopold",
+  185:"Cold Mountain",
+  186:"Lemony Snicket's A Series of Unfortunate Events",
+  189:"Away from Her",
+  190:"Atonement",
+  191:"The Kite Runner",
+  192:"Letters from Iwo Jima",
+  194:"The Devil Wears Prada",
+  195:"Saturday Night Fever",
+  197:"Cinema Paradiso",
+  198:"Ghost",
+  199:"Christmas Present",
+  200:"The Last Samurai",
+  201:"A Separation",
+  202:"Dead Ringers",
+  207:"The Theory of Everything",
   211:"Inherent Vice",
+  213:"August: Osage County",
+  220:"The Sting",
   223:"Dog Day Afternoon",
+  224:"Annie Hall",
+  225:"Heaven Can Wait",
+  226:"Fatal Attraction",
   230:"Law Abiding Citizen",
   231:"Nightcrawler",
   232:"Young Frankenstein",
+  235:"My Big Fat Greek Wedding",
   236:"Walk the Line",
+  237:"The Hobbit: An Unexpected Journey",
+  238:"The Hobbit: The Desolation of Smaug",
+  239:"The Hobbit: The Battle of the Five Armies",
+  240:"Crouching Tiger, Hidden Dragon",
+  241:"The Pianist",
   243:"127 Hours",
   245:"Life of Pi",
+  249:"The House of the Spirits",
+  250:"Airplane!",
+  251:"National Lampoon's Animal House",
+  254:"Borat: Cultural Learnings of America for Make Benefit Glorious Nation of Kazakhstan",
+  255:"The Great Dictator",
+  257:"The Fifth Estate",
+  259:"Death at a Funeral",
+  262:"The Pursuit of Happyness",
+  264:"Hachi: A Dog's Tale",
+  265:"Damage",
+  266:"Valkyrie",
+  274:"In the Valley of Elah",
+  275:"The Mafia Kills Only in Summer",
+  279:"Slumdog Millionaire",
+  281:"Confessions of a Dangerous Mind",
+  286:"O Brother, Where Art Thou?",
+  287:"Escape from Alcatraz",
+  290:"Siberian Education",
   291:"The Martian",
+  292:"Christmas Rematch",
+  296:"The Friends at the Margherita Cafe",
+  297:"Gomorrah",
+  298:"The Hangover",
+  300:"The Consequences of Love",
+  301:"The Family Friend",
+  304:"Rear Window",
   306:"The Lord of the Rings: The Fellowship of the Ring",
   307:"The Lord of the Rings: The Two Towers",
   308:"The Lord of the Rings: The Return of the King",
   311:"The Big Lebowski",
+  313:"Cidade de Deus",
+  315:"The Royal Tenenbaums",
+  322:"E.T. the Extra-Terrestrial",
   325:"There Will Be Blood",
   328:"Spotlight",
   329:"The Intouchables",
+  330:"The Great Beauty",
+  331:"Youth",
+  340:"The Marquis of Grillo",
   341:"The Great War",
+  344:"My Friends",
+  345:"All My Friends Part 2",
+  351:"Silver Linings Playbook",
+  354:"Bram Stoker's Dracula",
   355:"The Silence of the Lambs",
   356:"Fracture",
   357:"True Romance",
   360:"No Country for Old Men",
+  363:"Tinker Tailor Soldier Spy",
+  364:"Jumper",
   366:"Stay",
+  369:"The Merchant of Venice",
   370:"The Matrix",
+  371:"Back to the Future",
+  372:"Back to the Future Part II",
+  374:"The Crow",
+  375:"Good Will Hunting",
   378:"Reservoir Dogs",
   380:"Sin City",
   381:"Sin City: A Dame to Kill For",
+  382:"Death Proof",
   384:"V for Vendetta",
+  386:"Eastern Promises",
   393:"The Godfather",
   394:"Rounders",
   398:"8½",
   402:"A Clockwork Orange",
   403:"2001: A Space Odyssey",
+  404:"Dr. Strangelove or: How I Learned to Stop Worrying and Love the Bomb",
   405:"The Shining",
+  410:"For Love and Gold",
+  411:"Brancaleone at the Crusades",
   412:"25th Hour",
   416:"The Graduate",
   417:"Doubt",
@@ -2471,89 +2634,842 @@ const TITLE_ORIG={
   421:"A Fistful of Dollars",
   422:"For a Few Dollars More",
   423:"The Good, the Bad and the Ugly",
+  424:"Duck, You Sucker",
+  426:"The Best Offer",
   428:"Pi",
+  430:"Inland Empire",
+  431:"Monty Python's The Meaning of Life",
+  432:"Vallanzasca - Angels of Evil",
   433:"After Hours",
+  434:"The Guard",
+  439:"A Prophet",
   440:"Before the Devil Knows You're Dead",
+  441:"As Good as It Gets",
+  444:"One Flew Over the Cuckoo's Nest",
+  445:"Batman",
+  446:"The Hunt for Red October",
+  447:"The Name of the Rose",
+  449:"21 Grams",
+  451:"Birdman or (The Unexpected Virtue of Ignorance)",
+  454:"The Grand Budapest Hotel",
+  458:"House of Flying Daggers",
+  459:"I'm Starting from Three",
+  460:"Sorry for the Delay",
+  461:"The Postman",
+  462:"Nothing Left to Do but Cry",
+  463:"Life Is Beautiful",
+  465:"Three Men and a Leg",
+  466:"Ask Me If I'm Happy",
+  467:"That's Life",
+  468:"Falling from the Clouds",
+  469:"What a Beautiful Day",
+  470:"Sun in Buckets",
+  472:"Misery",
+  474:"Perfect Strangers",
+  479:"Swept Away",
+  481:"Capote",
   482:"Only Lovers Left Alive",
+  484:"Dead Poets Society",
+  485:"The Fugitive",
+  486:"Léon: The Professional",
+  488:"Taken",
+  490:"The King's Speech",
+  491:"Seven Psychopaths",
+  494:"The Legend of 1900",
+  496:"Almost Famous",
   498:"Gattaca",
+  500:"The Sea Inside",
+  501:"(500) Days of Summer",
+  502:"Human Capital",
+  503:"The First Beautiful Thing",
+  505:"The Devil's Advocate",
+  506:"The Hunt",
+  512:"City of Angels",
+  513:"Black Swan",
+  514:"The Straight Story",
   515:"Twin Peaks: Fire Walk with Me",
+  516:"Unfaithful",
+  519:"The Descendants",
   520:"Miller's Crossing",
   523:"The Thin Red Line",
+  524:"One Hundred Steps",
+  528:"A Million Ways to Die in the West",
+  536:"Deep Red",
+  537:"The Salesman",
   538:"Escape from New York",
+  539:"Moneyball",
+  542:"The Sixth Sense",
+  544:"Wild Tales",
+  548:"Children of Men",
+  549:"The Green Mile",
+  550:"Leopardi",
+  555:"The Imaginarium of Doctor Parnassus",
+  556:"The Talented Mr. Ripley",
+  557:"Enemy at the Gates",
+  558:"Sherlock Holmes",
   559:"Lost Highway",
+  560:"Sherlock Holmes: A Game of Shadows",
+  561:"Indecent Proposal",
+  562:"Seven Pounds",
+  563:"This Is the End",
+  564:"Things to Do in Denver When You're Dead",
+  565:"Click",
+  566:"Before Night Falls",
+  571:"The Insider",
+  572:"Sweet and Lowdown",
+  573:"The End of the Affair",
+  574:"Girl, Interrupted",
+  576:"Central Station",
+  577:"Out of Sight",
+  578:"Gangster No. 1",
+  579:"The Perks of Being a Wallflower",
+  581:"I Thought It Was Love",
+  583:"28 Days Later",
   584:"T2 Trainspotting",
+  585:"A Most Wanted Man",
+  586:"Black Souls",
   596:"The Machinist",
+  598:"Don't Move",
+  600:"Goya's Ghosts",
+  602:"Volver",
+  603:"The Three Burials of Melquiades Estrada",
+  604:"Infamous",
   606:"The Man Who Wasn't There",
+  607:"The Pledge",
   608:"The Remains of the Day",
+  609:"The Piano",
+  610:"Short Cuts",
+  611:"Little Buddha",
+  612:"The Age of Innocence",
   614:"The Night of the Hunter",
+  615:"Much Ado About Nothing",
+  618:"Only God Forgives",
   621:"Paths of Glory",
+  622:"12 Angry Men",
+  624:"Close Encounters of the Third Kind",
   625:"Nights of Cabiria",
+  626:"Le Samouraï",
+  627:"H Story",
   631:"Pan's Labyrinth",
+  633:"As God Commands",
   634:"The Men Who Stare at Goats",
+  639:"Breaking the Waves",
   640:"The Thing",
   641:"In the Mouth of Madness",
   642:"The Tenant",
+  644:"Bad Lieutenant",
+  648:"The Sacrifice",
+  649:"Straw Dogs",
+  650:"Rabid Dogs",
   651:"Wild Strawberries",
+  652:"Rocco and His Brothers",
+  654:"Doctor Zhivago",
   656:"The Passenger",
+  657:"I'm Not Scared",
+  658:"The Best Man",
+  659:"The Double Life of Véronique",
+  663:"Everybody's Fine",
   664:"The Star Maker",
+  668:"A Late Quartet",
+  670:"Moonrise Kingdom",
+  671:"Groundhog Day",
+  673:"The Seventh Seal",
   674:"Gerald's Game",
+  682:"The English Patient",
   683:"Nocturnal Animals",
   684:"Mad Max: Fury Road",
+  685:"13 Assassins",
+  687:"Mia Madre",
+  688:"Wings of Desire",
+  691:"Sympathy for Mr. Vengeance",
   692:"Lady Vengeance",
+  693:"The Babadook",
+  694:"A Girl Walks Home Alone at Night",
   696:"Three Billboards Outside Ebbing, Missouri",
+  697:"They Live",
+  698:"Vertigo",
+  699:"Winter Light",
+  700:"Autumn Sonata",
   702:"La Grande Bouffe",
+  704:"Hard Eight",
+  705:"Punch-Drunk Love",
+  707:"Midnight Cowboy",
+  709:"Crimes and Misdemeanors",
+  710:"Days of Heaven",
+  711:"The Man Without a Past",
   713:"Altered States",
+  714:"The Holy Mountain",
+  716:"Fantastic Planet",
   721:"The Killing of a Sacred Deer",
+  724:"The Lost City of Z",
+  728:"The Fifth Element",
   731:"Touch of Evil",
   735:"Aliens",
+  737:"The Last Emperor",
+  747:"At Close Range",
   748:"The Exorcist",
+  749:"Boris: The Film",
+  750:"1900",
   751:"The Warriors",
   752:"Jacob's Ladder",
+  754:"White Nights",
   755:"Down by Law",
+  756:"Loro",
+  758:"La Haine",
+  759:"On the Silver Globe",
+  760:"The Devil's Eye",
+  766:"Paisan",
+  767:"Heartbreak Ridge",
+  771:"Being John Malkovich",
+  772:"Adaptation.",
+  776:"The Lives of Others",
   777:"A Pigeon Sat on a Branch Reflecting on Existence",
   778:"3-Iron",
+  780:"The Turin Horse",
+  781:"We All Loved Each Other So Much",
   782:"Aguirre, the Wrath of God",
+  783:"Bad Lieutenant: Port of Call New Orleans",
   787:"Nosferatu the Vampyre",
+  789:"Pierrot le Fou",
+  790:"Breathless",
+  791:"The 400 Blows",
+  792:"Fahrenheit 451",
   793:"The Duellists",
   795:"Mesrine Part 1: Killer Instinct",
+  797:"Dog Eat Dog",
+  800:"Repulsion",
+  801:"The Passion of the Christ",
+  804:"Live Flesh",
   805:"Unbreakable",
+  806:"The Fire Within",
+  807:"Dillinger Is Dead",
+  809:"The Milky Way",
+  810:"Werckmeister Harmonies",
+  811:"The Fisher King",
+  812:"The Truth",
   813:"Spring, Summer, Fall, Winter... and Spring",
+  815:"Black Coal, Thin Ice",
   818:"Snowpiercer",
+  820:"Venus in Fur",
+  823:"Le Cercle Rouge",
+  824:"Hugo",
+  825:"Naked Lunch",
+  826:"What?",
   828:"Hana-bi",
+  829:"The Darjeeling Limited",
   831:"The Devils",
+  832:"Rope",
+  833:"Badlands",
+  834:"A.I. Artificial Intelligence",
+  838:"Rumble Fish",
+  840:"The Wild Bunch",
   841:"Burn After Reading",
+  844:"Los Olvidados",
+  846:"The Third Man",
+  848:"The Big Chill",
+  850:"One Man Up",
+  851:"The White Ribbon",
   853:"Kikujiro",
   856:"The Last Temptation of Christ",
+  859:"Address Unknown",
+  860:"You Were Never Really Here",
+  863:"The Virgin Spring",
   864:"Drugstore Cowboy",
+  865:"The Profession of Arms",
+  866:"A Simple Story",
+  868:"Tetsuo: The Iron Man",
+  871:"The Discreet Charm of the Bourgeoisie",
+  873:"On My Skin",
   874:"Wild at Heart",
+  876:"Bitter Moon",
+  879:"The Embalmer",
   880:"Tale of Tales",
+  881:"Salò, or the 120 Days of Sodom",
+  884:"The Man Who Killed Don Quixote",
+  893:"A Taste of Life",
   894:"Alien: Covenant",
+  895:"The Girl in the Fog",
   897:"The Kingdom",
   898:"Pusher",
   899:"Pusher II",
+  900:"Fellini's Casanova",
+  902:"Pusher 3",
   903:"Isle of Dogs",
+  905:"The Scientific Cardplayer",
   908:"Fantastic Beasts and Where to Find Them",
   909:"Cube",
+  910:"Hereditary",
   911:"Fantastic Beasts: The Crimes of Grindelwald",
   912:"Mesrine Part 2: Public Enemy #1",
+  913:"Don't Look Now",
+  914:"The Ballad of Buster Scruggs",
+  916:"The Bow",
   918:"Into the Inferno",
   920:"My Best Fiend",
+  921:"Mortal Engines",
   925:"The Great Silence",
+  927:"Fellini's Roma",
+  928:"The Voice of the Moon",
+  931:"My Darling Clementine",
+  933:"Hour of the Wolf",
+  936:"Vice",
   938:"The Matrix Reloaded",
+  941:"Do the Right Thing",
+  945:"Darkest Hour",
+  946:"Onibaba",
+  950:"Time of the Wolf",
+  951:"Until the End of the World",
+  953:"I Stand Alone",
+  955:"Romulus & the First King",
   956:"The Cook, the Thief, His Wife & Her Lover",
   957:"The Wild Blue Yonder",
+  960:"The Belly of an Architect",
   962:"Buffalo '66",
   963:"Get Out",
+  964:"The Garden of the Finzi-Continis",
   965:"The Virgin Suicides",
+  966:"The Mule",
+  967:"Bonnie and Clyde",
+  973:"Ghosts of Rome",
   976:"Once Upon a Time in Hollywood",
   977:"Ghost Dog: The Way of the Samurai",
   978:"The Dead Don't Die",
   979:"Shaun of the Dead",
+  981:"Death and the Maiden",
+  982:"The Blind Swordsman: Zatoichi",
+  983:"The Monsters",
+  984:"The New Monsters",
+  985:"Seven Beauties",
   988:"Ugetsu",
+  990:"The Conversation",
   991:"The Celebration",
   992:"The Exterminating Angel",
-  1002:"The Sisters Brothers"
-};
+  994:"5 Is the Perfect Number",
+  995:"The Devil's Deal",
+  996:"Piranhas",
+  998:"Fallen Angels",
+  1002:"The Sisters Brothers",
+  1005:"The President of Borgorosso Football Club",
+  1006:"A Girl in Australia",
+  1007:"Dr. No",
+  1008:"Death in Venice",
+  1010:"The Family",
+  1011:"The French Connection",
+  1022:"The House with Laughing Windows",
+  1024:"The Pizza Triangle",
+  1028:"That Night in Varennes",
+  1029:"The Piano Teacher",
+  1032:"Samaritan Girl",
+  1033:"The Terrace",
+  1034:"Everybody Go Home",
+  1035:"A Difficult Life",
+  1037:"The Talent of the Hornet",
+  1039:"Horse Fever",
+  1040:"Heat",
+  1041:"The Chaser",
+  1042:"The Asphalt Jungle",
+  1043:"Bad Tales",
+  1045:"A Bittersweet Life",
+  1046:"The Working Class Goes to Heaven",
+  1050:"The Player",
+  1051:"Raise the Red Lantern",
+  1052:"Prizzi's Honor",
+  1054:"Waiters",
+  1059:"Waltz with Bashir",
+  1060:"Black Cat, White Cat",
+  1061:"Maradona by Kusturica",
+  1119:"The Beatles: Get Back",
+  1142:"3 Women",
+  1148:"A Most Violent Year",
+  1149:"It Happened at the Police Station",
+  1150:"It Happened at the Penitentiary",
+  1151:"Achilles and the Tortoise",
+  1152:"Deep Water",
+  1158:"Alice Doesn't Live Here Anymore",
+  1159:"All Is Lost",
+  1160:"All That Jazz",
+  1167:"High and Low",
+  1168:"Anatomy of a Fall",
+  1169:"Even Dwarfs Started Small",
+  1171:"Andrei Rublev",
+  1172:"Fallen Angels",
+  1178:"Dawn of the Planet of the Apes",
+  1180:"Russian Ark",
+  1182:"Raising Arizona",
+  1184:"The Beasts",
+  1186:"Elevator to the Gallows",
+  1187:"Ashes of Time Redux",
+  1192:"I Saw the TV Glow",
+  1196:"Beau Is Afraid",
+  1197:"Marlowe",
+  1199:"The Last Days of Humanity",
+  1200:"The Zone of Interest",
+  1201:"Last Night of Amore",
+  1203:"No One Will Save You",
+  1206:"Infinity Pool",
+  1207:"Kidnapped",
+  1216:"Everything Everywhere All at Once",
+  1217:"Fairytale",
+  1219:"The Banshees of Inisherin",
+  1221:"The Valet",
+  1223:"The Angel of the Walls",
+  1225:"Dead for a Dollar",
+  1229:"Pacifiction",
+  1231:"Sisu",
+  1237:"Three Thousand Years of Longing",
+  1239:"X",
+  1243:"Cherry",
+  1249:"The Good Boss",
+  1250:"The Card Counter",
+  1251:"Nightmare Alley",
+  1255:"The Tragedy of Macbeth",
+  1261:"Pig",
+  1262:"The King of Laughter",
+  1264:"Bad Luck Banging or Loony Porn",
+  1265:"The French Dispatch",
+  1268:"Last Night in Soho",
+  1272:"Est",
+  1273:"Fireball: Visitors from Darker Worlds",
+  1276:"The Shadow of Violence",
+  1278:"The Devil All the Time",
+  1279:"Palm Springs",
+  1281:"The Father",
+  1282:"Another Round",
+  1283:"Hidden Away",
+  1285:"The Death of Dick Long",
+  1286:"Dragged Across Concrete",
+  1288:"The Golden Glove",
+  1289:"The Traitor",
+  1290:"The Bears' Famous Invasion of Sicily",
+  1291:"A Hidden Life",
+  1292:"First Love",
+  1293:"Lunana: A Yak in the Classroom",
+  1294:"Us",
+  1295:"Nomad: In the Footsteps of Bruce Chatwin",
+  1297:"About Endlessness",
+  1298:"The Nest",
+  1299:"A Rainy Day in New York",
+  1300:"Burning",
+  1301:"First Reformed",
+  1302:"Meeting Gorbachev",
+  1304:"The House That Jack Built",
+  1305:"Boys Cry",
+  1307:"Birds of Passage",
+  1309:"Too Much Grace",
+  1310:"Long Day's Journey into Night",
+  1315:"The Death of Stalin",
+  1317:"In the Fade",
+  1318:"Based on a True Story",
+  1321:"Star Wars: The Last Jedi",
+  1323:"War for the Planet of the Apes",
+  1325:"The Net",
+  1326:"Indivisible",
+  1327:"The Death of Louis XIV",
+  1328:"The Fury of a Patient Man",
+  1329:"The Handmaiden",
+  1330:"Anthropoid",
+  1331:"Endless Poetry",
+  1335:"The Woman Who Left",
+  1336:"The Clan",
+  1337:"Son of Saul",
+  1339:"Star Wars: The Force Awakens",
+  1340:"Taxi",
+  1344:"Winter Sleep",
+  1345:"The Salt of the Earth",
+  1350:"Millionaires",
+  1351:"Sin City: A Dame to Kill For",
+  1353:"Inside Llewyn Davis",
+  1354:"Hard to Be a God",
+  1355:"A Field in England",
+  1357:"The Dance of Reality",
+  1358:"Mama",
+  1360:"The Wind Rises",
+  1364:"It Was the Son",
+  1365:"The Lords of Salem",
+  1366:"The Man with the Iron Fists",
+  1368:"We Need to Talk About Kevin",
+  1372:"The Mill and the Cross",
+  1374:"Rise of the Planet of the Apes",
+  1375:"Le Havre",
+  1376:"Black Pasta",
+  1378:"The Sunset Limited",
+  1379:"The Last Circus",
+  1382:"The Way",
+  1383:"Incendies",
+  1384:"The Ghost Writer",
+  1389:"Flow",
+  1433:"A Brighter Tomorrow",
+  1438:"Operation Fortune: Ruse de Guerre",
+  1441:"Guy Ritchie's The Covenant",
+  1451:"Exterior Night",
+  1454:"The Hummingbird",
+  1455:"Tori and Lokita",
+  1470:"The Hand of God",
+  1478:"She Could Have Done Less",
+  1483:"Pain and Glory",
+  1498:"The Godfather Coda: The Death of Michael Corleone",
+  1510:"An Officer and a Spy",
+  1541:"Chico and Rita",
+  1543:"I Killed My Mother",
+  1544:"The Boat That Rocked",
+  1547:"Let the Right One In",
+  1549:"The Reader",
+  1550:"The Sweet and the Bitter",
+  1551:"The Wind Blows Round",
+  1552:"Inside",
+  1553:"The Savages",
+  1554:"The Assassination of Jesse James by the Coward Robert Ford",
+  1555:"The Man from London",
+  1562:"The Boss of It All",
+  1564:"Inland Empire",
+  1565:"The Good German",
+  1566:"Curse of the Golden Flower",
+  1567:"Don't Worry, I'm Fine",
+  1568:"The Family Friend",
+  1569:"The Science of Sleep",
+  1570:"Lights in the Dusk",
+  1571:"Golden Door",
+  1572:"Paprika",
+  1573:"A Prairie Home Companion",
+  1575:"Cinderella Man",
+  1576:"The Bow",
+  1578:"Adam's Apples",
+  1579:"Everything Is Illuminated",
+  1581:"Star Wars: Episode III - Revenge of the Sith",
+  1583:"Tideland",
+  1585:"Certain Children",
+  1586:"Chemical Hunger",
+  1587:"Howl's Moving Castle",
+  1588:"The Life Aquatic with Steve Zissou",
+  1592:"The Return of Cagliostro",
+  1593:"Interstella 5555: The 5tory of the 5ecret 5tar 5ystem",
+  1594:"Memories of Murder",
+  1595:"My Brother-in-Law",
+  1596:"Open Range",
+  1599:"A Tale of Two Sisters",
+  1600:"Road to Perdition",
+  1601:"My Mother's Smile",
+  1603:"Far from Heaven",
+  1607:"Star Wars: Episode II - Attack of the Clones",
+  1608:"Conspiracy",
+  1609:"Jeepers Creepers",
+  1610:"Spirited Away",
+  1619:"Barking Dogs Never Bite",
+  1620:"Common Wealth",
+  1622:"Shadow of the Vampire",
+  1623:"The Isle",
+  1627:"Cookie's Fortune",
+  1628:"Summer of Sam",
+  1629:"Star Wars: Episode I - The Phantom Menace",
+  1632:"Very Bad Things",
+  1633:"The Idiots",
+  1634:"The Dinner",
+  1635:"The Last New Year's Eve",
+  1638:"The Hole",
+  1639:"Another Day in Paradise",
+  1642:"Hardboiled Egg",
+  1645:"Brothers",
+  1646:"Escape from L.A.",
+  1647:"The Life and Crimes of William Palmer",
+  1651:"School",
+  1652:"Nasty Love",
+  1655:"Leaving Las Vegas",
+  1657:"The Bull",
+  1660:"Shallow Grave",
+  1661:"Before the Rain",
+  1664:"Three Colors: White",
+  1665:"Three Colors: Red",
+  1666:"A Pure Formality",
+  1667:"Vanya on 42nd Street",
+  1668:"Dear Diary",
+  1669:"The Waltz of the Arrow Fish",
+  1671:"True Romance",
+  1672:"Madadayo",
+  1673:"In the Name of the Father",
+  1674:"The Nightmare Before Christmas",
+  1675:"Three Colors: Blue",
+  1676:"A Perfect World",
+  1679:"The Experiment",
+  1681:"My Cousin Vinny",
+  1682:"Death of a Neapolitan Mathematician",
+  1683:"Dearest Relatives, Poisonous Relations",
+  1685:"Scent of a Woman",
+  1686:"Un Coeur en Hiver",
+  1688:"The Yes Man",
+  1690:"Barton Fink",
+  1692:"The Lovers on the Bridge",
+  1693:"The Silence of the Sea",
+  1694:"Prospero's Books",
+  1695:"The Last Boy Scout",
+  1696:"Rhapsody in August",
+  1697:"Night on Earth",
+  1700:"The Voyage of Captain Fracassa",
+  1703:"The Miser",
+  1704:"La Femme Nikita",
+  1705:"Boys on the Outside",
+  1706:"Dreams",
+  1707:"State of Grace",
+  1708:"Tournée",
+  1710:"What Time Is It?",
+  1711:"Johnny Handsome",
+  1713:"The Sleazy Uncle",
+  1714:"Forever Mary",
+  1716:"Red Wood Pigeon",
+  1717:"Heathers",
+  1721:"Caruso Pascoski, Son of a Pole",
+  1722:"Who Framed Roger Rabbit",
+  1724:"Time of the Gypsies",
+  1725:"Kamikazen: Last Night in Milan",
+  1726:"The Adventures of Baron Munchausen",
+  1727:"Dangerous Liaisons",
+  1728:"Mississippi Burning",
+  1730:"Rain Man",
+  1744:"Bardo, False Chronicle of a Handful of Truths",
+  1753:"Apollo 10½: A Space Age Childhood",
+  1805:"The Ruthless",
+  1889:"Rose Island",
+  1890:"My Name Is Vengeance",
+  1891:"Baggio: The Divine Ponytail",
+  2076:"May God Save Us",
+  2078:"Rage",
+  2079:"Smoke & Mirrors",
+  2081:"The Invisible Guest",
+  2082:"The Shallows",
+  2083:"The Unknown Girl",
+  2084:"The Wailing",
+  2087:"45 Years",
+  2090:"Dheepan",
+  2092:"Run All Night",
+  2097:"Calvary",
+  2098:"The Absent One",
+  2100:"Marshland",
+  2104:"The World of Kanako",
+  2106:"Blood Ties",
+  2108:"The Keeper of Lost Causes",
+  2110:"Like Father, Like Son",
+  2112:"Nymphomaniac: Vol. I",
+  2113:"Out of the Furnace",
+  2121:"Arbitrage",
+  2125:"Dormant Beauty",
+  2128:"Neighboring Sounds",
+  2129:"Rust and Bone",
+  2130:"The Body",
+  2131:"A Cat in Paris",
+  2138:"Sleep Tight",
+  2139:"Once Upon a Time in Anatolia",
+  2140:"Oslo, August 31st",
+  2141:"Sleepless Night",
+  2142:"The Grey",
+  2144:"Unknown",
+  2148:"Poetry",
+  2149:"Point Blank",
+  2153:"Winter's Bone",
+  2156:"Cell 211",
+  2160:"Wild Grass",
+  2163:"State of Play",
+  2165:"The Girl with the Dragon Tattoo",
+  2167:"The Secret in Their Eyes",
+  2168:"Thirst",
+  2170:"Anything for Her",
+  2173:"The Brothers Bloom",
+  2177:"The Beaches of Agnès",
+  2180:"The Escapist",
+  2181:"The Good, the Bad, the Weird",
+  2191:"Secret Sunshine",
+  2194:"Elite Squad",
+  2201:"Private Fears in Public Places",
+  2209:"Retribution",
+  2210:"Tell No One",
+  2216:"SPL: Sha Po Lang",
+  2217:"The Aura",
+  2218:"The Beat That My Heart Skipped",
+  2223:"Downfall",
+  2224:"Nobody Knows",
+  2227:"The Machinist",
+  2228:"A Tale of Two Sisters",
+  2232:"The Return",
+  2234:"The Best of Youth",
+  2235:"Matchstick Men",
+  2239:"Dirty Pretty Things",
+  2241:"The Son",
+  2244:"Narc",
+  2246:"Road to Perdition",
+  2249:"From Hell",
+  2251:"Heist",
+  2253:"Read My Lips",
+  2256:"Burnt Money",
+  2259:"With a Friend Like Harry...",
+  2262:"Songs from the Second Floor",
+  2264:"The Crimson Rivers",
+  2267:"You Can Count on Me",
+  2270:"Bringing Out the Dead",
+  2272:"Peppermint Candy",
+  2273:"Running Out of Time",
+  2274:"Red Sorghum",
+  2275:"Where Is the Friend's House?",
+  2277:"Empire of the Sun",
+  2279:"A Boy from Calabria",
+  2281:"Big Trouble in Little China",
+  2282:"The Professor",
+  2283:"The Color of Money",
+  2284:"Manhunter",
+  2285:"Let's Hope It's a Girl",
+  2286:"The Hitcher",
+  2287:"Blue Velvet",
+  2288:"After Hours",
+  2289:"The Color Purple",
+  2290:"The Mass Is Ended",
+  2291:"Year of the Dragon",
+  2292:"Mishima: A Life in Four Chapters",
+  2293:"Come and See",
+  2294:"To Live and Die in L.A.",
+  2295:"Birdy",
+  2296:"Thus Spoke Bellavista",
+  2297:"A Nightmare on Elm Street",
+  2298:"Body Double",
+  2299:"Merry Christmas, Mr. Lawrence",
+  2300:"Return of the Jedi",
+  2301:"The Dead Zone",
+  2302:"The Hunger",
+  2303:"Pauline at the Beach",
+  2304:"The Day After",
+  2306:"The Beyond",
+  2307:"Garde à Vue",
+  2308:"The Evil Dead",
+  2309:"Tragedy of a Ridiculous Man",
+  2310:"Portrait of a Woman, Nude",
+  2311:"Passion of Love",
+  2312:"Tales of Ordinary Madness",
+  2313:"Heaven's Gate",
+  2314:"Kagemusha",
+  2315:"The Empire Strikes Back",
+  2316:"Fun Is Beautiful",
+  2317:"The Marriage of Maria Braun",
+  2318:"Being There",
+  2320:"Midnight Express",
+  2321:"The Boys from Brazil",
+  2322:"The Tree of Wooden Clogs",
+  2323:"Star Wars",
+  2324:"Looking for Mr. Goodbar",
+  2325:"The American Friend",
+  2326:"The Ascent",
+  2327:"The Hills Have Eyes",
+  2328:"Carrie",
+  2329:"Assault on Precinct 13",
+  2331:"The Desert of the Tartars",
+  2332:"The Killing of a Chinese Bookie",
+  2333:"The Man Who Fell to Earth",
+  2336:"Dersu Uzala",
+  2337:"Jeanne Dielman, 23, quai du Commerce, 1080 Bruxelles",
+  2338:"Mirror",
+  2340:"Picnic at Hanging Rock",
+  2341:"Phantom of the Paradise",
+  2342:"The Phantom of Liberty",
+  2343:"Arabian Nights",
+  2344:"Ali: Fear Eats the Soul",
+  2345:"The Enigma of Kaspar Hauser",
+  2347:"Blazing Saddles",
+  2348:"Almost Human",
+  2349:"The Texas Chain Saw Massacre",
+  2350:"Bread and Chocolate",
+  2351:"The Sugarland Express",
+  2352:"Bring Me the Head of Alfredo Garcia",
+  2354:"Day for Night",
+  2355:"The Friends of Eddie Coyle",
+  2356:"The Long Goodbye",
+  2358:"Scarecrow",
+  2359:"Pat Garrett & Billy the Kid",
+  2361:"The Getaway",
+  2362:"The Bitter Tears of Petra von Kant",
+  2363:"Caliber 9",
+  2364:"Don't Torture a Duckling",
+  2365:"Deliverance",
+  2366:"A Touch of Zen",
+  2367:"In Prison Awaiting Trial",
+  2368:"The Decameron",
+  2369:"In the Name of the Italian People",
+  2370:"Dirty Harry",
+  2371:"Le Chat",
+  2372:"The Last Picture Show",
+  2373:"The Panic in Needle Park",
+  2374:"A Lizard in a Woman's Skin",
+  2376:"Five Easy Pieces",
+  2377:"The Conformist",
+  2378:"Little Big Man",
+  2380:"Tristana",
+  2381:"Many Wars Ago",
+  2384:"The Color of Pomegranates",
+  2387:"Another World",
+  2391:"The Wicked City",
+  2392:"Confidentially Yours",
+  2393:"The Draughtsman's Contract",
+  2396:"Thief",
+  2400:"Traffic Jam",
+  2402:"The Cat",
+  2403:"Stroszek",
+  2404:"The Bishop's Bedroom",
+  2405:"Murder by Death",
+  2406:"Violent Rome",
+  2407:"While There's War There's Hope",
+  2408:"Thunderbolt and Lightfoot",
+  2409:"Belladonna of Sadness",
+  2410:"Gang War in Milan",
+  2411:"Stardust",
+  2412:"The Master and Margaret",
+  2413:"Liza",
+  2414:"The Italian Connection",
+  2415:"The Most Wonderful Evening of My Life",
+  2416:"Indian Summer",
+  2417:"The Audience",
+  2418:"The Life and Times of Judge Roy Bean",
+  2420:"Between Miracles",
+  2421:"The Tree of Guernica",
+  2422:"Four Nights of a Dreamer",
+  2424:"Walkabout",
+  2429:"A Perfect Murder",
+  2430:"A Simple Plan",
+  2443:"Absolute Power",
+  2449:"Face/Off",
+  2454:"Same Old Song",
+  2455:"Open Your Eyes",
+  2456:"She's So Lovely",
+  2457:"Starship Troopers",
+  2458:"The Castle",
+  2459:"The Rainmaker",
+  2460:"The Spanish Prisoner",
+  2461:"A Summer's Tale",
+  2464:"Fear",
+  2466:"Heaven's Prisoners",
+  2469:"Night Falls on Manhattan",
+  2470:"Primal Fear",
+  2472:"The Ghost and the Darkness",
+  2473:"La Promesse",
+  2475:"Beyond the Clouds",
+  2478:"Devil in a Blue Dress",
+  2479:"Kiss of Death",
+  2481:"The Suspended Step of the Stork",
+  2482:"Outbreak",
+  2483:"The Bridges of Madison County",
+  2484:"The Quick and the Dead",
+  2486:"71 Fragments of a Chronology of Chance",
+  2490:"The Client",
+  2491:"The Last Seduction",
+  2492:"The River Wild",
+  2496:"Guilty as Sin",
+  2497:"In the Line of Fire",
+  2500:"Malice",
+  2501:"Menace II Society",
+  2504:"The Firm",
+  2510:"Final Analysis",
+  2511:"Glengarry Glen Ross",
+  2513:"The Stolen Children",
+  2515:"Raising Cain",
+  2517:"The Crying Game",
+  2518:"The Hand That Rocks the Cradle",
+  2519:"The Last of the Mohicans",
+  2520:"Unlawful Entry",
+  2522:"Dead Again"
+}; // v319: 1049 voci (titoli originali/internazionali per import Letterboxd e UI inglese)
 
 // ── TAG TRANSLATIONS ───────────────────────────────────────────────────────
 const TAG_EN={"Difficile":"Difficult","Facile":"Easy","Normale":"Normal",
@@ -2929,74 +3845,75 @@ function buildUI(){
 function tog(h){const b=h.nextElementSibling,a=h.querySelector('.fgar');b.classList.toggle('open');a.classList.toggle('open');}
 
 // ── FIND FILM ────────────────────────────────────────────────────────────
-function findFilm(){
-  const minR=parseFloat(document.getElementById('rsl').value);
-  const pltSel=SEL['g7'],perSel=SEL['g8'];
-  let pool=DB.filter(f=>{
-    if(seenFilms.has(f.id))return false;
-    if(sessionShown.has(f.id))return false;
-    if(_allRecIds.has(f.id))return false;
-    if(EXCL.size&&f.tags.some(t=>EXCL.has(t)))return false; // v314: chip di esclusione applicati anche al motore consigli (prima erano ignorati)
-    if(f.r<minR)return false;
-    if(pltSel.size>0){
-      const _noPlat=pltSel.has('Non su piattaforme');
-      const _matchNoPlat=_noPlat&&(!f.plt||f.plt.length===0);
-      const _matchPlt=f.plt.some(p=>pltSel.has(p));
-      if(!_matchNoPlat&&!_matchPlt)return false;
+// ── v315: PREDICATO FILTRI CONDIVISO ─────────────────────────────────────
+// Unica implementazione della catena di controlli di findFilm, usata da:
+// findFilm() [catena completa], _getBlockedPool() [senza check OPT_IN],
+// updatePoolCount()/_computePoolCount() [catena completa].
+// Prima esistevano 3 copie divergenti: i contatori ignoravano preferenze FCK,
+// sequel e OPT_IN e quindi sovracontavano rispetto al motore reale.
+function _buildFilterCtx(){
+  const allSel=new Set([...Object.values(SEL)].flatMap(s=>[...s]));
+  return{
+    minR:parseFloat(document.getElementById('rsl')?.value||0)||0,
+    pltSel:SEL['g7'],perSel:SEL['g8'],allSel,
+    vecchioSel:allSel.has('Vecchio')||_activeOptInTags.has('Vecchio'),
+    longSel:allSel.has('Lunghissimo')||allSel.has('Lungo(>2h30)'),
+    italSel:allSel.has('Italiano'),
+    scifiSel:allSel.has('Fantascienza'),
+    comedySel:allSel.has('Commedia')||allSel.has('Comico'),
+    romSel:allSel.has('Romantico')
+  };
+}
+function _passesEngineFilters(f,ctx,skipOptIn){
+  if(seenFilms.has(f.id))return false;
+  if(sessionShown.has(f.id))return false;
+  if(_allRecIds.has(f.id))return false;
+  if(EXCL.size&&f.tags.some(t=>EXCL.has(t)))return false; // v314
+  if(ctx.minR&&f.r<ctx.minR)return false;
+  if(ctx.pltSel.size>0){
+    const _noPlat=ctx.pltSel.has('Non su piattaforme');
+    const _matchNoPlat=_noPlat&&(!f.plt||f.plt.length===0);
+    const _matchPlt=f.plt&&f.plt.some(p=>ctx.pltSel.has(p));
+    if(!_matchNoPlat&&!_matchPlt)return false;
+  }
+  if(ctx.perSel.size>0&&![...ctx.perSel].some(p=>PERIOD_MAP[p]&&PERIOD_MAP[p](f.year)))return false;
+  if(userPrefs.minYear&&f.year<userPrefs.minYear&&!ctx.vecchioSel)return false;
+  if(userPrefs.excludeHorror&&f.tags.includes('Horror'))return false;
+  if(userPrefs.excludeCrudo&&f.tags.includes('Crudo'))return false;
+  if(userPrefs.excludeDifficile&&f.tags.includes('Difficile'))return false;
+  if(userPrefs.onlyPlatform&&ctx.pltSel.size===0){
+    if(userPrefs.userPlatforms&&userPrefs.userPlatforms.length>0){
+      if(!f.plt||!f.plt.some(p=>userPrefs.userPlatforms.includes(p)))return false;
+    }else{
+      if(!f.plt||f.plt.length===0)return false;
     }
-    if(perSel.size>0&&![...perSel].some(p=>PERIOD_MAP[p]&&PERIOD_MAP[p](f.year)))return false;
-    const _vecchioSel=[...Object.values(SEL)].some(s=>s.has('Vecchio'))||_activeOptInTags.has('Vecchio');
-    if(userPrefs.minYear&&f.year<userPrefs.minYear&&!_vecchioSel)return false;
-    if(userPrefs.excludeHorror&&f.tags.includes('Horror'))return false;
-    if(userPrefs.excludeCrudo&&f.tags.includes('Crudo'))return false;
-    if(userPrefs.onlyPlatform&&pltSel.size===0){
-      if(userPrefs.userPlatforms&&userPrefs.userPlatforms.length>0){
-        // User specified platforms in FCK: only show films on those platforms
-        if(!f.plt||!f.plt.some(p=>userPrefs.userPlatforms.includes(p)))return false;
-      } else {
-        // User said "only platforms" but didn't pick any: exclude films with no platform
-        if(!f.plt||f.plt.length===0)return false;
-      }
-    }
-    const _longSel=[...Object.values(SEL)].some(s=>s.has('Lunghissimo')||s.has('Lungo(>2h30)'));
-    if(userPrefs.excludeLong&&!_longSel&&(f.tags.includes('Lunghissimo')||f.tags.includes('Lungo(>2h30)')))return false;
-    if(userPrefs.excludedTags&&userPrefs.excludedTags.size>0){if(f.tags.some(tag=>userPrefs.excludedTags.has(tag)))return false;}
-    if(userPrefs.excludeConosciutissimo&&f.tags.includes('Conosciutissimo'))return false;
-    // q10: Italian preference
-    const _italSel=[...Object.values(SEL)].some(s=>s.has('Italiano'));
-    if(userPrefs.boostItalian&&!f.tags.includes('Italiano')&&!_italSel){}  // no hard exclusion, just boost below
-    if(userPrefs.reduceItalian&&f.tags.includes('Italiano')&&!_italSel)return false;
-    // q11: sci-fi exclusion
-    const _scifiSel=[...Object.values(SEL)].some(s=>s.has('Fantascienza'));
-    if(userPrefs.excludeScifi&&f.tags.includes('Fantascienza')&&!_scifiSel)return false;
-    // q12: comedy
-    const _comedySel=[...Object.values(SEL)].some(s=>s.has('Commedia')||s.has('Comico'));
-    if(userPrefs.excludeComedy&&(f.tags.includes('Commedia')||f.tags.includes('Comico'))&&!_comedySel)return false;
-    // q13: romance
-    const _romSel=[...Object.values(SEL)].some(s=>s.has('Romantico'));
-    if(userPrefs.excludeRomance&&f.tags.includes('Romantico')&&!_romSel)return false;
-    // Sequel check: only recommend sequel if predecessor(s) have been seen
-    if(f.tags.includes('Sequel')&&SEQUEL_MAP[f.id]){
-      const preds=SEQUEL_MAP[f.id];
-      if(!preds.every(pid=>seenFilms.has(pid)))return false;
-    }
-    // Opt-in tags check
-    const allSel=new Set([...Object.values(SEL)].flatMap(s=>[...s]));
-    // q6='never': always exclude Difficile regardless of selection
-    if(userPrefs.excludeDifficile&&f.tags.includes('Difficile'))return false;
-    // OPT_IN: if the film has any opt-in tags, at least one must be accepted (OR logic)
-    // This prevents the loop where a film with [AcceptedTag, OtherOptInTag] gets excluded
+  }
+  if(userPrefs.excludeLong&&!ctx.longSel&&(f.tags.includes('Lunghissimo')||f.tags.includes('Lungo(>2h30)')))return false;
+  if(userPrefs.excludedTags&&userPrefs.excludedTags.size>0&&f.tags.some(tag=>userPrefs.excludedTags.has(tag)))return false;
+  if(userPrefs.excludeConosciutissimo&&f.tags.includes('Conosciutissimo'))return false;
+  if(userPrefs.reduceItalian&&f.tags.includes('Italiano')&&!ctx.italSel)return false;
+  if(userPrefs.excludeScifi&&f.tags.includes('Fantascienza')&&!ctx.scifiSel)return false;
+  if(userPrefs.excludeComedy&&(f.tags.includes('Commedia')||f.tags.includes('Comico'))&&!ctx.comedySel)return false;
+  if(userPrefs.excludeRomance&&f.tags.includes('Romantico')&&!ctx.romSel)return false;
+  if(f.tags.includes('Sequel')&&SEQUEL_MAP[f.id]&&!SEQUEL_MAP[f.id].every(pid=>seenFilms.has(pid)))return false;
+  if(!skipOptIn){
+    // OPT_IN: se il film ha tag opt-in, almeno uno deve essere accettato (logica OR)
     const _filmOI=f.tags.filter(t=>OPT_IN_TAGS.has(t));
-    if(_filmOI.length>0&&!_filmOI.some(t=>allSel.has(t)||_activeOptInTags.has(t)))return false;
-    // If active opt-in tags: film must have AT LEAST ONE of them (OR logic, not AND)
+    if(_filmOI.length>0&&!_filmOI.some(t=>ctx.allSel.has(t)||_activeOptInTags.has(t)))return false;
+    // Se ci sono opt-in attivi: il film deve averne ALMENO UNO (OR, non AND)
     if(_activeOptInTags.size>0&&![..._activeOptInTags].some(t=>f.tags.includes(t)))return false;
-    // AND logic: for each tag group, film must have ALL selected tags
-    for(const gid of['g1','g2','g3','g4','g5','g6']){
-      const sel=SEL[gid];
-      if(sel.size>0&&![...sel].every(t=>f.tags.includes(t)))return false;
-    }
-    return true;
-  });
+  }
+  // AND: per ogni gruppo, il film deve avere TUTTI i tag selezionati
+  for(const gid of['g1','g2','g3','g4','g5','g6']){
+    const sel=SEL[gid];
+    if(sel.size>0&&![...sel].every(t=>f.tags.includes(t)))return false;
+  }
+  return true;
+}
+
+function findFilm(){
+  const ctx=_buildFilterCtx();
+  let pool=DB.filter(f=>_passesEngineFilters(f,ctx)); // v315: predicato condiviso
   const scored=pool.map(f=>{
     let sc=0,mx=[];
     ['g1','g2','g3','g4','g5','g6'].forEach(gid=>{const sel=SEL[gid];if(!sel.size)return;const hits=f.tags.filter(t=>sel.has(t));sc+=hits.length*(gid==='g6'?1.5:2);mx.push(...hits);});
@@ -3205,12 +4122,13 @@ function tryAgain(){
   document.getElementById('catw').classList.remove('rev');
   // decrement counter exactly like go()
   if(!isPremium){
-    if(searches<=0){if(!cdEndTime){cdEndTime=Date.now()+24*3600*1000;try{localStorage.setItem('sw3_cd',String(cdEndTime));}catch(e){}startCountdown();}document.getElementById('cov').classList.add('on');return;}
+    _syncSearchDay(); // v317: rollover di giorno con tab aperta
+    if(searches<=0){if(!cdEndTime){cdEndTime=_nextMidnight();try{localStorage.setItem('sw3_cd',String(cdEndTime));}catch(e){}startCountdown();}document.getElementById('cov').classList.add('on');return;} // v317: countdown alla mezzanotte locale (coerente con "aspetta domani")
     searches--;document.getElementById('cnt').textContent=searches;try{localStorage.setItem(_searchKey,String(searches));}catch(e){}
   }
   setTimeout(()=>{
     const r=findFilm();
-    if(!r){if(!isPremium){searches++;const cnt=document.getElementById('cnt');if(cnt)cnt.textContent=searches;}resetCat();return;}
+    if(!r){if(!isPremium){searches++;const cnt=document.getElementById('cnt');if(cnt)cnt.textContent=searches;try{localStorage.setItem(_searchKey,String(searches));}catch(e){}}resetCat();return;} // v316: rimborso persistito (prima solo in memoria: al reload la ricerca risultava consumata)
     document.getElementById('catw').classList.add('rev');
     setTimeout(()=>showCard(r),900);
   },350);
@@ -3252,48 +4170,12 @@ function closeNoFilm(){
 }
 
 function _getBlockedPool(){
-  // Returns films compatible with ALL user filters but blocked only by OPT_IN tags.
-  // Mirrors findFilm's filter chain exactly (minus OPT_IN check) so that filters
-  // like period/platform/IMDB/FCK prefs are respected. This prevents the opt-in
-  // overlay from showing when the real reason for 0 results is a different filter
-  // (e.g. period "Anni 2020" with no matching films in DB).
-  const minR=parseFloat(document.getElementById('rsl').value);
-  const pltSel=SEL['g7'],perSel=SEL['g8'];
-  return DB.filter(f=>{
-    if(seenFilms.has(f.id))return false;
-    if(sessionShown.has(f.id))return false;
-    if(_allRecIds.has(f.id))return false;
-    if(f.r<minR)return false;
-    if(pltSel.size>0){
-      const _noPlat=pltSel.has('Non su piattaforme');
-      if(_noPlat?(!f.plt||f.plt.length>0):!f.plt.some(p=>pltSel.has(p)))return false;
-    }
-    if(perSel.size>0&&![...perSel].some(p=>PERIOD_MAP[p]&&PERIOD_MAP[p](f.year)))return false;
-    if(userPrefs.onlyPlatform&&pltSel.size===0){
-      if(userPrefs.userPlatforms&&userPrefs.userPlatforms.length>0){if(!f.plt||!f.plt.some(p=>userPrefs.userPlatforms.includes(p)))return false;}
-      else{if(!f.plt||f.plt.length===0)return false;}
-    }
-    const _vecchioSel=[...Object.values(SEL)].some(s=>s.has('Vecchio'))||_activeOptInTags.has('Vecchio');
-    if(userPrefs.minYear&&f.year<userPrefs.minYear&&!_vecchioSel)return false;
-    if(userPrefs.excludeHorror&&f.tags.includes('Horror'))return false;
-    if(userPrefs.excludeCrudo&&f.tags.includes('Crudo'))return false;
-    if(userPrefs.excludeDifficile&&f.tags.includes('Difficile'))return false;
-    const _longSel=[...Object.values(SEL)].some(s=>s.has('Lunghissimo')||s.has('Lungo(>2h30)'));
-    if(userPrefs.excludeLong&&!_longSel&&(f.tags.includes('Lunghissimo')||f.tags.includes('Lungo(>2h30)')))return false;
-    if(userPrefs.excludedTags&&userPrefs.excludedTags.size>0&&f.tags.some(tag=>userPrefs.excludedTags.has(tag)))return false;
-    if(userPrefs.excludeConosciutissimo&&f.tags.includes('Conosciutissimo'))return false;
-    const _scifiSel=[...Object.values(SEL)].some(s=>s.has('Fantascienza'));
-    if(userPrefs.excludeScifi&&f.tags.includes('Fantascienza')&&!_scifiSel)return false;
-    const _comedySel=[...Object.values(SEL)].some(s=>s.has('Commedia')||s.has('Comico'));
-    if(userPrefs.excludeComedy&&(f.tags.includes('Commedia')||f.tags.includes('Comico'))&&!_comedySel)return false;
-    const _romSel=[...Object.values(SEL)].some(s=>s.has('Romantico'));
-    if(userPrefs.excludeRomance&&f.tags.includes('Romantico')&&!_romSel)return false;
-    if(userPrefs.reduceItalian&&f.tags.includes('Italiano')&&![...Object.values(SEL)].some(s=>s.has('Italiano')))return false;
-    if(f.tags.includes('Sequel')&&SEQUEL_MAP[f.id]&&!SEQUEL_MAP[f.id].every(pid=>seenFilms.has(pid)))return false;
-    if(EXCL.size&&f.tags.some(t=>EXCL.has(t)))return false;
-    for(const gid of['g1','g2','g3','g4','g5','g6']){const sel=SEL[gid];if(sel.size>0&&![...sel].every(t=>f.tags.includes(t)))return false;}
-    return true; // OPT_IN filter intentionally NOT applied — we want films blocked only by it
-  });
+  // Film compatibili con TUTTI i filtri utente ma bloccati solo dai tag OPT_IN.
+  // v315: usa il predicato condiviso _passesEngineFilters (skipOptIn=true), così
+  // resta allineato a findFilm per costruzione. La copia locale precedente era
+  // già andata in deriva (logica g7 "Non su piattaforme" divergente).
+  const ctx=_buildFilterCtx();
+  return DB.filter(f=>_passesEngineFilters(f,ctx,true));
 }
 
 function computeOptInTags(){
@@ -3426,19 +4308,20 @@ function go(){
       else alert(LANG==='en'?'Database connection failed.':'Connessione al database fallita. Riprova su swainz.it');
     });return;
   }
-  if(!isPremium){if(searches<=0){if(!cdEndTime){cdEndTime=Date.now()+24*3600*1000;try{localStorage.setItem('sw3_cd',String(cdEndTime));}catch(e){}startCountdown();}document.getElementById('cov').classList.add('on');return;}searches--;document.getElementById('cnt').textContent=searches;try{localStorage.setItem(_searchKey,String(searches));}catch(e){}}
+  if(!isPremium){_syncSearchDay();if(searches<=0){if(!cdEndTime){cdEndTime=_nextMidnight();try{localStorage.setItem('sw3_cd',String(cdEndTime));}catch(e){}startCountdown();}document.getElementById('cov').classList.add('on');return;}searches--;document.getElementById('cnt').textContent=searches;try{localStorage.setItem(_searchKey,String(searches));}catch(e){}} // v317: rollover giorno + countdown a mezzanotte locale
   const r=findFilm();
-  if(!r){if(!isPremium){searches++;const cnt=document.getElementById('cnt');if(cnt)cnt.textContent=searches;}resetCat();return;}
+  if(!r){if(!isPremium){searches++;const cnt=document.getElementById('cnt');if(cnt)cnt.textContent=searches;try{localStorage.setItem(_searchKey,String(searches));}catch(e){}}resetCat();return;} // v316: rimborso persistito (prima solo in memoria: al reload la ricerca risultava consumata)
   if(isFirstSearch&&!isPremium){isFirstSearch=false;showAd(r);}else{revealCat();setTimeout(()=>showCard(r),2500);}
 }
 function startCountdown(){
   if(cdInterval)clearInterval(cdInterval);
-  function tick(){const d=cdEndTime-Date.now();if(d<=0){searches=3;isFirstSearch=true;document.getElementById('cnt').textContent=3;document.getElementById('cov').classList.remove('on');clearInterval(cdInterval);cdEndTime=cdInterval=null;try{localStorage.removeItem('sw3_cd');localStorage.removeItem(_searchKey);}catch(e){}return;}const h=Math.floor(d/3600000),m=Math.floor((d%3600000)/60000),s=Math.floor((d%60000)/1000);document.getElementById('cdh').textContent=String(h).padStart(2,'0');document.getElementById('cdm').textContent=String(m).padStart(2,'0');document.getElementById('cds').textContent=String(s).padStart(2,'0');}
+  function tick(){const d=cdEndTime-Date.now();if(d<=0){_syncSearchDay();if(cdEndTime!==null){/* stesso giorno (clock skew): reset manuale */searches=3;isFirstSearch=true;cdEndTime=null;if(cdInterval){clearInterval(cdInterval);cdInterval=null;}try{localStorage.removeItem('sw3_cd');localStorage.removeItem(_searchKey);}catch(e){}const cnt=document.getElementById('cnt');if(cnt)cnt.textContent=3;document.getElementById('cov').classList.remove('on');}return;}const h=Math.floor(d/3600000),m=Math.floor((d%3600000)/60000),s=Math.floor((d%60000)/1000);document.getElementById('cdh').textContent=String(h).padStart(2,'0');document.getElementById('cdm').textContent=String(m).padStart(2,'0');document.getElementById('cds').textContent=String(s).padStart(2,'0');} // v317
   tick();cdInterval=setInterval(tick,1000);
 }
 function loadSearchState(){
   if(isPremium)return;
   try{
+    _syncSearchDay(); // v317: allinea chiave al giorno corrente prima di leggere
     const saved=localStorage.getItem(_searchKey);
     if(saved!==null){
       searches=Math.max(0,parseInt(saved,10));
@@ -3447,10 +4330,13 @@ function loadSearchState(){
     if(searches<=0){
       const cd=localStorage.getItem('sw3_cd');
       if(cd){
-        const t=parseInt(cd,10);
+        let t=parseInt(cd,10);
+        const mid=_nextMidnight();
+        if(t>mid)t=mid; // v317: migrazione — i vecchi countdown 24h vengono accorciati alla mezzanotte
         if(t>Date.now()){
           // Restore cdEndTime silently — cov overlay only shown when user tries to search
           cdEndTime=t;
+          try{localStorage.setItem('sw3_cd',String(t));}catch(e){}
           startCountdown();
         }else{
           // Countdown expired while offline — reset for new cycle
@@ -3461,7 +4347,7 @@ function loadSearchState(){
         }
       }else{
         // searches=0 but no cd stored — set cdEndTime silently
-        cdEndTime=Date.now()+24*3600*1000;
+        cdEndTime=_nextMidnight(); // v317
         localStorage.setItem('sw3_cd',String(cdEndTime));
         startCountdown();
       }
@@ -3974,7 +4860,7 @@ function openUpgradePanel(){
 }
 function closeUpgradePanel(){document.getElementById('upgrade-panel').classList.remove('on');}
 function startCheckout(priceId){
-  if(!currentUser){alert('Accedi prima.');return;}
+  if(!currentUser){alert(t('alert_login_first'));return;}
   var bm=document.getElementById('upg-btn-m'),by=document.getElementById('upg-btn-y');
   if(bm)bm.disabled=true;if(by)by.disabled=true;
   var btn=priceId===STRIPE_PRICE_MONTHLY?bm:by,orig=btn?btn.textContent:'';
@@ -3982,13 +4868,13 @@ function startCheckout(priceId){
   fetch(EDGE_URL+'/create-checkout',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+(_authToken||'')},body:JSON.stringify({user_id:currentUser.id,price_id:priceId,email:currentUser.email||''})})
   .then(function(r){return r.json();})
   .then(function(d){if(d.url){window.location.href=d.url;}else{if(btn)btn.textContent=orig;if(bm)bm.disabled=false;if(by)by.disabled=false;alert('Errore: '+(d.error||'Riprova.'));}})
-  .catch(function(){if(btn)btn.textContent=orig;if(bm)bm.disabled=false;if(by)by.disabled=false;alert('Errore di rete.');});
+  .catch(function(){if(btn)btn.textContent=orig;if(bm)bm.disabled=false;if(by)by.disabled=false;alert(t('alert_network'));});
 }
 function openCustomerPortal(){
-  if(!currentUser){alert('Accedi prima.');return;}
+  if(!currentUser){alert(t('alert_login_first'));return;}
   closeUpgradePanel();
   fetch(EDGE_URL+'/customer-portal',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+(_authToken||'')},body:JSON.stringify({user_id:currentUser.id})})
-  .then(function(r){return r.json();}).then(function(d){if(d.url)window.location.href=d.url;else alert('Errore: '+(d.error||'Riprova.'));}).catch(function(){alert('Errore di rete.');});
+  .then(function(r){return r.json();}).then(function(d){if(d.url)window.location.href=d.url;else alert('Errore: '+(d.error||'Riprova.'));}).catch(function(){alert(t('alert_network'));});
 }
 function _handlePaymentReturn(){
   var p=new URLSearchParams(window.location.search);
@@ -4271,6 +5157,9 @@ function loafEl(){return document.getElementById('loafcatw');}
 function hideCat(){
   if(cRaf){cancelAnimationFrame(cRaf);cRaf=null;}
   catEl().style.opacity='0';
+  // v320: con i <video> persistenti (build-once) il clip in loop va messo in
+  // pausa quando il gatto è nascosto, per non consumare CPU fuori schermo.
+  if(_curEl){try{_curEl.pause();}catch(e){}}
   exitCrouch();
   _hideCatHint();
 }
@@ -4723,7 +5612,65 @@ const T={
     fck_q17:'Preferisci guardare in lingua originale o doppiato?',fck_q17_a:'Lingua originale',fck_q17_b:'Doppiato',fck_q17_c:'Dipende dal film',
     excl_notice:'Hai escluso delle caratteristiche dai tuoi consigli. Se cambi idea torna a modificare questa sezione.',
     excl_modal_title:'Preferenze aggiornate',excl_modal_body:'Hai escluso delle caratteristiche dai tuoi consigli. Se cambi idea torna nella sezione "Fatti conoscere da Swainz".',excl_modal_btn:'Ho capito',
-  },
+  upg_tagline:'Sblocca tutti i filtri, consigli illimitati e niente pubblicità. Scegli il piano più adatto a te.',
+  upg_month:'Mensile',
+  upg_year:'Annuale',
+  upg_cancel_any:'Cancella quando vuoi',
+  upg_year_note:'Equivale a €1,67/mese · Risparmi €10',
+  upg_best:'✦ MIGLIOR VALORE',
+  upg_f1:'Tutti i filtri avanzati',
+  upg_f2:'Consigli illimitati',
+  upg_f3:'Niente pubblicità',
+  upg_f4:'Pannello news cinema',
+  upg_f5:'FCK completo',
+  upg_cta_m:'Inizia — €2,50/mese',
+  upg_cta_y:'Inizia — €20,00/anno',
+  upg_foot1:'🔒 Pagamento sicuro tramite Stripe · Disdici in qualsiasi momento',
+  upg_have_sub:'Hai già un abbonamento?',
+  upg_manage:'Gestiscilo qui',
+  upg_terms:'Termini di Servizio',
+  alert_login_first:'Accedi prima.',
+  alert_network:'Errore di rete.',
+  share_gen_img:'⏳ Generazione immagine…',
+  share_gen_badge:'⏳ Generazione badge…',
+  share_film_nf:'Film non trovato',
+  share_err:'Errore: ',
+  share_native:'Condividi (Instagram, TikTok, WhatsApp…)',
+  share_save:'Salva immagine sul dispositivo',
+  share_info:'Salva l\'immagine e caricala come storia su Instagram, TikTok, Facebook o YouTube Shorts',
+  share_level:'Livello',
+  share_badge_head:'Nuovo livello sbloccato! 🎉',
+  share_badge_sub:'Ho raggiunto questo livello su swainz.it 🎬',
+  onb_title_a:'Chi sei?',
+  onb_sub_a:'Qualche informazione su di te per personalizzare la tua esperienza Swainz',
+  onb_title_b:'Aiutami a conoscerti',
+  onb_sub_b:'Tre domande veloci per consigliarti meglio (puoi saltare tutto)',
+  onb_title_c:'Richiedi il tuo primo consiglio',
+  onb_skip:'Salta',
+  onb_continue:'Continua',
+  onb_teaser_t:'Passa a Premium!',
+  onb_teaser_b:'Per farti conoscere al meglio da Swainz, sblocca tutte le ulteriori domande personalizzate.',
+  onb_bub_genre:'Scegli un genere, o salta e lascia scegliere a me :)',
+  onb_bub_final:'Vuoi film vecchi o recenti? Temi specifici? Piattaforme? Quando sei pronto chiedi il tuo primo consiglio!',
+  onb_req_fields:'Nome, Cognome e Data di nascita sono obbligatori.',
+  onb_l_nome:'Nome',
+  onb_l_cognome:'Cognome',
+  onb_l_nascita:'Data di nascita',
+  onb_l_film:'Film preferito',
+  onb_l_regista:'Regista preferito',
+  onb_l_attore:'Attore preferito',
+  onb_opt:'facoltativo',
+  onb_ph_nome:'Il tuo nome',
+  onb_ph_cognome:'Il tuo cognome',
+  onb_ph_film:'Il film che ami di piu',
+  onb_ph_regista:'Il tuo regista del cuore', // v323 i18n punto 13
+  onb_continue_a:'Continua',
+  onb_skip_genre:'Salta genere',
+  onb_ok_genre:'Conferma genere',
+  onb_ask:'Chiedi a Swainz',
+  back_btn:'Torna indietro',
+  account_label:'Account' // v323 (back_btn/account_label: chiavi usate in HTML ma mai definite — al cambio lingua compariva il nome della chiave)
+},
   en:{
     tagline:'Your feline film adviser',
     login_google:'Continue with Google',login_fb:'Continue with Facebook',
@@ -4791,7 +5738,65 @@ const T={
     fck_q17:'Do you prefer original language or dubbed?',fck_q17_a:'Original language',fck_q17_b:'Dubbed',fck_q17_c:'Depends on the film',
     excl_notice:'You have excluded some characteristics from your recommendations. If you change your mind, come back and edit this section.',
     excl_modal_title:'Preferences updated',excl_modal_body:'You have excluded some characteristics from your recommendations. To change this, go back to the "Let Swainz know you" section.',excl_modal_btn:'Got it',
-  }
+  upg_tagline:'Unlock all filters, unlimited recommendations and no ads. Pick the plan that suits you best.',
+  upg_month:'Monthly',
+  upg_year:'Yearly',
+  upg_cancel_any:'Cancel anytime',
+  upg_year_note:'Works out to €1.67/month · You save €10',
+  upg_best:'✦ BEST VALUE',
+  upg_f1:'All advanced filters',
+  upg_f2:'Unlimited recommendations',
+  upg_f3:'No ads',
+  upg_f4:'Movie news panel',
+  upg_f5:'Full FCK questionnaire',
+  upg_cta_m:'Start — €2.50/month',
+  upg_cta_y:'Start — €20.00/year',
+  upg_foot1:'🔒 Secure payment via Stripe · Cancel anytime',
+  upg_have_sub:'Already subscribed?',
+  upg_manage:'Manage it here',
+  upg_terms:'Terms of Service',
+  alert_login_first:'Please log in first.',
+  alert_network:'Network error.',
+  share_gen_img:'⏳ Generating image…',
+  share_gen_badge:'⏳ Generating badge…',
+  share_film_nf:'Film not found',
+  share_err:'Error: ',
+  share_native:'Share (Instagram, TikTok, WhatsApp…)',
+  share_save:'Save image to device',
+  share_info:'Save the image and upload it as a story on Instagram, TikTok, Facebook or YouTube Shorts',
+  share_level:'Level',
+  share_badge_head:'New level unlocked! 🎉',
+  share_badge_sub:'I reached this level on swainz.it 🎬',
+  onb_title_a:'Who are you?',
+  onb_sub_a:'A few details about you to personalise your Swainz experience',
+  onb_title_b:'Help me get to know you',
+  onb_sub_b:'Three quick questions to recommend better (you can skip everything)',
+  onb_title_c:'Ask for your first recommendation',
+  onb_skip:'Skip',
+  onb_continue:'Continue',
+  onb_teaser_t:'Go Premium!',
+  onb_teaser_b:'Let Swainz get to know you best: unlock all the extra personalised questions.',
+  onb_bub_genre:'Pick a genre, or skip and let me choose :)',
+  onb_bub_final:'Old or recent films? Specific themes? Platforms? When you\'re ready, ask for your first recommendation!',
+  onb_req_fields:'First name, last name and date of birth are required.',
+  onb_l_nome:'First name',
+  onb_l_cognome:'Last name',
+  onb_l_nascita:'Date of birth',
+  onb_l_film:'Favourite film',
+  onb_l_regista:'Favourite director',
+  onb_l_attore:'Favourite actor',
+  onb_opt:'optional',
+  onb_ph_nome:'Your first name',
+  onb_ph_cognome:'Your last name',
+  onb_ph_film:'The film you love most',
+  onb_ph_regista:'Your favourite director', // v323 i18n punto 13
+  onb_continue_a:'Continue',
+  onb_skip_genre:'Skip genre',
+  onb_ok_genre:'Confirm genre',
+  onb_ask:'Ask Swainz',
+  back_btn:'Go back',
+  account_label:'Account' // v323
+}
 };
 
 function t(k){return(T[LANG]||T.it)[k]||T.it[k]||k;}
@@ -4932,7 +5937,7 @@ function setLang(l){
   // update all data-i18n elements
   document.querySelectorAll('[data-i18n]').forEach(el=>{
     const k=el.getAttribute('data-i18n');
-    if(el.tagName==='BUTTON'||el.tagName==='SPAN'||el.tagName==='DIV'||el.tagName==='H2'||el.tagName==='P'||el.tagName==='LABEL'){el.textContent=t(k);}
+    if(el.tagName==='BUTTON'||el.tagName==='SPAN'||el.tagName==='DIV'||el.tagName==='H2'||el.tagName==='P'||el.tagName==='LABEL'||el.tagName==='LI'||el.tagName==='STRONG'){el.textContent=t(k);} // v323: +LI/STRONG
   });
   // update placeholders
   document.querySelectorAll('[data-i18n-ph]').forEach(el=>{
@@ -5446,32 +6451,10 @@ function updatePoolCount(){
   var anyActive=[...Object.values(SEL)].some(function(s){return s.size>0;})||EXCL.size>0;
   if(!anyActive||!DB||!DB.length){el.className='';el.style.display='none';return;}
 
-  var minR=parseFloat(document.getElementById('rsl')?document.getElementById('rsl').value:0)||0;
-
-  var count=DB.filter(function(f){
-    if(seenFilms.has(f.id))return false;
-    if(sessionShown.has(f.id))return false;
-    if(_allRecIds.has(f.id))return false;
-    if(EXCL.size&&f.tags.some(function(t){return EXCL.has(t);}))return false;
-    // AND logic: every selected tag must be in film (NO OPT_IN exclusion for count)
-    for(var gid in SEL){
-      var sel=SEL[gid];
-      if(sel.size===0)continue;
-      // g7 = piattaforma: OR logic on f.plt
-      if(gid==='g7'){
-        var _noPlat=sel.has('Non su piattaforme');
-        var _matchNoPlat=_noPlat&&(!f.plt||f.plt.length===0);
-        var _matchPlt=f.plt&&f.plt.some(function(p){return sel.has(p);});
-        if(!_matchNoPlat&&!_matchPlt)return false;
-        continue;
-      }
-      // g8 = periodo: OR logic on f.year via PERIOD_MAP
-      if(gid==='g8'){if(![...sel].some(function(p){return PERIOD_MAP[p]&&PERIOD_MAP[p](f.year);}))return false;continue;}
-      if(![...sel].every(function(t){return f.tags.includes(t);}))return false;
-    }
-    if(minR&&f.r<minR)return false;
-    return true;
-  }).length;
+  // v315: conteggio delegato a _computePoolCount (predicato condiviso con findFilm).
+  // Rimossa la terza copia inline della catena di filtri, che ignorava le
+  // preferenze FCK, i sequel e il gating OPT_IN e quindi sovracontava.
+  var count=_computePoolCount();
 
   var it=LANG==='en',txt,cls;
   if(count>100){txt=it?'More than 100 films with these characteristics':'Più di 100 film con queste caratteristiche';cls='pc-plenty';}
@@ -5507,21 +6490,10 @@ function _updateBtnGlow(count){
 
 function _computePoolCount(){
   if(!DB||!DB.length)return 0;
-  const minR=parseFloat(document.getElementById('rsl')?.value||0)||0;
-  return DB.filter(function(f){
-    if(seenFilms.has(f.id))return false;
-    if(sessionShown.has(f.id))return false;
-    if(_allRecIds.has(f.id))return false;
-    if(EXCL.size&&f.tags.some(function(t){return EXCL.has(t);}))return false;
-    for(var gid in SEL){
-      var sel=SEL[gid];if(!sel.size)continue;
-      if(gid==='g7'){var _np=sel.has('Non su piattaforme');var _mn=_np&&(!f.plt||!f.plt.length);var _mp=f.plt&&f.plt.some(function(p){return sel.has(p);});if(!_mn&&!_mp)return false;continue;}
-      if(gid==='g8'){if(![...sel].some(function(p){return PERIOD_MAP[p]&&PERIOD_MAP[p](f.year);}))return false;continue;}
-      if(![...sel].every(function(t){return f.tags.includes(t);}))return false;
-    }
-    if(minR&&f.r<minR)return false;
-    return true;
-  }).length;
+  // v315: predicato condiviso — il conteggio ora rispecchia esattamente ciò che
+  // findFilm può consigliare (preferenze FCK, sequel e gating OPT_IN inclusi).
+  const ctx=_buildFilterCtx();
+  return DB.filter(f=>_passesEngineFilters(f,ctx)).length;
 }
 
 function _getFirstSelTagLabel(){
@@ -5600,11 +6572,11 @@ window._swShareFilm=function(filmId){
   var prev=document.getElementById('share-preview-img');
   if(!ov){alert('share overlay not found');return;}
   prev.src='';
-  acts.innerHTML='<p style="text-align:center;padding:20px;color:rgba(255,255,255,.5)">⏳ Generazione immagine…</p>';
+  acts.innerHTML='<p style="text-align:center;padding:20px;color:rgba(255,255,255,.5)">'+t('share_gen_img')+'</p>';
   ov.classList.add('on');
   var fid=isNaN(filmId)?filmId:+filmId;
   var f=DB.find(function(x){return x.id===fid||String(x.id)===String(filmId);});
-  if(!f){acts.innerHTML='<p style="text-align:center;padding:20px;color:rgba(255,80,0,.8)">Film non trovato ('+filmId+')</p>';return;}
+  if(!f){acts.innerHTML='<p style="text-align:center;padding:20px;color:rgba(255,80,0,.8)">'+t('share_film_nf')+' ('+filmId+')</p>';return;}
   _swGenFilmImg(f).then(function(c){
     _swFinalise(c,'swainz-'+String(f.title).replace(/[^a-z0-9]/gi,'-').toLowerCase()+'.jpg',acts,prev);
   }).catch(function(e){
@@ -5616,10 +6588,10 @@ window._swShareBadge=function(){
   var acts=document.getElementById('share-actions');
   var prev=document.getElementById('share-preview-img');
   if(!ov)return;
-  prev.src='';acts.innerHTML='<p style="text-align:center;padding:20px;color:rgba(255,255,255,.5)">⏳ Generazione badge…</p>';
+  prev.src='';acts.innerHTML='<p style="text-align:center;padding:20px;color:rgba(255,255,255,.5)">'+t('share_gen_badge')+'</p>';
   ov.classList.add('on');
   var emoji=(document.getElementById('cs-lu-badge-inner')||{}).textContent||'🏆';
-  var name=(document.getElementById('cs-lu-level-name')||{}).textContent||'Livello';
+  var name=(document.getElementById('cs-lu-level-name')||{}).textContent||t('share_level');
   var sub=(document.getElementById('cs-lu-sub')||{}).textContent||'';
   _swGenBadgeImg(emoji,name,sub).then(function(c){
     _swFinalise(c,'swainz-badge.jpg',acts,prev);
@@ -5696,7 +6668,7 @@ function _swGenFilmImg(f){
     var cur=tY+tL.length*96+28;
 
     ctx.fillStyle='rgba(255,255,255,.62)';ctx.font='italic 42px Arial';
-    ctx.fillText('regia di '+f.dir,W/2,cur);cur+=58;
+    ctx.fillText((LANG==='en'?'directed by ':'regia di ')+f.dir,W/2,cur);cur+=58;
     ctx.fillStyle='rgba(255,195,95,.8)';ctx.font='500 38px Arial';
     ctx.fillText(f.year+'  \u00b7  \u2b50 '+f.r+'/10',W/2,cur);cur+=76;
 
@@ -5736,11 +6708,11 @@ function _swGenBadgeImg(emoji,levelName,sub){
     var glow=ctx.createRadialGradient(W/2,H*.42,0,W/2,H*.42,420);glow.addColorStop(0,'rgba(255,80,0,.4)');glow.addColorStop(1,'transparent');
     ctx.fillStyle=glow;ctx.fillRect(0,0,W,H);
     ctx.fillStyle='rgba(255,80,0,.9)';ctx.font='bold 56px Arial';ctx.textAlign='center';ctx.fillText('SWAINZ',W/2,130);
-    ctx.fillStyle='rgba(255,255,255,.4)';ctx.font='34px Arial';ctx.fillText('Nuovo livello sbloccato! 🎉',W/2,186);
+    ctx.fillStyle='rgba(255,255,255,.4)';ctx.font='34px Arial';ctx.fillText(t('share_badge_head'),W/2,186);
     ctx.font='260px Arial';ctx.fillText(emoji,W/2,H*.48);
     ctx.fillStyle='#ffffff';ctx.font='bold 96px Arial';ctx.fillText(levelName,W/2,H*.58);
     if(sub){ctx.fillStyle='rgba(255,255,255,.6)';ctx.font='42px Arial';var sl=_swLines(ctx,sub,W-200);for(var i=0;i<sl.length;i++)ctx.fillText(sl[i],W/2,H*.63+i*58);}
-    ctx.fillStyle='rgba(255,255,255,.25)';ctx.font='32px Arial';ctx.fillText('Ho raggiunto questo livello su swainz.it 🎬',W/2,H-70);
+    ctx.fillStyle='rgba(255,255,255,.25)';ctx.font='32px Arial';ctx.fillText(t('share_badge_sub'),W/2,H-70);
     res(c);
   });
 }
@@ -5751,16 +6723,16 @@ function _swFinalise(canvas,filename,acts,prev){
     var file=new File([blob],filename,{type:'image/jpeg'});
     if(navigator.canShare&&navigator.canShare({files:[file]})){
       var nb=document.createElement('button');nb.className='share-action-btn';
-      nb.innerHTML='<span class="share-action-icon">📱</span><span>Condividi (Instagram, TikTok, WhatsApp…)</span>';
+      nb.innerHTML='<span class="share-action-icon">📱</span><span>'+t('share_native')+'</span>';
       nb.onclick=function(){navigator.share({files:[file],title:'Swainz'}).catch(function(){});};
       acts.appendChild(nb);
     }
     var db=document.createElement('button');db.className='share-action-btn';
-    db.innerHTML='<span class="share-action-icon">⬇️</span><span>Salva immagine sul dispositivo</span>';
+    db.innerHTML='<span class="share-action-icon">⬇️</span><span>'+t('share_save')+'</span>';
     db.onclick=function(){var a=document.createElement('a');a.href=url;a.download=filename;a.click();};
     acts.appendChild(db);
     var info=document.createElement('p');info.style.cssText='font-size:12px;color:rgba(255,255,255,.4);margin-top:10px;text-align:center;line-height:1.6';
-    info.textContent='Salva l\'immagine e caricala come storia su Instagram, TikTok, Facebook o YouTube Shorts';
+    info.textContent=t('share_info');
     acts.appendChild(info);
     setTimeout(function(){URL.revokeObjectURL(url);},60000);
   },'image/jpeg',.92);
@@ -5791,9 +6763,16 @@ const CAT_CLIPS={
 const _catVidEls={};   // pool -> [<video>...]
 let _curPool=null, _curEl=null;
 
-function _buildVidStage(){
+function _buildVidStage(force){
   const stage=document.getElementById('cat-stage');
   if(!stage)return;
+  // v320: build-once — prima veniva ricostruito a ogni initCat() (ogni rientro
+  // del gatto): 23 <video> distrutti e ricreati, con re-decode dei webm VP9 e
+  // picchi CPU/GC. Gli elementi ora persistono; 'force' consente un rebuild
+  // esplicito. Controllo di coerenza: se lo stage è stato svuotato altrove,
+  // i riferimenti in _catVidEls sarebbero orfani → si ricostruisce.
+  if(!force&&Object.keys(_catVidEls).length&&stage.childElementCount>0)return;
+  for(const k in _catVidEls)delete _catVidEls[k];
   stage.innerHTML='';
   for(const pool in CAT_CLIPS){
     _catVidEls[pool]=CAT_CLIPS[pool].map((uri,i)=>{
@@ -5991,36 +6970,36 @@ function _endLeap(){
   <div id="onb-a" class="onb-card" style="display:none">
     <div>
       <div class="onb-stepdots"><div class="onb-dot active"></div><div class="onb-dot"></div><div class="onb-dot"></div></div>
-      <div class="onb-title">Chi sei?</div>
-      <div class="onb-sub">Qualche informazione su di te per personalizzare la tua esperienza Swainz</div>
+      <div class="onb-title" data-i18n="onb_title_a">Chi sei?</div>
+      <div class="onb-sub" data-i18n="onb_sub_a">Qualche informazione su di te per personalizzare la tua esperienza Swainz</div>
     </div>
     <div style="display:flex;flex-direction:column;gap:13px">
       <div class="onb-form-row">
-        <div class="onb-form-group"><label>Nome<span class="onb-req">*</span></label><input id="onb-nome" type="text" placeholder="Il tuo nome"></div>
-        <div class="onb-form-group"><label>Cognome<span class="onb-req">*</span></label><input id="onb-cognome" type="text" placeholder="Il tuo cognome"></div>
+        <div class="onb-form-group"><label><span data-i18n="onb_l_nome">Nome</span><span class="onb-req">*</span></label><input id="onb-nome" type="text" placeholder="Il tuo nome" data-i18n-ph="onb_ph_nome"></div>
+        <div class="onb-form-group"><label><span data-i18n="onb_l_cognome">Cognome</span><span class="onb-req">*</span></label><input id="onb-cognome" type="text" placeholder="Il tuo cognome" data-i18n-ph="onb_ph_cognome"></div>
       </div>
-      <div class="onb-form-group"><label>Data di nascita<span class="onb-req">*</span></label><input id="onb-nascita" type="date"></div>
-      <div class="onb-form-group"><label>Film preferito<span class="onb-opt">facoltativo</span></label><input id="onb-film" type="text" placeholder="Il film che ami di piu"></div>
-      <div class="onb-form-group"><label>Regista preferito<span class="onb-opt">facoltativo</span></label><input id="onb-regista" type="text" placeholder="Il tuo regista del cuore"></div>
-      <div class="onb-form-group"><label>Attore preferito<span class="onb-opt">facoltativo</span></label><input id="onb-attore" type="text" placeholder="Il tuo attore preferito"></div>
+      <div class="onb-form-group"><label><span data-i18n="onb_l_nascita">Data di nascita</span><span class="onb-req">*</span></label><input id="onb-nascita" type="date"></div>
+      <div class="onb-form-group"><label><span data-i18n="onb_l_film">Film preferito</span><span class="onb-opt" data-i18n="onb_opt">facoltativo</span></label><input id="onb-film" type="text" placeholder="Il film che ami di piu" data-i18n-ph="onb_ph_film"></div>
+      <div class="onb-form-group"><label><span data-i18n="onb_l_regista">Regista preferito</span><span class="onb-opt" data-i18n="onb_opt">facoltativo</span></label><input id="onb-regista" type="text" placeholder="Il tuo regista del cuore" data-i18n-ph="onb_ph_regista"></div>
+      <div class="onb-form-group"><label><span data-i18n="onb_l_attore">Attore preferito</span><span class="onb-opt" data-i18n="onb_opt">facoltativo</span></label><input id="onb-attore" type="text" placeholder="Il tuo attore preferito"></div>
     </div>
     <div class="onb-err" id="onb-a-err"></div>
-    <div class="onb-actions"><button class="onb-btn-primary" onclick="_onbANext()">Continua</button></div>
+    <div class="onb-actions"><button class="onb-btn-primary" onclick="_onbANext()" data-i18n="onb_continue_a">Continua</button></div>
   </div>
   <div id="onb-b" class="onb-card" style="display:none">
     <div>
       <div class="onb-stepdots"><div class="onb-dot done"></div><div class="onb-dot active"></div><div class="onb-dot"></div></div>
-      <div class="onb-title">Aiutami a conoscerti</div>
-      <div class="onb-sub">Tre domande veloci per consigliarti meglio (puoi saltare tutto)</div>
+      <div class="onb-title" data-i18n="onb_title_b">Aiutami a conoscerti</div>
+      <div class="onb-sub" data-i18n="onb_sub_b">Tre domande veloci per consigliarti meglio (puoi saltare tutto)</div>
     </div>
     <div id="onb-b-body"></div>
-    <div class="fck-prem-teaser" style="margin-bottom:0"><span class="fck-prem-teaser-ico">&#11088;</span><div class="fck-prem-teaser-body"><strong>Passa a Premium!</strong>Per farti conoscere al meglio da Swainz, sblocca tutte le ulteriori domande personalizzate.</div></div>
-    <div class="onb-actions"><button class="onb-btn-skip" onclick="_onbBSkip()">Salta</button><button class="onb-btn-primary" onclick="_onbBNext()">Continua</button></div>
+    <div class="fck-prem-teaser" style="margin-bottom:0"><span class="fck-prem-teaser-ico">&#11088;</span><div class="fck-prem-teaser-body"><strong data-i18n="onb_teaser_t">Passa a Premium!</strong><span data-i18n="onb_teaser_b">Per farti conoscere al meglio da Swainz, sblocca tutte le ulteriori domande personalizzate.</span></div></div>
+    <div class="onb-actions"><button class="onb-btn-skip" onclick="_onbBSkip()" data-i18n="onb_skip">Salta</button><button class="onb-btn-primary" onclick="_onbBNext()" data-i18n="onb_continue">Continua</button></div>
   </div>
   <div id="onb-c" class="onb-card onb-wide" style="display:none">
     <div>
       <div class="onb-stepdots"><div class="onb-dot done"></div><div class="onb-dot done"></div><div class="onb-dot active"></div></div>
-      <div class="onb-title">Richiedi il tuo primo consiglio</div>
+      <div class="onb-title" data-i18n="onb_title_c">Richiedi il tuo primo consiglio</div>
       <div class="onb-sub">Ora e il momento del tuo primo consiglio. Che cosa ti piacerebbe vedere?</div>
     </div>
     <div class="onb-group-wrap" id="onb-g1-wrap" style="position:relative">
@@ -6031,8 +7010,8 @@ function _endLeap(){
       <div class="onb-group-title">&#127917; Genere &amp; Atmosfera</div>
       <div class="onb-chips" id="onb-g1-chips"></div>
       <div class="onb-g1-actions">
-        <button class="onb-btn-skip" id="onb-g1-skip-btn" onclick="_onbReveal(false)" style="padding:8px 16px;font-size:12px">Salta genere</button>
-        <button class="onb-btn-primary" id="onb-g1-ok-btn" onclick="_onbReveal(true)" style="padding:8px 16px;font-size:12px">Conferma genere</button>
+        <button class="onb-btn-skip" id="onb-g1-skip-btn" onclick="_onbReveal(false)" style="padding:8px 16px;font-size:12px" data-i18n="onb_skip_genre">Salta genere</button>
+        <button class="onb-btn-primary" id="onb-g1-ok-btn" onclick="_onbReveal(true)" style="padding:8px 16px;font-size:12px" data-i18n="onb_ok_genre">Conferma genere</button>
       </div>
     </div>
     <div id="onb-lower" style="display:flex;flex-direction:column;gap:12px">
@@ -6041,7 +7020,7 @@ function _endLeap(){
       <div class="onb-blur-wrap locked" id="onb-g7-wrap"><div class="onb-group-wrap"><div class="onb-group-title">&#128250; Piattaforma</div><div class="onb-chips" id="onb-g7-chips"></div></div></div>
     </div>
     <div class="onb-actions" style="justify-content:center;padding-top:8px">
-      <button class="save-btn" style="font-size:14px;padding:13px 32px" onclick="_onbFinish()">Chiedi a Swainz</button>
+      <button class="save-btn" style="font-size:14px;padding:13px 32px" onclick="_onbFinish()" data-i18n="onb_ask">Chiedi a Swainz</button>
     </div>
   </div>
 </div>
@@ -6089,7 +7068,7 @@ function _onbANext(){
   var cognome=document.getElementById('onb-cognome').value.trim();
   var nascita=document.getElementById('onb-nascita').value;
   var err=document.getElementById('onb-a-err');
-  if(!nome||!cognome||!nascita){err.textContent='Nome, Cognome e Data di nascita sono obbligatori.';return;}
+  if(!nome||!cognome||!nascita){err.textContent=t('onb_req_fields');return;}
   err.textContent='';
   [['nome','pNome'],['cognome','pCognome'],['nascita','pNascita'],['film','pFilm']].forEach(function(pair){
     var s=document.getElementById('onb-'+pair[0]),d2=document.getElementById(pair[1]);
@@ -6167,7 +7146,7 @@ function _renderOnbC(){
   if(skipBtn)skipBtn.style.display='';if(okBtn)okBtn.style.display='';
   var cat=document.getElementById('onb-cat');var g1w=document.getElementById('onb-g1-wrap');
   if(cat&&g1w&&!g1w.contains(cat))g1w.appendChild(cat);
-  var bub=document.getElementById('onb-cat-bubble');if(bub)bub.textContent='Scegli un genere, o salta e lascia scegliere a me :)';
+  var bub=document.getElementById('onb-cat-bubble');if(bub)bub.textContent=t('onb_bub_genre');
 }
 function _onbReveal(confirmed){
   if(_onbRevealed)return;_onbRevealed=true;
@@ -6186,7 +7165,7 @@ function _onbReveal(confirmed){
       g3i.style.position='relative';
       g3i.appendChild(cat);
       var bub=document.getElementById('onb-cat-bubble');
-      if(bub)bub.textContent='Vuoi film vecchi o recenti? Temi specifici? Piattaforme? Quando sei pronto chiedi il tuo primo consiglio!';
+      if(bub)bub.textContent=t('onb_bub_final');
     }
   },650);
 }
@@ -6205,178 +7184,9 @@ function _onbFinish(){
 }
 // === END ONBOARDING JS ===
 
-/* ═══════════════════════════════════════
-   SHARE — event delegation + canvas
-   ═══════════════════════════════════════ */
-(function(){
-  // Delegated click handler for share buttons
-  document.addEventListener('click', function(e){
-    const filmBtn = e.target.closest('[data-share-film]');
-    if(filmBtn){ e.stopPropagation(); _openShareFilm(+filmBtn.dataset.shareFilm||filmBtn.dataset.shareFilm); return; }
-    const badgeBtn = e.target.closest('[data-share-badge]');
-    if(badgeBtn){ e.stopPropagation(); _openShareBadge(); return; }
-  });
-
-  function _showShareOv(loadingMsg){
-    const ov=document.getElementById('share-ov');
-    const acts=document.getElementById('share-actions');
-    const prev=document.getElementById('share-preview-img');
-    if(!ov)return false;
-    prev.src='';
-    acts.innerHTML='<p style="color:rgba(255,255,255,.5);text-align:center;padding:20px 0 8px">'+loadingMsg+'</p>';
-    ov.classList.add('on');
-    return {ov,acts,prev};
-  }
-
-  function _loadImg(src){
-    return new Promise(function(res,rej){
-      var img=new Image();img.crossOrigin='anonymous';
-      img.onload=function(){res(img);};img.onerror=rej;
-      img.src=src;
-    });
-  }
-  function _wrapLines(ctx,text,maxW){
-    var words=text.split(' '),lines=[],line='';
-    for(var i=0;i<words.length;i++){
-      var t=line?line+' '+words[i]:words[i];
-      if(ctx.measureText(t).width>maxW&&line){lines.push(line);line=words[i];}else line=t;
-    }
-    if(line)lines.push(line);return lines;
-  }
-  function _rrect(ctx,x,y,w,h,r){
-    ctx.beginPath();ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);
-    ctx.quadraticCurveTo(x+w,y,x+w,y+r);ctx.lineTo(x+w,y+h-r);
-    ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);ctx.lineTo(x+r,y+h);
-    ctx.quadraticCurveTo(x,y+h,x,y+h-r);ctx.lineTo(x,y+r);
-    ctx.quadraticCurveTo(x,y,x+r,y);ctx.closePath();
-  }
-
-  async function _genFilmCanvas(f){
-    var W=1080,H=1920,c=document.createElement('canvas');
-    c.width=W;c.height=H;var ctx=c.getContext('2d');
-    ctx.fillStyle='#26242a';ctx.fillRect(0,0,W,H);
-    var hasPoster=false;
-    if(f.poster){
-      try{
-        var img=await _loadImg(f.poster);
-        ctx.save();ctx.filter='blur(60px) brightness(0.22) saturate(1.6)';
-        var bw=H*(img.naturalWidth/img.naturalHeight);ctx.drawImage(img,(W-bw)/2,0,bw,H);ctx.restore();
-        var ph=820,pw=Math.round(ph*(img.naturalWidth/img.naturalHeight));
-        var px=(W-pw)/2,py=160;
-        _rrect(ctx,px,py,pw,ph,24);ctx.save();ctx.clip();ctx.drawImage(img,px,py,pw,ph);ctx.restore();
-        hasPoster=true;
-      }catch(ex){}
-    }
-    var grad=ctx.createLinearGradient(0,hasPoster?550:0,0,H);
-    grad.addColorStop(0,'rgba(29,27,33,0)');grad.addColorStop(0.3,'rgba(29,27,33,.94)');grad.addColorStop(1,'#26242a');
-    ctx.fillStyle=grad;ctx.fillRect(0,0,W,H);
-    ctx.fillStyle='rgba(255,80,0,.9)';ctx.font='bold 54px Arial';ctx.textAlign='center';ctx.fillText('SWAINZ',W/2,96);
-    ctx.fillStyle='rgba(255,255,255,.3)';ctx.font='28px Arial';ctx.fillText('il consiglio di oggi',W/2,144);
-    var title=(typeof LANG!=='undefined'&&LANG==='en'&&typeof TITLE_ORIG!=='undefined')?(TITLE_ORIG[f.id]||f.title):f.title;
-    ctx.fillStyle='#ffffff';ctx.font='bold 82px Arial';
-    var tLines=_wrapLines(ctx,title,W-140),tY=hasPoster?1080:500;
-    for(var i=0;i<tLines.length;i++) ctx.fillText(tLines[i],W/2,tY+i*98);
-    var dY=tY+tLines.length*98+36;
-    ctx.fillStyle='rgba(255,255,255,.62)';ctx.font='italic 44px Arial';ctx.fillText('regia di '+f.dir,W/2,dY);
-    ctx.fillStyle='rgba(255,255,255,.4)';ctx.font='40px Arial';ctx.fillText(f.year+'  ·  ⭐ '+f.r+'/10',W/2,dY+62);
-    if(f.tags&&f.tags.length){
-      var tx2=80,tagY=dY+140;ctx.font='30px Arial';
-      for(var j=0;j<Math.min(f.tags.length,4);j++){
-        var tag=f.tags[j];
-        var lbl=(typeof tTag==='function')?tTag(tag):tag;
-        var tw=ctx.measureText(lbl).width+44;
-        if(tx2+tw>W-80)break;
-        _rrect(ctx,tx2,tagY-38,tw,50,25);ctx.fillStyle='rgba(255,80,0,.22)';ctx.fill();
-        ctx.strokeStyle='rgba(255,80,0,.5)';ctx.lineWidth=1.5;ctx.stroke();
-        ctx.fillStyle='rgba(255,200,140,.9)';ctx.fillText(lbl,tx2+22,tagY);tx2+=tw+14;
-      }
-    }
-    ctx.fillStyle='rgba(255,255,255,.22)';ctx.font='30px Arial';ctx.fillText('swainz.it',W/2,H-56);
-    return c;
-  }
-
-  async function _genBadgeCanvas(emoji,levelName,sub){
-    var W=1080,H=1920,c=document.createElement('canvas');
-    c.width=W;c.height=H;var ctx=c.getContext('2d');
-    var bg=ctx.createRadialGradient(W/2,H*.45,80,W/2,H*.45,820);
-    bg.addColorStop(0,'#1e0a32');bg.addColorStop(1,'#222326');
-    ctx.fillStyle=bg;ctx.fillRect(0,0,W,H);
-    var glow=ctx.createRadialGradient(W/2,H*.42,0,W/2,H*.42,420);
-    glow.addColorStop(0,'rgba(255,80,0,.4)');glow.addColorStop(1,'transparent');
-    ctx.fillStyle=glow;ctx.fillRect(0,0,W,H);
-    ctx.fillStyle='rgba(255,80,0,.9)';ctx.font='bold 56px Arial';ctx.textAlign='center';ctx.fillText('SWAINZ',W/2,130);
-    ctx.fillStyle='rgba(255,255,255,.4)';ctx.font='34px Arial';ctx.fillText('Nuovo livello sbloccato! 🎉',W/2,186);
-    ctx.font='260px Arial';ctx.fillText(emoji,W/2,H*.48);
-    ctx.fillStyle='#ffffff';ctx.font='bold 96px Arial';ctx.fillText(levelName,W/2,H*.58);
-    if(sub){
-      ctx.fillStyle='rgba(255,255,255,.6)';ctx.font='42px Arial';
-      var sl=_wrapLines(ctx,sub,W-200);
-      for(var i=0;i<sl.length;i++) ctx.fillText(sl[i],W/2,H*.63+i*58);
-    }
-    ctx.fillStyle='rgba(255,255,255,.25)';ctx.font='32px Arial';
-    ctx.fillText('Ho raggiunto questo livello su swainz.it 🎬',W/2,H-70);
-    return c;
-  }
-
-  async function _finaliseShare(canvas,filename,ui){
-    try{
-      var blob=await new Promise(function(r){canvas.toBlob(r,'image/jpeg',.92);});
-      var url=URL.createObjectURL(blob);
-      if(ui.prev) ui.prev.src=url;
-      var acts=ui.acts;acts.innerHTML='';
-      var file=new File([blob],filename,{type:'image/jpeg'});
-      if(navigator.canShare&&navigator.canShare({files:[file]})){
-        var nb=document.createElement('button');nb.className='share-action-btn';
-        nb.innerHTML='<span class="share-action-icon">📱</span><span>Condividi (Instagram, TikTok, WhatsApp…)</span>';
-        nb.onclick=function(){navigator.share({files:[file],title:'Swainz'}).catch(function(){});};
-        acts.appendChild(nb);
-      }
-      var db=document.createElement('button');db.className='share-action-btn';
-      db.innerHTML='<span class="share-action-icon">⬇️</span><span>Salva immagine sul dispositivo</span>';
-      db.onclick=function(){var a=document.createElement('a');a.href=url;a.download=filename;a.click();};
-      acts.appendChild(db);
-      var info=document.createElement('p');
-      info.style.cssText='font-size:12px;color:rgba(255,255,255,.4);margin-top:10px;text-align:center;line-height:1.6';
-      info.textContent='Salva l\'immagine e caricala come storia su Instagram, TikTok, Facebook o YouTube Shorts';
-      acts.appendChild(info);
-      setTimeout(function(){URL.revokeObjectURL(url);},60000);
-    }catch(ex){
-      if(ui.acts) ui.acts.innerHTML='<p style="color:rgba(255,80,0,.8);text-align:center;padding:16px">Errore: '+ex.message+'</p>';
-    }
-  }
-
-  async function _openShareFilm(filmId){
-    var f=typeof DB!=='undefined'?DB.find(function(x){return x.id===filmId||x.id===+filmId||String(x.id)===String(filmId);}):null;
-    var ui=_showShareOv('⏳ Generazione immagine…');
-    if(!ui)return;
-    if(!f){ui.acts.innerHTML='<p style="color:rgba(255,80,0,.8);text-align:center;padding:16px">Film non trovato (id='+filmId+')</p>';return;}
-    try{
-      var c=await _genFilmCanvas(f);
-      await _finaliseShare(c,'swainz-'+String(f.title||'film').replace(/[^a-z0-9]/gi,'-').toLowerCase()+'.jpg',ui);
-    }catch(ex){
-      ui.acts.innerHTML='<p style="color:rgba(255,80,0,.8);text-align:center;padding:16px">Errore: '+ex.message+'</p>';
-    }
-  }
-
-  async function _openShareBadge(){
-    var emoji=(document.getElementById('cs-lu-badge-inner')||{}).textContent||'🏆';
-    var name=(document.getElementById('cs-lu-level-name')||{}).textContent||'';
-    var sub=(document.getElementById('cs-lu-sub')||{}).textContent||'';
-    var ui=_showShareOv('⏳ Generazione badge…');
-    if(!ui)return;
-    try{
-      var c=await _genBadgeCanvas(emoji,name,sub);
-      await _finaliseShare(c,'swainz-badge.jpg',ui);
-    }catch(ex){
-      ui.acts.innerHTML='<p style="color:rgba(255,80,0,.8);text-align:center;padding:16px">Errore: '+ex.message+'</p>';
-    }
-  }
-
-  window.closeShareOv=function(){
-    var ov=document.getElementById('share-ov');
-    if(ov)ov.classList.remove('on');
-  };
-})();
+/* v322: rimossa la seconda implementazione share (IIFE con listener delegato + _openShareFilm/_openShareBadge/_genFilmCanvas/_genBadgeCanvas).
+   Era il duplicato "B" del punto 6 dell'audit: morto fino alla v313 per il SyntaxError, dalla v314 tornava vivo e faceva scattare DUE generazioni
+   in gara sul bottone badge (onclick inline _swShareBadge + delega su data-share-badge). Implementazione unica: _swShareFilm/_swShareBadge (blocco 2). */
 
 
 
@@ -6395,41 +7205,41 @@ function _onbFinish(){
 
 <div id="upgrade-panel">
   <div class="upg-inner">
-    <button class="upg-back" onclick="closeUpgradePanel()">← Torna indietro</button>
+    <button class="upg-back" onclick="closeUpgradePanel()">← <span data-i18n="back_btn">Torna indietro</span></button>
     <div class="upg-logo">PREMIUM</div>
-    <div class="upg-tagline">Sblocca tutti i filtri, consigli illimitati e niente pubblicità.<br>Scegli il piano più adatto a te.</div>
+    <div class="upg-tagline" data-i18n="upg_tagline">Sblocca tutti i filtri, consigli illimitati e niente pubblicità. Scegli il piano più adatto a te.</div>
     <div class="upg-plans">
       <div class="upg-plan">
-        <div class="upg-plan-name">Mensile</div>
+        <div class="upg-plan-name" data-i18n="upg_month">Mensile</div>
         <div class="upg-price">€2<span>,50/mese</span></div>
-        <div class="upg-note">Cancella quando vuoi</div>
+        <div class="upg-note" data-i18n="upg_cancel_any">Cancella quando vuoi</div>
         <ul class="upg-features">
-          <li>Tutti i filtri avanzati</li>
-          <li>Consigli illimitati</li>
-          <li>Niente pubblicità</li>
-          <li>Pannello news cinema</li>
-          <li>FCK completo</li>
+          <li data-i18n="upg_f1">Tutti i filtri avanzati</li>
+          <li data-i18n="upg_f2">Consigli illimitati</li>
+          <li data-i18n="upg_f3">Niente pubblicità</li>
+          <li data-i18n="upg_f4">Pannello news cinema</li>
+          <li data-i18n="upg_f5">FCK completo</li>
         </ul>
-        <button class="upg-cta upg-cta-month" id="upg-btn-m" onclick="startCheckout(STRIPE_PRICE_MONTHLY)">Inizia — €2,50/mese</button>
+        <button class="upg-cta upg-cta-month" id="upg-btn-m" onclick="startCheckout(STRIPE_PRICE_MONTHLY)" data-i18n="upg_cta_m">Inizia — €2,50/mese</button>
       </div>
       <div class="upg-plan best">
-        <div class="upg-badge">✦ MIGLIOR VALORE</div>
-        <div class="upg-plan-name">Annuale</div>
+        <div class="upg-badge" data-i18n="upg_best">✦ MIGLIOR VALORE</div>
+        <div class="upg-plan-name" data-i18n="upg_year">Annuale</div>
         <div class="upg-price">€20<span>,00/anno</span></div>
-        <div class="upg-note">Equivale a €1,67/mese · Risparmi €10</div>
+        <div class="upg-note" data-i18n="upg_year_note">Equivale a €1,67/mese · Risparmi €10</div>
         <ul class="upg-features">
-          <li>Tutti i filtri avanzati</li>
-          <li>Consigli illimitati</li>
-          <li>Niente pubblicità</li>
-          <li>Pannello news cinema</li>
-          <li>FCK completo</li>
+          <li data-i18n="upg_f1">Tutti i filtri avanzati</li>
+          <li data-i18n="upg_f2">Consigli illimitati</li>
+          <li data-i18n="upg_f3">Niente pubblicità</li>
+          <li data-i18n="upg_f4">Pannello news cinema</li>
+          <li data-i18n="upg_f5">FCK completo</li>
         </ul>
-        <button class="upg-cta upg-cta-year" id="upg-btn-y" onclick="startCheckout(STRIPE_PRICE_YEARLY)">Inizia — €20,00/anno</button>
+        <button class="upg-cta upg-cta-year" id="upg-btn-y" onclick="startCheckout(STRIPE_PRICE_YEARLY)" data-i18n="upg_cta_y">Inizia — €20,00/anno</button>
       </div>
     </div>
     <div class="upg-foot">
-      🔒 Pagamento sicuro tramite Stripe · Disdici in qualsiasi momento<br>
-      Hai già un abbonamento? <span style="color:var(--or);cursor:pointer;text-decoration:underline" onclick="openCustomerPortal()">Gestiscilo qui</span><br><span style="margin-top:8px;display:flex;justify-content:center;gap:10px;align-items:center"><span onclick="openPrivacy()" style="color:rgba(120,135,155,.65);font-size:10px;cursor:pointer;">Privacy Policy</span><span style="color:rgba(85,96,112,.4);font-size:10px">·</span><span onclick="openTerms()" style="color:rgba(120,135,155,.65);font-size:10px;cursor:pointer;">Termini di Servizio</span></span>
+      <span data-i18n="upg_foot1">🔒 Pagamento sicuro tramite Stripe · Disdici in qualsiasi momento</span><br>
+      <span data-i18n="upg_have_sub">Hai già un abbonamento?</span> <span style="color:var(--or);cursor:pointer;text-decoration:underline" onclick="openCustomerPortal()" data-i18n="upg_manage">Gestiscilo qui</span><br><span style="margin-top:8px;display:flex;justify-content:center;gap:10px;align-items:center"><span onclick="openPrivacy()" style="color:rgba(120,135,155,.65);font-size:10px;cursor:pointer;">Privacy Policy</span><span style="color:rgba(85,96,112,.4);font-size:10px">·</span><span onclick="openTerms()" style="color:rgba(120,135,155,.65);font-size:10px;cursor:pointer;" data-i18n="upg_terms">Termini di Servizio</span></span>
     </div>
   </div>
 </div>
@@ -6440,7 +7250,7 @@ function _onbFinish(){
   <div class="legal-inner">
     <div class="legal-logo">SWAINZ</div>
     <h1 class="legal-h1">Privacy Policy</h1>
-    <p class="legal-upd">Ultimo aggiornamento: giugno 2025 · In vigore dal: giugno 2025</p>
+    <p class="legal-upd">Ultimo aggiornamento: luglio 2026 · In vigore dal: giugno 2026</p>
 
     <div class="legal-sec">
       <h2>1. Titolare del Trattamento</h2>
@@ -6549,7 +7359,7 @@ function _onbFinish(){
   <div class="legal-inner">
     <div class="legal-logo">SWAINZ</div>
     <h1 class="legal-h1">Termini di Servizio</h1>
-    <p class="legal-upd">Ultimo aggiornamento: giugno 2025 · In vigore dal: giugno 2025</p>
+    <p class="legal-upd">Ultimo aggiornamento: luglio 2026 · In vigore dal: giugno 2026</p>
 
     <div class="legal-sec">
       <h2>1. Descrizione del Servizio</h2>
