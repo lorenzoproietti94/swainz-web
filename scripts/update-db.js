@@ -1,5 +1,5 @@
 /**
- * Swainz — update-db.js  (v198)
+ * Swainz — update-db.js  (v199)
  * ─────────────────────────────────────────────────────────────────────────────
  * Aggiorna ogni notte le colonne:
  *   poster_url            → URL locandina TMDB (w342)
@@ -16,6 +16,9 @@
  *   0.65–0.75 → LOW CONF  — aggiorna tutto, logga avviso
  *   > 0.75  → HIGH CONF  — aggiorna tutto normalmente
  *
+ * v199 — Aggiunte a PROV_RENT: Rakuten TV (id 35, store puro) e TIMVISION Store
+ *         (id 109, TIMVISION a noleggio, distinto dall'abbonamento). Microsoft
+ *         Store non mappabile (assente dai provider TMDB per l'Italia).
  * v198 — Chip abbonamento/noleggio distinti per i brand misti. La whitelist
  *         unica IT_PROVIDERS è ora sdoppiata in PROV_SUB (flatrate+free+ads) e
  *         PROV_RENT (rent+buy); lo stesso provider_id può produrre nomi diversi
@@ -89,6 +92,7 @@ const PROV_RENT = {
   // Store puri (esistono SOLO a noleggio/acquisto)
   3:    'Google Play',   // Google Play Movies
   40:   'CHILI',
+  35:   'Rakuten TV',    // Rakuten TV (store puro)
   // Versioni-store dei brand misti (nome distinto dal chip abbonamento)
   350:  'Apple TV Store',      // Apple (a noleggio)
   2:    'Apple TV Store',      // Apple TV Store
@@ -97,6 +101,7 @@ const PROV_RENT = {
   188:  'YouTube',             // YouTube (a noleggio, distinto da YouTube Premium)
   359:  'Infinity Store',      // Mediaset Infinity (acquisti)
   1726: 'Infinity Store',      // Infinity Selection (acquisti)
+  109:  'TIMVISION Store',     // TIMVISION (a noleggio, distinto dall'abbonamento)
 };
 
 // ─── Supabase client ──────────────────────────────────────────────────────────
