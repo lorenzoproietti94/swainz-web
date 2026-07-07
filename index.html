@@ -1,6 +1,7 @@
 <!DOCTYPE html><html lang="it"><head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>SWAINZ</title><!-- v334 · chip abbonamento/noleggio distinti. Due liste: SW_PLAT_SUB (15, sempre visibili) e SW_PLAT_RENT (6: Prime Video Store, Apple TV Store, Google Play, CHILI, YouTube, Infinity Store). Il toggle 'Includi noleggio/acquisto' in g7 ora MOSTRA/NASCONDE i chip noleggio (prima erano sempre visibili): off=solo 15 abbonamento, on=compaiono anche i 6 noleggio. Rerender mirato via _rerenderG7 (no buildUI completo); spegnere il toggle deseleziona le piattaforme noleggio attive. I brand misti hanno nomi distinti nelle due colonne (Apple TV vs Apple TV Store, ecc.) scritti da update-db.js v198 (PROV_SUB/PROV_RENT). FCK/onboarding mostrano solo le 15 abbonamento (nessun toggle li). Match invariato via _pltArr/_pltSome. Prerequisito: update-db.js v198. -->
+<title>SWAINZ</title><!-- v335 · scheda Piattaforma ridisegnata a DUE COLONNE con divisore centrale arancione. Sinistra 'Abbonamento': 6 principali fisse (Netflix, Prime Video, Disney+, Sky Go, RaiPlay, MUBI) + link 'mostra tutte le piattaforme' che aggiunge le restanti sub sotto. Destra 'Noleggio/Acquisto': sempre visibile, tutte le 6 piattaforme rent. RIMOSSI la casella 'includi noleggio' e lo stato _inclNoleggio/_toggleNoleggio/_rerenderG7: entrambe le colonne sono sempre mostrate. In ENTRAMBE compaiono solo le piattaforme con >=1 film nel DB (calcolato client-side da _platformsInDB su DB). Match semplificato: _pltArr = unione fissa f.plt + f.plt_nol (nomi distinti tra colonne, ogni chip filtra la sua sezione). Nuovo renderer _renderG7Split + _mkG7Chip; nuove i18n g7_sub/g7_rent/g7_more/g7_less/g7_empty. Prerequisito dati: update-db.js v198 (due colonne). -->
+<!-- v334 · chip abbonamento/noleggio distinti. Due liste: SW_PLAT_SUB (15, sempre visibili) e SW_PLAT_RENT (6: Prime Video Store, Apple TV Store, Google Play, CHILI, YouTube, Infinity Store). Il toggle 'Includi noleggio/acquisto' in g7 ora MOSTRA/NASCONDE i chip noleggio (prima erano sempre visibili): off=solo 15 abbonamento, on=compaiono anche i 6 noleggio. Rerender mirato via _rerenderG7 (no buildUI completo); spegnere il toggle deseleziona le piattaforme noleggio attive. I brand misti hanno nomi distinti nelle due colonne (Apple TV vs Apple TV Store, ecc.) scritti da update-db.js v198 (PROV_SUB/PROV_RENT). FCK/onboarding mostrano solo le 15 abbonamento (nessun toggle li). Match invariato via _pltArr/_pltSome. Prerequisito: update-db.js v198. -->
 <!-- v333 · piattaforme streaming ampliate (da 6 a 17 filtri) + toggle noleggio/acquisto. Nuovi canonici: RaiPlay, Infinity, NowTV, Sky Go, Google Play, Paramount+, TIMVISION, YouTube Premium, CHILI, Crunchyroll, MGM+, HBO Max. Lista unica SW_PLATFORMS (ordine per popolarita' display_priority IT) condivisa da g7.opts + liste FCK/onboarding (niente piu' duplicati). _safeArr esteso con alias per le grafie TMDB. Nuova colonna DB Piattaforme_noleggio (rent+buy) letta in f.plt_nol. Toggle 'Includi noleggio/acquisto' nella sezione g7 (sotto header): off=solo abbonamento (f.plt), on=abbonamento+noleggio. Match unificato via helper _pltArr/_pltSome/_pltEmpty applicato a tutte le sedi (filtri principali, FCK, onboarding, onlyPlatform). Prerequisito: swainz_add_noleggio_v197.sql + update-db.js v197. -->
 <!-- v332 · client-side routing con History API (path puliti stesso origin). Router aggancia URL <-> pannelli via wrapping delle open()/close() esistenti; gestione popstate per tasto Indietro; deep-link applicati dopo login(). Route: /login /profilo /visti /scopri /raccomandazioni /premium. Deep-link protetti (utente non loggato): mostra #ls mantenendo l'URL, apre il pannello dopo l'accesso. Richiede vercel.json con rewrite catch-all -> /index.html. Nessuna modifica a stato/localStorage/OAuth. -->
 <!-- v331 · predisposizione piattaforma RaiPlay. Valore canonico 'RaiPlay'; _safeArr normalizza le varianti ('Rai Play'/'rai play' → 'RaiPlay') via alias, cosi' l'id 581 gia' presente funziona senza toccare il DB. Aggiunta RaiPlay alle 4 liste UI: gruppo filtri g7 (Piattaforma), _plt7 in renderFcp e renderFcpFree (FCK q7/q7b), plt7 in _renderOnbB (onboarding). Nessun contenuto DB modificato: quando l'utente popolera' i record con 'RaiPlay', filtri/FCK/onboarding lo rileveranno automaticamente. -->
@@ -726,10 +727,17 @@ body.profp-ads-show #profp{padding-bottom:96px}
 .arec-ms-opt input[type=checkbox]{accent-color:var(--or);width:14px;height:14px;flex-shrink:0;cursor:pointer}
 .arec-ms-opt.checked{color:var(--or)}
 /* v333 · toggle noleggio/acquisto nella sezione g7 */
-.g7nol{display:flex;align-items:center;gap:8px;padding:2px 2px 10px;margin-bottom:6px;border-bottom:1px solid rgba(255,255,255,.08);cursor:pointer;user-select:none}
-.g7nol input[type=checkbox]{accent-color:var(--or);width:15px;height:15px;flex-shrink:0;cursor:pointer}
-.g7nol label{font-size:12.5px;color:var(--td);cursor:pointer;line-height:1.3}
-.g7nol.on label{color:var(--or)}
+/* v335 · scheda piattaforma a due colonne */
+.g7split{display:flex;align-items:stretch;gap:0}
+.g7col{flex:1;min-width:0}
+.g7col-l{padding-right:13px}
+.g7col-r{padding-left:13px}
+.g7div{width:1px;background:var(--or);opacity:.5;flex-shrink:0;align-self:stretch}
+.g7ct{font-size:11px;font-weight:600;color:var(--or);text-transform:uppercase;letter-spacing:.4px;margin-bottom:9px}
+.g7col .chips{display:flex;flex-wrap:wrap;gap:6px}
+.g7more{margin-top:10px;font-size:11.5px;color:var(--or);cursor:pointer;user-select:none;display:inline-block}
+.g7more:hover{text-decoration:underline}
+.g7empty{font-size:11px;color:var(--td);font-style:italic;padding:3px 0;line-height:1.35}
 .arec-ms-empty{padding:12px 14px;font-size:12px;color:var(--td);text-align:center}
 .arec-ms-clear{display:block;width:100%;padding:8px 14px;border:none;border-top:1px solid var(--br);background:none;color:var(--td);font-size:11px;cursor:pointer;text-align:left;transition:color .15s}
 .arec-ms-clear:hover{color:var(--tx)}
@@ -2001,27 +2009,48 @@ var STRIPE_PRICE_YEARLY='price_1TaiWyRzBS2zhcmvWVVT1RzF';
 var EDGE_URL=SUPA_URL+'/functions/v1';
 var SUPA_TAGS=['Angosciante','Animazione','Asiatico','Biografico','Bizzarro','Capolavoro','Catastrofico','CineComic','Claustrofobico','Colossal','Comico','Commedia','Conosciutissimo','Corto(<1h30)','Crimine','Crudo',"D'Autore",'Difficile','Distopia','Documentario','Dramma','Droga','Economico','Epoca Passata','Estetico','Facile','Fantascienza','Grande Colonna Sonora','Grande Interpretazione','Guerra','Horror','Imponente','Italiano','Legal Drama','Lunghissimo','Lungo(>2h30)','Mafia','Musicale','Neorealismo','Noire','Onirico','Oscar','Pazzesco','Personaggio Cattivo','Psichedelico','Psicologico/mentale','Romantico','Sequel','Serial Killer','Sportivo','Storia Avvincente','Tecnologico','Thriller','Triste','Vecchio','Vendetta','Violenza Ironica','Western'];
 /* v333 · lista piattaforme unica e condivisa (ordine per popolarità, display_priority IT di TMDB). Usata da g7.opts e dalle liste FCK/onboarding, così non esistono più liste duplicate da tenere in sync. */
-/* v334 · due liste piattaforme: abbonamento (sempre visibile) e noleggio (compare solo col toggle). Ordine per popolarità (display_priority IT TMDB). */
+/* v335 · due liste piattaforme, ordine per popolarità (display_priority IT TMDB).
+   SUB = abbonamento/gratis (colonna sinistra), RENT = noleggio/acquisto (destra).
+   PRINCIPALI = le 6 sempre visibili in cima alla colonna abbonamento;
+   il resto compare col link "mostra tutte". Nessun toggle: entrambe le colonne
+   sono sempre visibili. In UI si mostrano solo le piattaforme con >=1 film (vedi
+   _platformsInDB). */
 var SW_PLAT_SUB=['Netflix','Prime Video','Apple TV','Disney+','Sky Go','Paramount+','TIMVISION','NowTV','Infinity','MUBI','RaiPlay','YouTube Premium','Crunchyroll','MGM+','HBO Max'];
 var SW_PLAT_RENT=['Prime Video Store','Apple TV Store','Google Play','CHILI','YouTube','Infinity Store'];
-/* lista attiva per FCK/onboarding e per g7: dipende dal toggle noleggio */
-function _swPlatforms(){return _inclNoleggio?SW_PLAT_SUB.concat(SW_PLAT_RENT):SW_PLAT_SUB.slice();}
-/* compat: alcune funzioni FCK usano ancora SW_PLATFORMS come lista base */
+var SW_PLAT_MAIN=['Netflix','Prime Video','Disney+','Sky Go','RaiPlay','MUBI'];
+/* compat FCK/onboarding: lista base = abbonamento */
 var SW_PLATFORMS=SW_PLAT_SUB;
 /* v333 · toggle noleggio/acquisto (sezione g7). Off di default: il match piattaforma considera solo l'abbonamento (f.plt). On: unisce anche le piattaforme a noleggio/acquisto (f.plt_nol). Stato unico condiviso da tutti i motori di filtro (filtri principali, FCK, onboarding). */
-var _inclNoleggio=false;
 function _pltArr(f){
-  // ritorna l'array di piattaforme del film valido per il match corrente
+  // v335: unione fissa abbonamento + noleggio. I nomi delle due sezioni
+  // sono distinti (Apple TV vs Apple TV Store), quindi ogni chip selezionato
+  // matcha univocamente la propria sezione.
   if(!f)return [];
-  var base=f.plt||[];
-  if(!_inclNoleggio)return base;
-  var nol=f.plt_nol||[];
-  if(!nol.length)return base;
-  // unione deduplicata
+  var base=f.plt||[], nol=f.plt_nol||[];
+  if(!nol.length)return base.slice();
+  if(!base.length)return nol.slice();
   var seen={},out=[];
   base.concat(nol).forEach(function(p){if(!seen[p]){seen[p]=1;out.push(p);}});
   return out;
 }
+// v335: insieme delle piattaforme (sub e rent) con >=1 film nel DB caricato.
+// Calcolato una volta e cache-ato; usato dal rendering g7 per mostrare solo
+// le piattaforme effettivamente popolate.
+var _platsInDBCache=null;
+function _platformsInDB(){
+  if(_platsInDBCache)return _platsInDBCache;
+  var set={};
+  if(DB&&DB.length){
+    for(var i=0;i<DB.length;i++){
+      var f=DB[i];
+      if(f.plt)for(var a=0;a<f.plt.length;a++)set[f.plt[a]]=1;
+      if(f.plt_nol)for(var b=0;b<f.plt_nol.length;b++)set[f.plt_nol[b]]=1;
+    }
+  }
+  _platsInDBCache=set;
+  return set;
+}
+function _platHasFilms(name){var s=_platformsInDB();return !!s[name];}
 function _pltSome(f,pred){var a=_pltArr(f);return a.length>0&&a.some(pred);}
 function _pltEmpty(f){return _pltArr(f).length===0;}
 function _safeArr(v){
@@ -2060,6 +2089,7 @@ function _supaTransform(row){
 }
 function _supaFinalize(all,resolve){ // v327: unico punto di costruzione del DB (anche da parziale)
   DB=all.map(function(r){try{return _supaTransform(r);}catch(e){console.error('[Swainz DB] transform error',e,r);return null;}}).filter(Boolean);
+  _platsInDBCache=null; // v335: invalida la cache piattaforme al (ri)caricamento DB
   console.log('[Swainz DB] DB ready: '+DB.length+' films');
   _renderProposte();resolve();
 }
@@ -3851,10 +3881,11 @@ function buildUI(){
     const title=t(g.id)||g.title;
     const isLocked=!isPremium&&premGroups.includes(g.id);
     const _pb=premGroups.includes(g.id)?'<div class="fgrp-prem-badge"><span>✦ Premium</span></div>':'';
-    d.innerHTML=`<div class="fgh" onclick="tog(this)"><div class="fght ${g.col}" style="flex:1">${title}</div>${_pb}<div class="fgar ${open?'open':''}">▾</div></div><div class="fgb ${open?'open':''}">${g.id==='g7'?`<div class="g7nol${_inclNoleggio?' on':''}" onclick="_toggleNoleggio(this)"><input type="checkbox" ${_inclNoleggio?'checked':''} onclick="event.stopPropagation()"><label>${t('g7_incl_noleggio')}</label></div>`:''}<div class="chips" id="ch-${g.id}"></div></div></div>`;
+    d.innerHTML=`<div class="fgh" onclick="tog(this)"><div class="fght ${g.col}" style="flex:1">${title}</div>${_pb}<div class="fgar ${open?'open':''}">▾</div></div><div class="fgb ${open?'open':''}">${g.id==='g7'?`<div class="g7split" id="g7-split"></div>`:`<div class="chips" id="ch-${g.id}"></div>`}</div></div>`;
     target.appendChild(d);
-    // v334: g7 mostra i chip noleggio solo col toggle attivo
-    const items=g.id==='g7'?_swPlatforms().concat(['Non su piattaforme']):(g.tags||g.opts);
+    // v335: g7 usa un layout speciale a due colonne (abbonamento | noleggio)
+    if(g.id==='g7'){ _renderG7Split(); return; }
+    const items=g.tags||g.opts;
     const chips=d.querySelector(`#ch-${g.id}`);
     items.forEach((t,_ci)=>{
       const ch=document.createElement('span');
@@ -3882,39 +3913,64 @@ function buildUI(){
 function tog(h){const b=h.nextElementSibling,a=h.querySelector('.fgar');b.classList.toggle('open');a.classList.toggle('open');}
 // v333 · toggle noleggio/acquisto (sezione g7). Aggiorna lo stato condiviso
 // e ricalcola il conteggio; il match nei filtri usa _pltArr()/_pltSome().
-function _toggleNoleggio(box){
-  _inclNoleggio=!_inclNoleggio;
-  box.classList.toggle('on',_inclNoleggio);
-  var cb=box.querySelector('input[type=checkbox]');if(cb)cb.checked=_inclNoleggio;
-  // se disattivo il toggle, deseleziono eventuali piattaforme di noleggio
-  // (altrimenti resterebbero attive in SEL ma senza chip visibile)
-  if(!_inclNoleggio&&SEL['g7']){SW_PLAT_RENT.forEach(function(p){SEL['g7'].delete(p);});}
-  _rerenderG7();
-  try{if(typeof updatePoolCount==='function')updatePoolCount();}catch(e){}
+// v335 · rende la scheda g7 come due colonne (Abbonamento | Noleggio/Acquisto).
+// Mostra solo le piattaforme con >=1 film nel DB. Colonna sinistra: 6 principali
+// fisse + "mostra tutte" per le restanti. Colonna destra: tutte le 6 noleggio
+// presenti. Ogni chip filtra la propria sezione (nomi distinti tra le colonne).
+var _g7ShowAll=false;
+function _renderG7Split(){
+  var box=document.getElementById('g7-split');
+  if(!box)return;
+  var present=_platformsInDB();
+  // liste filtrate su ciò che ha almeno un film
+  var subMainAll=SW_PLAT_MAIN.filter(function(p){return present[p];});
+  var subRest=SW_PLAT_SUB.filter(function(p){return present[p]&&SW_PLAT_MAIN.indexOf(p)<0;});
+  var rentAll=SW_PLAT_RENT.filter(function(p){return present[p];});
+
+  box.innerHTML='';
+
+  // ── Colonna sinistra: Abbonamento ──
+  var colL=document.createElement('div');colL.className='g7col g7col-l';
+  var ttlL=document.createElement('div');ttlL.className='g7ct';ttlL.textContent=t('g7_sub');colL.appendChild(ttlL);
+  var chipsL=document.createElement('div');chipsL.className='chips';colL.appendChild(chipsL);
+  // sempre: le principali presenti; se _g7ShowAll anche il resto
+  var leftList=_g7ShowAll?subMainAll.concat(subRest):subMainAll;
+  leftList.forEach(function(p){chipsL.appendChild(_mkG7Chip(p));});
+  // link "mostra tutte" solo se ci sono altre piattaforme abbonamento oltre le principali
+  if(subRest.length>0){
+    var more=document.createElement('div');more.className='g7more';
+    more.textContent=_g7ShowAll?t('g7_less'):t('g7_more');
+    more.onclick=function(){_g7ShowAll=!_g7ShowAll;_renderG7Split();};
+    colL.appendChild(more);
+  }
+  if(leftList.length===0){var e=document.createElement('div');e.className='g7empty';e.textContent=t('g7_empty');colL.appendChild(e);}
+
+  // ── Divisore centrale ──
+  var div=document.createElement('div');div.className='g7div';
+
+  // ── Colonna destra: Noleggio/Acquisto ──
+  var colR=document.createElement('div');colR.className='g7col g7col-r';
+  var ttlR=document.createElement('div');ttlR.className='g7ct';ttlR.textContent=t('g7_rent');colR.appendChild(ttlR);
+  var chipsR=document.createElement('div');chipsR.className='chips';colR.appendChild(chipsR);
+  rentAll.forEach(function(p){chipsR.appendChild(_mkG7Chip(p));});
+  if(rentAll.length===0){var e2=document.createElement('div');e2.className='g7empty';e2.textContent=t('g7_empty');colR.appendChild(e2);}
+
+  box.appendChild(colL);box.appendChild(div);box.appendChild(colR);
 }
-// v334: rigenera SOLO i chip del gruppo g7 in base al toggle, preservando
-// le selezioni attive (SEL['g7']). Evita un buildUI() completo.
-function _rerenderG7(){
-  var chips=document.getElementById('ch-g7');
-  if(!chips)return;
-  var g=GROUPS.find(function(x){return x.id==='g7';});
-  if(!g)return;
-  chips.innerHTML='';
-  var items=_swPlatforms().concat(['Non su piattaforme']);
-  items.forEach(function(t){
-    var ch=document.createElement('span');
-    ch.className='chip'+(SEL['g7'].has(t)?' on':'');
-    ch.textContent=tTag(t);
-    ch.setAttribute('data-raw',t);
-    ch.setAttribute('data-gid','g7');
-    var _tip=getTagTip(t);if(_tip)ch.setAttribute('data-tip',_tip);
-    ch.onclick=function(){
-      var on=ch.classList.contains('on');
-      on?(ch.classList.remove('on'),SEL['g7'].delete(t)):(ch.classList.add('on'),SEL['g7'].add(t));
-      if(typeof updatePanel==='function')updatePanel();
-    };
-    chips.appendChild(ch);
-  });
+// crea un singolo chip piattaforma per g7, con stato da SEL['g7']
+function _mkG7Chip(p){
+  var ch=document.createElement('span');
+  ch.className='chip'+(SEL['g7'].has(p)?' on':'');
+  ch.textContent=tTag(p);
+  ch.setAttribute('data-raw',p);
+  ch.setAttribute('data-gid','g7');
+  var _tip=getTagTip(p);if(_tip)ch.setAttribute('data-tip',_tip);
+  ch.onclick=function(){
+    var on=ch.classList.contains('on');
+    on?(ch.classList.remove('on'),SEL['g7'].delete(p)):(ch.classList.add('on'),SEL['g7'].add(p));
+    if(typeof updatePanel==='function')updatePanel();
+  };
+  return ch;
 }
 
 // ── FIND FILM ────────────────────────────────────────────────────────────
@@ -5696,7 +5752,9 @@ const T={
     ac_films:'Film',ac_people:'Persone',
     mbu:'Mrrrow! 🎬',
     g1:'🎭 Genere & Atmosfera',g2:'✨ Qualità & Stile',g3:'🔍 Temi specifici',g4:'🧠 Mood',g5:'🌍 Contesto',g6:'⏱ Durata',g7:'📺 Piattaforma',g8:'📅 Periodo',
-    g7_incl_noleggio:'Includi anche noleggio/acquisto',
+    g7_sub:'Abbonamento',g7_rent:'Noleggio/Acquisto',
+    g7_more:'+ mostra tutte le piattaforme',g7_less:'– mostra meno',
+    g7_empty:'Nessuna piattaforma disponibile',
     fck_q1:'Come ti rapporti con i film del passato?',
     fck_q1_a:'Solo film recenti (dal 2000)',fck_q1_b:"Apprezzo anche gli anni '80 e '90",fck_q1_c:'Amo tutti i film, classici compresi',
     fck_q2:'Quanto tempo hai?',
@@ -5823,7 +5881,9 @@ const T={
     ac_films:'Films',ac_people:'People',
     mbu:'Purrr! 🎬',
     g1:'🎭 Genre & Mood',g2:'✨ Quality & Style',g3:'🔍 Specific Themes',g4:'🧠 Mood',g5:'🌍 Context',g6:'⏱ Length',g7:'📺 Platform',g8:'📅 Period',
-    g7_incl_noleggio:'Include rent/buy too',
+    g7_sub:'Subscription',g7_rent:'Rent/Buy',
+    g7_more:'+ show all platforms',g7_less:'– show less',
+    g7_empty:'No platforms available',
     fck_q1:'How do you feel about older films?',
     fck_q1_a:'Recent films only (from 2000)',fck_q1_b:"I also enjoy the '80s and '90s",fck_q1_c:'I love all films, classics included',
     fck_q2:'How much time do you have?',
