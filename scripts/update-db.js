@@ -1,20 +1,31 @@
 /**
- * Swainz — update-db.js  (v196)
+ * Swainz — update-db.js  (v197)
  * ─────────────────────────────────────────────────────────────────────────────
  * Aggiorna ogni notte le colonne:
- *   poster_url   → URL locandina TMDB (w342)
- *   Piattaforme  → Netflix, Prime Video, ecc. (watch/providers IT)
- *   Voto IMDB    → vote_average da TMDB (stessa scala 0–10, zero chiamate extra)
+ *   poster_url            → URL locandina TMDB (w342)
+ *   Piattaforme           → piattaforme in ABBONAMENTO/gratis (flatrate+free+ads)
+ *   Piattaforme_noleggio  → piattaforme a NOLEGGIO/ACQUISTO   (rent+buy)
+ *   Voto IMDB             → vote_average da TMDB (scala 0–10, zero chiamate extra)
  *
  * Variabili d'ambiente richieste (GitHub Secrets):
  *   SUPABASE_URL, SUPABASE_SERVICE_KEY, TMDB_API_KEY
  *
  * Soglie Dice similarity (bigrammi sul titolo):
  *   < 0.50  → SKIP totale
- *   0.50–0.65 → aggiorna solo Piattaforme + Voto IMDB (niente poster)
+ *   0.50–0.65 → aggiorna solo Piattaforme(+noleggio) + Voto IMDB (niente poster)
  *   0.65–0.75 → LOW CONF  — aggiorna tutto, logga avviso
  *   > 0.75  → HIGH CONF  — aggiorna tutto normalmente
  *
+ * v197 — (1) Whitelist IT_PROVIDERS ampliata: RaiPlay, Infinity, NowTV, Sky Go,
+ *         Google Play, Paramount+, TIMVISION, YouTube Premium, CHILI,
+ *         Crunchyroll, MGM+, HBO Max. Accorpamento multi-ID → canonico unico
+ *         (es. Amazon Video/Prime-with-Ads→Prime Video; *Amazon Channel→brand).
+ *         (2) tmdbProviders() legge ora flatrate+free+ads (→Piattaforme) e
+ *         rent+buy (→Piattaforme_noleggio) invece del solo flatrate; questo
+ *         permette la comparsa di RaiPlay/Infinity gratis e il toggle
+ *         noleggio/acquisto lato frontend. L'abbonamento ha precedenza:
+ *         un canonico presente in sub è rimosso da rent.
+ *         PREREQUISITO DB: colonna "Piattaforme_noleggio" text[] (vedi SQL).
  * v196 — Voto IMDB ora letto da best.vote_average (già presente nel risultato
  *         tmdbSearch, zero chiamate API aggiuntive). Rimossi tmdbExternalIds
  *         e omdbRating. Rimossa dipendenza da OMDB_API_KEY.
@@ -32,13 +43,53 @@ const POSTER_BASE  = 'https://image.tmdb.org/t/p/w342';
 const BATCH_SIZE   = 950;
 const DELAY_MS     = 280;  // ~3.5 req/s — sotto il limite TMDB (40 req/10s)
 
-/** Provider IDs TMDB → nome Swainz (IT) */
+/** Provider IDs TMDB → nome canonico Swainz (IT).
+ *  Più ID possono puntare allo stesso canonico (accorpamento): la
+ *  deduplica in tmdbProviders() li fonde in un'unica voce. */
 const IT_PROVIDERS = {
-  8:   'Netflix',
-  119: 'Prime Video',
-  337: 'Disney+',
-  11:  'MUBI',
-  350: 'Apple TV',
+  // ── Netflix ──
+  8:    'Netflix',
+  // ── Prime Video (tutte le declinazioni Amazon dirette) ──
+  119:  'Prime Video',   // Amazon Prime Video
+  10:   'Prime Video',   // Amazon Video
+  2100: 'Prime Video',   // Amazon Prime Video with Ads
+  // ── Disney+ ──
+  337:  'Disney+',
+  // ── Apple TV ──
+  350:  'Apple TV',      // Apple TV
+  2:    'Apple TV',      // Apple TV Store
+  2243: 'Apple TV',      // Apple TV Amazon Channel
+  // ── MUBI ──
+  11:   'MUBI',          // MUBI
+  201:  'MUBI',          // MUBI Amazon Channel
+  // ── RaiPlay ──
+  222:  'RaiPlay',       // Rai Play
+  // ── Infinity ──
+  359:  'Infinity',      // Mediaset Infinity
+  1726: 'Infinity',      // Infinity Selection Amazon Channel
+  // ── NowTV ──
+  39:   'NowTV',         // Now TV
+  // ── Sky Go ──
+  29:   'Sky Go',
+  // ── Google Play ──
+  3:    'Google Play',   // Google Play Movies
+  // ── Paramount+ ──
+  531:  'Paramount+',    // Paramount Plus
+  582:  'Paramount+',    // Paramount+ Amazon Channel
+  // ── TIMVISION ──
+  109:  'TIMVISION',
+  // ── YouTube Premium ──
+  188:  'YouTube Premium',
+  // ── CHILI ──
+  40:   'CHILI',
+  // ── Crunchyroll ──
+  283:  'Crunchyroll',   // Crunchyroll
+  1968: 'Crunchyroll',   // Crunchyroll Amazon Channel
+  // ── MGM+ ──
+  2141: 'MGM+',          // MGM Plus Amazon Channel
+  // ── HBO Max ──
+  1899: 'HBO Max',       // HBO Max
+  1825: 'HBO Max',       // HBO Max Amazon Channel
 };
 
 // ─── Supabase client ──────────────────────────────────────────────────────────
@@ -100,18 +151,35 @@ async function tmdbSearch(title, year) {
 
 // ─── TMDB: provider italiani ──────────────────────────────────────────────────
 
+/** Restituisce { sub, rent } con i canonici Swainz:
+ *   sub  ← flatrate + free + ads   (disponibilità "in abbonamento/gratis")
+ *   rent ← rent + buy              (disponibilità a noleggio/acquisto)
+ *  Ogni provider TMDB non in whitelist è ignorato. Deduplica via Set.
+ *  Un canonico che comparirebbe in entrambe resta SOLO in sub (l'abbonamento
+ *  ha precedenza: se un film è incluso nell'abbonamento, il noleggio è
+ *  irrilevante per l'utente). */
 async function tmdbProviders(tmdbId) {
   const data = await apiFetch(
     `https://api.themoviedb.org/3/movie/${tmdbId}/watch/providers?api_key=${TMDB_API_KEY}`
   );
-  const flatrate = data?.results?.IT?.flatrate || [];
-  return [
+  const it = data?.results?.IT || {};
+
+  const canon = arr => [
     ...new Set(
-      flatrate
+      (arr || [])
         .filter(p => IT_PROVIDERS[p.provider_id])
         .map(p => IT_PROVIDERS[p.provider_id])
     ),
   ];
+
+  const sub  = canon([...(it.flatrate || []), ...(it.free || []), ...(it.ads || [])]);
+  const rentRaw = canon([...(it.rent || []), ...(it.buy || [])]);
+
+  // Rimuovo dal noleggio i canonici già coperti dall'abbonamento
+  const subSet = new Set(sub);
+  const rent = rentRaw.filter(name => !subSet.has(name));
+
+  return { sub, rent };
 }
 
 // ─── Elaborazione singolo film ────────────────────────────────────────────────
@@ -141,9 +209,12 @@ async function processFilm(film) {
 
   const update = {};
 
-  // Piattaforme — richiede una chiamata API separata
-  const providers = await tmdbProviders(best.id);
-  update['Piattaforme'] = providers;
+  // Piattaforme — richiede una chiamata API separata.
+  // sub  → abbonamento/gratis (flatrate+free+ads) → colonna "Piattaforme"
+  // rent → noleggio/acquisto  (rent+buy)          → colonna "Piattaforme_noleggio"
+  const { sub, rent } = await tmdbProviders(best.id);
+  update['Piattaforme']          = sub;
+  update['Piattaforme_noleggio'] = rent;
 
   // Poster — già nel risultato search, condizionato alla soglia confidenza
   if (bestScore >= 0.65 && best.poster_path) {
