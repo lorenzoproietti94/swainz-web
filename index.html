@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="it"><head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>SWAINZ</title><!-- v330 · pulizia catalogo: rimosse le voci orfane id=1351 (Sin City: A Dame to Kill For) da SEQUEL_MAP e TITLE_ORIG. Il record 1351 era un duplicato del film 2014 gia' presente come id=381 ed e' stato eliminato manualmente dal DB; su 381 restano le voci corrette (SEQUEL_MAP[381]=[380], TITLE_ORIG). Nessun altro cambiamento. -->
+<title>SWAINZ</title><!-- v331 · predisposizione piattaforma RaiPlay. Valore canonico 'RaiPlay'; _safeArr normalizza le varianti ('Rai Play'/'rai play' → 'RaiPlay') via alias, cosi' l'id 581 gia' presente funziona senza toccare il DB. Aggiunta RaiPlay alle 4 liste UI: gruppo filtri g7 (Piattaforma), _plt7 in renderFcp e renderFcpFree (FCK q7/q7b), plt7 in _renderOnbB (onboarding). Nessun contenuto DB modificato: quando l'utente popolera' i record con 'RaiPlay', filtri/FCK/onboarding lo rileveranno automaticamente. -->
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600&family=Syne:wght@600;800&family=Teko:wght@700&family=Rajdhani:wght@500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
@@ -1995,7 +1995,7 @@ var SUPA_TAGS=['Angosciante','Animazione','Asiatico','Biografico','Bizzarro','Ca
 function _safeArr(v){
   // v321: normalizzazione unica per tutti i formati di Piattaforme.
   // Alias legacy → nome canonico usato dai filtri (es. 'Apple TV+' → 'Apple TV').
-  var fix=function(x){x=String(x).trim().replace(/^"|"$/g,'');return x==='Apple TV+'?'Apple TV':x;};
+  var fix=function(x){x=String(x).trim().replace(/^"|"$/g,'');if(x==='Apple TV+')return 'Apple TV';if(/^rai\s*play$/i.test(x))return 'RaiPlay';return x;};
   if(!v)return[];
   if(Array.isArray(v))return v.filter(Boolean).map(fix);
   var s=String(v).trim();
@@ -2074,7 +2074,7 @@ var _dbReady=new Promise(function(resolve,reject){
 
 const GROUPS=[
   {id:'g1',title:'🎭 Genere & Atmosfera',col:'bl',multi:true,tags:['Thriller','Commedia','Fantascienza','Dramma','Horror','Western','Animazione','Documentario','Comico','Romantico','CineComic','Noire']},
-  {id:'g7',title:'📺 Piattaforma',col:'bl',multi:true,opts:['Netflix','Prime Video','Disney+','MUBI','Apple TV','Non su piattaforme']},
+  {id:'g7',title:'📺 Piattaforma',col:'bl',multi:true,opts:['Netflix','Prime Video','Disney+','MUBI','Apple TV','RaiPlay','Non su piattaforme']},
   {id:'g3',title:'🔍 Temi specifici',col:'bl',multi:true,tags:['Crimine','Mafia','Droga','Guerra','Serial Killer','Economico','Catastrofico','Vendetta','Sportivo','Legal Drama','Biografico','Colossal']},
   {id:'g8',title:'📅 Periodo',col:'or',multi:true,opts:["Anni '60 e prima","Anni '70","Anni '80","Anni '90","Anni 2000","Anni 2010","Anni 2020"]},
   {id:'g2',title:'✨ Qualità & Stile',col:'or',multi:true,tags:["Capolavoro","D'Autore","Oscar","Grande Interpretazione","Grande Colonna Sonora","Estetico","Imponente","Storia Avvincente","Pazzesco","Bizzarro","Musicale","Difficile"]},
@@ -4985,7 +4985,7 @@ async function renderFck(){
     {id:'q17',text:t('fck_q17'),opts:[{t:t('fck_q17_a'),v:'original'},{t:t('fck_q17_b'),v:'dubbed'},{t:t('fck_q17_c'),v:'both'}]}
   ];
   let html='';
-  const _plt7=['Netflix','Prime Video','Disney+','MUBI','Apple TV'];
+  const _plt7=['Netflix','Prime Video','Disney+','MUBI','Apple TV','RaiPlay'];
   qs.forEach(q=>{
     if(q.id==='q7'){
       const _s7=fckAnswers.q7||'',_s7b=new Set(fckAnswers.q7b||[]);
@@ -5004,7 +5004,7 @@ async function renderFck(){
 async function renderFcpFree(){
   // Carica risposte salvate
   try{const r=localStorage.getItem('sw3_fck');if(r)fckAnswers=JSON.parse(r);}catch(e){}
-  const _plt7=['Netflix','Prime Video','Disney+','MUBI','Apple TV'];
+  const _plt7=['Netflix','Prime Video','Disney+','MUBI','Apple TV','RaiPlay'];
   // Solo le 3 domande accessibili ai free: q6 (difficile), q7 (piattaforme), q9 (frequenza)
   const freeQs=[
     {id:'q6',opts:[{t:t('fck_q6_a'),v:'love'},{t:t('fck_q6_b'),v:'sometimes'},{t:t('fck_q6_c'),v:'never'}]},
@@ -7146,7 +7146,7 @@ function _onbANext(){
   _onbGoTo('b');
 }
 function _renderOnbB(){
-  var plt7=['Netflix','Prime Video','Disney+','MUBI','Apple TV'];
+  var plt7=['Netflix','Prime Video','Disney+','MUBI','Apple TV','RaiPlay'];
   var freeQs=[
     {id:'q6',opts:[{t:t('fck_q6_a'),v:'love'},{t:t('fck_q6_b'),v:'sometimes'},{t:t('fck_q6_c'),v:'never'}]},
     {id:'q7',opts:[{t:t('fck_q7_a'),v:'yes'},{t:t('fck_q7_b'),v:'any'}]},
