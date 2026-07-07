@@ -1,5 +1,5 @@
 /**
- * Swainz — update-db.js  (v197)
+ * Swainz — update-db.js  (v198)
  * ─────────────────────────────────────────────────────────────────────────────
  * Aggiorna ogni notte le colonne:
  *   poster_url            → URL locandina TMDB (w342)
@@ -16,6 +16,13 @@
  *   0.65–0.75 → LOW CONF  — aggiorna tutto, logga avviso
  *   > 0.75  → HIGH CONF  — aggiorna tutto normalmente
  *
+ * v198 — Chip abbonamento/noleggio distinti per i brand misti. La whitelist
+ *         unica IT_PROVIDERS è ora sdoppiata in PROV_SUB (flatrate+free+ads) e
+ *         PROV_RENT (rent+buy); lo stesso provider_id può produrre nomi diversi
+ *         nelle due colonne (es. Apple TV vs Apple TV Store; Prime Video vs
+ *         Prime Video Store; YouTube Premium vs YouTube; Infinity vs Infinity
+ *         Store). Store puri (Google Play, CHILI) presenti solo in PROV_RENT.
+ *         Rimossa la deduplica cross-colonna (i nomi ora sono indipendenti).
  * v197 — (1) Whitelist IT_PROVIDERS ampliata: RaiPlay, Infinity, NowTV, Sky Go,
  *         Google Play, Paramount+, TIMVISION, YouTube Premium, CHILI,
  *         Crunchyroll, MGM+, HBO Max. Accorpamento multi-ID → canonico unico
@@ -44,52 +51,52 @@ const BATCH_SIZE   = 950;
 const DELAY_MS     = 280;  // ~3.5 req/s — sotto il limite TMDB (40 req/10s)
 
 /** Provider IDs TMDB → nome canonico Swainz (IT).
- *  Più ID possono puntare allo stesso canonico (accorpamento): la
- *  deduplica in tmdbProviders() li fonde in un'unica voce. */
-const IT_PROVIDERS = {
-  // ── Netflix ──
+ *  DUE mappe distinte perché lo stesso provider può avere un nome diverso a
+ *  seconda della sezione TMDB in cui compare per un dato film:
+ *   - SUB  : sezioni flatrate/free/ads (abbonamento/gratis) → colonna Piattaforme
+ *   - RENT : sezioni rent/buy (noleggio/acquisto) → colonna Piattaforme_noleggio
+ *  Es. Apple (id 350) è "Apple TV" in abbonamento ma "Apple TV Store" a noleggio.
+ *  Più ID possono puntare allo stesso canonico (accorpamento): la deduplica in
+ *  tmdbProviders() li fonde. Un provider assente da una mappa è ignorato in
+ *  quella sezione (es. Google Play non esiste in abbonamento). */
+const PROV_SUB = {
   8:    'Netflix',
-  // ── Prime Video (tutte le declinazioni Amazon dirette) ──
   119:  'Prime Video',   // Amazon Prime Video
   10:   'Prime Video',   // Amazon Video
   2100: 'Prime Video',   // Amazon Prime Video with Ads
-  // ── Disney+ ──
   337:  'Disney+',
-  // ── Apple TV ──
-  350:  'Apple TV',      // Apple TV
-  2:    'Apple TV',      // Apple TV Store
+  350:  'Apple TV',      // Apple TV (abbonamento Apple TV+)
   2243: 'Apple TV',      // Apple TV Amazon Channel
-  // ── MUBI ──
   11:   'MUBI',          // MUBI
   201:  'MUBI',          // MUBI Amazon Channel
-  // ── RaiPlay ──
-  222:  'RaiPlay',       // Rai Play
-  // ── Infinity ──
+  222:  'RaiPlay',       // Rai Play (gratis)
   359:  'Infinity',      // Mediaset Infinity
   1726: 'Infinity',      // Infinity Selection Amazon Channel
-  // ── NowTV ──
   39:   'NowTV',         // Now TV
-  // ── Sky Go ──
   29:   'Sky Go',
-  // ── Google Play ──
-  3:    'Google Play',   // Google Play Movies
-  // ── Paramount+ ──
   531:  'Paramount+',    // Paramount Plus
   582:  'Paramount+',    // Paramount+ Amazon Channel
-  // ── TIMVISION ──
   109:  'TIMVISION',
-  // ── YouTube Premium ──
   188:  'YouTube Premium',
-  // ── CHILI ──
-  40:   'CHILI',
-  // ── Crunchyroll ──
   283:  'Crunchyroll',   // Crunchyroll
   1968: 'Crunchyroll',   // Crunchyroll Amazon Channel
-  // ── MGM+ ──
   2141: 'MGM+',          // MGM Plus Amazon Channel
-  // ── HBO Max ──
   1899: 'HBO Max',       // HBO Max
   1825: 'HBO Max',       // HBO Max Amazon Channel
+};
+
+const PROV_RENT = {
+  // Store puri (esistono SOLO a noleggio/acquisto)
+  3:    'Google Play',   // Google Play Movies
+  40:   'CHILI',
+  // Versioni-store dei brand misti (nome distinto dal chip abbonamento)
+  350:  'Apple TV Store',      // Apple (a noleggio)
+  2:    'Apple TV Store',      // Apple TV Store
+  119:  'Prime Video Store',   // Prime (a noleggio)
+  10:   'Prime Video Store',   // Amazon Video (a noleggio)
+  188:  'YouTube',             // YouTube (a noleggio, distinto da YouTube Premium)
+  359:  'Infinity Store',      // Mediaset Infinity (acquisti)
+  1726: 'Infinity Store',      // Infinity Selection (acquisti)
 };
 
 // ─── Supabase client ──────────────────────────────────────────────────────────
@@ -152,32 +159,28 @@ async function tmdbSearch(title, year) {
 // ─── TMDB: provider italiani ──────────────────────────────────────────────────
 
 /** Restituisce { sub, rent } con i canonici Swainz:
- *   sub  ← flatrate + free + ads   (disponibilità "in abbonamento/gratis")
- *   rent ← rent + buy              (disponibilità a noleggio/acquisto)
- *  Ogni provider TMDB non in whitelist è ignorato. Deduplica via Set.
- *  Un canonico che comparirebbe in entrambe resta SOLO in sub (l'abbonamento
- *  ha precedenza: se un film è incluso nell'abbonamento, il noleggio è
- *  irrilevante per l'utente). */
+ *   sub  ← flatrate+free+ads  mappati con PROV_SUB   → colonna Piattaforme
+ *   rent ← rent+buy           mappati con PROV_RENT  → colonna Piattaforme_noleggio
+ *  I nomi delle due colonne sono INDIPENDENTI (es. Apple TV vs Apple TV Store),
+ *  quindi non c'è più deduplica/precedenza cross-colonna: un film può legittima-
+ *  mente essere "Apple TV" in sub e "Apple TV Store" in rent. Deduplica solo
+ *  intra-colonna (accorpamento di più ID sullo stesso canonico). */
 async function tmdbProviders(tmdbId) {
   const data = await apiFetch(
     `https://api.themoviedb.org/3/movie/${tmdbId}/watch/providers?api_key=${TMDB_API_KEY}`
   );
   const it = data?.results?.IT || {};
 
-  const canon = arr => [
+  const mapWith = (arr, table) => [
     ...new Set(
       (arr || [])
-        .filter(p => IT_PROVIDERS[p.provider_id])
-        .map(p => IT_PROVIDERS[p.provider_id])
+        .filter(p => table[p.provider_id])
+        .map(p => table[p.provider_id])
     ),
   ];
 
-  const sub  = canon([...(it.flatrate || []), ...(it.free || []), ...(it.ads || [])]);
-  const rentRaw = canon([...(it.rent || []), ...(it.buy || [])]);
-
-  // Rimuovo dal noleggio i canonici già coperti dall'abbonamento
-  const subSet = new Set(sub);
-  const rent = rentRaw.filter(name => !subSet.has(name));
+  const sub  = mapWith([...(it.flatrate || []), ...(it.free || []), ...(it.ads || [])], PROV_SUB);
+  const rent = mapWith([...(it.rent || []), ...(it.buy || [])], PROV_RENT);
 
   return { sub, rent };
 }
