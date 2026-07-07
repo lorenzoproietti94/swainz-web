@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="it"><head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>SWAINZ</title><!-- v328 · punto 19: background del login (#ls) ricompresso da JPEG 213KB base64 a WebP q60 66KB base64 a parita' di risoluzione (1672x941) - resa identica sotto l'overlay scuro al 62%; payload HTML -147KB (-21% del file) -->
+<title>SWAINZ</title><!-- v329 · punto 20: sicurezza limiti free. Fix A: premium non piu' concedibile ai non loggati (sw3_premium in localStorage richiede ANCHE una sessione valida; restore fallito o is_premium server=false → isPremium forzato a false). Fix B: contatore ricerche free spostato lato server via RPC sw_consume_search()/sw_search_status() (SECURITY DEFINER, tabella search_usage con RLS sola-lettura) — il limite giornaliero non e' piu' aggirabile da console/reload/localStorage.clear(); fallback client (v317) solo se il server e' offline o l'utente non e' loggato. Richiede swainz_search_limit_v329.sql eseguito su Supabase. -->
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600&family=Syne:wght@600;800&family=Teko:wght@700&family=Rajdhani:wght@500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
@@ -4314,9 +4314,40 @@ function go(){
       else alert(LANG==='en'?'Database connection failed.':'Connessione al database fallita. Riprova su swainz.it');
     });return;
   }
-  if(!isPremium){_syncSearchDay();if(searches<=0){if(!cdEndTime){cdEndTime=_nextMidnight();try{localStorage.setItem('sw3_cd',String(cdEndTime));}catch(e){}startCountdown();}document.getElementById('cov').classList.add('on');return;}searches--;document.getElementById('cnt').textContent=searches;try{localStorage.setItem(_searchKey,String(searches));}catch(e){}} // v317: rollover giorno + countdown a mezzanotte locale
+  // v329 (punto 20 fix B): per i FREE LOGGATI il limite e' verificato dal server.
+  // Utenti non loggati o server offline → si ricade sulla logica client (v317).
+  if(!isPremium&&_authToken&&currentUser){
+    _rpcConsumeSearch(function(res){
+      if(res){ // risposta autoritativa del server
+        if(res.premium===true){_applyServerSearch(res);_doSearch();return;} // premium confermato dal server
+        if(!res.allowed){ // limite giornaliero esaurito lato server
+          searches=0;var cnt=document.getElementById('cnt');if(cnt)cnt.textContent=0;
+          try{if(_searchKey)localStorage.setItem(_searchKey,'0');}catch(e){}
+          if(!cdEndTime){cdEndTime=_nextMidnight();try{localStorage.setItem('sw3_cd',String(cdEndTime));}catch(e){}startCountdown();}
+          document.getElementById('cov').classList.add('on');return;
+        }
+        _applyServerSearch(res); // aggiorna 'searches' col rimanente reale
+        _doSearch(true); // gia' scalata dal server: non riscalare localmente
+      } else { // server non raggiungibile: fallback client (comportamento v317)
+        _goClientFree();
+      }
+    });
+    return;
+  }
+  if(!isPremium){_goClientFree();return;} // non loggato: limite client
+  _doSearch(); // premium
+}
+function _goClientFree(){ // v329: limite lato client (v317) — usato per non loggati o server offline
+  _syncSearchDay();if(searches<=0){if(!cdEndTime){cdEndTime=_nextMidnight();try{localStorage.setItem('sw3_cd',String(cdEndTime));}catch(e){}startCountdown();}document.getElementById('cov').classList.add('on');return;}
+  searches--;document.getElementById('cnt').textContent=searches;try{localStorage.setItem(_searchKey,String(searches));}catch(e){}
+  _doSearch(true); // gia' scalata qui
+}
+function _doSearch(alreadyCharged){ // v329: esegue la ricerca vera e propria
   const r=findFilm();
-  if(!r){if(!isPremium){searches++;const cnt=document.getElementById('cnt');if(cnt)cnt.textContent=searches;try{localStorage.setItem(_searchKey,String(searches));}catch(e){}}resetCat();return;} // v316: rimborso persistito (prima solo in memoria: al reload la ricerca risultava consumata)
+  if(!r){ // v316: rimborso persistito. Se scalata dal server, il refund server avverra' al prossimo status; qui ripristiniamo la UI.
+    if(!isPremium){searches++;const cnt=document.getElementById('cnt');if(cnt)cnt.textContent=searches;try{if(_searchKey)localStorage.setItem(_searchKey,String(searches));}catch(e){}}
+    resetCat();return;
+  }
   if(isFirstSearch&&!isPremium){isFirstSearch=false;showAd(r);}else{revealCat();setTimeout(()=>showCard(r),2500);}
 }
 function startCountdown(){
@@ -5971,18 +6002,23 @@ function setLang(l){
 
 (async()=>{
   // Load local prefs first
-  try{const lp=localStorage.getItem('sw3_premium');if(lp==='1')isPremium=true;}catch(e){}
+  // v329 (punto 20 fix A): sw3_premium da solo NON basta — premium ottico all'avvio
+  // solo se esiste ANCHE una sessione salvata; senza login niente premium.
+  try{const lp=localStorage.getItem('sw3_premium');const hasSess=!!localStorage.getItem('sw3_session');if(lp==='1'&&hasSess)isPremium=true;}catch(e){}
   buildUI();loadSeen();loadFck();loadAllRecs();loadSearchState();if(window.innerWidth<=600){setLang(LANG);}
   // Try to restore existing Supabase session → auto-login
   // Handle OAuth redirect callback (hash in URL)
   if(_handleOAuthCallback())return;
   _handlePaymentReturn();
   _restoreSession(function(valid){
-    if(!valid)return;
+    if(!valid){ // v329 (punto 20 fix A): nessuna sessione valida → nessun premium
+      if(isPremium){isPremium=false;try{localStorage.setItem('sw3_premium','0');}catch(e){}buildUI();try{_updatePremUI&&_updatePremUI();}catch(e){}}
+      return;
+    }
     _dbReady.then(function(){
       // Ensure user_data row exists (creates it if this is a legacy account)
       _saveUserData({ email: currentUser ? currentUser.email : '', updated_at: new Date().toISOString() });
-      _loadUserData(function(d){_applyUserData(d);_autoPushLocalProfile(d);buildUI();try{if(typeof _shouldShowOnboarding==="function"&&_shouldShowOnboarding(d)){showOnboarding();return;}}catch(e){console.error("Onboarding error:",e);}login();});
+      _loadUserData(function(d){_applyUserData(d);_autoPushLocalProfile(d);buildUI();_rpcSearchStatus(function(st){_applyServerSearch(st);}); /* v329: contatore reale dal server */ try{if(typeof _shouldShowOnboarding==="function"&&_shouldShowOnboarding(d)){showOnboarding();return;}}catch(e){console.error("Onboarding error:",e);}login();});
     });
   });
 })();
@@ -6149,6 +6185,33 @@ function _saveUserData(patch, _cb) {
   );
 }
 
+// v329 (punto 20 fix B): RPC contatore ricerche server-side.
+// La verita' sul limite free vive nel DB (sw_consume_search). Il client la
+// interroga; localStorage resta solo cache ottimistica per la UI.
+function _rpcConsumeSearch(cb){ // cb(res|null): {allowed,remaining,premium} o null se offline/errore
+  if(!_authToken||!currentUser){cb(null);return;} // non loggato: gestione client (fix A garantisce che non sia premium)
+  _supaXHR('POST','/rest/v1/rpc/sw_consume_search',{},_authToken,function(status,res){
+    if(status>=200&&status<300&&res&&typeof res==='object'&&('allowed' in res)){cb(res);}else{cb(null);} // degrada su client se il server non risponde bene
+  });
+}
+function _rpcSearchStatus(cb){
+  if(!_authToken||!currentUser){cb(null);return;}
+  _supaXHR('POST','/rest/v1/rpc/sw_search_status',{},_authToken,function(status,res){
+    if(status>=200&&status<300&&res&&typeof res==='object'&&('remaining' in res)){cb(res);}else{cb(null);}
+  });
+}
+function _applyServerSearch(res){ // sincronizza UI/premium con la verita' del server
+  if(!res)return;
+  if(res.premium===true){ if(!isPremium){isPremium=true;try{localStorage.setItem('sw3_premium','1');}catch(e){}buildUI();try{_updatePremUI&&_updatePremUI();}catch(e){}} return; }
+  if(res.premium===false&&isPremium&&_authToken&&currentUser){ // server smentisce il premium locale
+    isPremium=false;try{localStorage.setItem('sw3_premium','0');}catch(e){}buildUI();try{_updatePremUI&&_updatePremUI();}catch(e){}
+  }
+  if(!isPremium&&typeof res.remaining==='number'&&res.remaining>=0){
+    searches=res.remaining; // il server e' autoritativo
+    try{if(_searchKey)localStorage.setItem(_searchKey,String(searches));}catch(e){}
+    var cnt=document.getElementById('cnt');if(cnt)cnt.textContent=searches;
+  }
+}
 function _loadUserData(cb) {
   if (!_authToken || !currentUser) { cb(null); return; }
   // order by updated_at desc: handles the rare case of duplicate rows (gets the most recent)
