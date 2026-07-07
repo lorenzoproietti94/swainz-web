@@ -1,6 +1,7 @@
 <!DOCTYPE html><html lang="it"><head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>SWAINZ</title><!-- v331 · predisposizione piattaforma RaiPlay. Valore canonico 'RaiPlay'; _safeArr normalizza le varianti ('Rai Play'/'rai play' → 'RaiPlay') via alias, cosi' l'id 581 gia' presente funziona senza toccare il DB. Aggiunta RaiPlay alle 4 liste UI: gruppo filtri g7 (Piattaforma), _plt7 in renderFcp e renderFcpFree (FCK q7/q7b), plt7 in _renderOnbB (onboarding). Nessun contenuto DB modificato: quando l'utente popolera' i record con 'RaiPlay', filtri/FCK/onboarding lo rileveranno automaticamente. -->
+<title>SWAINZ</title><!-- v332 · client-side routing con History API (path puliti stesso origin). Router aggancia URL <-> pannelli via wrapping delle open()/close() esistenti; gestione popstate per tasto Indietro; deep-link applicati dopo login(). Route: /login /profilo /visti /scopri /raccomandazioni /premium. Deep-link protetti (utente non loggato): mostra #ls mantenendo l'URL, apre il pannello dopo l'accesso. Richiede vercel.json con rewrite catch-all -> /index.html. Nessuna modifica a stato/localStorage/OAuth. -->
+<!-- v331 · predisposizione piattaforma RaiPlay. Valore canonico 'RaiPlay'; _safeArr normalizza le varianti ('Rai Play'/'rai play' → 'RaiPlay') via alias, cosi' l'id 581 gia' presente funziona senza toccare il DB. Aggiunta RaiPlay alle 4 liste UI: gruppo filtri g7 (Piattaforma), _plt7 in renderFcp e renderFcpFree (FCK q7/q7b), plt7 in _renderOnbB (onboarding). Nessun contenuto DB modificato: quando l'utente popolera' i record con 'RaiPlay', filtri/FCK/onboarding lo rileveranno automaticamente. -->
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600&family=Syne:wght@600;800&family=Teko:wght@700&family=Rajdhani:wght@500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
@@ -7257,6 +7258,160 @@ function _onbFinish(){
    in gara sul bottone badge (onclick inline _swShareBadge + delega su data-share-badge). Implementazione unica: _swShareFilm/_swShareBadge (blocco 2). */
 
 
+
+
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   v332 · CLIENT-SIDE ROUTER (History API, path puliti, stesso origin)
+   Aggancia gli URL ai pannelli esistenti senza toccarne la logica interna:
+   wrappa le funzioni open()/close() per sincronizzare l'URL, e gestisce
+   popstate per il tasto Indietro del browser. I deep-link vengono applicati
+   dopo login() (transizione #ls -> #app). Nessun impatto su OAuth/localStorage.
+   Richiede vercel.json: rewrite catch-all -> /index.html
+   ═══════════════════════════════════════════════════════════════════════════ */
+(function(){
+  'use strict';
+
+  // Route <-> pannello. openFn/closeFn sono i NOMI delle funzioni globali.
+  // 'protected': richiede login; se non loggato si mostra #ls tenendo l'URL.
+  var ROUTES = {
+    '/login':            { screen:'login' },
+    '/profilo':          { openFn:'openProfp',        closeFn:'closeProfp',        protected:true },
+    '/visti':            { openFn:'openVisti',         closeFn:'closeVisti',        protected:true },
+    '/scopri':           { openFn:'openFcp',           closeFn:'closeFcp',          protected:false },
+    '/raccomandazioni':  { openFn:'openAllRecs',       closeFn:'closeAllRecs',      protected:true },
+    '/premium':          { openFn:'openUpgradePanel',  closeFn:'closeUpgradePanel', protected:true }
+  };
+  // pannello -> path (per lo wrapping delle open/close)
+  var PANEL_PATH = {
+    'openProfp':'/profilo', 'openVisti':'/visti', 'openFcp':'/scopri',
+    'openAllRecs':'/raccomandazioni', 'openUpgradePanel':'/premium'
+  };
+
+  var _suppress = false;   // evita loop quando siamo NOI a cambiare URL
+  var _pendingDeepLink = null; // route da applicare appena l'app è pronta
+
+  function _isLoggedIn(){
+    // stessa condizione usata dall'app: token+utente presenti
+    try { return !!(window.currentUser); } catch(e){ return false; }
+  }
+  function _appReady(){
+    // #app è visibile (login() ha completato la transizione)
+    var app = document.getElementById('app');
+    return !!(app && app.classList.contains('on'));
+  }
+  function _path(){ return window.location.pathname || '/'; }
+
+  // Chiude ogni pannello-vista noto (senza toccare l'URL)
+  function _closeAllPanels(){
+    _suppress = true;
+    try {
+      Object.keys(ROUTES).forEach(function(p){
+        var r = ROUTES[p];
+        if (r.closeFn && typeof window[r.closeFn] === 'function'){
+          try { window[r.closeFn](); } catch(e){}
+        }
+      });
+    } finally { _suppress = false; }
+  }
+
+  // Applica lo stato corrispondente a un path (senza spingere history)
+  function _applyRoute(path){
+    var r = ROUTES[path];
+    // Home o route sconosciuta -> nessun pannello aperto
+    if (!r){ _closeAllPanels(); return; }
+    if (r.screen === 'login'){ _closeAllPanels(); return; } // #ls gestito a parte
+    if (r.protected && !_isLoggedIn()){
+      // Deep-link protetto senza login: si resta su #ls MA si tiene l'URL.
+      // Il pannello verrà aperto dopo login() (vedi _onLogin).
+      return;
+    }
+    // Apri SOLO il pannello richiesto (chiudo prima gli altri per stato pulito)
+    _closeAllPanels();
+    if (r.openFn && typeof window[r.openFn] === 'function'){
+      _suppress = true;
+      try { window[r.openFn](); } finally { _suppress = false; }
+    }
+  }
+
+  // Naviga verso un path aggiornando la history (usato dai wrapper e da _onLogin)
+  function _navigate(path, replace){
+    if (_path() === path){ return; }
+    if (replace) history.replaceState({sw:1, path:path}, '', path);
+    else          history.pushState({sw:1, path:path}, '', path);
+  }
+  window._swNavigate = _navigate; // esposto per usi futuri (es. deep-link film)
+
+  // ── Wrapping non invasivo delle open/close esistenti ──────────────────────
+  function _wrap(){
+    Object.keys(PANEL_PATH).forEach(function(fnName){
+      var path = PANEL_PATH[fnName];
+      var orig = window[fnName];
+      if (typeof orig !== 'function') return;
+      window[fnName] = function(){
+        var res = orig.apply(this, arguments);
+        if (!_suppress) { _navigate(path, false); } // apertura via UI -> URL sync
+        return res;
+      };
+      var closeName = ROUTES[path] && ROUTES[path].closeFn;
+      if (closeName && typeof window[closeName] === 'function'){
+        var oc = window[closeName];
+        window[closeName] = function(){
+          var res = oc.apply(this, arguments);
+          // chiusura via UI (X): torna a home solo se l'URL era quel pannello
+          if (!_suppress && _path() === path) { _navigate('/', false); }
+          return res;
+        };
+      }
+    });
+  }
+
+  // ── login(): al termine della transizione applica il deep-link corrente ───
+  function _wrapLogin(){
+    if (typeof window.login !== 'function') return;
+    var origLogin = window.login;
+    window.login = function(){
+      var res = origLogin.apply(this, arguments);
+      // login() fa la transizione con setTimeout ~550ms: applichiamo dopo
+      var target = _pendingDeepLink || _path();
+      _pendingDeepLink = null;
+      setTimeout(function(){
+        if (target && target !== '/login') _applyRoute(target);
+      }, 620);
+      return res;
+    };
+  }
+
+  // ── popstate: tasto Indietro/Avanti del browser ───────────────────────────
+  window.addEventListener('popstate', function(){
+    var path = _path();
+    if (!_appReady()){
+      // siamo ancora su #ls: memorizzo, verrà applicato dopo login()
+      _pendingDeepLink = (path === '/login') ? null : path;
+      return;
+    }
+    _applyRoute(path);
+  });
+
+  // ── init: aggancia i wrapper e prepara il deep-link d'ingresso ────────────
+  function _init(){
+    _wrap();
+    _wrapLogin();
+    var entry = _path();
+    if (entry && entry !== '/' && ROUTES[entry]){
+      // Deep-link d'ingresso: se l'app è già pronta lo applico subito,
+      // altrimenti lo lascio in sospeso finché login() non completa.
+      if (_appReady()) _applyRoute(entry);
+      else _pendingDeepLink = (entry === '/login') ? null : entry;
+    }
+  }
+
+  if (document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', function(){ setTimeout(_init, 0); });
+  } else {
+    setTimeout(_init, 0);
+  }
+})();
 
 </script>
 <!-- SHARE OVERLAY -->
