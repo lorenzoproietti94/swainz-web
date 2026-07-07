@@ -1,6 +1,8 @@
 <!DOCTYPE html><html lang="it"><head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>SWAINZ</title><!-- v335 · scheda Piattaforma ridisegnata a DUE COLONNE con divisore centrale arancione. Sinistra 'Abbonamento': 6 principali fisse (Netflix, Prime Video, Disney+, Sky Go, RaiPlay, MUBI) + link 'mostra tutte le piattaforme' che aggiunge le restanti sub sotto. Destra 'Noleggio/Acquisto': sempre visibile, tutte le 6 piattaforme rent. RIMOSSI la casella 'includi noleggio' e lo stato _inclNoleggio/_toggleNoleggio/_rerenderG7: entrambe le colonne sono sempre mostrate. In ENTRAMBE compaiono solo le piattaforme con >=1 film nel DB (calcolato client-side da _platformsInDB su DB). Match semplificato: _pltArr = unione fissa f.plt + f.plt_nol (nomi distinti tra colonne, ogni chip filtra la sua sezione). Nuovo renderer _renderG7Split + _mkG7Chip; nuove i18n g7_sub/g7_rent/g7_more/g7_less/g7_empty. Prerequisito dati: update-db.js v198 (due colonne). -->
+<title>SWAINZ</title><!-- v337 · colonna noleggio ampliata: aggiunte TIMVISION Store e Rakuten TV a SW_PLAT_RENT (ora 8 voci). Allineamento ai dati reali del DB (verificati con check-platforms.js): la colonna Piattaforme_noleggio conteneva Apple TV/Prime Video/TIMVISION coi nomi BASE invece dei nomi Store. Correzioni lato dati: swainz_migrate_noleggio_v337.sql rinomina i valori esistenti (Apple TV→Apple TV Store, Prime Video→Prime Video Store, TIMVISION→TIMVISION Store) SOLO nella colonna noleggio; swainz_cleanup_piattaforme_v337.sql ripulisce record storici malformati nella colonna abbonamento (stringhe con virgola interna, 'Rai Play', 'Apple TV+'). update-db.js aggiornato a v199 (PROV_RENT +Rakuten TV id35, +TIMVISION Store id109). Microsoft Store non mappabile (assente da TMDB IT). -->
+<!-- v336 · fix + estensioni scheda piattaforma. (1) FIX findFilm/rendering: al DB ready ora si ri-renderizza g7 (_renderG7Split) e _platformsInDB non cache-a più un set vuoto → risolve 'nessuna piattaforma disponibile' quando buildUI girava prima del caricamento DB. (2) FIX reset filtri: resetFilters ora deseleziona anche i chip di g7 nel nuovo layout #g7-split (prima cercava #ch-g7 inesistente, lasciando i chip visivamente attivi). (3) Scheda film 'Disponibile su' ora divisa in due colonne (Abbonamento | Noleggio/Acquisto) via _renderCardPlatforms, mostrando sia f.plt sia f.plt_nol (prima ignorava del tutto il noleggio). NB: il match findFilm usava già _pltSome (unione sub+nol) correttamente; se alcune piattaforme noleggio non compaiono è un tema di DATI nel DB (usare check-platforms.js per verificare i valori reali). -->
+<!-- v335 · scheda Piattaforma ridisegnata a DUE COLONNE con divisore centrale arancione. Sinistra 'Abbonamento': 6 principali fisse (Netflix, Prime Video, Disney+, Sky Go, RaiPlay, MUBI) + link 'mostra tutte le piattaforme' che aggiunge le restanti sub sotto. Destra 'Noleggio/Acquisto': sempre visibile, tutte le 6 piattaforme rent. RIMOSSI la casella 'includi noleggio' e lo stato _inclNoleggio/_toggleNoleggio/_rerenderG7: entrambe le colonne sono sempre mostrate. In ENTRAMBE compaiono solo le piattaforme con >=1 film nel DB (calcolato client-side da _platformsInDB su DB). Match semplificato: _pltArr = unione fissa f.plt + f.plt_nol (nomi distinti tra colonne, ogni chip filtra la sua sezione). Nuovo renderer _renderG7Split + _mkG7Chip; nuove i18n g7_sub/g7_rent/g7_more/g7_less/g7_empty. Prerequisito dati: update-db.js v198 (due colonne). -->
 <!-- v334 · chip abbonamento/noleggio distinti. Due liste: SW_PLAT_SUB (15, sempre visibili) e SW_PLAT_RENT (6: Prime Video Store, Apple TV Store, Google Play, CHILI, YouTube, Infinity Store). Il toggle 'Includi noleggio/acquisto' in g7 ora MOSTRA/NASCONDE i chip noleggio (prima erano sempre visibili): off=solo 15 abbonamento, on=compaiono anche i 6 noleggio. Rerender mirato via _rerenderG7 (no buildUI completo); spegnere il toggle deseleziona le piattaforme noleggio attive. I brand misti hanno nomi distinti nelle due colonne (Apple TV vs Apple TV Store, ecc.) scritti da update-db.js v198 (PROV_SUB/PROV_RENT). FCK/onboarding mostrano solo le 15 abbonamento (nessun toggle li). Match invariato via _pltArr/_pltSome. Prerequisito: update-db.js v198. -->
 <!-- v333 · piattaforme streaming ampliate (da 6 a 17 filtri) + toggle noleggio/acquisto. Nuovi canonici: RaiPlay, Infinity, NowTV, Sky Go, Google Play, Paramount+, TIMVISION, YouTube Premium, CHILI, Crunchyroll, MGM+, HBO Max. Lista unica SW_PLATFORMS (ordine per popolarita' display_priority IT) condivisa da g7.opts + liste FCK/onboarding (niente piu' duplicati). _safeArr esteso con alias per le grafie TMDB. Nuova colonna DB Piattaforme_noleggio (rent+buy) letta in f.plt_nol. Toggle 'Includi noleggio/acquisto' nella sezione g7 (sotto header): off=solo abbonamento (f.plt), on=abbonamento+noleggio. Match unificato via helper _pltArr/_pltSome/_pltEmpty applicato a tutte le sedi (filtri principali, FCK, onboarding, onlyPlatform). Prerequisito: swainz_add_noleggio_v197.sql + update-db.js v197. -->
 <!-- v332 · client-side routing con History API (path puliti stesso origin). Router aggancia URL <-> pannelli via wrapping delle open()/close() esistenti; gestione popstate per tasto Indietro; deep-link applicati dopo login(). Route: /login /profilo /visti /scopri /raccomandazioni /premium. Deep-link protetti (utente non loggato): mostra #ls mantenendo l'URL, apre il pannello dopo l'accesso. Richiede vercel.json con rewrite catch-all -> /index.html. Nessuna modifica a stato/localStorage/OAuth. -->
@@ -738,6 +740,13 @@ body.profp-ads-show #profp{padding-bottom:96px}
 .g7more{margin-top:10px;font-size:11.5px;color:var(--or);cursor:pointer;user-select:none;display:inline-block}
 .g7more:hover{text-decoration:underline}
 .g7empty{font-size:11px;color:var(--td);font-style:italic;padding:3px 0;line-height:1.35}
+/* v336 · sezione piattaforme della scheda film a due colonne */
+.cardplt-split{display:flex;align-items:stretch;gap:0;margin-top:4px}
+.cardplt-col{flex:1;min-width:0}
+.cardplt-col:first-of-type{padding-right:12px}
+.cardplt-col:last-of-type{padding-left:12px}
+.cardplt-div{width:1px;background:var(--or);opacity:.5;flex-shrink:0;align-self:stretch}
+.cardplt-ct{font-size:10.5px;font-weight:600;color:var(--or);text-transform:uppercase;letter-spacing:.4px;margin-bottom:6px}
 .arec-ms-empty{padding:12px 14px;font-size:12px;color:var(--td);text-align:center}
 .arec-ms-clear{display:block;width:100%;padding:8px 14px;border:none;border-top:1px solid var(--br);background:none;color:var(--td);font-size:11px;cursor:pointer;text-align:left;transition:color .15s}
 .arec-ms-clear:hover{color:var(--tx)}
@@ -2016,7 +2025,7 @@ var SUPA_TAGS=['Angosciante','Animazione','Asiatico','Biografico','Bizzarro','Ca
    sono sempre visibili. In UI si mostrano solo le piattaforme con >=1 film (vedi
    _platformsInDB). */
 var SW_PLAT_SUB=['Netflix','Prime Video','Apple TV','Disney+','Sky Go','Paramount+','TIMVISION','NowTV','Infinity','MUBI','RaiPlay','YouTube Premium','Crunchyroll','MGM+','HBO Max'];
-var SW_PLAT_RENT=['Prime Video Store','Apple TV Store','Google Play','CHILI','YouTube','Infinity Store'];
+var SW_PLAT_RENT=['Prime Video Store','Apple TV Store','TIMVISION Store','Google Play','CHILI','Rakuten TV','YouTube','Infinity Store'];
 var SW_PLAT_MAIN=['Netflix','Prime Video','Disney+','Sky Go','RaiPlay','MUBI'];
 /* compat FCK/onboarding: lista base = abbonamento */
 var SW_PLATFORMS=SW_PLAT_SUB;
@@ -2038,7 +2047,9 @@ function _pltArr(f){
 // le piattaforme effettivamente popolate.
 var _platsInDBCache=null;
 function _platformsInDB(){
-  if(_platsInDBCache)return _platsInDBCache;
+  // v336: NON cache-are un risultato vuoto (DB non ancora pronto); così al
+  // prossimo render, quando il DB è caricato, viene ricalcolato correttamente.
+  if(_platsInDBCache&&Object.keys(_platsInDBCache).length)return _platsInDBCache;
   var set={};
   if(DB&&DB.length){
     for(var i=0;i<DB.length;i++){
@@ -2089,7 +2100,8 @@ function _supaTransform(row){
 }
 function _supaFinalize(all,resolve){ // v327: unico punto di costruzione del DB (anche da parziale)
   DB=all.map(function(r){try{return _supaTransform(r);}catch(e){console.error('[Swainz DB] transform error',e,r);return null;}}).filter(Boolean);
-  _platsInDBCache=null; // v335: invalida la cache piattaforme al (ri)caricamento DB
+  _platsInDBCache=null; // invalida la cache piattaforme al (ri)caricamento DB
+  try{ if(typeof _renderG7Split==='function' && document.getElementById('g7-split')) _renderG7Split(); }catch(e){} // v336: ridisegna g7 coi dati reali
   console.log('[Swainz DB] DB ready: '+DB.length+' films');
   _renderProposte();resolve();
 }
@@ -3645,6 +3657,8 @@ function resetFilters(){
     SEL[g.id].clear();
     document.querySelectorAll(`#ch-${g.id} .chip`).forEach(c=>c.classList.remove('on'));
   });
+  // v336: g7 usa il layout a due colonne (#g7-split), non #ch-g7 → deseleziona i suoi chip
+  document.querySelectorAll('#g7-split .chip').forEach(c=>c.classList.remove('on'));
   // Clear EXCL set and deactivate exclude chips
   EXCL.clear();
   document.querySelectorAll('.chip.ex').forEach(c=>c.classList.remove('on'));
@@ -3973,6 +3987,36 @@ function _mkG7Chip(p){
   return ch;
 }
 
+// v336 · sezione "Disponibile su" della scheda film, divisa in due colonne
+// (Abbonamento | Noleggio/Acquisto), stile coerente con la scheda filtri g7.
+// Mostra f.plt a sinistra e f.plt_nol a destra. Se una colonna è vuota, mostra
+// un trattino. Se entrambe vuote, un unico messaggio "non disponibile".
+function _renderCardPlatforms(f){
+  var sub=(f.plt||[]), nol=(f.plt_nol||[]);
+  if(!sub.length && !nol.length){
+    return '<div class="fst">'+t('card_plt')+'</div>'+
+           '<div class="mcs"><span style="color:var(--td);font-size:12px;opacity:.7">'+
+           t('card_plt_none')+'</span></div>';
+  }
+  var chip=function(p){return '<span class="mc2 b">📺 '+p+'</span>';};
+  var dash='<span style="color:var(--td);font-size:12px;opacity:.6">—</span>';
+  var left = sub.length? sub.map(chip).join('') : dash;
+  var right= nol.length? nol.map(chip).join('') : dash;
+  return ''+
+    '<div class="fst">'+t('card_plt')+'</div>'+
+    '<div class="cardplt-split">'+
+      '<div class="cardplt-col">'+
+        '<div class="cardplt-ct">'+t('g7_sub')+'</div>'+
+        '<div class="mcs">'+left+'</div>'+
+      '</div>'+
+      '<div class="cardplt-div"></div>'+
+      '<div class="cardplt-col">'+
+        '<div class="cardplt-ct">'+t('g7_rent')+'</div>'+
+        '<div class="mcs">'+right+'</div>'+
+      '</div>'+
+    '</div>';
+}
+
 // ── FIND FILM ────────────────────────────────────────────────────────────
 // ── v315: PREDICATO FILTRI CONDIVISO ─────────────────────────────────────
 // Unica implementazione della catena di controlli di findFilm, usata da:
@@ -4211,7 +4255,7 @@ function showCard(res,opts={}) {
     <div class="fc-poster-col">${posterHTML}</div>
   </div>
   ${f.tags.length?`<div class="fc-section-box"><div class="fst">${t('card_why')}</div><div class="mcs">${sequelBadge}${f.tags.map(m=>`<span class="mc2">✓ ${tTag(m)}</span>`).join('')}</div></div>`:''}
-  <div class="fc-section-box"><div class="fst">${t('card_plt')}</div><div class="mcs">${f.plt.length?f.plt.map(p=>`<span class="mc2 b">📺 ${p}</span>`).join(''):`<span style="color:var(--td);font-size:12px;opacity:.7">${t('card_plt_none')}</span>`}</div></div>
+  <div class="fc-section-box">${_renderCardPlatforms(f)}</div>
   <div class="fcact">
     <button class="b1" onclick="closeCard();resetFilters()">${t('card_ok')}</button>
     ${opts.hideMore?'':`<button class="b2" onclick="tryAgain()">${t('card_more')}</button>`}
