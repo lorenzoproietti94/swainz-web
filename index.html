@@ -1,6 +1,7 @@
 <!DOCTYPE html><html lang="it"><head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>SWAINZ</title><!-- v332 · client-side routing con History API (path puliti stesso origin). Router aggancia URL <-> pannelli via wrapping delle open()/close() esistenti; gestione popstate per tasto Indietro; deep-link applicati dopo login(). Route: /login /profilo /visti /scopri /raccomandazioni /premium. Deep-link protetti (utente non loggato): mostra #ls mantenendo l'URL, apre il pannello dopo l'accesso. Richiede vercel.json con rewrite catch-all -> /index.html. Nessuna modifica a stato/localStorage/OAuth. -->
+<title>SWAINZ</title><!-- v333 · piattaforme streaming ampliate (da 6 a 17 filtri) + toggle noleggio/acquisto. Nuovi canonici: RaiPlay, Infinity, NowTV, Sky Go, Google Play, Paramount+, TIMVISION, YouTube Premium, CHILI, Crunchyroll, MGM+, HBO Max. Lista unica SW_PLATFORMS (ordine per popolarita' display_priority IT) condivisa da g7.opts + liste FCK/onboarding (niente piu' duplicati). _safeArr esteso con alias per le grafie TMDB. Nuova colonna DB Piattaforme_noleggio (rent+buy) letta in f.plt_nol. Toggle 'Includi noleggio/acquisto' nella sezione g7 (sotto header): off=solo abbonamento (f.plt), on=abbonamento+noleggio. Match unificato via helper _pltArr/_pltSome/_pltEmpty applicato a tutte le sedi (filtri principali, FCK, onboarding, onlyPlatform). Prerequisito: swainz_add_noleggio_v197.sql + update-db.js v197. -->
+<!-- v332 · client-side routing con History API (path puliti stesso origin). Router aggancia URL <-> pannelli via wrapping delle open()/close() esistenti; gestione popstate per tasto Indietro; deep-link applicati dopo login(). Route: /login /profilo /visti /scopri /raccomandazioni /premium. Deep-link protetti (utente non loggato): mostra #ls mantenendo l'URL, apre il pannello dopo l'accesso. Richiede vercel.json con rewrite catch-all -> /index.html. Nessuna modifica a stato/localStorage/OAuth. -->
 <!-- v331 · predisposizione piattaforma RaiPlay. Valore canonico 'RaiPlay'; _safeArr normalizza le varianti ('Rai Play'/'rai play' → 'RaiPlay') via alias, cosi' l'id 581 gia' presente funziona senza toccare il DB. Aggiunta RaiPlay alle 4 liste UI: gruppo filtri g7 (Piattaforma), _plt7 in renderFcp e renderFcpFree (FCK q7/q7b), plt7 in _renderOnbB (onboarding). Nessun contenuto DB modificato: quando l'utente popolera' i record con 'RaiPlay', filtri/FCK/onboarding lo rileveranno automaticamente. -->
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600&family=Syne:wght@600;800&family=Teko:wght@700&family=Rajdhani:wght@500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
 <style>
@@ -723,6 +724,11 @@ body.profp-ads-show #profp{padding-bottom:96px}
 .arec-ms-opt:hover{background:rgba(255,255,255,.06)}
 .arec-ms-opt input[type=checkbox]{accent-color:var(--or);width:14px;height:14px;flex-shrink:0;cursor:pointer}
 .arec-ms-opt.checked{color:var(--or)}
+/* v333 · toggle noleggio/acquisto nella sezione g7 */
+.g7nol{display:flex;align-items:center;gap:8px;padding:2px 2px 10px;margin-bottom:6px;border-bottom:1px solid rgba(255,255,255,.08);cursor:pointer;user-select:none}
+.g7nol input[type=checkbox]{accent-color:var(--or);width:15px;height:15px;flex-shrink:0;cursor:pointer}
+.g7nol label{font-size:12.5px;color:var(--td);cursor:pointer;line-height:1.3}
+.g7nol.on label{color:var(--or)}
 .arec-ms-empty{padding:12px 14px;font-size:12px;color:var(--td);text-align:center}
 .arec-ms-clear{display:block;width:100%;padding:8px 14px;border:none;border-top:1px solid var(--br);background:none;color:var(--td);font-size:11px;cursor:pointer;text-align:left;transition:color .15s}
 .arec-ms-clear:hover{color:var(--tx)}
@@ -1993,10 +1999,28 @@ var STRIPE_PRICE_MONTHLY='price_1TaiWyRzBS2zhcmvClKPoCBK';
 var STRIPE_PRICE_YEARLY='price_1TaiWyRzBS2zhcmvWVVT1RzF';
 var EDGE_URL=SUPA_URL+'/functions/v1';
 var SUPA_TAGS=['Angosciante','Animazione','Asiatico','Biografico','Bizzarro','Capolavoro','Catastrofico','CineComic','Claustrofobico','Colossal','Comico','Commedia','Conosciutissimo','Corto(<1h30)','Crimine','Crudo',"D'Autore",'Difficile','Distopia','Documentario','Dramma','Droga','Economico','Epoca Passata','Estetico','Facile','Fantascienza','Grande Colonna Sonora','Grande Interpretazione','Guerra','Horror','Imponente','Italiano','Legal Drama','Lunghissimo','Lungo(>2h30)','Mafia','Musicale','Neorealismo','Noire','Onirico','Oscar','Pazzesco','Personaggio Cattivo','Psichedelico','Psicologico/mentale','Romantico','Sequel','Serial Killer','Sportivo','Storia Avvincente','Tecnologico','Thriller','Triste','Vecchio','Vendetta','Violenza Ironica','Western'];
+/* v333 · lista piattaforme unica e condivisa (ordine per popolarità, display_priority IT di TMDB). Usata da g7.opts e dalle liste FCK/onboarding, così non esistono più liste duplicate da tenere in sync. */
+var SW_PLATFORMS=['Netflix','Prime Video','Apple TV','Disney+','Sky Go','Google Play','Paramount+','TIMVISION','NowTV','Infinity','MUBI','RaiPlay','YouTube Premium','CHILI','Crunchyroll','MGM+','HBO Max'];
+/* v333 · toggle noleggio/acquisto (sezione g7). Off di default: il match piattaforma considera solo l'abbonamento (f.plt). On: unisce anche le piattaforme a noleggio/acquisto (f.plt_nol). Stato unico condiviso da tutti i motori di filtro (filtri principali, FCK, onboarding). */
+var _inclNoleggio=false;
+function _pltArr(f){
+  // ritorna l'array di piattaforme del film valido per il match corrente
+  if(!f)return [];
+  var base=f.plt||[];
+  if(!_inclNoleggio)return base;
+  var nol=f.plt_nol||[];
+  if(!nol.length)return base;
+  // unione deduplicata
+  var seen={},out=[];
+  base.concat(nol).forEach(function(p){if(!seen[p]){seen[p]=1;out.push(p);}});
+  return out;
+}
+function _pltSome(f,pred){var a=_pltArr(f);return a.length>0&&a.some(pred);}
+function _pltEmpty(f){return _pltArr(f).length===0;}
 function _safeArr(v){
   // v321: normalizzazione unica per tutti i formati di Piattaforme.
   // Alias legacy → nome canonico usato dai filtri (es. 'Apple TV+' → 'Apple TV').
-  var fix=function(x){x=String(x).trim().replace(/^"|"$/g,'');if(x==='Apple TV+')return 'Apple TV';if(/^rai\s*play$/i.test(x))return 'RaiPlay';return x;};
+  var fix=function(x){x=String(x).trim().replace(/^"|"$/g,'');if(x==='Apple TV+')return 'Apple TV';if(/^rai\s*play$/i.test(x))return 'RaiPlay';if(/^mediaset\s*infinity$/i.test(x)||x==='Infinity+'||x==='Infinity Selection')return 'Infinity';if(/^now\s*tv$/i.test(x)||x==='NOW'||x==='Now')return 'NowTV';if(/^paramount(\s*plus|\+)?$/i.test(x))return 'Paramount+';if(/^timvision$/i.test(x))return 'TIMVISION';if(/^google\s*play(\s*movies)?$/i.test(x))return 'Google Play';if(/^sky\s*go$/i.test(x))return 'Sky Go';if(/^youtube\s*premium$/i.test(x))return 'YouTube Premium';if(/^mgm(\s*plus|\+)?$/i.test(x))return 'MGM+';if(/^hbo\s*max$/i.test(x))return 'HBO Max';if(/^crunchyroll$/i.test(x))return 'Crunchyroll';if(/^chili$/i.test(x))return 'CHILI';return x;};
   if(!v)return[];
   if(Array.isArray(v))return v.filter(Boolean).map(fix);
   var s=String(v).trim();
@@ -2018,6 +2042,8 @@ function _supaTransform(row){
     dur:row.Durata||row.durata||null,
     cast:_safeArr(row.Cast),
     plt:_safeArr(row.Piattaforme),
+    plt_nol:_safeArr(row.Piattaforme_noleggio), // v333: piattaforme a noleggio/acquisto
+
     r:(function(){var x=parseFloat(row['Voto IMDB']);return isNaN(x)||x<=0?null:x;})(), // v325 (punto 16): niente più 7.0 fittizio — senza voto = null
     desc:row['Descrizione IT']||row['Descrizione IT ']||'',
     desc_en:row['Descrizione EN']||row[' Descrizione EN']||'',
@@ -2075,7 +2101,7 @@ var _dbReady=new Promise(function(resolve,reject){
 
 const GROUPS=[
   {id:'g1',title:'🎭 Genere & Atmosfera',col:'bl',multi:true,tags:['Thriller','Commedia','Fantascienza','Dramma','Horror','Western','Animazione','Documentario','Comico','Romantico','CineComic','Noire']},
-  {id:'g7',title:'📺 Piattaforma',col:'bl',multi:true,opts:['Netflix','Prime Video','Disney+','MUBI','Apple TV','RaiPlay','Non su piattaforme']},
+  {id:'g7',title:'📺 Piattaforma',col:'bl',multi:true,opts:SW_PLATFORMS.concat(['Non su piattaforme'])},
   {id:'g3',title:'🔍 Temi specifici',col:'bl',multi:true,tags:['Crimine','Mafia','Droga','Guerra','Serial Killer','Economico','Catastrofico','Vendetta','Sportivo','Legal Drama','Biografico','Colossal']},
   {id:'g8',title:'📅 Periodo',col:'or',multi:true,opts:["Anni '60 e prima","Anni '70","Anni '80","Anni '90","Anni 2000","Anni 2010","Anni 2020"]},
   {id:'g2',title:'✨ Qualità & Stile',col:'or',multi:true,tags:["Capolavoro","D'Autore","Oscar","Grande Interpretazione","Grande Colonna Sonora","Estetico","Imponente","Storia Avvincente","Pazzesco","Bizzarro","Musicale","Difficile"]},
@@ -3673,7 +3699,7 @@ function _quickCountForCombo(gid1,tag1,gid2,tag2){
     if(f.r==null){if(minR>5)return false;}else if(f.r<minR)return false; // v325
     if(pltSel.size>0){
       const noPlat=pltSel.has('Non su piattaforme');
-      if(noPlat?(!f.plt||f.plt.length>0):!f.plt.some(p=>pltSel.has(p)))return false;
+      if(noPlat?!_pltEmpty(f):!_pltSome(f,p=>pltSel.has(p)))return false; // v333: rispetta toggle noleggio
     }
     if(perSel.size>0&&![...perSel].some(p=>PERIOD_MAP[p]&&PERIOD_MAP[p](f.year)))return false;
     if(userPrefs.minYear&&f.year<userPrefs.minYear&&!vecchioSel)return false;
@@ -3686,8 +3712,8 @@ function _quickCountForCombo(gid1,tag1,gid2,tag2){
     if(userPrefs.excludeConosciutissimo&&f.tags.includes('Conosciutissimo'))return false;
     if(userPrefs.excludedTags&&userPrefs.excludedTags.size>0&&f.tags.some(t=>userPrefs.excludedTags.has(t)&&t!==tag1&&t!==tag2))return false;
     if(userPrefs.onlyPlatform&&pltSel.size===0){
-      if(userPrefs.userPlatforms&&userPrefs.userPlatforms.length>0){if(!f.plt||!f.plt.some(p=>userPrefs.userPlatforms.includes(p)))return false;}
-      else{if(!f.plt||f.plt.length===0)return false;}
+      if(userPrefs.userPlatforms&&userPrefs.userPlatforms.length>0){if(!_pltSome(f,p=>userPrefs.userPlatforms.includes(p)))return false;}
+      else{if(_pltEmpty(f))return false;}
     }
     if(userPrefs.reduceItalian&&f.tags.includes('Italiano')&&tag1!=='Italiano'&&tag2!=='Italiano')return false;
     for(const t of OPT_IN_TAGS){if(f.tags.includes(t)&&t!==tag1&&t!==tag2&&!_activeOptInTags.has(t))return false;}
@@ -3818,7 +3844,7 @@ function buildUI(){
     const title=t(g.id)||g.title;
     const isLocked=!isPremium&&premGroups.includes(g.id);
     const _pb=premGroups.includes(g.id)?'<div class="fgrp-prem-badge"><span>✦ Premium</span></div>':'';
-    d.innerHTML=`<div class="fgh" onclick="tog(this)"><div class="fght ${g.col}" style="flex:1">${title}</div>${_pb}<div class="fgar ${open?'open':''}">▾</div></div><div class="fgb ${open?'open':''}"><div class="chips" id="ch-${g.id}"></div></div>`;
+    d.innerHTML=`<div class="fgh" onclick="tog(this)"><div class="fght ${g.col}" style="flex:1">${title}</div>${_pb}<div class="fgar ${open?'open':''}">▾</div></div><div class="fgb ${open?'open':''}">${g.id==='g7'?`<div class="g7nol${_inclNoleggio?' on':''}" onclick="_toggleNoleggio(this)"><input type="checkbox" ${_inclNoleggio?'checked':''} onclick="event.stopPropagation()"><label>${t('g7_incl_noleggio')}</label></div>`:''}<div class="chips" id="ch-${g.id}"></div></div></div>`;
     target.appendChild(d);
     const items=g.tags||g.opts;
     const chips=d.querySelector(`#ch-${g.id}`);
@@ -3846,6 +3872,14 @@ function buildUI(){
   if(DB&&DB.length)_renderProposte();
 }
 function tog(h){const b=h.nextElementSibling,a=h.querySelector('.fgar');b.classList.toggle('open');a.classList.toggle('open');}
+// v333 · toggle noleggio/acquisto (sezione g7). Aggiorna lo stato condiviso
+// e ricalcola il conteggio; il match nei filtri usa _pltArr()/_pltSome().
+function _toggleNoleggio(box){
+  _inclNoleggio=!_inclNoleggio;
+  box.classList.toggle('on',_inclNoleggio);
+  var cb=box.querySelector('input[type=checkbox]');if(cb)cb.checked=_inclNoleggio;
+  try{if(typeof updatePoolCount==='function')updatePoolCount();}catch(e){}
+}
 
 // ── FIND FILM ────────────────────────────────────────────────────────────
 // ── v315: PREDICATO FILTRI CONDIVISO ─────────────────────────────────────
@@ -3875,8 +3909,8 @@ function _passesEngineFilters(f,ctx,skipOptIn){
   if(ctx.minR){if(f.r==null){if(ctx.minR>5)return false;}else if(f.r<ctx.minR)return false;} // v325: film senza voto ammessi solo con slider al minimo
   if(ctx.pltSel.size>0){
     const _noPlat=ctx.pltSel.has('Non su piattaforme');
-    const _matchNoPlat=_noPlat&&(!f.plt||f.plt.length===0);
-    const _matchPlt=f.plt&&f.plt.some(p=>ctx.pltSel.has(p));
+    const _matchNoPlat=_noPlat&&_pltEmpty(f); // v333
+    const _matchPlt=_pltSome(f,p=>ctx.pltSel.has(p)); // v333: rispetta toggle noleggio
     if(!_matchNoPlat&&!_matchPlt)return false;
   }
   if(ctx.perSel.size>0&&![...ctx.perSel].some(p=>PERIOD_MAP[p]&&PERIOD_MAP[p](f.year)))return false;
@@ -3886,9 +3920,9 @@ function _passesEngineFilters(f,ctx,skipOptIn){
   if(userPrefs.excludeDifficile&&f.tags.includes('Difficile'))return false;
   if(userPrefs.onlyPlatform&&ctx.pltSel.size===0){
     if(userPrefs.userPlatforms&&userPrefs.userPlatforms.length>0){
-      if(!f.plt||!f.plt.some(p=>userPrefs.userPlatforms.includes(p)))return false;
+      if(!_pltSome(f,p=>userPrefs.userPlatforms.includes(p)))return false; // v333: toggle noleggio
     }else{
-      if(!f.plt||f.plt.length===0)return false;
+      if(_pltEmpty(f))return false; // v333: toggle noleggio
     }
   }
   if(userPrefs.excludeLong&&!ctx.longSel&&(f.tags.includes('Lunghissimo')||f.tags.includes('Lungo(>2h30)')))return false;
@@ -4986,7 +5020,7 @@ async function renderFck(){
     {id:'q17',text:t('fck_q17'),opts:[{t:t('fck_q17_a'),v:'original'},{t:t('fck_q17_b'),v:'dubbed'},{t:t('fck_q17_c'),v:'both'}]}
   ];
   let html='';
-  const _plt7=['Netflix','Prime Video','Disney+','MUBI','Apple TV','RaiPlay'];
+  const _plt7=SW_PLATFORMS;
   qs.forEach(q=>{
     if(q.id==='q7'){
       const _s7=fckAnswers.q7||'',_s7b=new Set(fckAnswers.q7b||[]);
@@ -5005,7 +5039,7 @@ async function renderFck(){
 async function renderFcpFree(){
   // Carica risposte salvate
   try{const r=localStorage.getItem('sw3_fck');if(r)fckAnswers=JSON.parse(r);}catch(e){}
-  const _plt7=['Netflix','Prime Video','Disney+','MUBI','Apple TV','RaiPlay'];
+  const _plt7=SW_PLATFORMS;
   // Solo le 3 domande accessibili ai free: q6 (difficile), q7 (piattaforme), q9 (frequenza)
   const freeQs=[
     {id:'q6',opts:[{t:t('fck_q6_a'),v:'love'},{t:t('fck_q6_b'),v:'sometimes'},{t:t('fck_q6_c'),v:'never'}]},
@@ -5626,6 +5660,7 @@ const T={
     ac_films:'Film',ac_people:'Persone',
     mbu:'Mrrrow! 🎬',
     g1:'🎭 Genere & Atmosfera',g2:'✨ Qualità & Stile',g3:'🔍 Temi specifici',g4:'🧠 Mood',g5:'🌍 Contesto',g6:'⏱ Durata',g7:'📺 Piattaforma',g8:'📅 Periodo',
+    g7_incl_noleggio:'Includi anche noleggio/acquisto',
     fck_q1:'Come ti rapporti con i film del passato?',
     fck_q1_a:'Solo film recenti (dal 2000)',fck_q1_b:"Apprezzo anche gli anni '80 e '90",fck_q1_c:'Amo tutti i film, classici compresi',
     fck_q2:'Quanto tempo hai?',
@@ -5752,6 +5787,7 @@ const T={
     ac_films:'Films',ac_people:'People',
     mbu:'Purrr! 🎬',
     g1:'🎭 Genre & Mood',g2:'✨ Quality & Style',g3:'🔍 Specific Themes',g4:'🧠 Mood',g5:'🌍 Context',g6:'⏱ Length',g7:'📺 Platform',g8:'📅 Period',
+    g7_incl_noleggio:'Include rent/buy too',
     fck_q1:'How do you feel about older films?',
     fck_q1_a:'Recent films only (from 2000)',fck_q1_b:"I also enjoy the '80s and '90s",fck_q1_c:'I love all films, classics included',
     fck_q2:'How much time do you have?',
@@ -7147,7 +7183,7 @@ function _onbANext(){
   _onbGoTo('b');
 }
 function _renderOnbB(){
-  var plt7=['Netflix','Prime Video','Disney+','MUBI','Apple TV','RaiPlay'];
+  var plt7=SW_PLATFORMS;
   var freeQs=[
     {id:'q6',opts:[{t:t('fck_q6_a'),v:'love'},{t:t('fck_q6_b'),v:'sometimes'},{t:t('fck_q6_c'),v:'never'}]},
     {id:'q7',opts:[{t:t('fck_q7_a'),v:'yes'},{t:t('fck_q7_b'),v:'any'}]},
