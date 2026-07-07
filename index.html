@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="it"><head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>SWAINZ</title><!-- v329 · punto 20: sicurezza limiti free. Fix A: premium non piu' concedibile ai non loggati (sw3_premium in localStorage richiede ANCHE una sessione valida; restore fallito o is_premium server=false → isPremium forzato a false). Fix B: contatore ricerche free spostato lato server via RPC sw_consume_search()/sw_search_status() (SECURITY DEFINER, tabella search_usage con RLS sola-lettura) — il limite giornaliero non e' piu' aggirabile da console/reload/localStorage.clear(); fallback client (v317) solo se il server e' offline o l'utente non e' loggato. Richiede swainz_search_limit_v329.sql eseguito su Supabase. -->
+<title>SWAINZ</title><!-- v330 · pulizia catalogo: rimosse le voci orfane id=1351 (Sin City: A Dame to Kill For) da SEQUEL_MAP e TITLE_ORIG. Il record 1351 era un duplicato del film 2014 gia' presente come id=381 ed e' stato eliminato manualmente dal DB; su 381 restano le voci corrette (SEQUEL_MAP[381]=[380], TITLE_ORIG). Nessun altro cambiamento. -->
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600&family=Syne:wght@600;800&family=Teko:wght@700&family=Rajdhani:wght@500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
@@ -2090,7 +2090,7 @@ const SEL={};GROUPS.forEach(g=>SEL[g.id]=new Set());
 
 // Tags that are opt-in only: films tagged with these are excluded unless the user explicitly selected them
 const OPT_IN_TAGS=new Set(['Musicale','CineComic','Western','Vecchio','Documentario','Crudo','Asiatico','Lunghissimo','Difficile','Sequel']);
-const SEQUEL_MAP={17:[393],49:[46],101:[98],102:[101],150:[151],238:[237],239:[238],270:[272],292:[199],307:[306],308:[307],345:[344],362:[361],372:[371],381:[380],411:[410],560:[558],584:[413],677:[323],735:[734],757:[756],877:[734],894:[877],899:[898],911:[908],912:[795],938:[370],939:[938],1047:[735],1191:[684],1236:[221],1257:[939],1321:[1339],1323:[1178],1338:[1367],1339:[2300],1351:[380],1367:[1561],1404:[56],1410:[1323],1452:[1484],1498:[17],1581:[1607],1607:[1629],1629:[2323],1646:[538],1772:[1771],1887:[1886],2031:[1124],2098:[2108],2233:[2243],2300:[2315],2315:[2323]}; // v319: rimosse le catene Aldo G&G e Zalone (storie autonome, resta il gating OPT_IN del tag Sequel) // v318: mappa completa da audit catalogo (2401 film, 67 tag Sequel)
+const SEQUEL_MAP={17:[393],49:[46],101:[98],102:[101],150:[151],238:[237],239:[238],270:[272],292:[199],307:[306],308:[307],345:[344],362:[361],372:[371],381:[380],411:[410],560:[558],584:[413],677:[323],735:[734],757:[756],877:[734],894:[877],899:[898],911:[908],912:[795],938:[370],939:[938],1047:[735],1191:[684],1236:[221],1257:[939],1321:[1339],1323:[1178],1338:[1367],1339:[2300],1367:[1561],1404:[56],1410:[1323],1452:[1484],1498:[17],1581:[1607],1607:[1629],1629:[2323],1646:[538],1772:[1771],1887:[1886],2031:[1124],2098:[2108],2233:[2243],2300:[2315],2315:[2323]}; // v319: rimosse le catene Aldo G&G e Zalone (storie autonome, resta il gating OPT_IN del tag Sequel) // v318: mappa completa da audit catalogo (2401 film, 67 tag Sequel)
 const EXCL=new Set();
 let searches=3,cdEndTime=null,cdInterval=null,seenFilms=new Set();
 // ── v317: contatore ricerche giornaliero ──────────────────────────────────
@@ -3080,7 +3080,6 @@ const TITLE_ORIG={
   1344:"Winter Sleep",
   1345:"The Salt of the Earth",
   1350:"Millionaires",
-  1351:"Sin City: A Dame to Kill For",
   1353:"Inside Llewyn Davis",
   1354:"Hard to Be a God",
   1355:"A Field in England",
