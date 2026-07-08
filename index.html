@@ -1,6 +1,7 @@
 <!DOCTYPE html><html lang="it"><head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>SWAINZ</title><!-- v337 · colonna noleggio ampliata: aggiunte TIMVISION Store e Rakuten TV a SW_PLAT_RENT (ora 8 voci). Allineamento ai dati reali del DB (verificati con check-platforms.js): la colonna Piattaforme_noleggio conteneva Apple TV/Prime Video/TIMVISION coi nomi BASE invece dei nomi Store. Correzioni lato dati: swainz_migrate_noleggio_v337.sql rinomina i valori esistenti (Apple TV→Apple TV Store, Prime Video→Prime Video Store, TIMVISION→TIMVISION Store) SOLO nella colonna noleggio; swainz_cleanup_piattaforme_v337.sql ripulisce record storici malformati nella colonna abbonamento (stringhe con virgola interna, 'Rai Play', 'Apple TV+'). update-db.js aggiornato a v199 (PROV_RENT +Rakuten TV id35, +TIMVISION Store id109). Microsoft Store non mappabile (assente da TMDB IT). -->
+<title>SWAINZ</title><!-- v338 · colonna noleggio/acquisto: mostra solo le prime 3 piattaforme per popolarità (tra quelle con almeno un film), con link '+ mostra tutte le piattaforme' che espande il resto. Speculare al comportamento della colonna abbonamento. Nuovo stato _g7ShowAllRent indipendente da _g7ShowAll; soglia RENT_PREVIEW=3. -->
+<!-- v337 · colonna noleggio ampliata: aggiunte TIMVISION Store e Rakuten TV a SW_PLAT_RENT (ora 8 voci). Allineamento ai dati reali del DB (verificati con check-platforms.js): la colonna Piattaforme_noleggio conteneva Apple TV/Prime Video/TIMVISION coi nomi BASE invece dei nomi Store. Correzioni lato dati: swainz_migrate_noleggio_v337.sql rinomina i valori esistenti (Apple TV→Apple TV Store, Prime Video→Prime Video Store, TIMVISION→TIMVISION Store) SOLO nella colonna noleggio; swainz_cleanup_piattaforme_v337.sql ripulisce record storici malformati nella colonna abbonamento (stringhe con virgola interna, 'Rai Play', 'Apple TV+'). update-db.js aggiornato a v199 (PROV_RENT +Rakuten TV id35, +TIMVISION Store id109). Microsoft Store non mappabile (assente da TMDB IT). -->
 <!-- v336 · fix + estensioni scheda piattaforma. (1) FIX findFilm/rendering: al DB ready ora si ri-renderizza g7 (_renderG7Split) e _platformsInDB non cache-a più un set vuoto → risolve 'nessuna piattaforma disponibile' quando buildUI girava prima del caricamento DB. (2) FIX reset filtri: resetFilters ora deseleziona anche i chip di g7 nel nuovo layout #g7-split (prima cercava #ch-g7 inesistente, lasciando i chip visivamente attivi). (3) Scheda film 'Disponibile su' ora divisa in due colonne (Abbonamento | Noleggio/Acquisto) via _renderCardPlatforms, mostrando sia f.plt sia f.plt_nol (prima ignorava del tutto il noleggio). NB: il match findFilm usava già _pltSome (unione sub+nol) correttamente; se alcune piattaforme noleggio non compaiono è un tema di DATI nel DB (usare check-platforms.js per verificare i valori reali). -->
 <!-- v335 · scheda Piattaforma ridisegnata a DUE COLONNE con divisore centrale arancione. Sinistra 'Abbonamento': 6 principali fisse (Netflix, Prime Video, Disney+, Sky Go, RaiPlay, MUBI) + link 'mostra tutte le piattaforme' che aggiunge le restanti sub sotto. Destra 'Noleggio/Acquisto': sempre visibile, tutte le 6 piattaforme rent. RIMOSSI la casella 'includi noleggio' e lo stato _inclNoleggio/_toggleNoleggio/_rerenderG7: entrambe le colonne sono sempre mostrate. In ENTRAMBE compaiono solo le piattaforme con >=1 film nel DB (calcolato client-side da _platformsInDB su DB). Match semplificato: _pltArr = unione fissa f.plt + f.plt_nol (nomi distinti tra colonne, ogni chip filtra la sua sezione). Nuovo renderer _renderG7Split + _mkG7Chip; nuove i18n g7_sub/g7_rent/g7_more/g7_less/g7_empty. Prerequisito dati: update-db.js v198 (due colonne). -->
 <!-- v334 · chip abbonamento/noleggio distinti. Due liste: SW_PLAT_SUB (15, sempre visibili) e SW_PLAT_RENT (6: Prime Video Store, Apple TV Store, Google Play, CHILI, YouTube, Infinity Store). Il toggle 'Includi noleggio/acquisto' in g7 ora MOSTRA/NASCONDE i chip noleggio (prima erano sempre visibili): off=solo 15 abbonamento, on=compaiono anche i 6 noleggio. Rerender mirato via _rerenderG7 (no buildUI completo); spegnere il toggle deseleziona le piattaforme noleggio attive. I brand misti hanno nomi distinti nelle due colonne (Apple TV vs Apple TV Store, ecc.) scritti da update-db.js v198 (PROV_SUB/PROV_RENT). FCK/onboarding mostrano solo le 15 abbonamento (nessun toggle li). Match invariato via _pltArr/_pltSome. Prerequisito: update-db.js v198. -->
@@ -3931,7 +3932,8 @@ function tog(h){const b=h.nextElementSibling,a=h.querySelector('.fgar');b.classL
 // Mostra solo le piattaforme con >=1 film nel DB. Colonna sinistra: 6 principali
 // fisse + "mostra tutte" per le restanti. Colonna destra: tutte le 6 noleggio
 // presenti. Ogni chip filtra la propria sezione (nomi distinti tra le colonne).
-var _g7ShowAll=false;
+var _g7ShowAll=false;      // colonna abbonamento: mostra tutte
+var _g7ShowAllRent=false;  // v338 · colonna noleggio: mostra tutte
 function _renderG7Split(){
   var box=document.getElementById('g7-split');
   if(!box)return;
@@ -3966,7 +3968,17 @@ function _renderG7Split(){
   var colR=document.createElement('div');colR.className='g7col g7col-r';
   var ttlR=document.createElement('div');ttlR.className='g7ct';ttlR.textContent=t('g7_rent');colR.appendChild(ttlR);
   var chipsR=document.createElement('div');chipsR.className='chips';colR.appendChild(chipsR);
-  rentAll.forEach(function(p){chipsR.appendChild(_mkG7Chip(p));});
+  // v338: mostra solo le prime 3 (per popolarità) tra quelle con film; il resto col link
+  var RENT_PREVIEW=3;
+  var rightList=_g7ShowAllRent?rentAll:rentAll.slice(0,RENT_PREVIEW);
+  rightList.forEach(function(p){chipsR.appendChild(_mkG7Chip(p));});
+  // link "mostra tutte" solo se ci sono più piattaforme noleggio della soglia di anteprima
+  if(rentAll.length>RENT_PREVIEW){
+    var moreR=document.createElement('div');moreR.className='g7more';
+    moreR.textContent=_g7ShowAllRent?t('g7_less'):t('g7_more');
+    moreR.onclick=function(){_g7ShowAllRent=!_g7ShowAllRent;_renderG7Split();};
+    colR.appendChild(moreR);
+  }
   if(rentAll.length===0){var e2=document.createElement('div');e2.className='g7empty';e2.textContent=t('g7_empty');colR.appendChild(e2);}
 
   box.appendChild(colL);box.appendChild(div);box.appendChild(colR);
