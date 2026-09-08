@@ -1,6 +1,7 @@
 <!DOCTYPE html><html lang="it"><head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>SWAINZ</title><!-- v341 · correzione dei due problemi introdotti/emersi in v339-v340. (1) POSIZIONE sezione GDPR: .prof-left e un flex container in cui ogni figlio ha un order esplicito (1..20); .gdpr-box aveva l'order di default 0 e finiva in cima. Assegnati order:30 a .gdpr-box e 29 a #pfdiv-gdpr. (2) SCROLL pannelli: RIMOSSO l'approccio della v340 che chiamava _lockScroll() sui pannelli laterali — sbagliato, perche quel lock mette body{position:fixed} + html/body{overflow:hidden}, togliendo altezza utile al pannello e bloccando anche il suo scroll interno (quel meccanismo e pensato per la card film, un overlay corto). Soluzione corretta, solo CSS su .slide-panel: height/max-height 100% per uno scroll interno reale e overscroll-behavior:contain per non propagare lo scroll alla pagina sottostante, senza toccare il body. -->
+<title>SWAINZ</title><!-- v342 · CAUSA VERA del mancato scroll dei pannelli. I pannelli che scorrevano (vp, allrecsp) hanno un wrapper interno .panel-inner con height:100% e overflow-y:auto; profp, seenp, privacyp e termsp NE ERANO PRIVI: il contenuto era figlio diretto di .slide-panel, quindi non esisteva alcuna area scorrevole e la barra visibile era quella della pagina sottostante (trascinandola si scorreva #app). Fix: aggiunto il wrapper .panel-inner a quei quattro pannelli, replicando il pattern gia' funzionante; .slide-panel passa a overflow:hidden perche' lo scroll e' ora delegato al wrapper; nuove regole di larghezza piena + overscroll-behavior:contain per i wrapper aggiunti. Resta valido il fix v341 order:30 su .gdpr-box (posizione in fondo alla colonna flex). -->
+<!-- v341 · correzione dei due problemi introdotti/emersi in v339-v340. (1) POSIZIONE sezione GDPR: .prof-left e un flex container in cui ogni figlio ha un order esplicito (1..20); .gdpr-box aveva l'order di default 0 e finiva in cima. Assegnati order:30 a .gdpr-box e 29 a #pfdiv-gdpr. (2) SCROLL pannelli: RIMOSSO l'approccio della v340 che chiamava _lockScroll() sui pannelli laterali — sbagliato, perche quel lock mette body{position:fixed} + html/body{overflow:hidden}, togliendo altezza utile al pannello e bloccando anche il suo scroll interno (quel meccanismo e pensato per la card film, un overlay corto). Soluzione corretta, solo CSS su .slide-panel: height/max-height 100% per uno scroll interno reale e overscroll-behavior:contain per non propagare lo scroll alla pagina sottostante, senza toccare il body. -->
 <!-- v339 · conformita GDPR. (1) Art. 17 diritto all'oblio: nuova funzione deleteMyAccount() con doppia conferma (dialogo + digitazione della parola ELIMINA/DELETE) che chiama la Edge Function delete-account; la funzione ricava l'identita DAL TOKEN (mai dal body) cosi nessuno puo cancellare account altrui, elimina user_data + search_usage + utente Auth. (2) Art. 20 portabilita: exportMyData() scarica un JSON con dati locali (localStorage) e dati server (user_data). (3) Art. 5.2 accountability: checkbox di consenso obbligatoria alla registrazione (link a Privacy e Termini), con salvataggio di consent_accepted_at + consent_version su user_data; per OAuth il consenso e registrato al primo accesso senza sovrascrivere la data originale. Nuova sezione 'I tuoi dati' nel profilo. Privacy policy aggiornata (strumenti self-service, voce dati di consenso, data). Prerequisiti: swainz_gdpr_consent_v339.sql + deploy Edge Function delete-account. NB: nessun tracker di terze parti nel sito, quindi nessun cookie banner necessario. -->
 <!-- v338 · colonna noleggio/acquisto: mostra solo le prime 3 piattaforme per popolarità (tra quelle con almeno un film), con link '+ mostra tutte le piattaforme' che espande il resto. Speculare al comportamento della colonna abbonamento. Nuovo stato _g7ShowAllRent indipendente da _g7ShowAll; soglia RENT_PREVIEW=3. -->
 <!-- v337 · colonna noleggio ampliata: aggiunte TIMVISION Store e Rakuten TV a SW_PLAT_RENT (ora 8 voci). Allineamento ai dati reali del DB (verificati con check-platforms.js): la colonna Piattaforme_noleggio conteneva Apple TV/Prime Video/TIMVISION coi nomi BASE invece dei nomi Store. Correzioni lato dati: swainz_migrate_noleggio_v337.sql rinomina i valori esistenti (Apple TV→Apple TV Store, Prime Video→Prime Video Store, TIMVISION→TIMVISION Store) SOLO nella colonna noleggio; swainz_cleanup_piattaforme_v337.sql ripulisce record storici malformati nella colonna abbonamento (stringhe con virgola interna, 'Rai Play', 'Apple TV+'). update-db.js aggiornato a v199 (PROV_RENT +Rakuten TV id35, +TIMVISION Store id109). Microsoft Store non mappabile (assente da TMDB IT). -->
@@ -274,7 +275,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:15px;heigh
 .b3.marked{background:rgba(255,80,0,.22);border-color:var(--or);color:#fff}
 
 /* SLIDE PANELS */
-.slide-panel{position:fixed;inset:0;z-index:310;background:rgba(27,28,31,.99);transform:translateX(100%);transition:transform .5s cubic-bezier(.77,0,.18,1);overflow-y:auto;overflow-x:hidden;height:100%;max-height:100%;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}  /* v341: contain evita che lo scroll passi alla pagina sotto; height esplicita per lo scroll interno */
+.slide-panel{position:fixed;inset:0;z-index:310;background:rgba(27,28,31,.99);transform:translateX(100%);transition:transform .5s cubic-bezier(.77,0,.18,1);overflow:hidden;height:100%}  /* v342: lo scroll e' gestito dal wrapper interno .panel-inner (come vp/allrecsp) */
 .slide-panel.on{transform:translateX(0)}
 #fcp{display:flex;flex-direction:column;overflow:hidden}
 #fcp #fcpBody{flex:1;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
@@ -689,6 +690,13 @@ body.profp-ads-show #profp{padding-bottom:96px}
 #allrecsp .panel-inner{
   width:min(920px,100vw);
   background:#303138;
+}
+/* v342 · wrapper scorrevole per i pannelli che ne erano privi */
+#profp .panel-inner,#seenp .panel-inner,#privacyp .panel-inner,#termsp .panel-inner{
+  width:100%;
+  background:transparent;
+  overscroll-behavior:contain;
+  -webkit-overflow-scrolling:touch;
 }
 #vp .panel-inner{
   width:min(500px,100vw);
@@ -1918,6 +1926,7 @@ input[type=range]{
 
 <!-- PROFILO -->
 <div id="profp" class="slide-panel">
+<div class="panel-inner">
   <div class="vph"><button class="vp-back" onclick="closeProfp()" data-i18n="back">← Torna</button><div class="vph-t"><h2 data-i18n="prof_h2">Il tuo profilo</h2><p data-i18n="prof_p">Informazioni personali — non influenzano i consigli di Swainz</p></div><div class="vph-prem" id="prem-free"><span class="vph-prem-label">Sblocca filtri avanzati</span><button class="vph-prem-btn" onclick="openUpgradePanel()">⭐ Passa a Premium</button></div><div class="vph-prem" id="prem-active" style="display:none"><span class="vph-prem-label" style="color:var(--or)">⭐ Piano Premium attivo</span><button class="vph-prem-manage" onclick="openCustomerPortal()">Gestisci abbonamento</button></div></div>
   <div class="vpb">
     <div class="prof-layout">
@@ -1989,6 +1998,7 @@ input[type=range]{
       </div>
     </div>
   </div>
+</div><!-- /panel-inner v342 -->
 </div>
 
 <!-- LEVEL-UP OVERLAY -->
@@ -2013,6 +2023,7 @@ input[type=range]{
 
 <!-- FILM GIÀ VISTI PANEL -->
 <div id="seenp" class="slide-panel">
+<div class="panel-inner">
   <div class="vph"><button class="vp-back" onclick="closeSeenPanel()">← Torna</button><div class="vph-t"><h2>Film già visti</h2><p>La tua lista personale di film visti</p></div></div>
   <div class="vpb" style="overflow-y:auto;overscroll-behavior:contain">
     <div id="seen-list-items"></div>
@@ -2023,6 +2034,7 @@ input[type=range]{
       <div id="standby-list-items"></div>
     </div>
   </div>
+</div><!-- /panel-inner v342 -->
 </div>
 
 <!-- FATTI CONOSCERE -->
@@ -7843,6 +7855,7 @@ function _onbFinish(){
 
 <!-- PRIVACY POLICY PANEL -->
 <div id="privacyp" class="slide-panel">
+<div class="panel-inner">
   <button class="legal-back" onclick="closePrivacy()">← <span data-i18n="back_btn">Torna indietro</span></button>
   <div class="legal-inner">
     <div class="legal-logo">SWAINZ</div>
@@ -7948,10 +7961,12 @@ function _onbFinish(){
       <p style="font-size:12px;color:var(--td);text-align:center">Per qualsiasi domanda: <a href="mailto:privacy@swainz.it">privacy@swainz.it</a></p>
     </div>
   </div>
+</div><!-- /panel-inner v342 -->
 </div>
 
 <!-- TERMINI DI SERVIZIO PANEL -->
 <div id="termsp" class="slide-panel">
+<div class="panel-inner">
   <button class="legal-back" onclick="closeTerms()">← <span data-i18n="back_btn">Torna indietro</span></button>
   <div class="legal-inner">
     <div class="legal-logo">SWAINZ</div>
@@ -8065,6 +8080,7 @@ function _onbFinish(){
       <p style="font-size:12px;color:var(--td);text-align:center">Swainz · swainz.it · <a href="mailto:support@swainz.it">support@swainz.it</a></p>
     </div>
   </div>
+</div><!-- /panel-inner v342 -->
 </div>
 
 <div id="payment-toast">🎉 Benvenuto in Premium!</div>
