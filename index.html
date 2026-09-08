@@ -1,6 +1,9 @@
 <!DOCTYPE html><html lang="it"><head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>SWAINZ</title><!-- v342 · CAUSA VERA del mancato scroll dei pannelli. I pannelli che scorrevano (vp, allrecsp) hanno un wrapper interno .panel-inner con height:100% e overflow-y:auto; profp, seenp, privacyp e termsp NE ERANO PRIVI: il contenuto era figlio diretto di .slide-panel, quindi non esisteva alcuna area scorrevole e la barra visibile era quella della pagina sottostante (trascinandola si scorreva #app). Fix: aggiunto il wrapper .panel-inner a quei quattro pannelli, replicando il pattern gia' funzionante; .slide-panel passa a overflow:hidden perche' lo scroll e' ora delegato al wrapper; nuove regole di larghezza piena + overscroll-behavior:contain per i wrapper aggiunti. Resta valido il fix v341 order:30 su .gdpr-box (posizione in fondo alla colonna flex). -->
+<title>SWAINZ</title><!-- v345 · Il nome del livello non e' piu' ripetuto nella card Cine-Score del profilo: e' gia' stampato dentro l'immagine del badge, quindi era ridondante. Nascosto via CSS (.cs-level-name display:none) anziche' rimuovendo l'elemento, cosi' il JS di _renderCineScore continua a popolarlo (nm.textContent) senza errori e il ripristino e' una riga sola. Il nome resta visibile dove serve: nell'overlay di passaggio di livello (classe .cs-lu-level, indipendente) e nel badge condivisibile. -->
+<!-- v344 · Profilo ridisegnato. Il riquadro placeholder 'Avatar' e' sostituito dal BADGE del livello Cine-Score dell'utente (immagini in cat/badges/, una per livello, cambiate dinamicamente da _updateProfBadge chiamata dentro _renderCineScore; fallback al badge Apprendista se l'indice e' fuori range). Colonna destra (badge riga 1 + Storico riga 2) ora si estende a tutta l'altezza: prof-layout passa ad align-items:stretch e .prof-storico e' flex column con .storico-box in flex:1. Scheda Storico ampliata: padding maggiore, pulsanti piu' alti e contatori dinamici sotto ogni voce (film consigliati da sw3_allrecs, film visti da seenFilms) via _updateStoricoCounts. Colonna sinistra riordinata: .prof-save-row sale da order:7 a order:5 per occupare lo spazio lasciato libero, Cine-Score e divisori scalano di conseguenza. La sezione GDPR resta ultima (order 29/30). Su mobile il badge e' ridotto al 62%. -->
+<!-- v343 · Cine-Score: il livello 0 si chiama ora 'Apprendista' (EN 'Apprentice') invece di 'Spettatore'/'Viewer'. Motivazione: 'Spettatore' era l'unico livello passivo di una progressione fatta di ruoli attivi, e definiva l'utente per cio' che non era ancora; 'Apprendista' esprime l'inizio del percorso in accezione positiva e chiude l'arco narrativo con il livello finale 'Maestro'. Aggiornati i due punti: definizione in CS_LEVELS (nameIt/nameEn) e placeholder statico #cs-level-name nell'HTML. Il resto dell'app (tooltip, badge condivisibile, notifica di level-up) legge il nome dinamicamente da CS_LEVELS e si allinea da se'. Emoji invariata (ciak). -->
+<!-- v342 · CAUSA VERA del mancato scroll dei pannelli. I pannelli che scorrevano (vp, allrecsp) hanno un wrapper interno .panel-inner con height:100% e overflow-y:auto; profp, seenp, privacyp e termsp NE ERANO PRIVI: il contenuto era figlio diretto di .slide-panel, quindi non esisteva alcuna area scorrevole e la barra visibile era quella della pagina sottostante (trascinandola si scorreva #app). Fix: aggiunto il wrapper .panel-inner a quei quattro pannelli, replicando il pattern gia' funzionante; .slide-panel passa a overflow:hidden perche' lo scroll e' ora delegato al wrapper; nuove regole di larghezza piena + overscroll-behavior:contain per i wrapper aggiunti. Resta valido il fix v341 order:30 su .gdpr-box (posizione in fondo alla colonna flex). -->
 <!-- v341 · correzione dei due problemi introdotti/emersi in v339-v340. (1) POSIZIONE sezione GDPR: .prof-left e un flex container in cui ogni figlio ha un order esplicito (1..20); .gdpr-box aveva l'order di default 0 e finiva in cima. Assegnati order:30 a .gdpr-box e 29 a #pfdiv-gdpr. (2) SCROLL pannelli: RIMOSSO l'approccio della v340 che chiamava _lockScroll() sui pannelli laterali — sbagliato, perche quel lock mette body{position:fixed} + html/body{overflow:hidden}, togliendo altezza utile al pannello e bloccando anche il suo scroll interno (quel meccanismo e pensato per la card film, un overlay corto). Soluzione corretta, solo CSS su .slide-panel: height/max-height 100% per uno scroll interno reale e overscroll-behavior:contain per non propagare lo scroll alla pagina sottostante, senza toccare il body. -->
 <!-- v339 · conformita GDPR. (1) Art. 17 diritto all'oblio: nuova funzione deleteMyAccount() con doppia conferma (dialogo + digitazione della parola ELIMINA/DELETE) che chiama la Edge Function delete-account; la funzione ricava l'identita DAL TOKEN (mai dal body) cosi nessuno puo cancellare account altrui, elimina user_data + search_usage + utente Auth. (2) Art. 20 portabilita: exportMyData() scarica un JSON con dati locali (localStorage) e dati server (user_data). (3) Art. 5.2 accountability: checkbox di consenso obbligatoria alla registrazione (link a Privacy e Termini), con salvataggio di consent_accepted_at + consent_version su user_data; per OAuth il consenso e registrato al primo accesso senza sovrascrivere la data originale. Nuova sezione 'I tuoi dati' nel profilo. Privacy policy aggiornata (strumenti self-service, voce dati di consenso, data). Prerequisiti: swainz_gdpr_consent_v339.sql + deploy Edge Function delete-account. NB: nessun tracker di terze parti nel sito, quindi nessun cookie banner necessario. -->
 <!-- v338 · colonna noleggio/acquisto: mostra solo le prime 3 piattaforme per popolarità (tra quelle con almeno un film), con link '+ mostra tutte le piattaforme' che espande il resto. Speculare al comportamento della colonna abbonamento. Nuovo stato _g7ShowAllRent indipendente da _g7ShowAll; soglia RENT_PREVIEW=3. -->
@@ -296,10 +299,11 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:15px;heigh
 .vph-t p{color:var(--td);font-size:11.5px;margin-top:3px;line-height:1.6;max-width:500px}
 .vpb{padding:22px 24px;max-width:780px;margin:0 auto;position:relative;z-index:1}
 /* ── PROFILO 2-COL LAYOUT ─────────────────────────────────────────────────── */
-.prof-layout{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:auto 1fr;gap:16px;align-items:start}
+.prof-layout{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:auto 1fr;gap:16px;align-items:stretch}
 .prof-avatar-wrap{grid-column:2;grid-row:1}
 .prof-left{grid-column:1;grid-row:1/span 2}
-.prof-storico{grid-column:2;grid-row:2}
+.prof-storico{grid-column:2;grid-row:2;display:flex;flex-direction:column;align-self:stretch}
+.prof-storico .storico-box{flex:1;display:flex;flex-direction:column}
 .prof-storico-mobile{display:none}
 .prof-avatar-mob{display:none}
 .prof-top-strip{display:block}
@@ -309,10 +313,10 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:15px;heigh
 .prof-top-strip{order:2}
 #pfdiv1{order:3}
 .prof-row-film{order:4}
-#cs-card{order:5}
-#cs-tooltip{order:6}
-.prof-save-row{order:7}
-#pfdiv2{order:8}
+.prof-save-row{order:5}
+#pfdiv2{order:6}
+#cs-card{order:7}
+#cs-tooltip{order:8}
 .prof-prem-row{order:9}
 .prof-storico-mobile{order:20}
 @media(max-width:600px){
@@ -320,8 +324,22 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:15px;heigh
   .prof-avatar-wrap,.prof-left,.prof-storico{grid-column:1;grid-row:unset}
   .prof-storico{display:none}
   .prof-storico-mobile{display:block}
+  .badge-img{width:62%;max-width:190px}  /* v344: badge piu' contenuto su mobile */
 }
-.avatar-box{aspect-ratio:1;border-radius:16px;border:2px dashed rgba(255,255,255,.13);background:rgba(255,255,255,.03);display:flex;align-items:center;justify-content:center;margin-bottom:12px;min-height:80px}
+/* v344 · badge di livello al posto del riquadro avatar */
+.badge-box{display:flex;align-items:center;justify-content:center;margin-bottom:14px}
+.badge-img{width:86%;max-width:230px;height:auto;display:block;filter:drop-shadow(0 6px 18px rgba(0,0,0,.5));transition:transform .25s ease}
+.badge-box:hover .badge-img{transform:translateY(-3px) scale(1.02)}
+/* v344 · scheda Storico ampliata */
+.prof-storico .storico-box{padding:16px 16px 14px}
+.prof-storico .storico-lbl{margin-bottom:12px}
+.prof-storico .storico-btn{padding:14px 15px;align-items:center;margin-bottom:0}
+.prof-storico .storico-btn+.storico-btn{margin-top:10px}
+.storico-ic{font-size:17px;flex-shrink:0;line-height:1}
+.storico-txt{display:flex;flex-direction:column;align-items:flex-start;gap:2px;min-width:0;flex:1}
+.storico-t1{font-size:12.5px;font-weight:600;line-height:1.25}
+.storico-t2{font-size:11px;font-weight:500;color:var(--or);letter-spacing:.3px}
+
 .avatar-box-inner{text-align:center;color:var(--td);font-size:11.5px;opacity:.55;pointer-events:none}
 .storico-box{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:14px 14px 8px}
 .storico-lbl{font-size:9.5px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--or);margin-bottom:10px;opacity:.9}
@@ -537,7 +555,7 @@ body.profp-ads-show #profp-ad-l,body.profp-ads-show #profp-ad-r,body.profp-ads-s
 .cs-ring-wrap.lv5::after{border-color:rgba(245,158,11,.3);inset:-10px;animation-duration:6s}
 /* Text side */
 .cs-info-col{flex:1;min-width:0}
-.cs-level-name{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:2px;line-height:1;margin-bottom:6px}
+.cs-level-name{display:none}  /* v345: il nome del livello e' gia' scritto dentro il badge immagine, qui sarebbe ridondante. Il JS continua a popolarlo (nm.textContent) senza errori. */
 .cs-level-name.lv0{color:rgba(255,255,255,.4)}
 .cs-level-name.lv1{background:linear-gradient(135deg,#ffd28a,#ffb045);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
 .cs-level-name.lv2{background:linear-gradient(135deg,#86efac,#22c55e);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
@@ -1931,7 +1949,10 @@ input[type=range]{
   <div class="vpb">
     <div class="prof-layout">
       <div class="prof-avatar-wrap">
-        <div class="avatar-box"><div class="avatar-box-inner"><div style="font-size:38px;margin-bottom:6px">👤</div><div>Avatar</div></div></div>
+          <div class="badge-box">
+            <img id="prof-badge-img" class="badge-img" src="cat/badges/badge_apprendista.png" alt="Badge livello">
+          </div>
+        </div>
       </div>
       <div class="prof-left">
         <div id="prof-account-box" style="display:none;background:rgba(255,255,255,.04);border:1px solid var(--br);border-radius:10px;padding:10px 14px;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between;gap:10px">
@@ -1958,7 +1979,7 @@ input[type=range]{
               <div class="cs-badge lv0" id="cs-badge-icon">🎬</div>
             </div>
             <div class="cs-info-col">
-              <div class="cs-level-name lv0" id="cs-level-name">Spettatore</div>
+              <div class="cs-level-name lv0" id="cs-level-name">Apprendista</div>
               <div class="cs-stats-row" id="cs-stats-row"></div>
               <div class="cs-progress-track" id="cs-progress-track" style="display:none"><div class="cs-progress-fill lv0" id="cs-progress-fill" style="width:0%"></div></div>
               <div class="cs-next-label" id="cs-next-label"></div>
@@ -1990,12 +2011,18 @@ input[type=range]{
 
       </div>
       <div class="prof-storico">
-        <div class="storico-box">
-          <div class="storico-lbl">Storico</div>
-          <button class="storico-btn" onclick="openAllRecs()"><span>🎬</span><span data-i18n="allrec_btn">Film consigliati fino a oggi</span></button>
-          <button class="storico-btn" onclick="openSeenPanel()"><span style="color:#4ade80;font-weight:700">✓</span><span>Film già visti</span></button>
+          <div class="storico-box">
+            <div class="storico-lbl">Storico</div>
+            <button class="storico-btn" onclick="openAllRecs()">
+              <span class="storico-ic">🎬</span>
+              <span class="storico-txt"><span class="storico-t1" data-i18n="allrec_btn">Film consigliati fino a oggi</span><span class="storico-t2" id="storico-n-rec">—</span></span>
+            </button>
+            <button class="storico-btn" onclick="openSeenPanel()">
+              <span class="storico-ic" style="color:#4ade80">✓</span>
+              <span class="storico-txt"><span class="storico-t1">Film già visti</span><span class="storico-t2" id="storico-n-seen">—</span></span>
+            </button>
+          </div>
         </div>
-      </div>
     </div>
   </div>
 </div><!-- /panel-inner v342 -->
@@ -4747,7 +4774,7 @@ const CS_CLUSTERS=[
 const CS_FILM_BONUS={'Difficile':4,'Crudo':3,'Vecchio':3,'Lunghissimo':3,'Asiatico':2,'Epoca Passata':1,'Biografico':1,'Western':1,'CineComic':-1};
 const CS_FCK_BONUS={q1:{from80:1,all:2},q2:{any:1},q3:{yes:1},q4:{auteur:1},q6:{love:2,sometimes:1},q9:{weekly:1,often:2},q17:{dubbed:1}};
 const CS_LEVELS=[
-  {idx:0,emoji:'🎬',nameIt:'Spettatore',nameEn:'Viewer',subIt:'Benvenuto nel cinema!',subEn:'Welcome to cinema!',minPts:0,minSeen:0,minRecs:0,minSeenCl:0,minRecsCl:0,needOnboard:true},
+  {idx:0,emoji:'🎬',nameIt:'Apprendista',nameEn:'Apprentice',subIt:'Benvenuto nel cinema!',subEn:'Welcome to cinema!',minPts:0,minSeen:0,minRecs:0,minSeenCl:0,minRecsCl:0,needOnboard:true},
   {idx:1,emoji:'🧭',nameIt:'Esploratore',nameEn:'Explorer',subIt:'Stai ampliando i tuoi orizzonti cinematografici.',subEn:'You are broadening your cinematic horizons.',minPts:50,minSeen:50,minRecs:30,minSeenCl:3,minRecsCl:3},
   {idx:2,emoji:'🎞',nameIt:'Cinefilo',nameEn:'Film Buff',subIt:'La tua passione per il cinema è evidente.',subEn:'Your passion for cinema is clear.',minPts:300,minSeen:150,minRecs:100,minSeenCl:4,minRecsCl:5},
   {idx:3,emoji:'🔬',nameIt:'Esperto',nameEn:'Expert',subIt:'Sei un intenditore di cinema a tutti gli effetti.',subEn:'You are a true cinema connoisseur.',minPts:600,minSeen:400,minRecs:100,minSeenCl:6,minRecsCl:6},
@@ -4834,12 +4861,36 @@ function _csProgressToNext(d,lvlIdx){
   return Math.min(...ratios);
 }
 
+// v344 · file immagine del badge per ciascun livello Cine-Score
+var CS_BADGE_FILES=['badge_apprendista.png','badge_esploratore.png','badge_cinefilo.png','badge_esperto.png','badge_maestro.png'];
+function _updateProfBadge(lvlIdx,name){
+  var img=document.getElementById('prof-badge-img');
+  if(!img)return;
+  var f=CS_BADGE_FILES[lvlIdx]||CS_BADGE_FILES[0];
+  var src='cat/badges/'+f;
+  if(img.getAttribute('src')!==src)img.setAttribute('src',src);
+  img.setAttribute('alt',(LANG==='en'?'Badge: ':'Badge: ')+name);
+}
+// v344 · contatori mostrati nella scheda Storico
+function _updateStoricoCounts(){
+  try{
+    var nSeen=(typeof seenFilms!=='undefined'&&seenFilms)?seenFilms.size:0;
+    var nRec=0;
+    try{var raw=localStorage.getItem('sw3_allrecs');if(raw){var a=JSON.parse(raw);if(Array.isArray(a))nRec=a.length;}}catch(e){}
+    var isIT=LANG!=='en';
+    var e1=document.getElementById('storico-n-rec');
+    var e2=document.getElementById('storico-n-seen');
+    if(e1)e1.textContent=nRec+(isIT?(nRec===1?' film':' film'):' films');
+    if(e2)e2.textContent=nSeen+(isIT?(nSeen===1?' film':' film'):' films');
+  }catch(e){}
+}
 function _renderCineScore(){
   var d=_computeCineScore();
   var lvlIdx=_getCineLevel(d);
   var lv=CS_LEVELS[lvlIdx];
   var isIT=LANG!=='en';
   var name=isIT?lv.nameIt:lv.nameEn;
+  _updateProfBadge(lvlIdx,name); _updateStoricoCounts(); // v344
   var progress=_csProgressToNext(d,lvlIdx);
   var cls='lv'+lvlIdx;
   var isMaestro=lvlIdx>=CS_LEVELS.length-1;
