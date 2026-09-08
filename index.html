@@ -1,6 +1,7 @@
 <!DOCTYPE html><html lang="it"><head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>SWAINZ</title><!-- v338 · colonna noleggio/acquisto: mostra solo le prime 3 piattaforme per popolarità (tra quelle con almeno un film), con link '+ mostra tutte le piattaforme' che espande il resto. Speculare al comportamento della colonna abbonamento. Nuovo stato _g7ShowAllRent indipendente da _g7ShowAll; soglia RENT_PREVIEW=3. -->
+<title>SWAINZ</title><!-- v339 · conformita GDPR. (1) Art. 17 diritto all'oblio: nuova funzione deleteMyAccount() con doppia conferma (dialogo + digitazione della parola ELIMINA/DELETE) che chiama la Edge Function delete-account; la funzione ricava l'identita DAL TOKEN (mai dal body) cosi nessuno puo cancellare account altrui, elimina user_data + search_usage + utente Auth. (2) Art. 20 portabilita: exportMyData() scarica un JSON con dati locali (localStorage) e dati server (user_data). (3) Art. 5.2 accountability: checkbox di consenso obbligatoria alla registrazione (link a Privacy e Termini), con salvataggio di consent_accepted_at + consent_version su user_data; per OAuth il consenso e registrato al primo accesso senza sovrascrivere la data originale. Nuova sezione 'I tuoi dati' nel profilo. Privacy policy aggiornata (strumenti self-service, voce dati di consenso, data). Prerequisiti: swainz_gdpr_consent_v339.sql + deploy Edge Function delete-account. NB: nessun tracker di terze parti nel sito, quindi nessun cookie banner necessario. -->
+<!-- v338 · colonna noleggio/acquisto: mostra solo le prime 3 piattaforme per popolarità (tra quelle con almeno un film), con link '+ mostra tutte le piattaforme' che espande il resto. Speculare al comportamento della colonna abbonamento. Nuovo stato _g7ShowAllRent indipendente da _g7ShowAll; soglia RENT_PREVIEW=3. -->
 <!-- v337 · colonna noleggio ampliata: aggiunte TIMVISION Store e Rakuten TV a SW_PLAT_RENT (ora 8 voci). Allineamento ai dati reali del DB (verificati con check-platforms.js): la colonna Piattaforme_noleggio conteneva Apple TV/Prime Video/TIMVISION coi nomi BASE invece dei nomi Store. Correzioni lato dati: swainz_migrate_noleggio_v337.sql rinomina i valori esistenti (Apple TV→Apple TV Store, Prime Video→Prime Video Store, TIMVISION→TIMVISION Store) SOLO nella colonna noleggio; swainz_cleanup_piattaforme_v337.sql ripulisce record storici malformati nella colonna abbonamento (stringhe con virgola interna, 'Rai Play', 'Apple TV+'). update-db.js aggiornato a v199 (PROV_RENT +Rakuten TV id35, +TIMVISION Store id109). Microsoft Store non mappabile (assente da TMDB IT). -->
 <!-- v336 · fix + estensioni scheda piattaforma. (1) FIX findFilm/rendering: al DB ready ora si ri-renderizza g7 (_renderG7Split) e _platformsInDB non cache-a più un set vuoto → risolve 'nessuna piattaforma disponibile' quando buildUI girava prima del caricamento DB. (2) FIX reset filtri: resetFilters ora deseleziona anche i chip di g7 nel nuovo layout #g7-split (prima cercava #ch-g7 inesistente, lasciando i chip visivamente attivi). (3) Scheda film 'Disponibile su' ora divisa in due colonne (Abbonamento | Noleggio/Acquisto) via _renderCardPlatforms, mostrando sia f.plt sia f.plt_nol (prima ignorava del tutto il noleggio). NB: il match findFilm usava già _pltSome (unione sub+nol) correttamente; se alcune piattaforme noleggio non compaiono è un tema di DATI nel DB (usare check-platforms.js per verificare i valori reali). -->
 <!-- v335 · scheda Piattaforma ridisegnata a DUE COLONNE con divisore centrale arancione. Sinistra 'Abbonamento': 6 principali fisse (Netflix, Prime Video, Disney+, Sky Go, RaiPlay, MUBI) + link 'mostra tutte le piattaforme' che aggiunge le restanti sub sotto. Destra 'Noleggio/Acquisto': sempre visibile, tutte le 6 piattaforme rent. RIMOSSI la casella 'includi noleggio' e lo stato _inclNoleggio/_toggleNoleggio/_rerenderG7: entrambe le colonne sono sempre mostrate. In ENTRAMBE compaiono solo le piattaforme con >=1 film nel DB (calcolato client-side da _platformsInDB su DB). Match semplificato: _pltArr = unione fissa f.plt + f.plt_nol (nomi distinti tra colonne, ogni chip filtra la sua sezione). Nuovo renderer _renderG7Split + _mkG7Chip; nuove i18n g7_sub/g7_rent/g7_more/g7_less/g7_empty. Prerequisito dati: update-db.js v198 (due colonne). -->
@@ -741,6 +742,20 @@ body.profp-ads-show #profp{padding-bottom:96px}
 .g7more{margin-top:10px;font-size:11.5px;color:var(--or);cursor:pointer;user-select:none;display:inline-block}
 .g7more:hover{text-decoration:underline}
 .g7empty{font-size:11px;color:var(--td);font-style:italic;padding:3px 0;line-height:1.35}
+/* v339 · sezione GDPR nel profilo */
+.gdpr-box{margin:14px 0 6px}
+.gdpr-lbl{font-size:12px;font-weight:600;color:var(--or);margin-bottom:5px}
+.gdpr-desc{font-size:11.5px;color:var(--td);line-height:1.4;margin-bottom:10px}
+.gdpr-btn{display:flex;align-items:center;gap:8px;width:100%;padding:9px 13px;margin-bottom:7px;border-radius:9px;border:1px solid var(--br);background:rgba(255,255,255,.03);color:var(--tx);font-size:12.5px;font-weight:500;cursor:pointer;text-align:left;transition:background .12s}
+.gdpr-btn:hover{background:rgba(255,255,255,.07)}
+.gdpr-btn:disabled{opacity:.6;cursor:default}
+.gdpr-btn-danger{border-color:rgba(220,60,60,.4);color:#ff8080}
+.gdpr-btn-danger:hover{background:rgba(220,60,60,.12)}
+/* v339 · checkbox consenso privacy nella schermata di accesso */
+.ls-consent{display:flex;align-items:flex-start;gap:8px;margin:2px 0 12px;cursor:pointer;text-align:left}
+.ls-consent input[type=checkbox]{accent-color:var(--or);width:15px;height:15px;flex-shrink:0;margin-top:1px;cursor:pointer}
+.ls-consent span{font-size:11.5px;color:var(--td);line-height:1.4}
+.ls-consent a{color:var(--or);text-decoration:underline}
 /* v336 · sezione piattaforme della scheda film a due colonne */
 .cardplt-split{display:flex;align-items:stretch;gap:0;margin-top:4px}
 .cardplt-col{flex:1;min-width:0}
@@ -1621,6 +1636,11 @@ input[type=range]{
       <input class="ls-input" id="ls-email" type="email" placeholder="Email" autocomplete="email"/>
       <input class="ls-input" id="ls-pwd" type="password" data-i18n-ph="login_pwd_ph" placeholder="Password" autocomplete="current-password"/>
       <div class="ls-err" id="ls-err"></div>
+      <!-- v339 · GDPR: consenso esplicito a Privacy e Termini (accountability art. 5.2) -->
+      <label class="ls-consent" for="ls-consent-cb">
+        <input type="checkbox" id="ls-consent-cb">
+        <span data-i18n="login_consent">Ho letto e accetto la <a href="#" onclick="event.preventDefault();event.stopPropagation();openPrivacy()">Privacy Policy</a> e i <a href="#" onclick="event.preventDefault();event.stopPropagation();openTerms()">Termini di Servizio</a></span>
+      </label>
       <div class="ls-row">
         <button class="lb demo" onclick="doLogin()" data-i18n="login_enter">Accedi</button>
         <button class="lb" onclick="doRegister()" data-i18n="login_register">Registrati</button>
@@ -1947,6 +1967,14 @@ input[type=range]{
         <div class="fdiv" id="pfdiv1"></div>
         <div class="prof-row prof-row-film"><label class="prof-lbl">🎬 <span data-i18n="prof_film">Film preferito</span></label><input class="prof-inp" id="pFilm" data-i18n-ph="prof_film_ph" placeholder="Es. Il Padrino"></div>
         <div class="prof-save-row" style="display:flex;align-items:center;gap:12px;margin-top:8px"><button class="save-btn" onclick="saveProfp()" data-i18n="save">Salva profilo</button><span class="save-ok" id="profOk" data-i18n="saved">✓ Salvato!</span></div>
+        <!-- v339 · GDPR: privacy e controllo dei propri dati -->
+        <div class="fdiv" id="pfdiv-gdpr"></div>
+        <div class="gdpr-box">
+          <div class="gdpr-lbl" data-i18n="gdpr_title">🔒 I tuoi dati</div>
+          <div class="gdpr-desc" data-i18n="gdpr_desc">Puoi scaricare una copia dei tuoi dati o eliminare definitivamente il tuo account in qualsiasi momento.</div>
+          <button class="gdpr-btn" id="gdpr-export-btn" onclick="exportMyData()"><span>⬇</span><span data-i18n="gdpr_export">Scarica i miei dati</span></button>
+          <button class="gdpr-btn gdpr-btn-danger" id="gdpr-delete-btn" onclick="deleteMyAccount()"><span>🗑</span><span data-i18n="gdpr_delete">Elimina il mio account</span></button>
+        </div>
         <div class="fdiv" id="pfdiv2"></div>
 
       </div>
@@ -5089,6 +5117,112 @@ function startCheckout(priceId){
   .then(function(d){if(d.url){window.location.href=d.url;}else{if(btn)btn.textContent=orig;if(bm)bm.disabled=false;if(by)by.disabled=false;alert('Errore: '+(d.error||'Riprova.'));}})
   .catch(function(){if(btn)btn.textContent=orig;if(bm)bm.disabled=false;if(by)by.disabled=false;alert(t('alert_network'));});
 }
+// ═══════════════════════════════════════════════════════════════════════
+// v339 · GDPR — Esportazione dati (art. 20) e Cancellazione account (art. 17)
+// ═══════════════════════════════════════════════════════════════════════
+
+// Art. 20 — Portabilità: scarica TUTTI i dati dell'utente in JSON leggibile.
+// Raccoglie sia i dati locali (localStorage) sia quelli su Supabase (user_data).
+function exportMyData(){
+  var btn=document.getElementById('gdpr-export-btn');
+  var orig=btn?btn.textContent:'';
+  if(btn){btn.disabled=true;btn.textContent='⏳ ...';}
+
+  var pack={
+    _info:{
+      servizio:'Swainz (swainz.it)',
+      generato_il:new Date().toISOString(),
+      nota:'Esportazione dei dati personali ai sensi dell\'art. 20 GDPR (portabilità).'
+    },
+    account:null,
+    profilo_server:null,
+    dati_locali:{}
+  };
+
+  // 1. Dati locali (browser)
+  try{
+    var keys=['sw3_seen','sw3_fck','sw3_prof','sw3_premium','sw3_allrecs',
+              'sw3_cine_lv','sw3_onboarded','sw3_hint_idx'];
+    keys.forEach(function(k){
+      try{
+        var v=localStorage.getItem(k);
+        if(v!==null){ try{pack.dati_locali[k]=JSON.parse(v);}catch(e){pack.dati_locali[k]=v;} }
+      }catch(e){}
+    });
+  }catch(e){}
+
+  // 2. Dati account
+  if(currentUser){
+    pack.account={ id:currentUser.id, email:currentUser.email||null };
+  }
+
+  var finish=function(){
+    try{
+      var blob=new Blob([JSON.stringify(pack,null,2)],{type:'application/json'});
+      var url=URL.createObjectURL(blob);
+      var a=document.createElement('a');
+      a.href=url;
+      a.download='swainz-i-miei-dati-'+new Date().toISOString().slice(0,10)+'.json';
+      document.body.appendChild(a);a.click();
+      setTimeout(function(){document.body.removeChild(a);URL.revokeObjectURL(url);},100);
+    }catch(e){alert(t('gdpr_export_err'));}
+    if(btn){btn.disabled=false;btn.textContent=orig;}
+  };
+
+  // 3. Dati server (se loggato)
+  if(_authToken&&currentUser){
+    _supaXHR('GET','/rest/v1/user_data?user_id=eq.'+currentUser.id+'&select=*',
+      null,_authToken,function(status,res){
+        try{
+          if(status===200){
+            var arr=(typeof res==='string')?JSON.parse(res):res;
+            if(Array.isArray(arr)&&arr.length)pack.profilo_server=arr[0];
+          }
+        }catch(e){}
+        finish();
+      });
+  } else { finish(); }
+}
+
+// Art. 17 — Diritto all'oblio: cancellazione definitiva dell'account.
+// Doppia conferma (la seconda richiede di digitare una parola) perché
+// l'operazione è irreversibile.
+function deleteMyAccount(){
+  if(!currentUser){alert(t('alert_login_first'));return;}
+  if(!confirm(t('gdpr_del_confirm1')))return;
+  var word=(LANG==='en')?'DELETE':'ELIMINA';
+  var typed=prompt(t('gdpr_del_confirm2').replace('{w}',word));
+  if(!typed||typed.trim().toUpperCase()!==word){ alert(t('gdpr_del_aborted')); return; }
+
+  var btn=document.getElementById('gdpr-delete-btn');
+  var orig=btn?btn.textContent:'';
+  if(btn){btn.disabled=true;btn.textContent='⏳ ...';}
+
+  fetch(EDGE_URL+'/delete-account',{
+    method:'POST',
+    headers:{'Content-Type':'application/json','Authorization':'Bearer '+(_authToken||'')}
+  })
+  .then(function(r){return r.json();})
+  .then(function(d){
+    if(d&&d.success){
+      // Ripulisco tutto il locale e riporto alla schermata di accesso
+      try{
+        ['sw3_seen','sw3_fck','sw3_prof','sw3_premium','sw3_allrecs','sw3_cine_lv',
+         'sw3_onboarded','sw3_hint_idx','sw3_session','sw3_cd','sw3_lb_standby',
+         'sw3_wakeday'].forEach(function(k){try{localStorage.removeItem(k);}catch(e){}});
+      }catch(e){}
+      alert(t('gdpr_del_ok'));
+      window.location.href='/';
+    } else {
+      if(btn){btn.disabled=false;btn.textContent=orig;}
+      alert(t('gdpr_del_err')+(d&&d.error?(' ('+d.error+')'):''));
+    }
+  })
+  .catch(function(){
+    if(btn){btn.disabled=false;btn.textContent=orig;}
+    alert(t('alert_network'));
+  });
+}
 function openCustomerPortal(){
   if(!currentUser){alert(t('alert_login_first'));return;}
   closeUpgradePanel();
@@ -5809,6 +5943,17 @@ const T={
     mbu:'Mrrrow! 🎬',
     g1:'🎭 Genere & Atmosfera',g2:'✨ Qualità & Stile',g3:'🔍 Temi specifici',g4:'🧠 Mood',g5:'🌍 Contesto',g6:'⏱ Durata',g7:'📺 Piattaforma',g8:'📅 Periodo',
     g7_sub:'Abbonamento',g7_rent:'Noleggio/Acquisto',
+    gdpr_title:'🔒 I tuoi dati',
+    gdpr_desc:'Puoi scaricare una copia dei tuoi dati o eliminare definitivamente il tuo account in qualsiasi momento.',
+    gdpr_export:'Scarica i miei dati',
+    gdpr_delete:'Elimina il mio account',
+    gdpr_export_err:'Esportazione non riuscita. Riprova.',
+    gdpr_del_confirm1:'Vuoi eliminare definitivamente il tuo account? Tutti i tuoi dati (profilo, film visti, consigli) saranno cancellati e non sarà possibile recuperarli.',
+    gdpr_del_confirm2:'Per confermare, scrivi {w} qui sotto:',
+    gdpr_del_aborted:'Operazione annullata. Il tuo account non è stato toccato.',
+    gdpr_del_ok:'Account eliminato. I tuoi dati sono stati cancellati.',
+    gdpr_del_err:'Eliminazione non riuscita. Riprova o scrivi a privacy@swainz.it',
+    login_consent_required:'Per registrarti devi accettare la Privacy Policy e i Termini di Servizio.',
     g7_more:'+ mostra tutte le piattaforme',g7_less:'– mostra meno',
     g7_empty:'Nessuna piattaforma disponibile',
     fck_q1:'Come ti rapporti con i film del passato?',
@@ -5938,6 +6083,18 @@ const T={
     mbu:'Purrr! 🎬',
     g1:'🎭 Genre & Mood',g2:'✨ Quality & Style',g3:'🔍 Specific Themes',g4:'🧠 Mood',g5:'🌍 Context',g6:'⏱ Length',g7:'📺 Platform',g8:'📅 Period',
     g7_sub:'Subscription',g7_rent:'Rent/Buy',
+    gdpr_title:'🔒 Your data',
+    gdpr_desc:'You can download a copy of your data or permanently delete your account at any time.',
+    gdpr_export:'Download my data',
+    gdpr_delete:'Delete my account',
+    gdpr_export_err:'Export failed. Please try again.',
+    gdpr_del_confirm1:'Permanently delete your account? All your data (profile, watched films, recommendations) will be erased and cannot be recovered.',
+    gdpr_del_confirm2:'To confirm, type {w} below:',
+    gdpr_del_aborted:'Cancelled. Your account was not touched.',
+    gdpr_del_ok:'Account deleted. Your data has been erased.',
+    gdpr_del_err:'Deletion failed. Please retry or write to privacy@swainz.it',
+    login_consent_required:'You must accept the Privacy Policy and Terms of Service to sign up.',
+    login_consent:'I have read and accept the <a href="#" onclick="event.preventDefault();event.stopPropagation();openPrivacy()">Privacy Policy</a> and <a href="#" onclick="event.preventDefault();event.stopPropagation();openTerms()">Terms of Service</a>',
     g7_more:'+ show all platforms',g7_less:'– show less',
     g7_empty:'No platforms available',
     fck_q1:'How do you feel about older films?',
@@ -6206,7 +6363,16 @@ function setLang(l){
     _dbReady.then(function(){
       // Ensure user_data row exists (creates it if this is a legacy account)
       _saveUserData({ email: currentUser ? currentUser.email : '', updated_at: new Date().toISOString() });
-      _loadUserData(function(d){_applyUserData(d);_autoPushLocalProfile(d);buildUI();_rpcSearchStatus(function(st){_applyServerSearch(st);}); /* v329: contatore reale dal server */ try{if(typeof _shouldShowOnboarding==="function"&&_shouldShowOnboarding(d)){showOnboarding();return;}}catch(e){console.error("Onboarding error:",e);}login();});
+      _loadUserData(function(d){_applyUserData(d);_autoPushLocalProfile(d);buildUI();
+        // v339 GDPR: registra il consenso al PRIMO accesso (anche OAuth), senza
+        // sovrascrivere la data se già presente — deve restare quella originale.
+        try{
+          if(d && !d.consent_accepted_at){
+            _saveUserData({ consent_accepted_at:new Date().toISOString(),
+                            consent_version:LEGAL_VERSION,
+                            updated_at:new Date().toISOString() });
+          }
+        }catch(e){}_rpcSearchStatus(function(st){_applyServerSearch(st);}); /* v329: contatore reale dal server */ try{if(typeof _shouldShowOnboarding==="function"&&_shouldShowOnboarding(d)){showOnboarding();return;}}catch(e){console.error("Onboarding error:",e);}login();});
     });
   });
 })();
@@ -6508,11 +6674,29 @@ function doLogin() {
   });
 }
 
+// v339 · versione corrente dei documenti legali: cambiarla quando si aggiornano
+// Privacy/Termini, così si sa a quale testo l'utente ha acconsentito.
+var LEGAL_VERSION='2026-07';
+// Verifica che la checkbox di consenso sia spuntata (solo per la REGISTRAZIONE:
+// chi accede ha già acconsentito in passato).
+function _checkConsent(){
+  var cb=document.getElementById('ls-consent-cb');
+  if(cb&&cb.checked)return true;
+  var err=document.getElementById('ls-err');
+  if(err){err.textContent=t('login_consent_required');err.style.display='block';}
+  else alert(t('login_consent_required'));
+  if(cb){try{cb.focus();}catch(e){}}
+  return false;
+}
 function doRegister() {
+  if(!_checkConsent())return; // v339: consenso obbligatorio alla registrazione
   _lsAuth('signup', {}, function(res) {
     if (res.access_token && res.user) {
       _saveSession(res);
-      _saveUserData({ email: res.user.email, updated_at: new Date().toISOString() });
+      _saveUserData({ email: res.user.email,
+        consent_accepted_at: new Date().toISOString(), // v339 GDPR: prova del consenso
+        consent_version: LEGAL_VERSION,
+        updated_at: new Date().toISOString() });
       _loadUserData(function(d){ _applyUserData(d); _autoPushLocalProfile(d); try{if(typeof _shouldShowOnboarding==="function"&&_shouldShowOnboarding(d)){showOnboarding();return;}}catch(e){console.error("Onboarding error:",e);}login(); });
     } else {
       _lsInfo(LANG === 'en' ? '\u2709 Check your email to confirm your account.' : '\u2709 Controlla la tua email per confermare la registrazione.');
@@ -7661,7 +7845,7 @@ function _onbFinish(){
   <div class="legal-inner">
     <div class="legal-logo">SWAINZ</div>
     <h1 class="legal-h1">Privacy Policy</h1>
-    <p class="legal-upd">Ultimo aggiornamento: luglio 2026 · In vigore dal: giugno 2026</p>
+    <p class="legal-upd">Ultimo aggiornamento: settembre 2026 · In vigore dal: giugno 2026</p>
 
     <div class="legal-sec">
       <h2>1. Titolare del Trattamento</h2>
@@ -7675,7 +7859,7 @@ function _onbFinish(){
         <li><strong>Dati di registrazione:</strong> indirizzo email, nome, cognome, data di nascita (opzionale), metodo di autenticazione (email/password, Google, Facebook)</li>
         <li><strong>Dati di utilizzo:</strong> film segnati come visti, cronologia dei consigli ricevuti, preferenze impostate tramite il questionario FCK, filtri selezionati</li>
         <li><strong>Dati di pagamento:</strong> il numero di carta e i dati finanziari sono gestiti esclusivamente da Stripe e non transitano né vengono conservati sui nostri server. Conserviamo solo l'ID cliente Stripe, l'ID abbonamento e lo stato dell'abbonamento</li>
-        <li><strong>Dati tecnici:</strong> indirizzo IP (gestito da Vercel/Supabase), log di accesso tecnici necessari al funzionamento del servizio</li>
+        <li><strong>Dati di consenso:</strong> data, ora e versione dei documenti (Privacy Policy e Termini di Servizio) accettati al momento della registrazione, conservati per dimostrare il consenso ai sensi dell'art. 5.2 GDPR</li><li><strong>Dati tecnici:</strong> indirizzo IP (gestito da Vercel/Supabase), log di accesso tecnici necessari al funzionamento del servizio</li>
       </ul>
       <p>Swainz <strong>non raccoglie</strong> dati sensibili (salute, opinioni politiche, religione, ecc.) e non effettua profilazione automatica finalizzata a decisioni che producono effetti giuridici sull'utente.</p>
     </div>
@@ -7719,7 +7903,7 @@ function _onbFinish(){
 
     <div class="legal-sec">
       <h2>6. I Tuoi Diritti (GDPR Artt. 15–22)</h2>
-      <p>In qualità di interessato, hai i seguenti diritti che puoi esercitare in qualsiasi momento scrivendo a <a href="mailto:privacy@swainz.it">privacy@swainz.it</a>:</p>
+      <p>Dal tuo <strong>Profilo</strong> puoi in autonomia e in qualsiasi momento <strong>scaricare una copia dei tuoi dati</strong> (diritto di portabilità) ed <strong>eliminare definitivamente il tuo account</strong> con tutti i dati associati (diritto alla cancellazione). In alternativa, puoi esercitare tutti i diritti seguenti scrivendo a <a href="mailto:privacy@swainz.it">privacy@swainz.it</a>:</p>
       <ul>
         <li><strong>Diritto di accesso (art. 15):</strong> ottenere conferma del trattamento e una copia dei tuoi dati</li>
         <li><strong>Diritto di rettifica (art. 16):</strong> correggere dati inesatti o incompleti</li>
@@ -7770,7 +7954,7 @@ function _onbFinish(){
   <div class="legal-inner">
     <div class="legal-logo">SWAINZ</div>
     <h1 class="legal-h1">Termini di Servizio</h1>
-    <p class="legal-upd">Ultimo aggiornamento: luglio 2026 · In vigore dal: giugno 2026</p>
+    <p class="legal-upd">Ultimo aggiornamento: settembre 2026 · In vigore dal: giugno 2026</p>
 
     <div class="legal-sec">
       <h2>1. Descrizione del Servizio</h2>
