@@ -1,6 +1,7 @@
 <!DOCTYPE html><html lang="it"><head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>SWAINZ</title><!-- v346 · FIX layout profilo: la v344 aveva lasciato un </div> in eccesso subito dopo .prof-avatar-wrap, che chiudeva .prof-layout in anticipo. Risultato: la griglia conteneva un solo figlio (il badge) mentre .prof-left e .prof-storico finivano FUORI dalla griglia, e tutto collassava in un'unica colonna. Rimosso il tag in eccesso: la griglia torna ad avere i tre figli corretti (prof-avatar-wrap col.2/riga1, prof-left col.1, prof-storico col.2/riga2) e il layout a due colonne e' ripristinato. NB: se l'immagine del badge non compare e si vede il testo alternativo, la cartella cat/badges/ non e' presente nel repo. -->
+<title>SWAINZ</title><!-- v347 · Profilo: la scheda 'IL TUO STATUS' e' stata spostata nella colonna destra e ora contiene il badge. La vecchia cs-card sopra 'Salva profilo' e' stata rimossa dalla colonna sinistra, ma i suoi elementi FUNZIONALI sono stati trasferiti nella nuova (statistiche, barra di avanzamento verso il livello successivo, etichetta prossimo livello, bottone info/tooltip): il badge da solo non mostra il progresso, eliminarli sarebbe stata una perdita. L'anello con emoji (#cs-ring-wrap) e' mantenuto ma nascosto: _renderCineScore ha una guardia if(!icon)return, quindi rimuoverlo avrebbe interrotto tutto il rendering. Anche la versione MOBILE mostra ora il badge al posto del segnaposto Avatar (#prof-badge-img-mob), aggiornato dallo stesso _updateProfBadge. La colonna destra non si estende piu' a fondo pagina: prof-layout torna ad align-items:start con righe a contenuto, cosi' lo Storico termina all'altezza naturale invece di allungarsi. -->
+<!-- v346 · FIX layout profilo: la v344 aveva lasciato un </div> in eccesso subito dopo .prof-avatar-wrap, che chiudeva .prof-layout in anticipo. Risultato: la griglia conteneva un solo figlio (il badge) mentre .prof-left e .prof-storico finivano FUORI dalla griglia, e tutto collassava in un'unica colonna. Rimosso il tag in eccesso: la griglia torna ad avere i tre figli corretti (prof-avatar-wrap col.2/riga1, prof-left col.1, prof-storico col.2/riga2) e il layout a due colonne e' ripristinato. NB: se l'immagine del badge non compare e si vede il testo alternativo, la cartella cat/badges/ non e' presente nel repo. -->
 <!-- v345 · Il nome del livello non e' piu' ripetuto nella card Cine-Score del profilo: e' gia' stampato dentro l'immagine del badge, quindi era ridondante. Nascosto via CSS (.cs-level-name display:none) anziche' rimuovendo l'elemento, cosi' il JS di _renderCineScore continua a popolarlo (nm.textContent) senza errori e il ripristino e' una riga sola. Il nome resta visibile dove serve: nell'overlay di passaggio di livello (classe .cs-lu-level, indipendente) e nel badge condivisibile. -->
 <!-- v344 · Profilo ridisegnato. Il riquadro placeholder 'Avatar' e' sostituito dal BADGE del livello Cine-Score dell'utente (immagini in cat/badges/, una per livello, cambiate dinamicamente da _updateProfBadge chiamata dentro _renderCineScore; fallback al badge Apprendista se l'indice e' fuori range). Colonna destra (badge riga 1 + Storico riga 2) ora si estende a tutta l'altezza: prof-layout passa ad align-items:stretch e .prof-storico e' flex column con .storico-box in flex:1. Scheda Storico ampliata: padding maggiore, pulsanti piu' alti e contatori dinamici sotto ogni voce (film consigliati da sw3_allrecs, film visti da seenFilms) via _updateStoricoCounts. Colonna sinistra riordinata: .prof-save-row sale da order:7 a order:5 per occupare lo spazio lasciato libero, Cine-Score e divisori scalano di conseguenza. La sezione GDPR resta ultima (order 29/30). Su mobile il badge e' ridotto al 62%. -->
 <!-- v343 · Cine-Score: il livello 0 si chiama ora 'Apprendista' (EN 'Apprentice') invece di 'Spettatore'/'Viewer'. Motivazione: 'Spettatore' era l'unico livello passivo di una progressione fatta di ruoli attivi, e definiva l'utente per cio' che non era ancora; 'Apprendista' esprime l'inizio del percorso in accezione positiva e chiude l'arco narrativo con il livello finale 'Maestro'. Aggiornati i due punti: definizione in CS_LEVELS (nameIt/nameEn) e placeholder statico #cs-level-name nell'HTML. Il resto dell'app (tooltip, badge condivisibile, notifica di level-up) legge il nome dinamicamente da CS_LEVELS e si allinea da se'. Emoji invariata (ciak). -->
@@ -300,11 +301,10 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:15px;heigh
 .vph-t p{color:var(--td);font-size:11.5px;margin-top:3px;line-height:1.6;max-width:500px}
 .vpb{padding:22px 24px;max-width:780px;margin:0 auto;position:relative;z-index:1}
 /* ── PROFILO 2-COL LAYOUT ─────────────────────────────────────────────────── */
-.prof-layout{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:auto 1fr;gap:16px;align-items:stretch}
+.prof-layout{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:auto auto;gap:16px;align-items:start}  /* v347: righe a contenuto, lo storico non si allunga piu' */
 .prof-avatar-wrap{grid-column:2;grid-row:1}
 .prof-left{grid-column:1;grid-row:1/span 2}
-.prof-storico{grid-column:2;grid-row:2;display:flex;flex-direction:column;align-self:stretch}
-.prof-storico .storico-box{flex:1;display:flex;flex-direction:column}
+.prof-storico{grid-column:2;grid-row:2}
 .prof-storico-mobile{display:none}
 .prof-avatar-mob{display:none}
 .prof-top-strip{display:block}
@@ -316,7 +316,6 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:15px;heigh
 .prof-row-film{order:4}
 .prof-save-row{order:5}
 #pfdiv2{order:6}
-#cs-card{order:7}
 #cs-tooltip{order:8}
 .prof-prem-row{order:9}
 .prof-storico-mobile{order:20}
@@ -331,6 +330,16 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:15px;heigh
 .badge-box{display:flex;align-items:center;justify-content:center;margin-bottom:14px}
 .badge-img{width:86%;max-width:230px;height:auto;display:block;filter:drop-shadow(0 6px 18px rgba(0,0,0,.5));transition:transform .25s ease}
 .badge-box:hover .badge-img{transform:translateY(-3px) scale(1.02)}
+/* v347 · scheda 'Il tuo status': badge sopra, dati sotto */
+.prof-avatar-wrap .cs-card{margin-top:0;margin-bottom:0;text-align:center}
+.prof-avatar-wrap .cs-card .badge-box{margin-bottom:12px}
+.prof-avatar-wrap .badge-img{width:78%;max-width:210px}
+.prof-avatar-wrap .cs-stats-row{justify-content:center;margin-bottom:10px}
+.prof-avatar-wrap .cs-next-label{margin-top:6px}
+.prof-avatar-wrap .cs-info-btn{bottom:8px;right:8px}
+/* badge nella versione mobile */
+.badge-img-mob{width:100%;max-width:150px;height:auto;display:block;margin:0 auto}
+
 /* v344 · scheda Storico ampliata */
 .prof-storico .storico-box{padding:16px 16px 14px}
 .prof-storico .storico-lbl{margin-bottom:12px}
@@ -1950,8 +1959,17 @@ input[type=range]{
   <div class="vpb">
     <div class="prof-layout">
       <div class="prof-avatar-wrap">
-          <div class="badge-box">
-            <img id="prof-badge-img" class="badge-img" src="cat/badges/badge_apprendista.png" alt="Badge livello">
+          <div class="cs-card lv0" id="cs-card">
+            <div class="cs-card-label" data-i18n="cs_card_label">IL TUO STATUS</div>
+            <div class="badge-box">
+              <img id="prof-badge-img" class="badge-img" src="cat/badges/badge_apprendista.png" alt="Badge livello">
+            </div>
+            <div class="cs-ring-wrap lv0" id="cs-ring-wrap" style="display:none"><div class="cs-badge lv0" id="cs-badge-icon">🎬</div></div>
+            <div class="cs-level-name lv0" id="cs-level-name">Apprendista</div>
+            <div class="cs-stats-row" id="cs-stats-row"></div>
+            <div class="cs-progress-track" id="cs-progress-track" style="display:none"><div class="cs-progress-fill lv0" id="cs-progress-fill" style="width:0%"></div></div>
+            <div class="cs-next-label" id="cs-next-label"></div>
+            <button class="cs-info-btn" id="cs-info-btn" onmouseenter="showCsTooltip(event)" onmouseleave="hideCsTooltip()" ontouchstart="showCsTooltip(event)"><i>i</i></button>
           </div>
         </div>
       <div class="prof-left">
@@ -1968,25 +1986,11 @@ input[type=range]{
           </div>
           <!-- avatar visibile solo su mobile (su desktop usa prof-avatar-wrap) -->
           <div class="prof-avatar-mob">
-            <div class="avatar-box"><div class="avatar-box-inner"><div style="font-size:38px;margin-bottom:6px">👤</div><div>Avatar</div></div></div>
+            <img id="prof-badge-img-mob" class="badge-img-mob" src="cat/badges/badge_apprendista.png" alt="Badge livello">
           </div>
         </div>
         <!-- CINE-SCORE BADGE CARD (prima dello storico su mobile) -->
-        <div class="cs-card lv0" id="cs-card">
-          <div class="cs-card-label" data-i18n="cs_card_label">IL TUO STATUS</div>
-          <div class="cs-card-inner">
-            <div class="cs-ring-wrap lv0" id="cs-ring-wrap">
-              <div class="cs-badge lv0" id="cs-badge-icon">🎬</div>
-            </div>
-            <div class="cs-info-col">
-              <div class="cs-level-name lv0" id="cs-level-name">Apprendista</div>
-              <div class="cs-stats-row" id="cs-stats-row"></div>
-              <div class="cs-progress-track" id="cs-progress-track" style="display:none"><div class="cs-progress-fill lv0" id="cs-progress-fill" style="width:0%"></div></div>
-              <div class="cs-next-label" id="cs-next-label"></div>
-            </div>
-          </div>
-          <button class="cs-info-btn" id="cs-info-btn" onmouseenter="showCsTooltip(event)" onmouseleave="hideCsTooltip()" ontouchstart="showCsTooltip(event)"><i>i</i></button>
-        </div>
+        
         <div id="cs-tooltip"><div class="cs-tip-head" id="cs-tip-head"></div><div id="cs-tip-body"></div></div>
         <!-- storico mobile: dopo il badge su mobile -->
         <div class="prof-storico-mobile">
@@ -4864,12 +4868,15 @@ function _csProgressToNext(d,lvlIdx){
 // v344 · file immagine del badge per ciascun livello Cine-Score
 var CS_BADGE_FILES=['badge_apprendista.png','badge_esploratore.png','badge_cinefilo.png','badge_esperto.png','badge_maestro.png'];
 function _updateProfBadge(lvlIdx,name){
-  var img=document.getElementById('prof-badge-img');
-  if(!img)return;
   var f=CS_BADGE_FILES[lvlIdx]||CS_BADGE_FILES[0];
   var src='cat/badges/'+f;
-  if(img.getAttribute('src')!==src)img.setAttribute('src',src);
-  img.setAttribute('alt',(LANG==='en'?'Badge: ':'Badge: ')+name);
+  // v347: aggiorna sia il badge desktop sia quello mobile
+  ['prof-badge-img','prof-badge-img-mob'].forEach(function(id){
+    var img=document.getElementById(id);
+    if(!img)return;
+    if(img.getAttribute('src')!==src)img.setAttribute('src',src);
+    img.setAttribute('alt','Badge: '+name);
+  });
 }
 // v344 · contatori mostrati nella scheda Storico
 function _updateStoricoCounts(){
