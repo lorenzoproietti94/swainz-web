@@ -1,6 +1,7 @@
 <!DOCTYPE html><html lang="it"><head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>SWAINZ</title><!-- v348 · Ritocchi estetici alle schede del Profilo. Il titolo 'IL TUO STATUS' (.cs-card-label) passa da grigio tenue ad arancione var(--or) con opacity .9, allineandosi al titolo della scheda Storico (.storico-lbl). Sfondi delle schede schiariti per staccare meglio dallo sfondo pagina #1d1e21: .cs-card da rgba(33,34,38) a rgba(48,50,56) (aggiornata anche la regola con !important, altrimenti avrebbe annullato la modifica) e .storico-box da rgba(255,255,255,.03) a .07. Bordi portati da .08 a .13. Attenzione: esisteva una regola combinata '.storico-box,.storico-btn' successiva che sovrascriveva lo sfondo; e' stata separata in due regole cosi' la scheda si schiarisce ma i pulsanti restano piu' scuri, mantenendo il contrasto interno. -->
+<title>SWAINZ</title><!-- v349 · (1) Grigio uniforme su TUTTE le schede del Profilo: campi nome/cognome/data di nascita/film preferito (.prof-inp) e scheda Account (#prof-account-box) portati a rgba(48,50,56), lo stesso di 'Il tuo status' e 'Storico'; bordi a rgba(255,255,255,.13). Aggiornate anche le regole con !important che avrebbero annullato la modifica. (2) FIX posizione Storico: era scivolato in basso perche' .prof-left occupava entrambe le righe (grid-row:1/span 2) e il browser distribuiva la sua altezza tra le due righe, dilatando la riga 1. Risolto alla radice raggruppando i due blocchi della colonna destra in un unico contenitore .prof-right: la griglia ha ora una sola riga con due colonne e lo Storico sta sempre subito sotto la scheda status, terminando ad altezza naturale. Rimossi i posizionamenti per riga ormai inutili; regole mobile aggiornate con il nuovo selettore. -->
+<!-- v348 · Ritocchi estetici alle schede del Profilo. Il titolo 'IL TUO STATUS' (.cs-card-label) passa da grigio tenue ad arancione var(--or) con opacity .9, allineandosi al titolo della scheda Storico (.storico-lbl). Sfondi delle schede schiariti per staccare meglio dallo sfondo pagina #1d1e21: .cs-card da rgba(33,34,38) a rgba(48,50,56) (aggiornata anche la regola con !important, altrimenti avrebbe annullato la modifica) e .storico-box da rgba(255,255,255,.03) a .07. Bordi portati da .08 a .13. Attenzione: esisteva una regola combinata '.storico-box,.storico-btn' successiva che sovrascriveva lo sfondo; e' stata separata in due regole cosi' la scheda si schiarisce ma i pulsanti restano piu' scuri, mantenendo il contrasto interno. -->
 <!-- v347 · Profilo: la scheda 'IL TUO STATUS' e' stata spostata nella colonna destra e ora contiene il badge. La vecchia cs-card sopra 'Salva profilo' e' stata rimossa dalla colonna sinistra, ma i suoi elementi FUNZIONALI sono stati trasferiti nella nuova (statistiche, barra di avanzamento verso il livello successivo, etichetta prossimo livello, bottone info/tooltip): il badge da solo non mostra il progresso, eliminarli sarebbe stata una perdita. L'anello con emoji (#cs-ring-wrap) e' mantenuto ma nascosto: _renderCineScore ha una guardia if(!icon)return, quindi rimuoverlo avrebbe interrotto tutto il rendering. Anche la versione MOBILE mostra ora il badge al posto del segnaposto Avatar (#prof-badge-img-mob), aggiornato dallo stesso _updateProfBadge. La colonna destra non si estende piu' a fondo pagina: prof-layout torna ad align-items:start con righe a contenuto, cosi' lo Storico termina all'altezza naturale invece di allungarsi. -->
 <!-- v346 · FIX layout profilo: la v344 aveva lasciato un </div> in eccesso subito dopo .prof-avatar-wrap, che chiudeva .prof-layout in anticipo. Risultato: la griglia conteneva un solo figlio (il badge) mentre .prof-left e .prof-storico finivano FUORI dalla griglia, e tutto collassava in un'unica colonna. Rimosso il tag in eccesso: la griglia torna ad avere i tre figli corretti (prof-avatar-wrap col.2/riga1, prof-left col.1, prof-storico col.2/riga2) e il layout a due colonne e' ripristinato. NB: se l'immagine del badge non compare e si vede il testo alternativo, la cartella cat/badges/ non e' presente nel repo. -->
 <!-- v345 · Il nome del livello non e' piu' ripetuto nella card Cine-Score del profilo: e' gia' stampato dentro l'immagine del badge, quindi era ridondante. Nascosto via CSS (.cs-level-name display:none) anziche' rimuovendo l'elemento, cosi' il JS di _renderCineScore continua a popolarlo (nm.textContent) senza errori e il ripristino e' una riga sola. Il nome resta visibile dove serve: nell'overlay di passaggio di livello (classe .cs-lu-level, indipendente) e nel badge condivisibile. -->
@@ -302,10 +303,11 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:15px;heigh
 .vph-t p{color:var(--td);font-size:11.5px;margin-top:3px;line-height:1.6;max-width:500px}
 .vpb{padding:22px 24px;max-width:780px;margin:0 auto;position:relative;z-index:1}
 /* ── PROFILO 2-COL LAYOUT ─────────────────────────────────────────────────── */
-.prof-layout{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:auto auto;gap:16px;align-items:start}  /* v347: righe a contenuto, lo storico non si allunga piu' */
-.prof-avatar-wrap{grid-column:2;grid-row:1}
-.prof-left{grid-column:1;grid-row:1/span 2}
-.prof-storico{grid-column:2;grid-row:2}
+.prof-layout{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}  /* v349: una riga sola, la colonna destra e' un blocco unico */
+.prof-right{grid-column:2}
+.prof-avatar-wrap{margin-bottom:16px}  /* v349: spazio tra status e storico */
+.prof-left{grid-column:1}
+
 .prof-storico-mobile{display:none}
 .prof-avatar-mob{display:none}
 .prof-top-strip{display:block}
@@ -322,7 +324,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:15px;heigh
 .prof-storico-mobile{order:20}
 @media(max-width:600px){
   .prof-layout{grid-template-columns:1fr;grid-template-rows:auto}
-  .prof-avatar-wrap,.prof-left,.prof-storico{grid-column:1;grid-row:unset}
+  .prof-right,.prof-avatar-wrap,.prof-left,.prof-storico{grid-column:1;grid-row:unset}  /* v349 */
   .prof-storico{display:none}
   .prof-storico-mobile{display:block}
   .badge-img{width:62%;max-width:190px}  /* v344: badge piu' contenuto su mobile */
@@ -398,7 +400,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:15px;heigh
 .ac-role{font-size:10px;color:var(--td);letter-spacing:1px;text-transform:uppercase}
 .prof-row{margin-bottom:14px}
 .prof-lbl{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--bl);margin-bottom:6px;display:block}
-.prof-inp{width:100%;padding:11px 14px;background:var(--card);border:1px solid var(--br);border-radius:11px;color:var(--tx);font-size:14px;outline:none;transition:border-color .2s;font-family:'Inter',sans-serif}
+.prof-inp{width:100%;padding:11px 14px;background:rgba(48,50,56,.96);border:1px solid rgba(255,255,255,.13);border-radius:11px;color:var(--tx);font-size:14px;outline:none;transition:border-color .2s;font-family:'Inter',sans-serif}  /* v349 */
 .prof-inp:focus{border-color:var(--bh)}
 .prof-inp::placeholder{color:var(--td)}
 .save-btn{padding:12px 32px;border-radius:11px;border:none;background:linear-gradient(135deg,var(--or2),var(--or));color:#fff;font-family:'Syne',sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:all .2s}
@@ -1017,9 +1019,9 @@ body.cat-revealing #afp-mobile,
 }
 
 /* ── profilo: card più opache ── */
-#profp .prof-inp{background:rgba(33,34,38,.96) !important}
+#profp .prof-inp{background:rgba(48,50,56,.96) !important}  /* v349: stesso grigio di status/storico */
 #profp .cs-card{background:linear-gradient(145deg,rgba(48,50,56,.97),rgba(41,43,48,.99)) !important}  /* v348 */
-#profp #prof-account-box{background:rgba(39,40,43,.97) !important}
+#profp #prof-account-box{background:rgba(48,50,56,.97) !important;border-color:rgba(255,255,255,.13) !important}  /* v349 */
 #profp .storico-box{background:rgba(48,50,56,.96)}  /* v348: scheda piu' chiara */
 .storico-btn{background:rgba(33,34,38,.96)}  /* v348: pulsanti piu' scuri per contrasto */
 #profp .fdiv{background:rgba(255,255,255,.06)}
@@ -1960,7 +1962,8 @@ input[type=range]{
   <div class="vph"><button class="vp-back" onclick="closeProfp()" data-i18n="back">← Torna</button><div class="vph-t"><h2 data-i18n="prof_h2">Il tuo profilo</h2><p data-i18n="prof_p">Informazioni personali — non influenzano i consigli di Swainz</p></div><div class="vph-prem" id="prem-free"><span class="vph-prem-label">Sblocca filtri avanzati</span><button class="vph-prem-btn" onclick="openUpgradePanel()">⭐ Passa a Premium</button></div><div class="vph-prem" id="prem-active" style="display:none"><span class="vph-prem-label" style="color:var(--or)">⭐ Piano Premium attivo</span><button class="vph-prem-manage" onclick="openCustomerPortal()">Gestisci abbonamento</button></div></div>
   <div class="vpb">
     <div class="prof-layout">
-      <div class="prof-avatar-wrap">
+      <div class="prof-right">
+        <div class="prof-avatar-wrap">
           <div class="cs-card lv0" id="cs-card">
             <div class="cs-card-label" data-i18n="cs_card_label">IL TUO STATUS</div>
             <div class="badge-box">
@@ -1974,6 +1977,20 @@ input[type=range]{
             <button class="cs-info-btn" id="cs-info-btn" onmouseenter="showCsTooltip(event)" onmouseleave="hideCsTooltip()" ontouchstart="showCsTooltip(event)"><i>i</i></button>
           </div>
         </div>
+        <div class="prof-storico">
+          <div class="storico-box">
+            <div class="storico-lbl">Storico</div>
+            <button class="storico-btn" onclick="openAllRecs()">
+              <span class="storico-ic">🎬</span>
+              <span class="storico-txt"><span class="storico-t1" data-i18n="allrec_btn">Film consigliati fino a oggi</span><span class="storico-t2" id="storico-n-rec">—</span></span>
+            </button>
+            <button class="storico-btn" onclick="openSeenPanel()">
+              <span class="storico-ic" style="color:#4ade80">✓</span>
+              <span class="storico-txt"><span class="storico-t1">Film già visti</span><span class="storico-t2" id="storico-n-seen">—</span></span>
+            </button>
+          </div>
+        </div>
+      </div>
       <div class="prof-left">
         <div id="prof-account-box" style="display:none;background:rgba(255,255,255,.04);border:1px solid var(--br);border-radius:10px;padding:10px 14px;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between;gap:10px">
           <div style="min-width:0"><div style="font-size:11px;color:var(--td);margin-bottom:2px" data-i18n="account_label">Account</div><div id="prof-email" style="font-size:13px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></div></div>
@@ -2016,19 +2033,7 @@ input[type=range]{
         <div class="fdiv" id="pfdiv2"></div>
 
       </div>
-      <div class="prof-storico">
-          <div class="storico-box">
-            <div class="storico-lbl">Storico</div>
-            <button class="storico-btn" onclick="openAllRecs()">
-              <span class="storico-ic">🎬</span>
-              <span class="storico-txt"><span class="storico-t1" data-i18n="allrec_btn">Film consigliati fino a oggi</span><span class="storico-t2" id="storico-n-rec">—</span></span>
-            </button>
-            <button class="storico-btn" onclick="openSeenPanel()">
-              <span class="storico-ic" style="color:#4ade80">✓</span>
-              <span class="storico-txt"><span class="storico-t1">Film già visti</span><span class="storico-t2" id="storico-n-seen">—</span></span>
-            </button>
-          </div>
-        </div>
+      
     </div>
   </div>
 </div><!-- /panel-inner v342 -->
