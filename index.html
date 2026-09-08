@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="it"><head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>SWAINZ</title><!-- v340 · due fix sul pannello Profilo. (1) POSIZIONE: la sezione GDPR appariva in cima perche .prof-left e un flex container in cui OGNI figlio ha un order esplicito (1..20) mentre .gdpr-box aveva l'order di default 0, il piu basso. Assegnati order:30 a .gdpr-box e 29 al divisore, cosi resta sempre in fondo. (2) SCROLL: i pannelli laterali non bloccavano lo scroll della pagina sottostante, quindi la rotella scorreva #app invece del pannello. Aggiunti _lockScroll() in apertura e _unlockScroll() in chiusura a profp/vp/allrecsp/upgrade-panel/seenp. _unlockScroll e ora consapevole dei pannelli annidati: non sblocca se un altro pannello a schermo intero e ancora aperto (es. chiudendo 'film visti' dentro il profilo), e nelle close viene invocato DOPO la rimozione della classe .on. -->
+<title>SWAINZ</title><!-- v341 · correzione dei due problemi introdotti/emersi in v339-v340. (1) POSIZIONE sezione GDPR: .prof-left e un flex container in cui ogni figlio ha un order esplicito (1..20); .gdpr-box aveva l'order di default 0 e finiva in cima. Assegnati order:30 a .gdpr-box e 29 a #pfdiv-gdpr. (2) SCROLL pannelli: RIMOSSO l'approccio della v340 che chiamava _lockScroll() sui pannelli laterali — sbagliato, perche quel lock mette body{position:fixed} + html/body{overflow:hidden}, togliendo altezza utile al pannello e bloccando anche il suo scroll interno (quel meccanismo e pensato per la card film, un overlay corto). Soluzione corretta, solo CSS su .slide-panel: height/max-height 100% per uno scroll interno reale e overscroll-behavior:contain per non propagare lo scroll alla pagina sottostante, senza toccare il body. -->
 <!-- v339 · conformita GDPR. (1) Art. 17 diritto all'oblio: nuova funzione deleteMyAccount() con doppia conferma (dialogo + digitazione della parola ELIMINA/DELETE) che chiama la Edge Function delete-account; la funzione ricava l'identita DAL TOKEN (mai dal body) cosi nessuno puo cancellare account altrui, elimina user_data + search_usage + utente Auth. (2) Art. 20 portabilita: exportMyData() scarica un JSON con dati locali (localStorage) e dati server (user_data). (3) Art. 5.2 accountability: checkbox di consenso obbligatoria alla registrazione (link a Privacy e Termini), con salvataggio di consent_accepted_at + consent_version su user_data; per OAuth il consenso e registrato al primo accesso senza sovrascrivere la data originale. Nuova sezione 'I tuoi dati' nel profilo. Privacy policy aggiornata (strumenti self-service, voce dati di consenso, data). Prerequisiti: swainz_gdpr_consent_v339.sql + deploy Edge Function delete-account. NB: nessun tracker di terze parti nel sito, quindi nessun cookie banner necessario. -->
 <!-- v338 · colonna noleggio/acquisto: mostra solo le prime 3 piattaforme per popolarità (tra quelle con almeno un film), con link '+ mostra tutte le piattaforme' che espande il resto. Speculare al comportamento della colonna abbonamento. Nuovo stato _g7ShowAllRent indipendente da _g7ShowAll; soglia RENT_PREVIEW=3. -->
 <!-- v337 · colonna noleggio ampliata: aggiunte TIMVISION Store e Rakuten TV a SW_PLAT_RENT (ora 8 voci). Allineamento ai dati reali del DB (verificati con check-platforms.js): la colonna Piattaforme_noleggio conteneva Apple TV/Prime Video/TIMVISION coi nomi BASE invece dei nomi Store. Correzioni lato dati: swainz_migrate_noleggio_v337.sql rinomina i valori esistenti (Apple TV→Apple TV Store, Prime Video→Prime Video Store, TIMVISION→TIMVISION Store) SOLO nella colonna noleggio; swainz_cleanup_piattaforme_v337.sql ripulisce record storici malformati nella colonna abbonamento (stringhe con virgola interna, 'Rai Play', 'Apple TV+'). update-db.js aggiornato a v199 (PROV_RENT +Rakuten TV id35, +TIMVISION Store id109). Microsoft Store non mappabile (assente da TMDB IT). -->
@@ -274,7 +274,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:15px;heigh
 .b3.marked{background:rgba(255,80,0,.22);border-color:var(--or);color:#fff}
 
 /* SLIDE PANELS */
-.slide-panel{position:fixed;inset:0;z-index:310;background:rgba(27,28,31,.99);transform:translateX(100%);transition:transform .5s cubic-bezier(.77,0,.18,1);overflow-y:auto}
+.slide-panel{position:fixed;inset:0;z-index:310;background:rgba(27,28,31,.99);transform:translateX(100%);transition:transform .5s cubic-bezier(.77,0,.18,1);overflow-y:auto;overflow-x:hidden;height:100%;max-height:100%;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}  /* v341: contain evita che lo scroll passi alla pagina sotto; height esplicita per lo scroll interno */
 .slide-panel.on{transform:translateX(0)}
 #fcp{display:flex;flex-direction:column;overflow:hidden}
 #fcp #fcpBody{flex:1;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
@@ -744,7 +744,7 @@ body.profp-ads-show #profp{padding-bottom:96px}
 .g7more:hover{text-decoration:underline}
 .g7empty{font-size:11px;color:var(--td);font-style:italic;padding:3px 0;line-height:1.35}
 /* v339 · sezione GDPR nel profilo */
-.gdpr-box{margin:14px 0 6px;order:30}  /* v340: order alto = sempre in fondo alla colonna flex */
+.gdpr-box{margin:14px 0 6px;order:30}  /* v341: order alto = sempre in fondo alla colonna flex */
 #pfdiv-gdpr{order:29}
 .gdpr-lbl{font-size:12px;font-weight:600;color:var(--or);margin-bottom:5px}
 .gdpr-desc{font-size:11.5px;color:var(--td);line-height:1.4;margin-bottom:10px}
@@ -2275,7 +2275,7 @@ function _openAllRecsRender(){
   _arecMsRebuild();
 }
 
-function openAllRecs(){_lockScroll(); // v340
+function openAllRecs(){
   // Show panel immediately with current local data
   _openAllRecsRender();
   document.getElementById('allrecsp').classList.add('on');
@@ -2301,7 +2301,7 @@ function openAllRecs(){_lockScroll(); // v340
     }
   );
 }
-function closeAllRecs(){document.getElementById('allrecsp').classList.remove('on');_unlockScroll(); /* v340: dopo la rimozione di .on */}
+function closeAllRecs(){document.getElementById('allrecsp').classList.remove('on');}
 
 /* ── filters ─────────────────────────────────────────────────────── */
 function _arecGetFiltered(){
@@ -4321,15 +4321,7 @@ function stars(r){if(r==null||isNaN(r))return ''; // v325
 let _scrollLockY=0;
 function _lockScroll(){if(document.documentElement.classList.contains('noscroll'))return; // v326: idempotente — un doppio lock leggerebbe scrollY=0 dal body fixed
   _scrollLockY=window.scrollY;document.documentElement.classList.add('noscroll');document.body.style.position='fixed';document.body.style.top='-'+_scrollLockY+'px';document.body.style.width='100%';}
-function _unlockScroll(){
-  // v340: non sbloccare se un ALTRO pannello a schermo intero è ancora aperto
-  // (es. chiudo 'film visti' ma resto dentro il profilo).
-  try{
-    var stillOpen=['profp','vp','allrecsp','upgrade-panel','seenp','fcp','fc']
-      .some(function(id){var e=document.getElementById(id);return e&&e.classList.contains('on');});
-    if(stillOpen)return;
-  }catch(e){}
-  document.documentElement.classList.remove('noscroll');document.body.style.position='';document.body.style.top='';document.body.style.width='';window.scrollTo(0,_scrollLockY);}
+function _unlockScroll(){document.documentElement.classList.remove('noscroll');document.body.style.position='';document.body.style.top='';document.body.style.width='';window.scrollTo(0,_scrollLockY);}
 
 function closeCard(){
   _unlockScroll();
@@ -4613,7 +4605,7 @@ function loadSearchState(){
 }
 
 // ── VISTI ────────────────────────────────────────────────────────────────
-function openVisti(){_lockScroll(); // v340
+function openVisti(){
   setTimeout(function(){try{checkLbStandby();}catch(ex){}},100);
   document.getElementById('vp').classList.add('on');
   document.getElementById('vsrc').value='';
@@ -4622,7 +4614,7 @@ function openVisti(){_lockScroll(); // v340
   currentFilms=[];
   if(!isPremium)document.body.classList.add('vp-ads-show');
 }
-function closeVisti(){document.getElementById('vp').classList.remove('on');document.body.classList.remove('vp-ads-show');_unlockScroll(); /* v340: dopo la rimozione di .on */}
+function closeVisti(){document.getElementById('vp').classList.remove('on');document.body.classList.remove('vp-ads-show');}
 function setQ(q){document.getElementById('vsrc').value=q;searchV(q,true);}
 function toggleSeenV(id){const row=document.getElementById('vr-'+id),chk=row.querySelector('.frck');seenFilms.has(id)?(seenFilms.delete(id),row.classList.remove('sn'),chk.textContent=''):(seenFilms.add(id),row.classList.add('sn'),chk.textContent='✓');saveSeen();document.getElementById('vcnt').innerHTML=`<span>${seenFilms.size}</span>${t('seen_count')}`;}
 // normalize string for robust matching (handles accents, apostrophes)
@@ -4726,9 +4718,8 @@ function markAllSeen(){
 }
 
 // ── PROFILO ──────────────────────────────────────────────────────────────
-function openProfp(){document.getElementById('profp').classList.add('on');_lockScroll(); // v340: evita che lo scroll finisca sulla pagina sotto
-  loadProfp();if(!isPremium)document.body.classList.add('profp-ads-show');if(currentUser&&localStorage.getItem('sw3_onboarded')!=='1'){try{localStorage.setItem('sw3_onboarded','1');}catch(e){}}setTimeout(_renderCineScore,120);setTimeout(_checkCsLevelUp,400);}
-function closeProfp(){document.getElementById('profp').classList.remove('on');document.body.classList.remove('profp-ads-show');_unlockScroll(); /* v340: dopo la rimozione di .on */}
+function openProfp(){document.getElementById('profp').classList.add('on');loadProfp();if(!isPremium)document.body.classList.add('profp-ads-show');if(currentUser&&localStorage.getItem('sw3_onboarded')!=='1'){try{localStorage.setItem('sw3_onboarded','1');}catch(e){}}setTimeout(_renderCineScore,120);setTimeout(_checkCsLevelUp,400);}
+function closeProfp(){document.getElementById('profp').classList.remove('on');document.body.classList.remove('profp-ads-show');}
 
 // ── CINE-SCORE SYSTEM ─────────────────────────────────────────────────────
 const CS_CLUSTERS=[
@@ -5030,7 +5021,7 @@ function _startFireworks(intensity){
   frame();
 }
 
-function openSeenPanel(){_lockScroll(); // v340
+function openSeenPanel(){
   const seenArr=[...seenFilms];
   const inDB=seenArr.filter(id=>DB.some(f=>f.id===id));
   const notInDB=seenArr.filter(id=>!DB.some(f=>f.id===id));
@@ -5059,7 +5050,7 @@ function openSeenPanel(){_lockScroll(); // v340
   }
   document.getElementById('seenp').classList.add('on');
 }
-function closeSeenPanel(){document.getElementById('seenp').classList.remove('on');_unlockScroll(); /* v340: dopo la rimozione di .on */}
+function closeSeenPanel(){document.getElementById('seenp').classList.remove('on');}
 async function loadProfp(){
   try{const lp=localStorage.getItem('sw3_prof');if(lp){const d=JSON.parse(lp);['pNome','pCognome','pNascita','pFilm'].forEach(id=>{const el=document.getElementById(id);if(el&&d[id])el.value=d[id];});}}catch(e){}
   _updatePremUI();
@@ -5111,12 +5102,12 @@ function _updatePremUI(){
     }
   }
 }
-function openUpgradePanel(){_lockScroll(); // v340
+function openUpgradePanel(){
   if(!currentUser){alert(LANG==='en'?'Sign in to upgrade.':'Accedi per passare a Premium.');return;}
   closeProfp();
   setTimeout(function(){document.getElementById('upgrade-panel').classList.add('on');},50);
 }
-function closeUpgradePanel(){document.getElementById('upgrade-panel').classList.remove('on');_unlockScroll(); /* v340: dopo la rimozione di .on */}
+function closeUpgradePanel(){document.getElementById('upgrade-panel').classList.remove('on');}
 function startCheckout(priceId){
   if(!currentUser){alert(t('alert_login_first'));return;}
   var bm=document.getElementById('upg-btn-m'),by=document.getElementById('upg-btn-y');
