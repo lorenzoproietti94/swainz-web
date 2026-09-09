@@ -1,6 +1,7 @@
 <!DOCTYPE html><html lang="it"><head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>SWAINZ</title><!-- v353 · Correzione completa della sincronizzazione consigli/visti, dopo analisi dell'INTERA catena (17 punti di scrittura su user_data, 4 dei quali toccano all_rec_ids). CAUSA RADICE (preesistente): la colonna all_rec_ids era integer[] mentre l'app invia oggetti {id,tags}; PostgreSQL rifiutava la scrittura e, poiche' nessun chiamante passava la callback di _saveUserData, il fallimento restava invisibile — da qui consigli non salvati, divergenza PC/mobile e nuovi consigli non propagati. Risolto convertendo la colonna a jsonb (swainz_reset_sync_v353.sql) e aggiungendo la VERIFICA DELL'ESITO a tutti i salvataggi di all_rec_ids e seen_film_ids. SECONDO DIFETTO (preesistente): _applyUserData aggiungeva i film visti del server a quelli in memoria senza azzerarli al cambio account, poi li ricaricava se il locale era piu' lungo — cosi' i visti di un utente finivano sugli account usati dopo sullo stesso browser (199 su tre account). Risolto con il flag _swUserSwitched: dopo un cambio identita' il server e' l'unica fonte e ogni push locale→server e' inibito. TERZO: rimossa la regressione v352, che duplicava una logica di merge gia' presente in _applyUserData e in _bgSyncAllRecs, causando sovrascritture incrociate. Ora la fusione avviene in un solo punto per flusso, sempre per unione e mai per rimozione. -->
+<title>SWAINZ</title><!-- v354 · L'onboarding compare ora SOLO a un account che non l'ha mai completato. Prima la decisione derivava da un'euristica a otto indizi (nome, film visti, risposte FCK, consigli, dati locali...): azzerando quei dati — come nel reset v353 — un account esistente tornava indistinguibile da uno nuovo e rivedeva la procedura. Introdotta la colonna booleana user_data.onboarded (swainz_onboarded_v354.sql, che marca true gli account gia' esistenti) come unica fonte di verita'. Nuova _persistOnboarded: registra il flag sul server VERIFICANDO l'esito e ritentando una volta dopo 2s — prima il salvataggio era silenzioso e un fallimento faceva rivedere l'onboarding da ogni altro dispositivo. Il flag locale sw3_onboarded resta come difesa: se presente, l'onboarding non viene mostrato e il flag viene risincronizzato sul server. Mantenuta la compatibilita' con i profili che avevano profile.onboarded, migrati al flag dedicato. Se i dati del server non sono leggibili non si mostra nulla: meglio saltare l'onboarding che riproporlo a chi l'ha gia' fatto. Allineato anche il punto che impostava il flag all'apertura del Profilo, che prima scriveva solo in locale. -->
+<!-- v353 · Correzione completa della sincronizzazione consigli/visti, dopo analisi dell'INTERA catena (17 punti di scrittura su user_data, 4 dei quali toccano all_rec_ids). CAUSA RADICE (preesistente): la colonna all_rec_ids era integer[] mentre l'app invia oggetti {id,tags}; PostgreSQL rifiutava la scrittura e, poiche' nessun chiamante passava la callback di _saveUserData, il fallimento restava invisibile — da qui consigli non salvati, divergenza PC/mobile e nuovi consigli non propagati. Risolto convertendo la colonna a jsonb (swainz_reset_sync_v353.sql) e aggiungendo la VERIFICA DELL'ESITO a tutti i salvataggi di all_rec_ids e seen_film_ids. SECONDO DIFETTO (preesistente): _applyUserData aggiungeva i film visti del server a quelli in memoria senza azzerarli al cambio account, poi li ricaricava se il locale era piu' lungo — cosi' i visti di un utente finivano sugli account usati dopo sullo stesso browser (199 su tre account). Risolto con il flag _swUserSwitched: dopo un cambio identita' il server e' l'unica fonte e ogni push locale→server e' inibito. TERZO: rimossa la regressione v352, che duplicava una logica di merge gia' presente in _applyUserData e in _bgSyncAllRecs, causando sovrascritture incrociate. Ora la fusione avviene in un solo punto per flusso, sempre per unione e mai per rimozione. -->
 <!-- v352 · FIX IMPORTANTE: la cronologia dei film consigliati era legata al BROWSER anziche' all'ACCOUNT. Causa doppia: (a) _saveAllRecs scriveva su Supabase (all_rec_ids) ma _applyUserData non rileggeva mai quel campo, quindi il localStorage restava l'unica fonte; (b) _clearSession al logout rimuoveva solo la sessione, lasciando i dati personali nel browser. Effetti osservati: stesso numero di consigli su account diversi nello stesso browser, e lista a zero entrando col medesimo account da un browser nuovo. Tre correzioni: (1) _applyUserData ripristina all_rec_ids dal server (fonte di verita') fondendolo col locale per non perdere consigli generati prima del fix, e risincronizza se il locale ha voci in piu'; (2) _clearSession ripulisce le chiavi personali (SW_PERSONAL_KEYS) oltre alla sessione; (3) nuovo _resetLocalIfUserChanged, invocato da _saveSession e _restoreSession, confronta l'id utente con sw3_uid e azzera locale e stato in memoria se l'account e' cambiato — copre anche i casi senza logout esplicito (sessione scaduta, accesso diretto con altro account). sw3_uid rimosso anche da deleteMyAccount. -->
 <!-- v351 · Rifinitura del pannello Profilo. (1) Colonna destra compattata per stare nella pagina senza scorrimento: pulsanti Storico da 14px a 9px di padding, spaziature e testi ridotti, badge da 78%/210px a 70%/180px. (2) Righe divisorie dorate ridotte da tre a una: rimossi #pfdiv2 (in fondo) e #pfdiv-gdpr, resta solo #pfdiv1 sopra 'Film Preferito'; ripulite le regole order orfane. (3) Colonna sinistra distribuita uniformemente in altezza: .prof-left passa ad align-self:stretch con justify-content:space-between, cosi' le schede si spaziano lungo l'altezza definita da badge + storico; .prof-right resta align-self:start per non allungarsi. (4) Sezione 'I tuoi dati' spostata fuori dalla colonna sinistra e resa figlia diretta della griglia con grid-column:1/-1: occupa l'intera larghezza sotto entrambe le colonne, con i due pulsanti affiancati (.gdpr-actions flex, min-width 200px, vanno a capo su schermi stretti). -->
 <!-- v350 · FIX colonne sfalsate introdotto in v349. Raggruppando la colonna destra in .prof-right questa e' finita PRIMA di .prof-left nel DOM pur essendo assegnata a grid-column:2. L'algoritmo di auto-placement della griglia procede in avanti e non torna indietro: posizionato .prof-right in riga 1 colonna 2, collocava .prof-left nella riga 2, facendo iniziare tutta la colonna sinistra sotto lo Storico. Risolto ancorando entrambe esplicitamente a grid-row:1, cosi' partono dalla stessa altezza. Le regole mobile azzerano gia' grid-row (unset), quindi su schermo stretto le due colonne continuano a impilarsi correttamente. -->
@@ -4790,7 +4791,7 @@ function markAllSeen(){
 }
 
 // ── PROFILO ──────────────────────────────────────────────────────────────
-function openProfp(){document.getElementById('profp').classList.add('on');loadProfp();if(!isPremium)document.body.classList.add('profp-ads-show');if(currentUser&&localStorage.getItem('sw3_onboarded')!=='1'){try{localStorage.setItem('sw3_onboarded','1');}catch(e){}}setTimeout(_renderCineScore,120);setTimeout(_checkCsLevelUp,400);}
+function openProfp(){document.getElementById('profp').classList.add('on');loadProfp();if(!isPremium)document.body.classList.add('profp-ads-show');if(currentUser&&localStorage.getItem('sw3_onboarded')!=='1'){try{localStorage.setItem('sw3_onboarded','1');}catch(e){}try{_persistOnboarded();}catch(e){}} /* v354: registra anche sul server, altrimenti il flag resta solo su questo browser */setTimeout(_renderCineScore,120);setTimeout(_checkCsLevelUp,400);}
 function closeProfp(){document.getElementById('profp').classList.remove('on');document.body.classList.remove('profp-ads-show');}
 
 // ── CINE-SCORE SYSTEM ─────────────────────────────────────────────────────
@@ -7616,26 +7617,42 @@ function _endLeap(){
 // === ONBOARDING JS ===
 var _onbActive=false;
 function _shouldShowOnboarding(d){
-  // Già completato l'onboarding
-  if(localStorage.getItem('sw3_onboarded')==='1')return false;
-  if(d&&d.profile&&d.profile.onboarded)return false;
-  // Utente esistente: ha già dati su Supabase (nome, film visti, risposte FCK...)
-  if(d&&(d.nome||d.cognome))return false;
-  if(d&&d.profile&&(d.profile.pNome||d.profile.pNascita))return false;
-  if(d&&d.seen_film_ids&&d.seen_film_ids.length>0)return false;
-  if(d&&d.fck_answers&&Object.keys(d.fck_answers||{}).length>0)return false;
-  if(d&&d.all_rec_ids&&d.all_rec_ids.length>0)return false;
-  // Utente con dati locali (usava l'app senza account o aveva gia' fatto login)
-  try{var lp=localStorage.getItem('sw3_prof');if(lp){var p=JSON.parse(lp);if(p.pNome||p.pNascita)return false;}}catch(e){}
-  try{var ls=localStorage.getItem('sw3_seen');if(ls){var s=JSON.parse(ls);if(s&&s.length>0)return false;}}catch(e){}
-  try{var lf=localStorage.getItem('sw3_fck');if(lf){var f=JSON.parse(lf);if(f&&Object.keys(f).length>0)return false;}}catch(e){}
-  try{var la=localStorage.getItem('sw3_allrecs');if(la){var a=JSON.parse(la);if(a&&a.length>0)return false;}}catch(e){}
-  // Nuovo utente vero: mostra onboarding e imposta il flag per le sessioni future
-  try{localStorage.setItem('sw3_onboarded','1');}catch(e){}
-  // NB: il flag viene impostato subito - se l'utente chiude il browser a meta'
-  // onboarding non lo vedra' di nuovo (comportamento voluto, evita loop)
+  // v354 · REGOLA NETTA: l'onboarding compare SOLO a un account che non l'ha
+  // mai completato. Fonte di verita' = colonna "onboarded" su user_data.
+  //
+  // Prima la decisione si basava su un'euristica a otto indizi (nome, film
+  // visti, risposte FCK, consigli, dati locali...): azzerando quei dati un
+  // account esistente tornava indistinguibile da uno nuovo e rivedeva
+  // l'onboarding, com'e' accaduto dopo il reset della v353.
+  //
+  // Se la riga non e' ancora leggibile (fetch fallito, rete assente) NON si
+  // mostra nulla: meglio saltare l'onboarding che riproporlo a chi l'ha gia'
+  // fatto.
+  if(!d)return false;
+  if(d.onboarded===true)return false;
+  // difesa locale: se questo browser lo ha gia' completato ma il salvataggio
+  // sul server era fallito, evito di riproporlo e ritento la scrittura.
+  if(localStorage.getItem('sw3_onboarded')==='1'){
+    _persistOnboarded();
+    return false;
+  }
+  // Compatibilita' con profili precedenti alla colonna dedicata
+  if(d.profile&&d.profile.onboarded){ _persistOnboarded(); return false; }
   return true;
 }
+// v354 · registra il completamento sul server, verificando l'esito e
+// ritentando una volta: se fallisse in silenzio (come accadeva per i consigli)
+// l'utente rivedrebbe l'onboarding da ogni altro dispositivo.
+function _persistOnboarded(_retry){
+  if(!_authToken||!currentUser)return;
+  _saveUserData({onboarded:true,updated_at:new Date().toISOString()},function(ok){
+    if(!ok){
+      console.error('[SW] salvataggio flag onboarded fallito'+(_retry?' (anche al secondo tentativo)':' — ritento'));
+      if(!_retry)setTimeout(function(){_persistOnboarded(true);},2000);
+    }
+  });
+}
+
 function showOnboarding(){
   var ov=document.getElementById('onboarding');
   if(!ov){login();return;}  // overlay missing → fallback to login
@@ -7761,8 +7778,14 @@ function _onbFinish(){
     var lp=JSON.parse(localStorage.getItem('sw3_prof')||'{}');
     lp.onboarded=true;
     localStorage.setItem('sw3_prof',JSON.stringify(lp));
-    if(_authToken&&currentUser)_saveUserData({profile:lp,updated_at:new Date().toISOString()});
+    if(_authToken&&currentUser){
+      // v354: il profilo resta salvato come prima, ma con verifica dell'esito
+      _saveUserData({profile:lp,updated_at:new Date().toISOString()},function(ok){
+        if(!ok)console.error('[SW] salvataggio profilo a fine onboarding fallito');
+      });
+    }
   }catch(e){}
+  _persistOnboarded(); // v354: flag dedicato sul server, con retry
   document.getElementById('onboarding').style.display='none';
   _onbActive=false;
   updatePanel();
