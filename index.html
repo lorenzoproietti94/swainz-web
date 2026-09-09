@@ -1,6 +1,7 @@
 <!DOCTYPE html><html lang="it"><head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>SWAINZ</title><!-- v352 · FIX IMPORTANTE: la cronologia dei film consigliati era legata al BROWSER anziche' all'ACCOUNT. Causa doppia: (a) _saveAllRecs scriveva su Supabase (all_rec_ids) ma _applyUserData non rileggeva mai quel campo, quindi il localStorage restava l'unica fonte; (b) _clearSession al logout rimuoveva solo la sessione, lasciando i dati personali nel browser. Effetti osservati: stesso numero di consigli su account diversi nello stesso browser, e lista a zero entrando col medesimo account da un browser nuovo. Tre correzioni: (1) _applyUserData ripristina all_rec_ids dal server (fonte di verita') fondendolo col locale per non perdere consigli generati prima del fix, e risincronizza se il locale ha voci in piu'; (2) _clearSession ripulisce le chiavi personali (SW_PERSONAL_KEYS) oltre alla sessione; (3) nuovo _resetLocalIfUserChanged, invocato da _saveSession e _restoreSession, confronta l'id utente con sw3_uid e azzera locale e stato in memoria se l'account e' cambiato — copre anche i casi senza logout esplicito (sessione scaduta, accesso diretto con altro account). sw3_uid rimosso anche da deleteMyAccount. -->
+<title>SWAINZ</title><!-- v353 · Correzione completa della sincronizzazione consigli/visti, dopo analisi dell'INTERA catena (17 punti di scrittura su user_data, 4 dei quali toccano all_rec_ids). CAUSA RADICE (preesistente): la colonna all_rec_ids era integer[] mentre l'app invia oggetti {id,tags}; PostgreSQL rifiutava la scrittura e, poiche' nessun chiamante passava la callback di _saveUserData, il fallimento restava invisibile — da qui consigli non salvati, divergenza PC/mobile e nuovi consigli non propagati. Risolto convertendo la colonna a jsonb (swainz_reset_sync_v353.sql) e aggiungendo la VERIFICA DELL'ESITO a tutti i salvataggi di all_rec_ids e seen_film_ids. SECONDO DIFETTO (preesistente): _applyUserData aggiungeva i film visti del server a quelli in memoria senza azzerarli al cambio account, poi li ricaricava se il locale era piu' lungo — cosi' i visti di un utente finivano sugli account usati dopo sullo stesso browser (199 su tre account). Risolto con il flag _swUserSwitched: dopo un cambio identita' il server e' l'unica fonte e ogni push locale→server e' inibito. TERZO: rimossa la regressione v352, che duplicava una logica di merge gia' presente in _applyUserData e in _bgSyncAllRecs, causando sovrascritture incrociate. Ora la fusione avviene in un solo punto per flusso, sempre per unione e mai per rimozione. -->
+<!-- v352 · FIX IMPORTANTE: la cronologia dei film consigliati era legata al BROWSER anziche' all'ACCOUNT. Causa doppia: (a) _saveAllRecs scriveva su Supabase (all_rec_ids) ma _applyUserData non rileggeva mai quel campo, quindi il localStorage restava l'unica fonte; (b) _clearSession al logout rimuoveva solo la sessione, lasciando i dati personali nel browser. Effetti osservati: stesso numero di consigli su account diversi nello stesso browser, e lista a zero entrando col medesimo account da un browser nuovo. Tre correzioni: (1) _applyUserData ripristina all_rec_ids dal server (fonte di verita') fondendolo col locale per non perdere consigli generati prima del fix, e risincronizza se il locale ha voci in piu'; (2) _clearSession ripulisce le chiavi personali (SW_PERSONAL_KEYS) oltre alla sessione; (3) nuovo _resetLocalIfUserChanged, invocato da _saveSession e _restoreSession, confronta l'id utente con sw3_uid e azzera locale e stato in memoria se l'account e' cambiato — copre anche i casi senza logout esplicito (sessione scaduta, accesso diretto con altro account). sw3_uid rimosso anche da deleteMyAccount. -->
 <!-- v351 · Rifinitura del pannello Profilo. (1) Colonna destra compattata per stare nella pagina senza scorrimento: pulsanti Storico da 14px a 9px di padding, spaziature e testi ridotti, badge da 78%/210px a 70%/180px. (2) Righe divisorie dorate ridotte da tre a una: rimossi #pfdiv2 (in fondo) e #pfdiv-gdpr, resta solo #pfdiv1 sopra 'Film Preferito'; ripulite le regole order orfane. (3) Colonna sinistra distribuita uniformemente in altezza: .prof-left passa ad align-self:stretch con justify-content:space-between, cosi' le schede si spaziano lungo l'altezza definita da badge + storico; .prof-right resta align-self:start per non allungarsi. (4) Sezione 'I tuoi dati' spostata fuori dalla colonna sinistra e resa figlia diretta della griglia con grid-column:1/-1: occupa l'intera larghezza sotto entrambe le colonne, con i due pulsanti affiancati (.gdpr-actions flex, min-width 200px, vanno a capo su schermi stretti). -->
 <!-- v350 · FIX colonne sfalsate introdotto in v349. Raggruppando la colonna destra in .prof-right questa e' finita PRIMA di .prof-left nel DOM pur essendo assegnata a grid-column:2. L'algoritmo di auto-placement della griglia procede in avanti e non torna indietro: posizionato .prof-right in riga 1 colonna 2, collocava .prof-left nella riga 2, facendo iniziare tutta la colonna sinistra sotto lo Storico. Risolto ancorando entrambe esplicitamente a grid-row:1, cosi' partono dalla stessa altezza. Le regole mobile azzerano gia' grid-row (unset), quindi su schermo stretto le due colonne continuano a impilarsi correttamente. -->
 <!-- v349 · (1) Grigio uniforme su TUTTE le schede del Profilo: campi nome/cognome/data di nascita/film preferito (.prof-inp) e scheda Account (#prof-account-box) portati a rgba(48,50,56), lo stesso di 'Il tuo status' e 'Storico'; bordi a rgba(255,255,255,.13). Aggiornate anche le regole con !important che avrebbero annullato la modifica. (2) FIX posizione Storico: era scivolato in basso perche' .prof-left occupava entrambe le righe (grid-row:1/span 2) e il browser distribuiva la sua altezza tra le due righe, dilatando la riga 1. Risolto alla radice raggruppando i due blocchi della colonna destra in un unico contenitore .prof-right: la griglia ha ora una sola riga con due colonne e lo Storico sta sempre subito sotto la scheda status, terminando ad altezza naturale. Rimossi i posizionamenti per riga ormai inutili; regole mobile aggiornate con il nuovo selettore. -->
@@ -2302,7 +2303,14 @@ async function loadAllRecs(){
 function _saveAllRecs(){
   try{localStorage.setItem(_allRecKey,JSON.stringify(allRecs));}catch(e){}
   if(_authToken&&currentUser){
-    _saveUserData({all_rec_ids:allRecs,updated_at:new Date().toISOString()});
+    // v353: qui NON serve il guard _swUserSwitched — _saveAllRecs viene invocata
+    // da addAllRec, cioe' quando l'utente corrente ha appena ricevuto un nuovo
+    // consiglio: il dato e' certamente suo. Serve invece la verifica dell'esito,
+    // che era assente ed e' la ragione per cui i fallimenti restavano invisibili.
+    _saveUserData({all_rec_ids:allRecs,updated_at:new Date().toISOString()},
+      function(ok){
+        if(!ok)console.error('[SW] salvataggio all_rec_ids fallito — verificare il tipo della colonna (atteso jsonb)');
+      });
     _bgSyncLast=Date.now(); // skip next auto-pull (we just pushed)
   }
 }
@@ -2350,8 +2358,9 @@ function openAllRecs(){
       allRecs=_merged;_allRecIds=new Set(_merged.map(e=>e.id));
       try{localStorage.setItem(_allRecKey,JSON.stringify(allRecs));}catch(e){}
       // Push local-only films to Supabase (race-free: only adds, never removes)
-      if(_localOnly.length>0){
-        _saveUserData({all_rec_ids:_merged,updated_at:new Date().toISOString()});
+      if(!_swUserSwitched && _localOnly.length>0){ // v353
+        _saveUserData({all_rec_ids:_merged,updated_at:new Date().toISOString()},
+          function(ok){ if(!ok)console.error('[SW] salvataggio all_rec_ids fallito (openAllRecs)'); });
       }
       // Re-render with fresh data
       _openAllRecsRender();
@@ -3805,8 +3814,14 @@ function _bgSyncAllRecs(force){
         const ap=document.getElementById('allrecsp');
         if(ap&&ap.classList.contains('on'))_openAllRecsRender();var pp=document.getElementById('profp');if(pp&&pp.classList.contains('on'))_renderCineScore();
       }
-      if(allRecs.length>_remote.length){
-        _saveUserData({all_rec_ids:allRecs,updated_at:new Date().toISOString()});
+      // v353: il push locale→server e' consentito solo se l'identita' non e'
+      // cambiata in questa sessione (altrimenti caricherei dati altrui) e
+      // l'esito viene verificato: prima un fallimento restava invisibile.
+      if(!_swUserSwitched && allRecs.length>_remote.length){
+        _saveUserData({all_rec_ids:allRecs,updated_at:new Date().toISOString()},
+          function(ok){
+            if(!ok)console.error('[SW] salvataggio all_rec_ids fallito — verificare il tipo della colonna (atteso jsonb)');
+          });
         _bgSyncLast=Date.now();
       }
     }
@@ -6508,14 +6523,20 @@ function _lsSetBusy(busy) {
 // v352 · dati personali in locale: usati per la pulizia al cambio account
 var SW_PERSONAL_KEYS=['sw3_allrecs','sw3_seen','sw3_fck','sw3_prof','sw3_premium',
                       'sw3_cine_lv','sw3_onboarded','sw3_lb_standby'];
-// v352 · se accede un utente DIVERSO dall'ultimo su questo browser, azzero i dati
-// locali: senza questo controllo (es. sessione scaduta, o accesso diretto con un
-// altro account senza logout) il nuovo utente erediterebbe i dati del precedente.
+// v353 · rilevamento cambio account. Se sul browser accede un utente DIVERSO
+// dall'ultimo, i dati locali del precedente vanno scartati: senza questo
+// controllo (sessione scaduta, o accesso diretto con altro account senza
+// logout) il nuovo utente li erediterebbe.
+// _swUserSwitched resta true per la sessione corrente e viene letto da
+// _applyUserData e _bgSyncAllRecs per NON ricaricare sul server dati locali
+// che potrebbero appartenere all'utente precedente.
+var _swUserSwitched=false;
 function _resetLocalIfUserChanged(user){
   if(!user||!user.id)return;
   var prev=null;
   try{ prev=localStorage.getItem('sw3_uid'); }catch(e){}
   if(prev && prev!==user.id){
+    _swUserSwitched=true;
     SW_PERSONAL_KEYS.forEach(function(k){ try{localStorage.removeItem(k);}catch(e){} });
     // azzero anche lo stato in memoria, altrimenti resterebbe quello del precedente
     try{ if(typeof allRecs!=='undefined'){allRecs=[];_allRecIds=new Set();} }catch(e){}
@@ -6692,42 +6713,28 @@ function _loadUserData(cb) {
 
 function _applyUserData(d) {
   if (!d) return;
-  if (d.seen_film_ids && d.seen_film_ids.length) {
-    const _prevSize=seenFilms.size;
-    d.seen_film_ids.forEach(function(id){ seenFilms.add(id); });
-    try { localStorage.setItem('sw3_seen', JSON.stringify([...seenFilms])); } catch(e) {}
+  // v353 · FIX contaminazione: i film visti del server sono la base per QUESTO
+  // account. Prima venivano solo AGGIUNTI a seenFilms (mai azzerati al cambio
+  // account) e poi ricaricati sul server se il locale era piu' lungo: cosi' i
+  // visti di un utente finivano sugli account usati successivamente sullo
+  // stesso browser. Ora, se l'identita' e' cambiata, si riparte dal server.
+  var _remoteSeen=(d.seen_film_ids&&d.seen_film_ids.length)?d.seen_film_ids:[];
+  if(_swUserSwitched){
+    seenFilms=new Set(_remoteSeen);           // reset totale: nessuna eredita'
+  } else {
+    _remoteSeen.forEach(function(id){ seenFilms.add(id); });
   }
-  // Push seenFilms to Supabase if local has films not on Supabase
-  if(_authToken&&currentUser){
-    const _remoteSeenSize=(d.seen_film_ids&&d.seen_film_ids.length)||0;
-    if(seenFilms.size>_remoteSeenSize){
-      _saveUserData({seen_film_ids:[...seenFilms],updated_at:new Date().toISOString()});
-    }
+  try { localStorage.setItem('sw3_seen', JSON.stringify([...seenFilms])); } catch(e) {}
+  // Il push locale→server avviene SOLO quando i dati appartengono con certezza
+  // all'utente corrente (nessun cambio di identita' in questa sessione).
+  if(_authToken&&currentUser&&!_swUserSwitched&&seenFilms.size>_remoteSeen.length){
+    _saveUserData({seen_film_ids:[...seenFilms],updated_at:new Date().toISOString()},
+      function(ok){ if(!ok)console.error('[SW] salvataggio seen_film_ids fallito'); });
   }
   if(d.lb_standby&&Array.isArray(d.lb_standby)&&d.lb_standby.length){
     try{localStorage.setItem('sw3_lb_standby',JSON.stringify(d.lb_standby));}catch(e){}
   }
-  // v352 · FIX: la cronologia consigli e' PER ACCOUNT, non per browser.
-  // Prima veniva scritta su Supabase (all_rec_ids) ma non riletta mai: il locale
-  // restava l'unica fonte, quindi cambiando account sullo stesso browser si
-  // ereditavano i consigli altrui, e da un browser nuovo risultava vuota.
-  // Il server e' ora la fonte di verita'; l'unione col locale evita di perdere
-  // consigli generati offline o prima di questo fix.
-  if(typeof allRecs!=='undefined'){
-    var _remote=_normaliseAllRecs(Array.isArray(d.all_rec_ids)?d.all_rec_ids:[]);
-    var _merged=_remote.slice();
-    var _seenIds=new Set(_merged.map(function(e){return e.id;}));
-    // tengo i locali non ancora presenti sul server (verranno ri-caricati sotto)
-    (allRecs||[]).forEach(function(e){ if(!_seenIds.has(e.id)){_merged.push(e);_seenIds.add(e.id);} });
-    allRecs=_merged;
-    _allRecIds=new Set(allRecs.map(function(e){return e.id;}));
-    try{localStorage.setItem(_allRecKey,JSON.stringify(allRecs));}catch(e){}
-    // se il locale conteneva voci assenti sul server, le sincronizzo
-    if(_authToken&&currentUser&&allRecs.length>_remote.length){
-      _saveUserData({all_rec_ids:allRecs,updated_at:new Date().toISOString()});
-    }
-    try{if(typeof _updateStoricoCounts==='function')_updateStoricoCounts();}catch(e){}
-  }
+
   if(d.fck_answers&&Object.keys(d.fck_answers).length){
     fckAnswers=d.fck_answers;
     applyFck(fckAnswers);
@@ -6767,11 +6774,13 @@ function _applyUserData(d) {
   {
     const _remote=d.all_rec_ids&&d.all_rec_ids.length?_normaliseAllRecs(d.all_rec_ids):[];
     const _remoteIds=new Set(_remote.map(e=>e.id));
-    const _localOnly=allRecs.filter(e=>!_remoteIds.has(e.id));
+    // v353: dopo un cambio account i dati locali non sono attendibili → solo server
+    const _localOnly=_swUserSwitched?[]:allRecs.filter(e=>!_remoteIds.has(e.id));
     allRecs=[..._remote,..._localOnly]; // Supabase-first
     try{localStorage.setItem(_allRecKey,JSON.stringify(allRecs));}catch(e){}
-    if(_authToken&&currentUser&&_localOnly.length>0){
-      _saveUserData({all_rec_ids:allRecs,updated_at:new Date().toISOString()});
+    if(_authToken&&currentUser&&!_swUserSwitched&&_localOnly.length>0){ // v353
+      _saveUserData({all_rec_ids:allRecs,updated_at:new Date().toISOString()},
+        function(ok){ if(!ok)console.error('[SW] salvataggio all_rec_ids fallito (applyUserData)'); });
     }
   }
 }
