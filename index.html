@@ -1,6 +1,8 @@
 <!DOCTYPE html><html lang="it"><head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>SWAINZ</title><!-- v354 · L'onboarding compare ora SOLO a un account che non l'ha mai completato. Prima la decisione derivava da un'euristica a otto indizi (nome, film visti, risposte FCK, consigli, dati locali...): azzerando quei dati — come nel reset v353 — un account esistente tornava indistinguibile da uno nuovo e rivedeva la procedura. Introdotta la colonna booleana user_data.onboarded (swainz_onboarded_v354.sql, che marca true gli account gia' esistenti) come unica fonte di verita'. Nuova _persistOnboarded: registra il flag sul server VERIFICANDO l'esito e ritentando una volta dopo 2s — prima il salvataggio era silenzioso e un fallimento faceva rivedere l'onboarding da ogni altro dispositivo. Il flag locale sw3_onboarded resta come difesa: se presente, l'onboarding non viene mostrato e il flag viene risincronizzato sul server. Mantenuta la compatibilita' con i profili che avevano profile.onboarded, migrati al flag dedicato. Se i dati del server non sono leggibili non si mostra nulla: meglio saltare l'onboarding che riproporlo a chi l'ha gia' fatto. Allineato anche il punto che impostava il flag all'apertura del Profilo, che prima scriveva solo in locale. -->
+<title>SWAINZ</title><!-- v356 · Ultimo difetto della categoria: le risposte del questionario FCK (sw3_fck) erano LETTE dal server (d.fck_answers) ma mai SCRITTE — saveFck salvava solo in localStorage e la colonna non veniva mai popolata. Effetto: compilando il questionario su un dispositivo, da un altro le risposte risultavano assenti, e con esse le preferenze che guidano i consigli. Aggiunta la colonna user_data.fck_answers (jsonb, swainz_fck_sync_v356.sql, con backup preventivo) e la scrittura in saveFck con verifica dell'esito. In _applyUserData gestiti i due casi mancanti: se il server non ha risposte ma il locale si', queste vengono risincronizzate (risposte date prima che la colonna esistesse); dopo un cambio account il locale viene azzerato e mai ricaricato sul server, per non reintrodurre la contaminazione corretta in v353. AUDIT COMPLETO delle 13 chiavi locali: 7 ora sincronizzate correttamente, sw3_premium resta di sola lettura per SICUREZZA (la scrive il webhook Stripe; se il client potesse scriverla chiunque si dichiarerebbe premium), 5 sono locali per natura (sessione, uid, indice suggerimenti, countdown, giorno risveglio). -->
+<!-- v355 · L'avviso di passaggio di livello Cine-Score compare ora UNA SOLA VOLTA. Stesso schema dei difetti precedenti: il livello raggiunto era in 'sw3_cine_lv' nel solo localStorage, e _checkCsLevelUp gira ad ogni apertura del pannello Profilo. Quel valore si azzera cambiando browser o dispositivo, ripulendo i dati del browser, in incognito o dopo il reset al cambio account (sw3_cine_lv e' in SW_PERSONAL_KEYS): in tutti quei casi l'avviso veniva rimostrato per un livello gia' ottenuto. Introdotta la colonna user_data.cine_level_max (swainz_cine_level_v355.sql) come memoria per account. Il confronto usa ora il MASSIMO tra valore server e locale, cosi' l'avviso non ricompare ne' cambiando dispositivo ne' se il server e' irraggiungibile. Nuova _persistCineLevel con verifica dell'esito e un ritentativo. _applyUserData popola _csServerLevelMax e riallinea i due archivi: se il locale e' avanti (livello ottenuto prima che la colonna esistesse) aggiorna il server, se e' indietro aggiorna il locale; dopo un cambio account riparte dal valore del server. -->
+<!-- v354 · L'onboarding compare ora SOLO a un account che non l'ha mai completato. Prima la decisione derivava da un'euristica a otto indizi (nome, film visti, risposte FCK, consigli, dati locali...): azzerando quei dati — come nel reset v353 — un account esistente tornava indistinguibile da uno nuovo e rivedeva la procedura. Introdotta la colonna booleana user_data.onboarded (swainz_onboarded_v354.sql, che marca true gli account gia' esistenti) come unica fonte di verita'. Nuova _persistOnboarded: registra il flag sul server VERIFICANDO l'esito e ritentando una volta dopo 2s — prima il salvataggio era silenzioso e un fallimento faceva rivedere l'onboarding da ogni altro dispositivo. Il flag locale sw3_onboarded resta come difesa: se presente, l'onboarding non viene mostrato e il flag viene risincronizzato sul server. Mantenuta la compatibilita' con i profili che avevano profile.onboarded, migrati al flag dedicato. Se i dati del server non sono leggibili non si mostra nulla: meglio saltare l'onboarding che riproporlo a chi l'ha gia' fatto. Allineato anche il punto che impostava il flag all'apertura del Profilo, che prima scriveva solo in locale. -->
 <!-- v353 · Correzione completa della sincronizzazione consigli/visti, dopo analisi dell'INTERA catena (17 punti di scrittura su user_data, 4 dei quali toccano all_rec_ids). CAUSA RADICE (preesistente): la colonna all_rec_ids era integer[] mentre l'app invia oggetti {id,tags}; PostgreSQL rifiutava la scrittura e, poiche' nessun chiamante passava la callback di _saveUserData, il fallimento restava invisibile — da qui consigli non salvati, divergenza PC/mobile e nuovi consigli non propagati. Risolto convertendo la colonna a jsonb (swainz_reset_sync_v353.sql) e aggiungendo la VERIFICA DELL'ESITO a tutti i salvataggi di all_rec_ids e seen_film_ids. SECONDO DIFETTO (preesistente): _applyUserData aggiungeva i film visti del server a quelli in memoria senza azzerarli al cambio account, poi li ricaricava se il locale era piu' lungo — cosi' i visti di un utente finivano sugli account usati dopo sullo stesso browser (199 su tre account). Risolto con il flag _swUserSwitched: dopo un cambio identita' il server e' l'unica fonte e ogni push locale→server e' inibito. TERZO: rimossa la regressione v352, che duplicava una logica di merge gia' presente in _applyUserData e in _bgSyncAllRecs, causando sovrascritture incrociate. Ora la fusione avviene in un solo punto per flusso, sempre per unione e mai per rimozione. -->
 <!-- v352 · FIX IMPORTANTE: la cronologia dei film consigliati era legata al BROWSER anziche' all'ACCOUNT. Causa doppia: (a) _saveAllRecs scriveva su Supabase (all_rec_ids) ma _applyUserData non rileggeva mai quel campo, quindi il localStorage restava l'unica fonte; (b) _clearSession al logout rimuoveva solo la sessione, lasciando i dati personali nel browser. Effetti osservati: stesso numero di consigli su account diversi nello stesso browser, e lista a zero entrando col medesimo account da un browser nuovo. Tre correzioni: (1) _applyUserData ripristina all_rec_ids dal server (fonte di verita') fondendolo col locale per non perdere consigli generati prima del fix, e risincronizza se il locale ha voci in piu'; (2) _clearSession ripulisce le chiavi personali (SW_PERSONAL_KEYS) oltre alla sessione; (3) nuovo _resetLocalIfUserChanged, invocato da _saveSession e _restoreSession, confronta l'id utente con sw3_uid e azzera locale e stato in memoria se l'account e' cambiato — copre anche i casi senza logout esplicito (sessione scaduta, accesso diretto con altro account). sw3_uid rimosso anche da deleteMyAccount. -->
 <!-- v351 · Rifinitura del pannello Profilo. (1) Colonna destra compattata per stare nella pagina senza scorrimento: pulsanti Storico da 14px a 9px di padding, spaziature e testi ridotti, badge da 78%/210px a 70%/180px. (2) Righe divisorie dorate ridotte da tre a una: rimossi #pfdiv2 (in fondo) e #pfdiv-gdpr, resta solo #pfdiv1 sopra 'Film Preferito'; ripulite le regole order orfane. (3) Colonna sinistra distribuita uniformemente in altezza: .prof-left passa ad align-self:stretch con justify-content:space-between, cosi' le schede si spaziano lungo l'altezza definita da badge + storico; .prof-right resta align-self:start per non allungarsi. (4) Sezione 'I tuoi dati' spostata fuori dalla colonna sinistra e resa figlia diretta della griglia con grid-column:1/-1: occupa l'intera larghezza sotto entrambe le colonne, con i due pulsanti affiancati (.gdpr-actions flex, min-width 200px, vanno a capo su schermi stretti). -->
@@ -5043,12 +5045,42 @@ document.addEventListener('scroll',hideCsTooltip,true);
 
 // ── Level-up detection & fireworks ────────────────────────────────────────
 var _csLuAnimFrame=null;
+// v355 · livello massimo raggiunto: memorizzato SUL SERVER (cine_level_max),
+// non piu' solo in localStorage. Il valore locale si azzerava cambiando
+// browser o dispositivo, ripulendo i dati, in incognito o dopo il reset al
+// cambio account, e l'avviso veniva rimostrato per un livello gia' ottenuto.
+var _csServerLevelMax=null; // popolato da _applyUserData
 function _checkCsLevelUp(){
   var d=_computeCineScore();
   var lvlIdx=_getCineLevel(d);
-  var prev=parseInt(localStorage.getItem('sw3_cine_lv')||'0',10);
-  localStorage.setItem('sw3_cine_lv',String(lvlIdx));
-  if(lvlIdx>prev&&prev>=0&&lvlIdx>=1){_showCsLevelUp(lvlIdx);}
+  var localPrev=parseInt(localStorage.getItem('sw3_cine_lv')||'0',10);
+  if(isNaN(localPrev)||localPrev<0)localPrev=0;
+  // il massimo vero e' il piu' alto tra server e locale: cosi' l'avviso non
+  // ricompare ne' cambiando dispositivo ne' se il server non e' raggiungibile
+  var serverPrev=(typeof _csServerLevelMax==='number')?_csServerLevelMax:0;
+  var prev=Math.max(localPrev,serverPrev);
+  if(lvlIdx>prev){
+    localStorage.setItem('sw3_cine_lv',String(lvlIdx));
+    _persistCineLevel(lvlIdx);
+    if(lvlIdx>=1)_showCsLevelUp(lvlIdx);
+  } else {
+    // riallineo i due archivi senza mostrare nulla
+    if(lvlIdx>localPrev)localStorage.setItem('sw3_cine_lv',String(lvlIdx));
+    if(prev>serverPrev)_persistCineLevel(prev);
+  }
+}
+// v355 · registra il livello massimo sul server, con verifica dell'esito e un
+// ritentativo: un salvataggio fallito in silenzio farebbe ricomparire l'avviso.
+function _persistCineLevel(lvl,_retry){
+  if(!_authToken||!currentUser)return;
+  if(typeof _csServerLevelMax==='number'&&lvl<=_csServerLevelMax)return;
+  _csServerLevelMax=lvl;
+  _saveUserData({cine_level_max:lvl,updated_at:new Date().toISOString()},function(ok){
+    if(!ok){
+      console.error('[SW] salvataggio cine_level_max fallito'+(_retry?' (anche al secondo tentativo)':' — ritento'));
+      if(!_retry)setTimeout(function(){_csServerLevelMax=null;_persistCineLevel(lvl,true);},2000);
+    }
+  });
 }
 function _showCsLevelUp(lvlIdx){
   var lv=CS_LEVELS[lvlIdx];
@@ -5506,6 +5538,15 @@ function _updateFckProgress(){
 async function saveFck(){
   applyFck(fckAnswers);
   try{localStorage.setItem('sw3_fck',JSON.stringify(fckAnswers));}catch(e){}
+  // v356 · le risposte del questionario appartengono all'ACCOUNT, non al
+  // browser: il codice le leggeva gia' da d.fck_answers all'accesso, ma qui
+  // venivano salvate solo in locale e la colonna non veniva mai popolata.
+  // Compilando il questionario sul PC, da un altro dispositivo risultavano
+  // assenti. Salvataggio con verifica dell'esito, come per le altre chiavi.
+  if(_authToken&&currentUser){
+    _saveUserData({fck_answers:fckAnswers,updated_at:new Date().toISOString()},
+      function(ok){ if(!ok)console.error('[SW] salvataggio fck_answers fallito'); });
+  }
   const ok=document.getElementById('fckOk');ok.classList.add('show');setTimeout(()=>ok.classList.remove('show'),2800);
   // Show blocking modal if user excluded tags
   if(fckAnswers.q8&&fckAnswers.q8.length>0){
@@ -6714,6 +6755,24 @@ function _loadUserData(cb) {
 
 function _applyUserData(d) {
   if (!d) return;
+  // v355 · livello massimo raggiunto per QUESTO account (fonte: server).
+  // Serve a _checkCsLevelUp per non rimostrare avvisi gia' visti da altri
+  // dispositivi. Se il locale e' piu' avanti (avviso visto prima che la
+  // colonna esistesse) il server viene riallineato.
+  try{
+    var _srvLv=(typeof d.cine_level_max==='number')?d.cine_level_max:0;
+    _csServerLevelMax=_srvLv;
+    var _locLv=parseInt(localStorage.getItem('sw3_cine_lv')||'0',10);
+    if(isNaN(_locLv))_locLv=0;
+    if(_swUserSwitched){
+      // account diverso: il locale non e' suo, riparto dal valore del server
+      localStorage.setItem('sw3_cine_lv',String(_srvLv));
+    } else if(_locLv>_srvLv){
+      _persistCineLevel(_locLv);
+    } else if(_srvLv>_locLv){
+      localStorage.setItem('sw3_cine_lv',String(_srvLv));
+    }
+  }catch(e){}
   // v353 · FIX contaminazione: i film visti del server sono la base per QUESTO
   // account. Prima venivano solo AGGIUNTI a seenFilms (mai azzerati al cambio
   // account) e poi ricaricati sul server se il locale era piu' lungo: cosi' i
@@ -6736,11 +6795,23 @@ function _applyUserData(d) {
     try{localStorage.setItem('sw3_lb_standby',JSON.stringify(d.lb_standby));}catch(e){}
   }
 
+  // v356 · risposte questionario: il server e' la fonte per l'account.
+  // Se il server non ne ha ma il locale si', le carico (caso tipico: risposte
+  // date prima che la colonna esistesse). Dopo un cambio account il locale non
+  // e' attendibile e non va mai ricaricato sul server.
   if(d.fck_answers&&Object.keys(d.fck_answers).length){
     fckAnswers=d.fck_answers;
     applyFck(fckAnswers);
     try{localStorage.setItem('sw3_fck',JSON.stringify(fckAnswers));}catch(e){}
+  } else if(_swUserSwitched){
+    fckAnswers={};
+    try{localStorage.removeItem('sw3_fck');}catch(e){}
+    try{applyFck(fckAnswers);}catch(e){}
+  } else if(_authToken&&currentUser&&fckAnswers&&Object.keys(fckAnswers).length){
+    _saveUserData({fck_answers:fckAnswers,updated_at:new Date().toISOString()},
+      function(ok){ if(!ok)console.error('[SW] risincronizzazione fck_answers fallita'); });
   }
+  
   if(d.is_premium){
     isPremium=true;
     try{localStorage.setItem('sw3_premium','1');}catch(e){}
