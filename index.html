@@ -1,6 +1,7 @@
 <!DOCTYPE html><html lang="it"><head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>SWAINZ</title><!-- v351 · Rifinitura del pannello Profilo. (1) Colonna destra compattata per stare nella pagina senza scorrimento: pulsanti Storico da 14px a 9px di padding, spaziature e testi ridotti, badge da 78%/210px a 70%/180px. (2) Righe divisorie dorate ridotte da tre a una: rimossi #pfdiv2 (in fondo) e #pfdiv-gdpr, resta solo #pfdiv1 sopra 'Film Preferito'; ripulite le regole order orfane. (3) Colonna sinistra distribuita uniformemente in altezza: .prof-left passa ad align-self:stretch con justify-content:space-between, cosi' le schede si spaziano lungo l'altezza definita da badge + storico; .prof-right resta align-self:start per non allungarsi. (4) Sezione 'I tuoi dati' spostata fuori dalla colonna sinistra e resa figlia diretta della griglia con grid-column:1/-1: occupa l'intera larghezza sotto entrambe le colonne, con i due pulsanti affiancati (.gdpr-actions flex, min-width 200px, vanno a capo su schermi stretti). -->
+<title>SWAINZ</title><!-- v352 · FIX IMPORTANTE: la cronologia dei film consigliati era legata al BROWSER anziche' all'ACCOUNT. Causa doppia: (a) _saveAllRecs scriveva su Supabase (all_rec_ids) ma _applyUserData non rileggeva mai quel campo, quindi il localStorage restava l'unica fonte; (b) _clearSession al logout rimuoveva solo la sessione, lasciando i dati personali nel browser. Effetti osservati: stesso numero di consigli su account diversi nello stesso browser, e lista a zero entrando col medesimo account da un browser nuovo. Tre correzioni: (1) _applyUserData ripristina all_rec_ids dal server (fonte di verita') fondendolo col locale per non perdere consigli generati prima del fix, e risincronizza se il locale ha voci in piu'; (2) _clearSession ripulisce le chiavi personali (SW_PERSONAL_KEYS) oltre alla sessione; (3) nuovo _resetLocalIfUserChanged, invocato da _saveSession e _restoreSession, confronta l'id utente con sw3_uid e azzera locale e stato in memoria se l'account e' cambiato — copre anche i casi senza logout esplicito (sessione scaduta, accesso diretto con altro account). sw3_uid rimosso anche da deleteMyAccount. -->
+<!-- v351 · Rifinitura del pannello Profilo. (1) Colonna destra compattata per stare nella pagina senza scorrimento: pulsanti Storico da 14px a 9px di padding, spaziature e testi ridotti, badge da 78%/210px a 70%/180px. (2) Righe divisorie dorate ridotte da tre a una: rimossi #pfdiv2 (in fondo) e #pfdiv-gdpr, resta solo #pfdiv1 sopra 'Film Preferito'; ripulite le regole order orfane. (3) Colonna sinistra distribuita uniformemente in altezza: .prof-left passa ad align-self:stretch con justify-content:space-between, cosi' le schede si spaziano lungo l'altezza definita da badge + storico; .prof-right resta align-self:start per non allungarsi. (4) Sezione 'I tuoi dati' spostata fuori dalla colonna sinistra e resa figlia diretta della griglia con grid-column:1/-1: occupa l'intera larghezza sotto entrambe le colonne, con i due pulsanti affiancati (.gdpr-actions flex, min-width 200px, vanno a capo su schermi stretti). -->
 <!-- v350 · FIX colonne sfalsate introdotto in v349. Raggruppando la colonna destra in .prof-right questa e' finita PRIMA di .prof-left nel DOM pur essendo assegnata a grid-column:2. L'algoritmo di auto-placement della griglia procede in avanti e non torna indietro: posizionato .prof-right in riga 1 colonna 2, collocava .prof-left nella riga 2, facendo iniziare tutta la colonna sinistra sotto lo Storico. Risolto ancorando entrambe esplicitamente a grid-row:1, cosi' partono dalla stessa altezza. Le regole mobile azzerano gia' grid-row (unset), quindi su schermo stretto le due colonne continuano a impilarsi correttamente. -->
 <!-- v349 · (1) Grigio uniforme su TUTTE le schede del Profilo: campi nome/cognome/data di nascita/film preferito (.prof-inp) e scheda Account (#prof-account-box) portati a rgba(48,50,56), lo stesso di 'Il tuo status' e 'Storico'; bordi a rgba(255,255,255,.13). Aggiornate anche le regole con !important che avrebbero annullato la modifica. (2) FIX posizione Storico: era scivolato in basso perche' .prof-left occupava entrambe le righe (grid-row:1/span 2) e il browser distribuiva la sua altezza tra le due righe, dilatando la riga 1. Risolto alla radice raggruppando i due blocchi della colonna destra in un unico contenitore .prof-right: la griglia ha ora una sola riga con due colonne e lo Storico sta sempre subito sotto la scheda status, terminando ad altezza naturale. Rimossi i posizionamenti per riga ormai inutili; regole mobile aggiornate con il nuovo selettore. -->
 <!-- v348 · Ritocchi estetici alle schede del Profilo. Il titolo 'IL TUO STATUS' (.cs-card-label) passa da grigio tenue ad arancione var(--or) con opacity .9, allineandosi al titolo della scheda Storico (.storico-lbl). Sfondi delle schede schiariti per staccare meglio dallo sfondo pagina #1d1e21: .cs-card da rgba(33,34,38) a rgba(48,50,56) (aggiornata anche la regola con !important, altrimenti avrebbe annullato la modifica) e .storico-box da rgba(255,255,255,.03) a .07. Bordi portati da .08 a .13. Attenzione: esisteva una regola combinata '.storico-box,.storico-btn' successiva che sovrascriveva lo sfondo; e' stata separata in due regole cosi' la scheda si schiarisce ma i pulsanti restano piu' scuri, mantenendo il contrasto interno. -->
@@ -5294,7 +5295,7 @@ function deleteMyAccount(){
       try{
         ['sw3_seen','sw3_fck','sw3_prof','sw3_premium','sw3_allrecs','sw3_cine_lv',
          'sw3_onboarded','sw3_hint_idx','sw3_session','sw3_cd','sw3_lb_standby',
-         'sw3_wakeday'].forEach(function(k){try{localStorage.removeItem(k);}catch(e){}});
+         'sw3_wakeday','sw3_uid'].forEach(function(k){try{localStorage.removeItem(k);}catch(e){}});
       }catch(e){}
       alert(t('gdpr_del_ok'));
       window.location.href='/';
@@ -6504,9 +6505,29 @@ function _lsSetBusy(busy) {
 }
 
 // ── SESSION HELPERS ─────────────────────────────────────────────────────────
+// v352 · dati personali in locale: usati per la pulizia al cambio account
+var SW_PERSONAL_KEYS=['sw3_allrecs','sw3_seen','sw3_fck','sw3_prof','sw3_premium',
+                      'sw3_cine_lv','sw3_onboarded','sw3_lb_standby'];
+// v352 · se accede un utente DIVERSO dall'ultimo su questo browser, azzero i dati
+// locali: senza questo controllo (es. sessione scaduta, o accesso diretto con un
+// altro account senza logout) il nuovo utente erediterebbe i dati del precedente.
+function _resetLocalIfUserChanged(user){
+  if(!user||!user.id)return;
+  var prev=null;
+  try{ prev=localStorage.getItem('sw3_uid'); }catch(e){}
+  if(prev && prev!==user.id){
+    SW_PERSONAL_KEYS.forEach(function(k){ try{localStorage.removeItem(k);}catch(e){} });
+    // azzero anche lo stato in memoria, altrimenti resterebbe quello del precedente
+    try{ if(typeof allRecs!=='undefined'){allRecs=[];_allRecIds=new Set();} }catch(e){}
+    try{ if(typeof seenFilms!=='undefined')seenFilms=new Set(); }catch(e){}
+    try{ if(typeof fckAnswers!=='undefined')fckAnswers={}; }catch(e){}
+  }
+  try{ localStorage.setItem('sw3_uid', user.id); }catch(e){}
+}
 function _saveSession(res) {
   _authToken = res.access_token;
   _refreshToken = res.refresh_token;
+  _resetLocalIfUserChanged(res.user); // v352: prima di impostare il nuovo utente
   currentUser = res.user;
   var exp = Date.now() + (res.expires_in ? res.expires_in * 1000 : 3600000);
   try {
@@ -6535,6 +6556,14 @@ function _scheduleTokenRefresh(expiresAt) {
 function _clearSession() {
   _authToken = null; _refreshToken = null; currentUser = null;
   try { localStorage.removeItem('sw3_session'); } catch(e) {}
+  // v352 · FIX: al logout vanno ripuliti anche i dati PERSONALI in locale,
+  // altrimenti restano nel browser e vengono ereditati da chi accede dopo
+  // (era la causa dello stesso numero di consigli su account diversi).
+  // Restano invece le preferenze non personali (lingua, indice suggerimenti).
+  try {
+    (typeof SW_PERSONAL_KEYS!=='undefined'?SW_PERSONAL_KEYS:[]).concat(['sw3_uid'])
+      .forEach(function(k){ try{ localStorage.removeItem(k); }catch(e){} });
+  } catch(e) {}
 }
 
 function _supaXHR(method, path, body, token, cb, _retried) {
@@ -6587,6 +6616,7 @@ function _restoreSession(cb) {
   } else {
     _authToken = s.access_token;
     _refreshToken = s.refresh_token;
+    _resetLocalIfUserChanged(s.user); // v352
     currentUser = s.user;
     _scheduleTokenRefresh(s.expires_at); // v314
     cb(true);
@@ -6676,6 +6706,27 @@ function _applyUserData(d) {
   }
   if(d.lb_standby&&Array.isArray(d.lb_standby)&&d.lb_standby.length){
     try{localStorage.setItem('sw3_lb_standby',JSON.stringify(d.lb_standby));}catch(e){}
+  }
+  // v352 · FIX: la cronologia consigli e' PER ACCOUNT, non per browser.
+  // Prima veniva scritta su Supabase (all_rec_ids) ma non riletta mai: il locale
+  // restava l'unica fonte, quindi cambiando account sullo stesso browser si
+  // ereditavano i consigli altrui, e da un browser nuovo risultava vuota.
+  // Il server e' ora la fonte di verita'; l'unione col locale evita di perdere
+  // consigli generati offline o prima di questo fix.
+  if(typeof allRecs!=='undefined'){
+    var _remote=_normaliseAllRecs(Array.isArray(d.all_rec_ids)?d.all_rec_ids:[]);
+    var _merged=_remote.slice();
+    var _seenIds=new Set(_merged.map(function(e){return e.id;}));
+    // tengo i locali non ancora presenti sul server (verranno ri-caricati sotto)
+    (allRecs||[]).forEach(function(e){ if(!_seenIds.has(e.id)){_merged.push(e);_seenIds.add(e.id);} });
+    allRecs=_merged;
+    _allRecIds=new Set(allRecs.map(function(e){return e.id;}));
+    try{localStorage.setItem(_allRecKey,JSON.stringify(allRecs));}catch(e){}
+    // se il locale conteneva voci assenti sul server, le sincronizzo
+    if(_authToken&&currentUser&&allRecs.length>_remote.length){
+      _saveUserData({all_rec_ids:allRecs,updated_at:new Date().toISOString()});
+    }
+    try{if(typeof _updateStoricoCounts==='function')_updateStoricoCounts();}catch(e){}
   }
   if(d.fck_answers&&Object.keys(d.fck_answers).length){
     fckAnswers=d.fck_answers;
