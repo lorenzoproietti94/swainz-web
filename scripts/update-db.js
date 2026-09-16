@@ -1,11 +1,12 @@
 /**
- * Swainz — update-db.js  (v199)
+ * Swainz — update-db.js  (v200)
  * ─────────────────────────────────────────────────────────────────────────────
  * Aggiorna ogni notte le colonne:
  *   poster_url            → URL locandina TMDB (w342)
  *   Piattaforme           → piattaforme in ABBONAMENTO/gratis (flatrate+free+ads)
  *   Piattaforme_noleggio  → piattaforme a NOLEGGIO/ACQUISTO   (rent+buy)
  *   Voto IMDB             → vote_average da TMDB (scala 0–10, zero chiamate extra)
+ *   Regista               → nome ufficiale TMDB, formato "Nome Cognome"
  *
  * Variabili d'ambiente richieste (GitHub Secrets):
  *   SUPABASE_URL, SUPABASE_SERVICE_KEY, TMDB_API_KEY
@@ -16,6 +17,19 @@
  *   0.65–0.75 → LOW CONF  — aggiorna tutto, logga avviso
  *   > 0.75  → HIGH CONF  — aggiorna tutto normalmente
  *
+ * v200 — Il campo Regista viene ora preso da TMDB (endpoint /credits) nel
+ *         formato ufficiale "Nome Cognome". Motivo: la colonna era stata
+ *         compilata a mano nel tempo e conteneva formati MESCOLATI
+ *         ("Coppola Francis Ford" accanto a "Francis Ford Coppola"), lo
+ *         stesso regista come persone diverse (almeno 15 coppie), refusi
+ *         ("Russel" per Russell, "Armirpour" per Amirpour) e record
+ *         malformati. Uno scambio automatico nome/cognome non era
+ *         praticabile: avrebbe invertito anche i nomi già corretti.
+ *         Precauzioni: soglia di confidenza 0.75 (più severa del poster,
+ *         perché un regista sbagliato passa inosservato e inquina ricerca
+ *         e filtri); se TMDB non fornisce il dato il valore esistente NON
+ *         viene toccato; oltre 4 registi il valore curato a mano è
+ *         preferito. Più registi uniti con " & ". Ogni cambio è loggato.
  * v199 — Aggiunte a PROV_RENT: Rakuten TV (id 35, store puro) e TIMVISION Store
  *         (id 109, TIMVISION a noleggio, distinto dall'abbonamento). Microsoft
  *         Store non mappabile (assente dai provider TMDB per l'Italia).
@@ -51,7 +65,10 @@ const TMDB_API_KEY        = process.env.TMDB_API_KEY;
 
 const POSTER_BASE  = 'https://image.tmdb.org/t/p/w342';
 const BATCH_SIZE   = 950;
-const DELAY_MS     = 280;  // ~3.5 req/s — sotto il limite TMDB (40 req/10s)
+const DELAY_MS     = 350;  // v200: da 280ms. La chiamata /credits porta le
+                           // richieste per film da ~3 a ~4; il margine sul
+                           // limite TMDB (40 req/10s) è garantito soprattutto
+                           // dalla gestione del 429 in apiFetch.
 
 /** Provider IDs TMDB → nome canonico Swainz (IT).
  *  DUE mappe distinte perché lo stesso provider può avere un nome diverso a
@@ -142,8 +159,21 @@ function dice(a, b) {
 
 // ─── Helpers fetch ────────────────────────────────────────────────────────────
 
-async function apiFetch(url) {
+async function apiFetch(url, _retry = 0) {
   const res = await fetch(url);
+
+  // v200: gestione esplicita del rate limit TMDB (40 richieste / 10s).
+  // Con la chiamata /credits le richieste per film sono passate da ~3 a ~4 e
+  // su rete veloce il limite può essere raggiunto. Invece di irrigidire
+  // l'attesa fissa (che rallenterebbe sempre, anche quando non serve),
+  // si rispetta l'header Retry-After e si riprova: più efficiente e robusto.
+  if (res.status === 429 && _retry < 3) {
+    const wait = (parseInt(res.headers.get('Retry-After')) || 2) * 1000;
+    console.log(`  [RATE] limite TMDB raggiunto, attendo ${wait}ms e riprovo`);
+    await new Promise(r => setTimeout(r, wait));
+    return apiFetch(url, _retry + 1);
+  }
+
   if (!res.ok) return null;
   return res.json().catch(() => null);
 }
@@ -190,10 +220,48 @@ async function tmdbProviders(tmdbId) {
   return { sub, rent };
 }
 
+// ─── TMDB: registi (nome nel formato ufficiale) ───────────────────────────────
+
+/** Legge i crediti del film e restituisce i registi nel formato corretto
+ *  ("Christopher Nolan", non "Nolan Christopher").
+ *
+ *  Perché: la colonna Regista è stata popolata a mano nel tempo e contiene
+ *  formati mescolati ("Coppola Francis Ford" e "Francis Ford Coppola"),
+ *  refusi ("Russel" per Russell) e record malformati. Uno scambio automatico
+ *  di nome/cognome non è praticabile perché invertirebbe anche i nomi già
+ *  corretti. TMDB è la fonte autorevole e risolve tutto insieme.
+ *
+ *  Più registi → uniti con " & " (stesso separatore già usato nel DB).
+ *  Ritorna null se il dato non è disponibile: in quel caso il valore
+ *  esistente NON viene toccato. */
+async function tmdbDirectors(tmdbId) {
+  const data = await apiFetch(
+    `https://api.themoviedb.org/3/movie/${tmdbId}/credits?api_key=${TMDB_API_KEY}`
+  );
+  const crew = data?.crew;
+  if (!Array.isArray(crew) || !crew.length) return null;
+
+  const names = [
+    ...new Set(
+      crew
+        .filter(p => p && p.job === 'Director' && typeof p.name === 'string')
+        .map(p => p.name.trim())
+        .filter(Boolean)
+    ),
+  ];
+  if (!names.length) return null;
+
+  // Limite di sicurezza: oltre 4 registi è quasi sempre un film collettivo o
+  // un dato anomalo; meglio non sostituire il valore curato a mano.
+  if (names.length > 4) return null;
+
+  return names.join(' & ');
+}
+
 // ─── Elaborazione singolo film ────────────────────────────────────────────────
 
 async function processFilm(film) {
-  const { id, Titolo, Anno } = film;
+  const { id, Titolo, Anno } = film;  // film.Regista usato nel confronto log
 
   const results = await tmdbSearch(Titolo, Anno);
   if (!results.length) {
@@ -229,6 +297,20 @@ async function processFilm(film) {
     update['poster_url'] = `${POSTER_BASE}${best.poster_path}`;
   }
 
+  // Regista — nome ufficiale TMDB, solo con match ad alta confidenza (>=0.75).
+  // Soglia più severa del poster: un poster sbagliato si nota subito, un nome
+  // di regista sbagliato passa inosservato e inquina ricerca e filtri.
+  // Se TMDB non fornisce il dato, il valore esistente resta intatto.
+  if (bestScore >= 0.75) {
+    const dirs = await tmdbDirectors(best.id);
+    if (dirs) {
+      if (dirs !== film.Regista) {
+        console.log(`           regista: "${film.Regista || '(vuoto)'}" → "${dirs}"`);
+      }
+      update['Regista'] = dirs;
+    }
+  }
+
   // Voto IMDB — già nel risultato search, zero chiamate extra
   const voto = best.vote_average;
   if (typeof voto === 'number' && voto > 0) {
@@ -259,7 +341,7 @@ async function main() {
   while (true) {
     const { data, error } = await DB
       .from('Movies')
-      .select('id, Titolo, Anno')
+      .select('id, Titolo, Anno, Regista')  // v200: Regista serve per il log del cambio
       .order('id', { ascending: true })
       .gt('id', lastId)
       .limit(PAGE);
