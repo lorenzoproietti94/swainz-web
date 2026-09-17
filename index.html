@@ -1,6 +1,8 @@
 <!DOCTYPE html><html lang="it"><head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>SWAINZ</title><!-- v358 · FIX: un utente Premium risultava free nella pagina principale subito dopo il login, e l'interfaccia si correggeva solo dopo aver aperto il pannello Profilo. Causa: _applyUserData aggiornava la variabile isPremium e il flag locale, ma non ridisegnava nulla; _updatePremUI (pulsante 'Passa a Premium' in intestazione) era invocata solo da loadProfp, cioe' all'apertura del Profilo — da cui il sintomo. Erano scoperti tre flussi (login normale, registrazione, accesso OAuth). Corretto CENTRALMENTE dentro _applyUserData, che e' il punto in cui isPremium cambia davvero: si confronta lo stato precedente e, solo se e' cambiato, si chiama buildUI(). Una sola chiamata basta perche' buildUI azzera e ricostruisce i contenitori (idempotente) e al suo interno invoca gia' _updatePremUI e aggiorna la sidebar degli annunci. Il controllo sul cambio evita ridisegni inutili a ogni sincronizzazione. Funziona in entrambe le direzioni: anche un Premium scaduto riporta subito l'interfaccia allo stato free. -->
+<title>SWAINZ</title><!-- v360 · Scheda film condivisibile ricostruita sul template 'SWAINZ CONSIGLIA'. Il PNG fornito era a 752px e sgranava perche' Instagram lo ingrandisce a 1080: ricostruito come generatore canvas, quindi nativo a piena risoluzione. Due formati dallo stesso codice: 'story' 1080x1920 (9:16) e 'post' 1080x1350 (4:5), con selettore nell'anteprima di condivisione. Correzioni richieste: linee geometriche laterali in bronzo scuro #a85214, distinto dall'arancione brand #ff6820 di logo e mascotte (nell'originale erano rgb(148,101,60), troppo simili); sfondo schiarito (#241a15 → #17100d, prima ~rgb(19,11,8)); alone caldo dietro la mascotte, che sul fondo scuro aveva solo 0.9 punti di contrasto su 255 ed era praticamente invisibile. Asset di brand in cat/brand/ (mascotte.png, logo.png) ricavati dalla cattura ad alta risoluzione, con bordi sfumati per fondersi con lo sfondo; se assenti il disegno prosegue con un fallback testuale. Supporto al verdetto di Swainz via campo f.verdetto (colonna DB da popolare). -->
+<!-- v359 · Schermata di accesso: stato 'accesso in corso'. Tornando da Google/Facebook l'utente ha gia' effettuato l'accesso ma, nei 2-3 secondi di caricamento dati, rivedeva i pulsanti di login — fuorviante. Ora _handleOAuthCallback, appena rileva il token, chiama _lsStartLoading: la classe .loading su #ls nasconde pulsanti, consenso e barra lingua e mostra uno spinner con testo (login_loading, IT+EN), lasciando logo e sfondo animato per continuita' visiva. Tutte le vie d'uscita sono coperte, perche' uno spinner bloccato lascerebbe l'utente senza scampo: login() annulla il timeout (la schermata esce con .out), showOnboarding chiama _lsStopLoading (utente nuovo), il ramo di token non valido ripristina i controlli con un messaggio d'errore, e un timeout di sicurezza a 15s libera comunque l'interfaccia se la rete non risponde. Rispettata prefers-reduced-motion. -->
+<!-- v358 · FIX: un utente Premium risultava free nella pagina principale subito dopo il login, e l'interfaccia si correggeva solo dopo aver aperto il pannello Profilo. Causa: _applyUserData aggiornava la variabile isPremium e il flag locale, ma non ridisegnava nulla; _updatePremUI (pulsante 'Passa a Premium' in intestazione) era invocata solo da loadProfp, cioe' all'apertura del Profilo — da cui il sintomo. Erano scoperti tre flussi (login normale, registrazione, accesso OAuth). Corretto CENTRALMENTE dentro _applyUserData, che e' il punto in cui isPremium cambia davvero: si confronta lo stato precedente e, solo se e' cambiato, si chiama buildUI(). Una sola chiamata basta perche' buildUI azzera e ricostruisce i contenitori (idempotente) e al suo interno invoca gia' _updatePremUI e aggiorna la sidebar degli annunci. Il controllo sul cambio evita ridisegni inutili a ogni sincronizzazione. Funziona in entrambe le direzioni: anche un Premium scaduto riporta subito l'interfaccia allo stato free. -->
 <!-- v357 · Nessuna modifica al codice: correzione sul DATABASE (swainz_grant_userdata_v357.sql). Diagnosi dalla console grazie ai controlli d'esito introdotti dalla v353: le scritture di cine_level_max, onboarded, consent_accepted_at e consent_version fallivano con 403 / codice 42501 'permission denied for table user_data'. Causa: i permessi del ruolo authenticated su user_data sono concessi PER COLONNA, non per tabella, e le colonne aggiunte nelle versioni v339-v355 non avevano UPDATE ne' INSERT. Era la ragione per cui l'avviso di livello 'Esploratore' ricompariva a ogni rientro (cine_level_max restava 0 sul server) e il flag onboarded non si salvava. REGOLA FISSATA: lo schema per colonna e' deliberato — is_premium, stripe_customer_id, stripe_subscription_id e subscription_status hanno solo SELECT perche' le scrive il webhook Stripe; un GRANT UPDATE di tabella permetterebbe a qualunque utente di impostarsi is_premium=true sulla propria riga (la RLS lo consentirebbe) e ottenere il Premium gratis. Quindi OGNI nuova colonna di user_data che il client deve scrivere richiede un GRANT esplicito su quella sola colonna; dimenticarlo produce 403 visibili in console. -->
 <!-- v356 · Ultimo difetto della categoria: le risposte del questionario FCK (sw3_fck) erano LETTE dal server (d.fck_answers) ma mai SCRITTE — saveFck salvava solo in localStorage e la colonna non veniva mai popolata. Effetto: compilando il questionario su un dispositivo, da un altro le risposte risultavano assenti, e con esse le preferenze che guidano i consigli. Aggiunta la colonna user_data.fck_answers (jsonb, swainz_fck_sync_v356.sql, con backup preventivo) e la scrittura in saveFck con verifica dell'esito. In _applyUserData gestiti i due casi mancanti: se il server non ha risposte ma il locale si', queste vengono risincronizzate (risposte date prima che la colonna esistesse); dopo un cambio account il locale viene azzerato e mai ricaricato sul server, per non reintrodurre la contaminazione corretta in v353. AUDIT COMPLETO delle 13 chiavi locali: 7 ora sincronizzate correttamente, sw3_premium resta di sola lettura per SICUREZZA (la scrive il webhook Stripe; se il client potesse scriverla chiunque si dichiarerebbe premium), 5 sono locali per natura (sessione, uid, indice suggerimenti, countdown, giorno risveglio). -->
 <!-- v355 · L'avviso di passaggio di livello Cine-Score compare ora UNA SOLA VOLTA. Stesso schema dei difetti precedenti: il livello raggiunto era in 'sw3_cine_lv' nel solo localStorage, e _checkCsLevelUp gira ad ogni apertura del pannello Profilo. Quel valore si azzera cambiando browser o dispositivo, ripulendo i dati del browser, in incognito o dopo il reset al cambio account (sw3_cine_lv e' in SW_PERSONAL_KEYS): in tutti quei casi l'avviso veniva rimostrato per un livello gia' ottenuto. Introdotta la colonna user_data.cine_level_max (swainz_cine_level_v355.sql) come memoria per account. Il confronto usa ora il MASSIMO tra valore server e locale, cosi' l'avviso non ricompare ne' cambiando dispositivo ne' se il server e' irraggiungibile. Nuova _persistCineLevel con verifica dell'esito e un ritentativo. _applyUserData popola _csServerLevelMax e riallinea i due archivi: se il locale e' avanti (livello ottenuto prima che la colonna esistesse) aggiorna il server, se e' indietro aggiorna il locale; dopo un cambio account riparte dal valore del server. -->
@@ -49,6 +51,28 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
 #ls>*:not(#ls-rain){position:relative;z-index:2}
 #ls-rain{position:absolute;inset:0;z-index:1;pointer-events:none}
 #ls.out{opacity:0;pointer-events:none;transform:translateY(-28px)}
+/* v359 · stato "accesso in corso": dopo il ritorno da Google/Facebook l'utente
+   ha gia' fatto accesso e sta solo attendendo il caricamento. Mostrare di nuovo
+   i pulsanti di login e' fuorviante: li nascondiamo e lasciamo logo, sfondo
+   animato e uno spinner, cosi' la transizione resta continua. */
+#ls.loading .lb,
+#ls.loading .ls-row,
+#ls.loading .ls-consent,
+#ls.loading .ls-err,
+#ls.loading #ls-lang-bar,
+#ls.loading .ls-sep,
+#ls.loading .ls-sub{opacity:0;pointer-events:none;transition:opacity .25s}
+#ls-loading{display:none;flex-direction:column;align-items:center;gap:14px;margin-top:22px}
+#ls.loading #ls-loading{display:flex;animation:lsFadeIn .35s ease both}
+@keyframes lsFadeIn{from{opacity:0}to{opacity:1}}
+#ls-spinner{width:34px;height:34px;border-radius:50%;
+  border:3px solid rgba(255,255,255,.15);border-top-color:var(--or);
+  animation:lsSpin .8s linear infinite}
+@keyframes lsSpin{to{transform:rotate(360deg)}}
+#ls-loading-txt{font-size:13px;color:var(--td);letter-spacing:.3px}
+@media (prefers-reduced-motion:reduce){
+  #ls-spinner{animation-duration:2s}
+}
 .logo-big{font-family:'Bebas Neue',sans-serif;font-size:100px;letter-spacing:24px;background:linear-gradient(135deg,#ffc24f 0%,var(--or) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;line-height:1;margin-bottom:4px;filter:drop-shadow(0 0 36px rgba(255,80,0,.28))}
 .logo-tag{color:var(--td);font-size:11px;letter-spacing:3.5px;text-transform:uppercase;margin-bottom:40px;font-family:'Syne',sans-serif}
 .lbs{width:282px;display:flex;flex-direction:column;gap:9px}
@@ -1696,6 +1720,11 @@ input[type=range]{
         <button class="lb demo" onclick="doLogin()" data-i18n="login_enter">Accedi</button>
         <button class="lb" onclick="doRegister()" data-i18n="login_register">Registrati</button>
       </div>
+      <!-- v359 · mostrato al ritorno da OAuth mentre si caricano i dati -->
+      <div id="ls-loading">
+        <div id="ls-spinner"></div>
+        <div id="ls-loading-txt" data-i18n="login_loading">Accesso effettuato, carico il tuo profilo…</div>
+      </div>
     </div>
     <p style="margin-top:16px;font-size:11px;color:var(--td)" data-i18n="login_sub">3 consigli gratuiti al giorno · Nessuna carta richiesta</p>
   </div>
@@ -2184,6 +2213,7 @@ function _supaTransform(row){
     cast:_safeArr(row.Cast),
     plt:_safeArr(row.Piattaforme),
     plt_nol:_safeArr(row.Piattaforme_noleggio), // v333: piattaforme a noleggio/acquisto
+    verdetto:row.Verdetto||'', // v360: giudizio lampo mostrato nella scheda condivisibile
 
     r:(function(){var x=parseFloat(row['Voto IMDB']);return isNaN(x)||x<=0?null:x;})(), // v325 (punto 16): niente più 7.0 fittizio — senza voto = null
     desc:row['Descrizione IT']||row['Descrizione IT ']||'',
@@ -4431,6 +4461,9 @@ function tryAgain(){
 
 function login(){
   _startBgSync(); // start cross-device allRecs sync
+  // v359: annullo il timeout di sicurezza dello spinner, altrimenti dopo 15s
+  // mostrerebbe un errore su una schermata di login ormai chiusa.
+  try{ if(_lsLoadingTimer){clearTimeout(_lsLoadingTimer);_lsLoadingTimer=null;} }catch(e){}
   document.getElementById('ls').classList.add('out');
   setTimeout(()=>{
     window.scrollTo(0,0);
@@ -6088,6 +6121,7 @@ const T={
     mbu:'Mrrrow! 🎬',
     g1:'🎭 Genere & Atmosfera',g2:'✨ Qualità & Stile',g3:'🔍 Temi specifici',g4:'🧠 Mood',g5:'🌍 Contesto',g6:'⏱ Durata',g7:'📺 Piattaforma',g8:'📅 Periodo',
     g7_sub:'Abbonamento',g7_rent:'Noleggio/Acquisto',
+    login_loading:'Accesso effettuato, carico il tuo profilo…',
     gdpr_title:'🔒 I tuoi dati',
     gdpr_desc:'Puoi scaricare una copia dei tuoi dati o eliminare definitivamente il tuo account in qualsiasi momento.',
     gdpr_export:'Scarica i miei dati',
@@ -6228,6 +6262,7 @@ const T={
     mbu:'Purrr! 🎬',
     g1:'🎭 Genre & Mood',g2:'✨ Quality & Style',g3:'🔍 Specific Themes',g4:'🧠 Mood',g5:'🌍 Context',g6:'⏱ Length',g7:'📺 Platform',g8:'📅 Period',
     g7_sub:'Subscription',g7_rent:'Rent/Buy',
+    login_loading:'Signed in, loading your profile…',
     gdpr_title:'🔒 Your data',
     gdpr_desc:'You can download a copy of your data or permanently delete your account at any time.',
     gdpr_export:'Download my data',
@@ -7074,6 +7109,33 @@ function loginWithProvider(provider) {
   setTimeout(function(){ window.location.href = url; }, 180);
 }
 
+// v359 · stato "accesso in corso" della schermata di login.
+// _lsStartLoading nasconde i controlli e mostra lo spinner; un timeout di
+// sicurezza lo rimuove se la rete non risponde, per non lasciare l'utente
+// bloccato davanti a una rotella infinita.
+var _lsLoadingTimer=null;
+function _lsStartLoading(){
+  try{
+    var el=document.getElementById('ls');
+    if(el)el.classList.add('loading');
+    if(_lsLoadingTimer)clearTimeout(_lsLoadingTimer);
+    _lsLoadingTimer=setTimeout(function(){
+      _lsStopLoading(LANG==='en'?'Taking longer than usual. Please try again.'
+                                :'Sta impiegando piu tempo del previsto. Riprova.');
+    },15000);
+  }catch(e){}
+}
+function _lsStopLoading(msg){
+  try{
+    if(_lsLoadingTimer){clearTimeout(_lsLoadingTimer);_lsLoadingTimer=null;}
+    var el=document.getElementById('ls');
+    if(el)el.classList.remove('loading');
+    if(msg){
+      var err=document.getElementById('ls-err');
+      if(err){err.textContent=msg;err.style.display='block';}
+    }
+  }catch(e){}
+}
 function _handleOAuthCallback() {
   // Supabase returns tokens in URL hash after OAuth redirect
   var hash = window.location.hash;
@@ -7090,6 +7152,10 @@ function _handleOAuthCallback() {
   });
 
   if (!params.access_token) return false;
+
+  // v359 · l'accesso e' gia' avvenuto: nascondo i controlli di login e mostro
+  // uno spinner, cosi' l'utente non rivede i pulsanti mentre attende i dati.
+  _lsStartLoading();
 
   // Clean hash immediately so it doesn't re-trigger on reload
   history.replaceState(null, '', window.location.pathname);
@@ -7111,6 +7177,10 @@ function _handleOAuthCallback() {
     } else {
       // Token invalid — show login screen normally
       console.warn('OAuth token invalid, status:', status);
+      // v359: tolgo lo spinner e riporto i controlli di accesso, altrimenti
+      // l'utente resterebbe davanti a una rotella infinita senza via d'uscita.
+      _lsStopLoading(LANG==='en'?'Sign-in failed. Please try again.'
+                                :'Accesso non riuscito. Riprova.');
     }
   });
   return true;
@@ -7249,8 +7319,12 @@ window._swShareFilm=function(filmId){
   var fid=isNaN(filmId)?filmId:+filmId;
   var f=DB.find(function(x){return x.id===fid||String(x.id)===String(filmId);});
   if(!f){acts.innerHTML='<p style="text-align:center;padding:20px;color:rgba(255,80,0,.8)">'+t('share_film_nf')+' ('+filmId+')</p>';return;}
-  _swGenFilmImg(f).then(function(c){
-    _swFinalise(c,'swainz-'+String(f.title).replace(/[^a-z0-9]/gi,'-').toLowerCase()+'.jpg',acts,prev);
+  // v360: due formati dallo stesso template — 9:16 storia, 4:5 post.
+  var fmt=window._swShareFormat||'story';
+  _swGenFilmImg(f,fmt).then(function(c){
+    var suffix=(fmt==='post')?'-post':'-story';
+    _swFinalise(c,'swainz-'+String(f.title).replace(/[^a-z0-9]/gi,'-').toLowerCase()+suffix+'.jpg',acts,prev);
+    _swAddFormatSwitch(acts,f,fmt);
   }).catch(function(e){
     acts.innerHTML='<p style="text-align:center;padding:20px;color:rgba(255,80,0,.8)">Errore: '+e.message+'</p>';
   });
@@ -7271,107 +7345,235 @@ window._swShareBadge=function(){
     acts.innerHTML='<p style="text-align:center;padding:20px;color:rgba(255,80,0,.8)">Errore: '+e.message+'</p>';
   });
 };
+// v360 · selettore di formato nell'anteprima di condivisione.
+// Rigenera la stessa scheda nell'altro rapporto senza chiudere l'overlay.
+function _swAddFormatSwitch(acts,f,current){
+  try{
+    var bar=document.createElement('div');
+    bar.style.cssText='display:flex;gap:8px;justify-content:center;margin-top:12px';
+    [['story','9:16 Storia'],['post','4:5 Post']].forEach(function(o){
+      var b=document.createElement('button');
+      var on=(o[0]===current);
+      b.textContent=o[1];
+      b.style.cssText='padding:8px 16px;border-radius:9px;font-size:12.5px;font-weight:600;'+
+        'cursor:pointer;border:1px solid '+(on?'var(--or)':'rgba(255,255,255,.18)')+';'+
+        'background:'+(on?'rgba(255,104,32,.18)':'rgba(255,255,255,.05)')+';'+
+        'color:'+(on?'var(--or)':'var(--tx)');
+      b.onclick=function(){
+        if(o[0]===current)return;
+        window._swShareFormat=o[0];
+        _swShareFilm(f.id);
+      };
+      bar.appendChild(b);
+    });
+    acts.appendChild(bar);
+  }catch(e){}
+}
 window.closeShareOv=function(){var ov=document.getElementById('share-ov');if(ov)ov.classList.remove('on');};
 
 function _swLoadImg(src){return new Promise(function(res,rej){var img=new Image();img.crossOrigin='anonymous';img.onload=function(){res(img);};img.onerror=rej;img.src=src;});}
 function _swLines(ctx,text,maxW){var words=text.split(' '),lines=[],line='';for(var i=0;i<words.length;i++){var t=line?line+' '+words[i]:words[i];if(ctx.measureText(t).width>maxW&&line){lines.push(line);line=words[i];}else line=t;}if(line)lines.push(line);return lines;}
 function _swRR(ctx,x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.quadraticCurveTo(x+w,y,x+w,y+r);ctx.lineTo(x+w,y+h-r);ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);ctx.lineTo(x+r,y+h);ctx.quadraticCurveTo(x,y+h,x,y+h-r);ctx.lineTo(x,y+r);ctx.quadraticCurveTo(x,y,x+r,y);ctx.closePath();}
 
-function _swGenFilmImg(f){
-  var W=1080,H=1920,c=document.createElement('canvas');c.width=W;c.height=H;
+/* ═══════════════════════════════════════════════════════════════════════════
+   v360 · Generatore scheda film — template "SWAINZ CONSIGLIA"
+   Due formati dallo stesso codice:
+     'story' → 1080×1920 (9:16, storia Instagram)
+     'post'  → 1080×1350 (4:5, post Instagram)
+   Asset di brand caricati da cat/brand/ (mascotte.png, logo.png). Se mancano,
+   il disegno prosegue senza: nessun blocco, solo elementi in meno.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* Tonalità delle linee geometriche laterali: bronzo scuro, volutamente DIVERSO
+   dall'arancione brand #ff6820 di logo e mascotte, che altrimenti si
+   confondevano (nel template originale erano rgb(148,101,60), troppo simili). */
+var SW_LINE   = '#a85214';
+var SW_BRAND  = '#ff6820';
+/* Sfondo schiarito rispetto all'originale (era ~rgb(19,11,8)): un nero più
+   aperto e caldo fa risaltare la sagoma scura della mascotte. */
+var SW_BG_TOP = '#241a15';
+var SW_BG_BOT = '#17100d';
+
+var _swBrandCache = {};
+function _swBrandImg(name){
+  if(_swBrandCache[name]!==undefined)return Promise.resolve(_swBrandCache[name]);
+  return _swLoadImg('cat/brand/'+name+'.png')
+    .then(function(i){_swBrandCache[name]=i;return i;})
+    .catch(function(){_swBrandCache[name]=null;return null;});
+}
+
+/* Chevron laterali: due file di frecce che incorniciano la scheda. */
+function _swSideLines(ctx,W,H,scale){
+  var n=Math.round(H/190), armW=Math.round(64*scale), armH=Math.round(96*scale);
+  ctx.save();
+  ctx.strokeStyle=SW_LINE;
+  ctx.lineWidth=Math.max(2,Math.round(3.5*scale));
+  ctx.lineCap='round';
+  for(var i=0;i<n;i++){
+    var y=Math.round(H*0.10+i*(H*0.82/n));
+    for(var k=0;k<2;k++){
+      var off=k*Math.round(26*scale);
+      ctx.globalAlpha=k?0.30:0.55;
+      // sinistra
+      ctx.beginPath();
+      ctx.moveTo(off,y);ctx.lineTo(off+armW,y+armH/2);ctx.lineTo(off,y+armH);
+      ctx.stroke();
+      // destra (speculare)
+      ctx.beginPath();
+      ctx.moveTo(W-off,y);ctx.lineTo(W-off-armW,y+armH/2);ctx.lineTo(W-off,y+armH);
+      ctx.stroke();
+    }
+  }
+  ctx.restore();
+}
+
+function _swGenFilmImg(f,format){
+  var isPost=(format==='post');
+  var W=1080, H=isPost?1350:1920;
+  var S=isPost?0.86:1;                  // fattore di scala per il formato corto
+  var c=document.createElement('canvas');c.width=W;c.height=H;
   var ctx=c.getContext('2d');
-  ctx.fillStyle='#1d1e21';ctx.fillRect(0,0,W,H);
-  var p=f.poster?_swLoadImg(f.poster).catch(function(){return null;}):Promise.resolve(null);
-  return p.then(function(img){
-    /* blurred BG */
-    if(img){try{
-      ctx.save();ctx.filter='blur(72px) brightness(0.16) saturate(2)';
-      var bw=H*(img.naturalWidth/img.naturalHeight);
-      ctx.drawImage(img,(W-bw)/2,0,bw,H);ctx.restore();
-    }catch(e){}}
-    ctx.fillStyle='rgba(27,28,31,.45)';ctx.fillRect(0,0,W,H);
 
-    /* poster */
-    var maxPH=920,maxPW=820,hasPoster=false;
-    var pTop=280,pLeft=0,pW=0,pH=0;
-    if(img){try{
+  /* sfondo: gradiente verticale caldo + alone centrale */
+  var g=ctx.createLinearGradient(0,0,0,H);
+  g.addColorStop(0,SW_BG_TOP);g.addColorStop(1,SW_BG_BOT);
+  ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
+  var rg=ctx.createRadialGradient(W/2,H*0.42,60,W/2,H*0.42,W*0.95);
+  rg.addColorStop(0,'rgba(255,104,32,.07)');rg.addColorStop(1,'rgba(0,0,0,0)');
+  ctx.fillStyle=rg;ctx.fillRect(0,0,W,H);
+
+  _swSideLines(ctx,W,H,S);
+
+  var pPromise=f.poster?_swLoadImg(f.poster).catch(function(){return null;}):Promise.resolve(null);
+
+  return Promise.all([pPromise,_swBrandImg('mascotte'),_swBrandImg('logo')])
+  .then(function(res){
+    var img=res[0],cat=res[1],logo=res[2];
+
+    /* ── intestazione: mascotte a sinistra, logo a destra ── */
+    var headH=Math.round(250*S);
+    if(cat){
+      // l'asset e' un rettangolo con bordi sfumati: si fonde con lo sfondo,
+      // quindi va posizionato a filo del bordo superiore sinistro.
+      var cw=Math.round(430*S), ch=Math.round(cw*cat.naturalHeight/cat.naturalWidth);
+      // alone caldo dietro la sagoma: il gatto e' nero su fondo scuro e senza
+      // questo si distingue appena (misurato: 0.9 punti di contrasto su 255).
+      var hg=ctx.createRadialGradient(cw*0.50,ch*0.58,20,cw*0.50,ch*0.58,cw*0.80);
+      hg.addColorStop(0,'rgba(255,130,45,.20)');hg.addColorStop(1,'rgba(255,130,45,0)');
+      ctx.fillStyle=hg;ctx.fillRect(0,0,Math.round(cw*1.5),Math.round(ch*1.5));
+      ctx.drawImage(cat,Math.round(-14*S),Math.round(-10*S),cw,ch);
+    }
+    if(logo){
+      var lw=Math.round(600*S), lh=Math.round(lw*logo.naturalHeight/logo.naturalWidth);
+      ctx.drawImage(logo,W-lw+Math.round(16*S),Math.round(4*S),lw,lh);
+    } else {
+      ctx.fillStyle=SW_BRAND;ctx.textAlign='right';
+      ctx.font='900 '+Math.round(92*S)+'px Arial';
+      ctx.fillText('SWAINZ',W-Math.round(50*S),Math.round(118*S));
+      ctx.fillStyle='#fff';ctx.font='700 '+Math.round(44*S)+'px Arial';
+      ctx.fillText('CONSIGLIA',W-Math.round(54*S),Math.round(170*S));
+    }
+
+    /* ── locandina ── */
+    var pTop=headH+Math.round(26*S);
+    var maxPW=Math.round(560*S), maxPH=isPost?520:780;
+    var pW=0,pH=0,pLeft=0,posterBottom=pTop;
+    if(img){
       var rat=img.naturalWidth/img.naturalHeight;
-      if(rat>1){pW=Math.min(maxPW,maxPH*rat);pH=Math.round(pW/rat);}
-      else{pH=Math.min(maxPH,maxPW/rat);pW=Math.round(pH*rat);}
+      pH=maxPH;pW=Math.round(pH*rat);
+      if(pW>maxPW){pW=maxPW;pH=Math.round(pW/rat);}
       pLeft=Math.round((W-pW)/2);
-      ctx.save();ctx.shadowColor='rgba(0,0,0,.8)';ctx.shadowBlur=80;ctx.shadowOffsetY=24;
-      _swRR(ctx,pLeft,pTop,pW,pH,28);ctx.fillStyle='#000';ctx.fill();ctx.restore();
-      _swRR(ctx,pLeft,pTop,pW,pH,28);ctx.save();ctx.clip();
+      ctx.save();
+      ctx.shadowColor='rgba(0,0,0,.75)';ctx.shadowBlur=60;ctx.shadowOffsetY=18;
+      _swRR(ctx,pLeft,pTop,pW,pH,18);ctx.fillStyle='#000';ctx.fill();
+      ctx.restore();
+      _swRR(ctx,pLeft,pTop,pW,pH,18);ctx.save();ctx.clip();
       ctx.drawImage(img,pLeft,pTop,pW,pH);ctx.restore();
-      hasPoster=true;
-    }catch(e){}}
+      // cornice chiara, come nel template
+      _swRR(ctx,pLeft,pTop,pW,pH,18);
+      ctx.strokeStyle='rgba(255,255,255,.85)';ctx.lineWidth=Math.round(5*S);ctx.stroke();
+      posterBottom=pTop+pH;
+    }
 
-    /* gradients */
-    var tg=ctx.createLinearGradient(0,0,0,210);
-    tg.addColorStop(0,'rgba(27,28,31,.82)');tg.addColorStop(1,'rgba(27,28,31,0)');
-    ctx.fillStyle=tg;ctx.fillRect(0,0,W,210);
-    var posterBottom=hasPoster?pTop+pH:pTop+maxPH;
-    var gs=Math.max(posterBottom-320,pTop+(hasPoster?pH:maxPH)*0.55);
-    var bg=ctx.createLinearGradient(0,gs,0,posterBottom+50);
-    bg.addColorStop(0,'rgba(27,28,31,0)');bg.addColorStop(1,'rgba(27,28,31,1)');
-    ctx.fillStyle=bg;ctx.fillRect(0,gs,W,posterBottom+50-gs);
-    ctx.fillStyle='#1d1e21';ctx.fillRect(0,posterBottom+50,W,H-(posterBottom+50));
-
-    /* badge — replica fc-bdg */
-    var badgeTxt=(typeof LANG!='undefined'&&LANG=='en')?'\u2736  SWAINZ RECOMMENDS':'\u2736  SWAINZ CONSIGLIA';
-    ctx.font='700 36px Arial';
-    var bTW=ctx.measureText(badgeTxt).width;
-    var bPadX=52,bH=80,bW=bTW+bPadX*2,bX=(W-bW)/2,bY=74;
-    _swRR(ctx,bX,bY,bW,bH,40);
-    ctx.fillStyle='rgba(255,80,0,.10)';ctx.fill();
-    ctx.strokeStyle='rgba(255,104,32,.55)';ctx.lineWidth=2;ctx.stroke();
-    ctx.fillStyle='#ff6820';ctx.textAlign='center';
-    ctx.fillText(badgeTxt,W/2,bY+bH-22);
-
-    /* text block — below poster */
-    var textStart=posterBottom+140;
-    if(textStart>H-400)textStart=H-400;
-
-    var title=(typeof LANG!='undefined'&&LANG=='en'&&typeof TITLE_ORIG!='undefined')
+    /* ── titolo ── */
+    var title=(typeof LANG!=='undefined'&&LANG==='en'&&typeof TITLE_ORIG!=='undefined')
       ?(TITLE_ORIG[f.id]||f.title):f.title;
-    ctx.fillStyle='#ffffff';ctx.textAlign='center';ctx.font='bold 84px Arial';
-    var tL=_swLines(ctx,title,W-120),tY=textStart;
-    for(var i=0;i<tL.length;i++)ctx.fillText(tL[i],W/2,tY+i*96);
-    var cur=tY+tL.length*96+28;
+    var cur=posterBottom+Math.round(76*S);
+    ctx.textAlign='center';ctx.fillStyle='#fff';
+    var tSize=Math.round((isPost?74:86)*1);
+    ctx.font='900 '+tSize+'px Arial';
+    var lines=_swLines(ctx,title,W-Math.round(150*S));
+    if(lines.length>2){ // titoli lunghi: riduco per non rubare spazio
+      tSize=Math.round(tSize*0.78);ctx.font='900 '+tSize+'px Arial';
+      lines=_swLines(ctx,title,W-Math.round(150*S));
+    }
+    for(var i=0;i<Math.min(lines.length,3);i++){
+      ctx.fillText(lines[i],W/2,cur+i*Math.round(tSize*1.12));
+    }
+    cur+=Math.min(lines.length,3)*Math.round(tSize*1.12)+Math.round(14*S);
 
-    ctx.fillStyle='rgba(255,255,255,.62)';ctx.font='italic 42px Arial';
-    ctx.fillText((LANG==='en'?'directed by ':'regia di ')+f.dir,W/2,cur);cur+=58;
-    ctx.fillStyle='rgba(255,195,95,.8)';ctx.font='500 38px Arial';
-    ctx.fillText(f.r==null?String(f.year):(f.year+'  \u00b7  \u2b50 '+f.r+'/10'),W/2,cur);cur+=76; // v325
+    /* ── regista · anno · voto ── */
+    ctx.font='500 '+Math.round(40*S)+'px Arial';
+    var meta=[f.dir||'',String(f.year||'')].filter(Boolean);
+    var metaTxt=meta.join('   \u00b7   ');
+    var rTxt=(f.r==null)?'':('   \u00b7   \u2605 '+f.r);
+    ctx.fillStyle='rgba(255,255,255,.88)';
+    ctx.fillText(metaTxt+rTxt,W/2,cur);
+    cur+=Math.round(64*S);
 
-    /* tags wrapping */
+    /* ── verdetto di Swainz ── */
+    var verdict=f.verdetto||f.verdict||'';
+    if(verdict){
+      ctx.font='italic 600 '+Math.round(42*S)+'px Arial';
+      ctx.fillStyle='rgba(255,255,255,.95)';
+      var vL=_swLines(ctx,'\u201C'+verdict+'\u201D',W-Math.round(200*S));
+      for(var v=0;v<Math.min(vL.length,3);v++){
+        ctx.fillText(vL[v],W/2,cur+v*Math.round(52*S));
+      }
+      cur+=Math.min(vL.length,3)*Math.round(52*S)+Math.round(24*S);
+    }
+
+    /* ── tag ── */
     if(f.tags&&f.tags.length){
-      ctx.font='28px Arial';
-      var pPx=42,tgH=52,gap=12,rGap=14,rowX=80,rowY=cur,rows=0;
-      for(var j=0;j<Math.min(f.tags.length,8);j++){
-        var lbl=typeof tTag=='function'?tTag(f.tags[j]):f.tags[j];
-        var tw=ctx.measureText(lbl).width+pPx*2;
-        if(rowX+tw>W-80&&rowX>80){rowX=80;rowY+=tgH+rGap;rows++;if(rows>1)break;}
-        _swRR(ctx,rowX,rowY,tw,tgH,tgH/2);
-        ctx.fillStyle='rgba(255,104,32,.15)';ctx.fill();
-        ctx.strokeStyle='rgba(255,104,32,.45)';ctx.lineWidth=1.5;ctx.stroke();
-        ctx.fillStyle='rgba(255,210,160,.92)';ctx.textAlign='left';
-        ctx.fillText(lbl,rowX+pPx,rowY+tgH-13);
-        rowX+=tw+gap;
+      ctx.font='500 '+Math.round(30*S)+'px Arial';
+      var padX=Math.round(30*S), tgH=Math.round(54*S), gap=Math.round(12*S);
+      var maxRows=isPost?2:3, rowsUsed=0;
+      var idx=0, maxTags=Math.min(f.tags.length,8);
+      while(idx<maxTags&&rowsUsed<maxRows){
+        // compongo la riga e la centro
+        var row=[],rowW=0;
+        while(idx<maxTags){
+          var lbl=(typeof tTag==='function')?tTag(f.tags[idx]):f.tags[idx];
+          var tw=ctx.measureText(lbl).width+padX*2;
+          if(rowW+tw+(row.length?gap:0)>W-Math.round(120*S))break;
+          rowW+=tw+(row.length?gap:0);row.push({l:lbl,w:tw});idx++;
+        }
+        if(!row.length)break;
+        var x=Math.round((W-rowW)/2);
+        for(var q=0;q<row.length;q++){
+          _swRR(ctx,x,cur,row[q].w,tgH,tgH/2);
+          ctx.fillStyle='rgba(255,104,32,.10)';ctx.fill();
+          ctx.strokeStyle='rgba(255,104,32,.55)';ctx.lineWidth=2;ctx.stroke();
+          ctx.fillStyle='rgba(255,214,176,.95)';ctx.textAlign='center';
+          ctx.fillText(row[q].l,x+row[q].w/2,cur+tgH-Math.round(18*S));
+          x+=row[q].w+gap;
+        }
+        cur+=tgH+gap;rowsUsed++;
       }
     }
 
-    /* watermark — adaptive colour */
-    var lum=20;
-    try{var pd=ctx.getImageData(W/2-40,H-30,80,1).data;
-      for(var k=0;k<pd.length;k+=4)lum+=(pd[k]*.299+pd[k+1]*.587+pd[k+2]*.114);
-      lum/=(pd.length/4);}catch(e){}
-    ctx.fillStyle=lum>140?'rgba(30,30,40,.75)':'rgba(255,255,255,.72)';
-    ctx.textAlign='center';ctx.font='bold 42px Arial';
-    ctx.fillText('swainz.it',W/2,H-38);
+    /* ── piè di pagina ── */
+    var fy=H-Math.round(58*S);
+    ctx.strokeStyle='rgba(255,104,32,.45)';ctx.lineWidth=2;
+    ctx.beginPath();ctx.moveTo(W/2-Math.round(60*S),fy-Math.round(46*S));
+    ctx.lineTo(W/2+Math.round(60*S),fy-Math.round(46*S));ctx.stroke();
+    ctx.fillStyle='rgba(255,255,255,.92)';ctx.textAlign='center';
+    ctx.font='700 '+Math.round(38*S)+'px Arial';
+    ctx.fillText('SWAINZ.IT',W/2,fy);
     return c;
   });
 }
+
 function _swGenBadgeImg(emoji,levelName,sub){
   return new Promise(function(res){
     var W=1080,H=1920,c=document.createElement('canvas');c.width=W;c.height=H;var ctx=c.getContext('2d');
@@ -7741,6 +7943,9 @@ function _persistOnboarded(_retry){
 function showOnboarding(){
   var ov=document.getElementById('onboarding');
   if(!ov){login();return;}  // overlay missing → fallback to login
+  // v359: anche l'onboarding e' una uscita valida dalla schermata di login
+  // (utente nuovo): fermo lo spinner e il suo timeout di sicurezza.
+  try{ if(typeof _lsStopLoading==='function')_lsStopLoading(); }catch(e){}
   _onbActive=true;
   _onbGoTo('a');
   ov.style.display='flex';
