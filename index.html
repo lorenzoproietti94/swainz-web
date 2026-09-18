@@ -7397,7 +7397,10 @@ var TPL_ZONE = {
   /* Spazio libero fra i chevron misurato per fasce: nella zona della
      locandina (y 300-700) va da x=84 a x=667; piu' in basso si stringe.
      Uso 470px centrati sulla pagina: stanno comodi e non toccano nulla. */
-  poster:  {y:272, w:470, h:552},          // locandina (x calcolata: sempre centrata)
+  /* v364: abbassata da y=272 a y=300. La zampa della mascotte e il ripiano
+     arrivano a y=240: con 272 restavano solo 32px di stacco, troppo pochi.
+     Ora 60px. Altezza ridotta a 530 per non avvicinarsi al titolo (y=862). */
+  poster:  {y:300, w:470, h:530},          // locandina (x calcolata: sempre centrata)
   title:   {y:862, h:114, x:100, w:552},   // titolo (max 2 righe)
   meta:    {y:1004, h:23},                 // regista · anno · ★ voto
   verdict: {y:1056, h:52},                 // verdetto di Swainz
