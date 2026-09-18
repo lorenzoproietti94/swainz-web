@@ -7376,200 +7376,156 @@ function _swLines(ctx,text,maxW){var words=text.split(' '),lines=[],line='';for(
 function _swRR(ctx,x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.quadraticCurveTo(x+w,y,x+w,y+r);ctx.lineTo(x+w,y+h-r);ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);ctx.lineTo(x+r,y+h);ctx.quadraticCurveTo(x,y+h,x,y+h-r);ctx.lineTo(x,y+r);ctx.quadraticCurveTo(x,y,x+r,y);ctx.closePath();}
 
 /* ═══════════════════════════════════════════════════════════════════════════
-   v360 · Generatore scheda film — template "SWAINZ CONSIGLIA"
-   Due formati dallo stesso codice:
-     'story' → 1080×1920 (9:16, storia Instagram)
-     'post'  → 1080×1350 (4:5, post Instagram)
-   Asset di brand caricati da cat/brand/ (mascotte.png, logo.png). Se mancano,
-   il disegno prosegue senza: nessun blocco, solo elementi in meno.
+   v361 · Scheda film — usa il TEMPLATE FORNITO come sfondo.
+   Il template (cat/brand/template-story.png, cat/brand/template-post.png) è
+   l'immagine originale con cornice, linee, mascotte, logo e footer già dentro:
+   qui si disegnano SOPRA soltanto le parti variabili (locandina e testi), nelle
+   posizioni misurate confrontando pixel per pixel il template vuoto con
+   l'esempio compilato.
+   Coordinate rilevate sul template 752×1360, riscalate al canvas di lavoro.
    ═══════════════════════════════════════════════════════════════════════════ */
 
-/* Tonalità delle linee geometriche laterali: bronzo scuro, volutamente DIVERSO
-   dall'arancione brand #ff6820 di logo e mascotte, che altrimenti si
-   confondevano (nel template originale erano rgb(148,101,60), troppo simili). */
-var SW_LINE   = '#a85214';
-var SW_BRAND  = '#ff6820';
-/* Sfondo schiarito rispetto all'originale (era ~rgb(19,11,8)): un nero più
-   aperto e caldo fa risaltare la sagoma scura della mascotte. */
-var SW_BG_TOP = '#241a15';
-var SW_BG_BOT = '#17100d';
+/* Riferimento: misure prese sul template originale 752×1360 */
+var TPL_W = 752, TPL_H = 1360;
+/* Il formato 4:5 nasce dal 9:16 rimuovendo 420px di fascia centrale vuota
+   (da y=560): intestazione e footer restano identici, quindi le zone sopra
+   il taglio non cambiano e quelle sotto risalgono di 420px. */
+var TPL_POST_CUT = 420;
+var TPL_ZONE = {
+  poster:  {x:104, y:269, w:470, h:559},   // locandina
+  title:   {y:862, h:114, x:100, w:552},   // titolo (max 2 righe)
+  meta:    {y:1004, h:23},                 // regista · anno · ★ voto
+  verdict: {y:1056, h:52},                 // verdetto di Swainz
+  tags:    {y:1131, h:90, x:110, w:532}    // due righe di tag
+};
+/* Colori campionati dall'esempio fornito */
+var TPL_COL = {
+  title:   '#f2f2f3',
+  meta:    '#d8c8ac',
+  verdict: '#dbdbdc',
+  tagText: '#b98768',
+  tagLine: 'rgba(194,105,48,.85)'
+};
 
-var _swBrandCache = {};
-function _swBrandImg(name){
-  if(_swBrandCache[name]!==undefined)return Promise.resolve(_swBrandCache[name]);
-  return _swLoadImg('cat/brand/'+name+'.png')
-    .then(function(i){_swBrandCache[name]=i;return i;})
-    .catch(function(){_swBrandCache[name]=null;return null;});
-}
-
-/* Chevron laterali: due file di frecce che incorniciano la scheda. */
-function _swSideLines(ctx,W,H,scale){
-  var n=Math.round(H/190), armW=Math.round(64*scale), armH=Math.round(96*scale);
-  ctx.save();
-  ctx.strokeStyle=SW_LINE;
-  ctx.lineWidth=Math.max(2,Math.round(3.5*scale));
-  ctx.lineCap='round';
-  for(var i=0;i<n;i++){
-    var y=Math.round(H*0.10+i*(H*0.82/n));
-    for(var k=0;k<2;k++){
-      var off=k*Math.round(26*scale);
-      ctx.globalAlpha=k?0.30:0.55;
-      // sinistra
-      ctx.beginPath();
-      ctx.moveTo(off,y);ctx.lineTo(off+armW,y+armH/2);ctx.lineTo(off,y+armH);
-      ctx.stroke();
-      // destra (speculare)
-      ctx.beginPath();
-      ctx.moveTo(W-off,y);ctx.lineTo(W-off-armW,y+armH/2);ctx.lineTo(W-off,y+armH);
-      ctx.stroke();
-    }
-  }
-  ctx.restore();
+var _swTplCache={};
+function _swTemplate(name){
+  if(_swTplCache[name]!==undefined)return Promise.resolve(_swTplCache[name]);
+  return _swLoadImg('cat/brand/template-'+name+'.png')
+    .then(function(i){_swTplCache[name]=i;return i;})
+    .catch(function(){_swTplCache[name]=null;return null;});
 }
 
 function _swGenFilmImg(f,format){
   var isPost=(format==='post');
-  var W=1080, H=isPost?1350:1920;
-  var S=isPost?0.86:1;                  // fattore di scala per il formato corto
-  var c=document.createElement('canvas');c.width=W;c.height=H;
-  var ctx=c.getContext('2d');
+  /* Il canvas ha la risoluzione del template caricato: se fornisci un
+     template a 1080px l'uscita è a 1080px, senza ingrandimenti. */
+  return Promise.all([
+    _swTemplate(isPost?'post':'story'),
+    f.poster?_swLoadImg(f.poster).catch(function(){return null;}):Promise.resolve(null)
+  ]).then(function(res){
+    var tpl=res[0], img=res[1];
+    var W = tpl?tpl.naturalWidth :TPL_W;
+    var H = tpl?tpl.naturalHeight:TPL_H;
+    var k = W/TPL_W;                 // fattore di scala rispetto alle misure
+    var c=document.createElement('canvas');c.width=W;c.height=H;
+    var ctx=c.getContext('2d');
 
-  /* sfondo: gradiente verticale caldo + alone centrale */
-  var g=ctx.createLinearGradient(0,0,0,H);
-  g.addColorStop(0,SW_BG_TOP);g.addColorStop(1,SW_BG_BOT);
-  ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
-  var rg=ctx.createRadialGradient(W/2,H*0.42,60,W/2,H*0.42,W*0.95);
-  rg.addColorStop(0,'rgba(255,104,32,.07)');rg.addColorStop(1,'rgba(0,0,0,0)');
-  ctx.fillStyle=rg;ctx.fillRect(0,0,W,H);
+    if(tpl){ ctx.drawImage(tpl,0,0,W,H); }
+    else   { ctx.fillStyle='#0d0907';ctx.fillRect(0,0,W,H); }
 
-  _swSideLines(ctx,W,H,S);
-
-  var pPromise=f.poster?_swLoadImg(f.poster).catch(function(){return null;}):Promise.resolve(null);
-
-  return Promise.all([pPromise,_swBrandImg('mascotte'),_swBrandImg('logo')])
-  .then(function(res){
-    var img=res[0],cat=res[1],logo=res[2];
-
-    /* ── intestazione: mascotte a sinistra, logo a destra ── */
-    var headH=Math.round(250*S);
-    if(cat){
-      // l'asset e' un rettangolo con bordi sfumati: si fonde con lo sfondo,
-      // quindi va posizionato a filo del bordo superiore sinistro.
-      var cw=Math.round(430*S), ch=Math.round(cw*cat.naturalHeight/cat.naturalWidth);
-      // alone caldo dietro la sagoma: il gatto e' nero su fondo scuro e senza
-      // questo si distingue appena (misurato: 0.9 punti di contrasto su 255).
-      var hg=ctx.createRadialGradient(cw*0.50,ch*0.58,20,cw*0.50,ch*0.58,cw*0.80);
-      hg.addColorStop(0,'rgba(255,130,45,.20)');hg.addColorStop(1,'rgba(255,130,45,0)');
-      ctx.fillStyle=hg;ctx.fillRect(0,0,Math.round(cw*1.5),Math.round(ch*1.5));
-      ctx.drawImage(cat,Math.round(-14*S),Math.round(-10*S),cw,ch);
+    var Z=TPL_ZONE;
+    if(isPost){
+      /* le zone sotto il taglio risalgono; la locandina si accorcia per
+         restare dentro il riquadro più basso del formato 4:5 */
+      var d=TPL_POST_CUT;
+      Z={
+        poster:{x:Z.poster.x, y:Z.poster.y, w:Z.poster.w, h:Z.poster.h-d},
+        title:{x:Z.title.x, y:Z.title.y-d, w:Z.title.w, h:Z.title.h},
+        meta:{y:Z.meta.y-d, h:Z.meta.h},
+        verdict:{y:Z.verdict.y-d, h:Z.verdict.h},
+        tags:{x:Z.tags.x, y:Z.tags.y-d, w:Z.tags.w, h:Z.tags.h}
+      };
     }
-    if(logo){
-      var lw=Math.round(600*S), lh=Math.round(lw*logo.naturalHeight/logo.naturalWidth);
-      ctx.drawImage(logo,W-lw+Math.round(16*S),Math.round(4*S),lw,lh);
-    } else {
-      ctx.fillStyle=SW_BRAND;ctx.textAlign='right';
-      ctx.font='900 '+Math.round(92*S)+'px Arial';
-      ctx.fillText('SWAINZ',W-Math.round(50*S),Math.round(118*S));
-      ctx.fillStyle='#fff';ctx.font='700 '+Math.round(44*S)+'px Arial';
-      ctx.fillText('CONSIGLIA',W-Math.round(54*S),Math.round(170*S));
-    }
-
-    /* ── locandina ── */
-    var pTop=headH+Math.round(26*S);
-    var maxPW=Math.round(560*S), maxPH=isPost?520:780;
-    var pW=0,pH=0,pLeft=0,posterBottom=pTop;
+    /* ── locandina: adattata al riquadro mantenendo le proporzioni ── */
     if(img){
-      var rat=img.naturalWidth/img.naturalHeight;
-      pH=maxPH;pW=Math.round(pH*rat);
-      if(pW>maxPW){pW=maxPW;pH=Math.round(pW/rat);}
-      pLeft=Math.round((W-pW)/2);
+      var bx=Z.poster.x*k, by=Z.poster.y*k, bw=Z.poster.w*k, bh=Z.poster.h*k;
+      var r=img.naturalWidth/img.naturalHeight;
+      var pw=bw, ph=pw/r;
+      if(ph>bh){ ph=bh; pw=ph*r; }
+      var px=bx+(bw-pw)/2, py=by+(bh-ph)/2;
       ctx.save();
-      ctx.shadowColor='rgba(0,0,0,.75)';ctx.shadowBlur=60;ctx.shadowOffsetY=18;
-      _swRR(ctx,pLeft,pTop,pW,pH,18);ctx.fillStyle='#000';ctx.fill();
+      ctx.shadowColor='rgba(0,0,0,.6)';ctx.shadowBlur=30*k;ctx.shadowOffsetY=8*k;
+      ctx.drawImage(img,px,py,pw,ph);
       ctx.restore();
-      _swRR(ctx,pLeft,pTop,pW,pH,18);ctx.save();ctx.clip();
-      ctx.drawImage(img,pLeft,pTop,pW,pH);ctx.restore();
-      // cornice chiara, come nel template
-      _swRR(ctx,pLeft,pTop,pW,pH,18);
-      ctx.strokeStyle='rgba(255,255,255,.85)';ctx.lineWidth=Math.round(5*S);ctx.stroke();
-      posterBottom=pTop+pH;
     }
 
-    /* ── titolo ── */
+    ctx.textAlign='center';
+    var cx=W/2;
+
+    /* ── titolo: due righe, corpo ridotto se non entra ── */
     var title=(typeof LANG!=='undefined'&&LANG==='en'&&typeof TITLE_ORIG!=='undefined')
       ?(TITLE_ORIG[f.id]||f.title):f.title;
-    var cur=posterBottom+Math.round(76*S);
-    ctx.textAlign='center';ctx.fillStyle='#fff';
-    var tSize=Math.round((isPost?74:86)*1);
-    ctx.font='900 '+tSize+'px Arial';
-    var lines=_swLines(ctx,title,W-Math.round(150*S));
-    if(lines.length>2){ // titoli lunghi: riduco per non rubare spazio
-      tSize=Math.round(tSize*0.78);ctx.font='900 '+tSize+'px Arial';
-      lines=_swLines(ctx,title,W-Math.round(150*S));
+    ctx.fillStyle=TPL_COL.title;
+    var ts=Math.round(54*k);
+    ctx.font='800 '+ts+'px Arial';
+    var maxW=Z.title.w*k;
+    var lines=_swLines(ctx,title,maxW);
+    while(lines.length>2 && ts>Math.round(34*k)){
+      ts=Math.round(ts*0.9); ctx.font='800 '+ts+'px Arial';
+      lines=_swLines(ctx,title,maxW);
     }
-    for(var i=0;i<Math.min(lines.length,3);i++){
-      ctx.fillText(lines[i],W/2,cur+i*Math.round(tSize*1.12));
+    lines=lines.slice(0,2);
+    /* il blocco titolo è centrato verticalmente nella sua zona */
+    var lh=Math.round(ts*1.12);
+    var tTop=(Z.title.y*k)+((Z.title.h*k)-(lines.length*lh))/2+ts*0.82;
+    for(var i=0;i<lines.length;i++) ctx.fillText(lines[i],cx,tTop+i*lh);
+
+    /* ── regista · anno · ★ voto ── */
+    ctx.fillStyle=TPL_COL.meta;
+    ctx.font='500 '+Math.round(23*k)+'px Arial';
+    var parts=[];
+    if(f.dir)  parts.push(f.dir);
+    if(f.year) parts.push(String(f.year));
+    var meta=parts.join('   \u00b7   ');
+    if(f.r!=null) meta+=(meta?'   \u00b7   ':'')+'\u2605 '+f.r;
+    ctx.fillText(meta,cx,(Z.meta.y+Z.meta.h)*k);
+
+    /* ── verdetto di Swainz (corsivo, tra virgolette) ── */
+    var verd=f.verdetto||f.verdict||'';
+    if(verd){
+      ctx.fillStyle=TPL_COL.verdict;
+      ctx.font='italic 600 '+Math.round(25*k)+'px Arial';
+      var vl=_swLines(ctx,'\u201C'+verd+'\u201D',Z.title.w*k).slice(0,2);
+      var vlh=Math.round(32*k);
+      var vTop=(Z.verdict.y*k)+vlh*0.78;
+      for(var v=0;v<vl.length;v++) ctx.fillText(vl[v],cx,vTop+v*vlh);
     }
-    cur+=Math.min(lines.length,3)*Math.round(tSize*1.12)+Math.round(14*S);
 
-    /* ── regista · anno · voto ── */
-    ctx.font='500 '+Math.round(40*S)+'px Arial';
-    var meta=[f.dir||'',String(f.year||'')].filter(Boolean);
-    var metaTxt=meta.join('   \u00b7   ');
-    var rTxt=(f.r==null)?'':('   \u00b7   \u2605 '+f.r);
-    ctx.fillStyle='rgba(255,255,255,.88)';
-    ctx.fillText(metaTxt+rTxt,W/2,cur);
-    cur+=Math.round(64*S);
-
-    /* ── verdetto di Swainz ── */
-    var verdict=f.verdetto||f.verdict||'';
-    if(verdict){
-      ctx.font='italic 600 '+Math.round(42*S)+'px Arial';
-      ctx.fillStyle='rgba(255,255,255,.95)';
-      var vL=_swLines(ctx,'\u201C'+verdict+'\u201D',W-Math.round(200*S));
-      for(var v=0;v<Math.min(vL.length,3);v++){
-        ctx.fillText(vL[v],W/2,cur+v*Math.round(52*S));
-      }
-      cur+=Math.min(vL.length,3)*Math.round(52*S)+Math.round(24*S);
-    }
-
-    /* ── tag ── */
+    /* ── tag: pillole con bordo, due righe centrate ── */
     if(f.tags&&f.tags.length){
-      ctx.font='500 '+Math.round(30*S)+'px Arial';
-      var padX=Math.round(30*S), tgH=Math.round(54*S), gap=Math.round(12*S);
-      var maxRows=isPost?2:3, rowsUsed=0;
-      var idx=0, maxTags=Math.min(f.tags.length,8);
-      while(idx<maxTags&&rowsUsed<maxRows){
-        // compongo la riga e la centro
-        var row=[],rowW=0;
-        while(idx<maxTags){
+      ctx.font='500 '+Math.round(17*k)+'px Arial';
+      var padX=Math.round(16*k), pillH=Math.round(30*k), gap=Math.round(9*k);
+      var rowW=Z.tags.w*k, y=Z.tags.y*k, idx=0, rows=0;
+      while(idx<f.tags.length && rows<2){
+        var row=[], used=0;
+        while(idx<f.tags.length){
           var lbl=(typeof tTag==='function')?tTag(f.tags[idx]):f.tags[idx];
           var tw=ctx.measureText(lbl).width+padX*2;
-          if(rowW+tw+(row.length?gap:0)>W-Math.round(120*S))break;
-          rowW+=tw+(row.length?gap:0);row.push({l:lbl,w:tw});idx++;
+          if(used+tw+(row.length?gap:0)>rowW) break;
+          used+=tw+(row.length?gap:0); row.push({l:lbl,w:tw}); idx++;
         }
-        if(!row.length)break;
-        var x=Math.round((W-rowW)/2);
+        if(!row.length) break;
+        var x=cx-used/2;
         for(var q=0;q<row.length;q++){
-          _swRR(ctx,x,cur,row[q].w,tgH,tgH/2);
-          ctx.fillStyle='rgba(255,104,32,.10)';ctx.fill();
-          ctx.strokeStyle='rgba(255,104,32,.55)';ctx.lineWidth=2;ctx.stroke();
-          ctx.fillStyle='rgba(255,214,176,.95)';ctx.textAlign='center';
-          ctx.fillText(row[q].l,x+row[q].w/2,cur+tgH-Math.round(18*S));
+          _swRR(ctx,x,y,row[q].w,pillH,pillH/2);
+          ctx.strokeStyle=TPL_COL.tagLine; ctx.lineWidth=Math.max(1,1.4*k); ctx.stroke();
+          ctx.fillStyle=TPL_COL.tagText;
+          ctx.fillText(row[q].l,x+row[q].w/2,y+pillH-Math.round(10*k));
           x+=row[q].w+gap;
         }
-        cur+=tgH+gap;rowsUsed++;
+        y+=pillH+gap; rows++;
       }
     }
-
-    /* ── piè di pagina ── */
-    var fy=H-Math.round(58*S);
-    ctx.strokeStyle='rgba(255,104,32,.45)';ctx.lineWidth=2;
-    ctx.beginPath();ctx.moveTo(W/2-Math.round(60*S),fy-Math.round(46*S));
-    ctx.lineTo(W/2+Math.round(60*S),fy-Math.round(46*S));ctx.stroke();
-    ctx.fillStyle='rgba(255,255,255,.92)';ctx.textAlign='center';
-    ctx.font='700 '+Math.round(38*S)+'px Arial';
-    ctx.fillText('SWAINZ.IT',W/2,fy);
     return c;
   });
 }
