@@ -1,6 +1,7 @@
 <!DOCTYPE html><html lang="it"><head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>SWAINZ</title><!-- v362 · Scheda film: calibrazione sul primo test reale. (1) Locandina ridotta da 586 a 442px e centrata (x 155-597): i chevron del template arrivano a x=140 a sinistra e ripartono da x=614 a destra, quindi la larghezza precedente li copriva da entrambi i lati. Le coordinate iniziali erano errate perche' ricavate dalla differenza fra template vuoto ed esempio compilato, che include l'ombra della locandina e non solo la locandina. (2) Corpo del titolo da 54 a 44px. (3) Il verdetto non compariva perche' la colonna Verdetto del DB e' ancora vuota: il campo e' letto correttamente, manca solo il dato. -->
+<title>SWAINZ</title><!-- v363 · Locandina: (1) centratura ancorata al CENTRO PAGINA anziche' al riquadro, cosi' resta centrata qualunque sia la proporzione dell'immagine; (2) riquadro riportato a 470px — la misura precedente (442) era calibrata sulla fascia piu' stretta dei chevron (y 700-800, liberi 140-614) mentre nella fascia della locandina (y 300-700) lo spazio libero e' 84-667, quindi si sprecava larghezza; (3) aggiunta cornice bronzo a doppio tratto (#c2692f spesso + filo chiaro interno): senza, le locandine scure si confondevano con lo sfondo del template. -->
+<!-- v362 · Scheda film: calibrazione sul primo test reale. (1) Locandina ridotta da 586 a 442px e centrata (x 155-597): i chevron del template arrivano a x=140 a sinistra e ripartono da x=614 a destra, quindi la larghezza precedente li copriva da entrambi i lati. Le coordinate iniziali erano errate perche' ricavate dalla differenza fra template vuoto ed esempio compilato, che include l'ombra della locandina e non solo la locandina. (2) Corpo del titolo da 54 a 44px. (3) Il verdetto non compariva perche' la colonna Verdetto del DB e' ancora vuota: il campo e' letto correttamente, manca solo il dato. -->
 <!-- v360 · Scheda film condivisibile ricostruita sul template 'SWAINZ CONSIGLIA'. Il PNG fornito era a 752px e sgranava perche' Instagram lo ingrandisce a 1080: ricostruito come generatore canvas, quindi nativo a piena risoluzione. Due formati dallo stesso codice: 'story' 1080x1920 (9:16) e 'post' 1080x1350 (4:5), con selettore nell'anteprima di condivisione. Correzioni richieste: linee geometriche laterali in bronzo scuro #a85214, distinto dall'arancione brand #ff6820 di logo e mascotte (nell'originale erano rgb(148,101,60), troppo simili); sfondo schiarito (#241a15 → #17100d, prima ~rgb(19,11,8)); alone caldo dietro la mascotte, che sul fondo scuro aveva solo 0.9 punti di contrasto su 255 ed era praticamente invisibile. Asset di brand in cat/brand/ (mascotte.png, logo.png) ricavati dalla cattura ad alta risoluzione, con bordi sfumati per fondersi con lo sfondo; se assenti il disegno prosegue con un fallback testuale. Supporto al verdetto di Swainz via campo f.verdetto (colonna DB da popolare). -->
 <!-- v359 · Schermata di accesso: stato 'accesso in corso'. Tornando da Google/Facebook l'utente ha gia' effettuato l'accesso ma, nei 2-3 secondi di caricamento dati, rivedeva i pulsanti di login — fuorviante. Ora _handleOAuthCallback, appena rileva il token, chiama _lsStartLoading: la classe .loading su #ls nasconde pulsanti, consenso e barra lingua e mostra uno spinner con testo (login_loading, IT+EN), lasciando logo e sfondo animato per continuita' visiva. Tutte le vie d'uscita sono coperte, perche' uno spinner bloccato lascerebbe l'utente senza scampo: login() annulla il timeout (la schermata esce con .out), showOnboarding chiama _lsStopLoading (utente nuovo), il ramo di token non valido ripristina i controlli con un messaggio d'errore, e un timeout di sicurezza a 15s libera comunque l'interfaccia se la rete non risponde. Rispettata prefers-reduced-motion. -->
 <!-- v358 · FIX: un utente Premium risultava free nella pagina principale subito dopo il login, e l'interfaccia si correggeva solo dopo aver aperto il pannello Profilo. Causa: _applyUserData aggiornava la variabile isPremium e il flag locale, ma non ridisegnava nulla; _updatePremUI (pulsante 'Passa a Premium' in intestazione) era invocata solo da loadProfp, cioe' all'apertura del Profilo — da cui il sintomo. Erano scoperti tre flussi (login normale, registrazione, accesso OAuth). Corretto CENTRALMENTE dentro _applyUserData, che e' il punto in cui isPremium cambia davvero: si confronta lo stato precedente e, solo se e' cambiato, si chiama buildUI(). Una sola chiamata basta perche' buildUI azzera e ricostruisce i contenitori (idempotente) e al suo interno invoca gia' _updatePremUI e aggiorna la sidebar degli annunci. Il controllo sul cambio evita ridisegni inutili a ogni sincronizzazione. Funziona in entrambe le direzioni: anche un Premium scaduto riporta subito l'interfaccia allo stato free. -->
@@ -7393,10 +7394,10 @@ var TPL_W = 752, TPL_H = 1360;
    il taglio non cambiano e quelle sotto risalgono di 420px. */
 var TPL_POST_CUT = 420;
 var TPL_ZONE = {
-  /* misurato sul template: i chevron sinistri arrivano a x=140, i destri
-     ripartono da x=614. La locandina sta nello spazio libero fra i due,
-     centrata sulla pagina, con 16px di respiro per lato. */
-  poster:  {x:155, y:272, w:442, h:552},   // locandina
+  /* Spazio libero fra i chevron misurato per fasce: nella zona della
+     locandina (y 300-700) va da x=84 a x=667; piu' in basso si stringe.
+     Uso 470px centrati sulla pagina: stanno comodi e non toccano nulla. */
+  poster:  {y:272, w:470, h:552},          // locandina (x calcolata: sempre centrata)
   title:   {y:862, h:114, x:100, w:552},   // titolo (max 2 righe)
   meta:    {y:1004, h:23},                 // regista · anno · ★ voto
   verdict: {y:1056, h:52},                 // verdetto di Swainz
@@ -7452,15 +7453,26 @@ function _swGenFilmImg(f,format){
     }
     /* ── locandina: adattata al riquadro mantenendo le proporzioni ── */
     if(img){
-      var bx=Z.poster.x*k, by=Z.poster.y*k, bw=Z.poster.w*k, bh=Z.poster.h*k;
+      var by=Z.poster.y*k, bw=Z.poster.w*k, bh=Z.poster.h*k;
       var r=img.naturalWidth/img.naturalHeight;
       var pw=bw, ph=pw/r;
       if(ph>bh){ ph=bh; pw=ph*r; }
-      var px=bx+(bw-pw)/2, py=by+(bh-ph)/2;
+      /* v363: la x si ancora al CENTRO PAGINA, non al riquadro: cosi' la
+         locandina risulta centrata qualunque sia la sua proporzione. */
+      var px=Math.round((W-pw)/2), py=Math.round(by+(bh-ph)/2);
       ctx.save();
-      ctx.shadowColor='rgba(0,0,0,.6)';ctx.shadowBlur=30*k;ctx.shadowOffsetY=8*k;
+      ctx.shadowColor='rgba(0,0,0,.65)';ctx.shadowBlur=34*k;ctx.shadowOffsetY=10*k;
       ctx.drawImage(img,px,py,pw,ph);
       ctx.restore();
+      /* v363: cornice bronzo — senza, le locandine scure si confondono col
+         fondo. Doppio tratto: esterno caldo piu' spesso, interno chiaro sottile. */
+      ctx.lineJoin='miter';
+      ctx.strokeStyle='#c2692f';
+      ctx.lineWidth=Math.max(2,Math.round(5*k));
+      ctx.strokeRect(px-ctx.lineWidth/2,py-ctx.lineWidth/2,pw+ctx.lineWidth,ph+ctx.lineWidth);
+      ctx.strokeStyle='rgba(255,180,110,.55)';
+      ctx.lineWidth=Math.max(1,Math.round(1.6*k));
+      ctx.strokeRect(px+1,py+1,pw-2,ph-2);
     }
 
     ctx.textAlign='center';
