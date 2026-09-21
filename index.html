@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="it"><head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>SWAINZ</title><!-- v365 · Spaziatura dei tag nella scheda film. I tag partivano da una y fissa del template (1131): con il verdetto su DUE righe — il caso piu' frequente — restavano appena 13px di stacco contro i 30px che separano riga regista e verdetto. Ora il blocco tag si ancora al FONDO EFFETTIVO del verdetto (variabile verdBottom) e non a una coordinata fissa, quindi la distanza resta costante sia con una riga sia con due; se il verdetto manca, i tag tornano alla posizione del template. Distacco fissato a 42px anziche' ai 30px misurati fra regista e verdetto, perche' le pillole hanno un bordo che riempie lo spazio e le fa percepire piu' vicine del testo nudo. Margine residuo dal footer SWAINZ.IT nel caso peggiore (verdetto 2 righe + tag 2 righe): 23px. -->
+<title>SWAINZ</title><!-- v366 · FCK. (1) Gating per tier: applyFck passa ora per _fckEffective(), che per i free tiene solo q6, q7+q7b e q9. Le altre risposte restano in fckAnswers, in sw3_fck e su user_data.fck_answers: un premium che torna free smette di subirne i filtri (q1-q4, q8, q10-q13) ma le ritrova compilate e attive se torna premium. Nei quattro punti in cui isPremium cambia (_restoreSession senza sessione, _applyServerSearch x2, _applyUserData) buildUI() e' sostituito da applyFck(fckAnswers), che ricalcola userPrefs e chiama buildUI. (2) Bug q4/q6: il ramo else di q6 azzerava excludeDifficile, annullando q4='Preferisco blockbuster' quando q6 era 'Molto' o senza risposta. Rimosso il reset: Difficile escluso se q4=blockbuster O q6=No; nel conflitto blockbuster+Molto prevale q4. --><!-- v365 · Spaziatura dei tag nella scheda film. I tag partivano da una y fissa del template (1131): con il verdetto su DUE righe — il caso piu' frequente — restavano appena 13px di stacco contro i 30px che separano riga regista e verdetto. Ora il blocco tag si ancora al FONDO EFFETTIVO del verdetto (variabile verdBottom) e non a una coordinata fissa, quindi la distanza resta costante sia con una riga sia con due; se il verdetto manca, i tag tornano alla posizione del template. Distacco fissato a 42px anziche' ai 30px misurati fra regista e verdetto, perche' le pillole hanno un bordo che riempie lo spazio e le fa percepire piu' vicine del testo nudo. Margine residuo dal footer SWAINZ.IT nel caso peggiore (verdetto 2 righe + tag 2 righe): 23px. -->
 <!-- v363 · Locandina: (1) centratura ancorata al CENTRO PAGINA anziche' al riquadro, cosi' resta centrata qualunque sia la proporzione dell'immagine; (2) riquadro riportato a 470px — la misura precedente (442) era calibrata sulla fascia piu' stretta dei chevron (y 700-800, liberi 140-614) mentre nella fascia della locandina (y 300-700) lo spazio libero e' 84-667, quindi si sprecava larghezza; (3) aggiunta cornice bronzo a doppio tratto (#c2692f spesso + filo chiaro interno): senza, le locandine scure si confondevano con lo sfondo del template. -->
 <!-- v362 · Scheda film: calibrazione sul primo test reale. (1) Locandina ridotta da 586 a 442px e centrata (x 155-597): i chevron del template arrivano a x=140 a sinistra e ripartono da x=614 a destra, quindi la larghezza precedente li copriva da entrambi i lati. Le coordinate iniziali erano errate perche' ricavate dalla differenza fra template vuoto ed esempio compilato, che include l'ombra della locandina e non solo la locandina. (2) Corpo del titolo da 54 a 44px. (3) Il verdetto non compariva perche' la colonna Verdetto del DB e' ancora vuota: il campo e' letto correttamente, manca solo il dato. -->
 <!-- v360 · Scheda film condivisibile ricostruita sul template 'SWAINZ CONSIGLIA'. Il PNG fornito era a 752px e sgranava perche' Instagram lo ingrandisce a 1080: ricostruito come generatore canvas, quindi nativo a piena risoluzione. Due formati dallo stesso codice: 'story' 1080x1920 (9:16) e 'post' 1080x1350 (4:5), con selettore nell'anteprima di condivisione. Correzioni richieste: linee geometriche laterali in bronzo scuro #a85214, distinto dall'arancione brand #ff6820 di logo e mascotte (nell'originale erano rgb(148,101,60), troppo simili); sfondo schiarito (#241a15 → #17100d, prima ~rgb(19,11,8)); alone caldo dietro la mascotte, che sul fondo scuro aveva solo 0.9 punti di contrasto su 255 ed era praticamente invisibile. Asset di brand in cat/brand/ (mascotte.png, logo.png) ricavati dalla cattura ad alta risoluzione, con bordi sfumati per fondersi con lo sfondo; se assenti il disegno prosegue con un fallback testuale. Supporto al verdetto di Swainz via campo f.verdetto (colonna DB da popolare). -->
@@ -5439,7 +5439,18 @@ function _handlePaymentReturn(){
 }
 
 // ── FATTI CONOSCERE ───────────────────────────────────────────────────────
-function applyFck(ans){userPrefs={};if(ans.q1==='recent')userPrefs.minYear=2000;else if(ans.q1==='from80')userPrefs.minYear=1980;if(ans.q2==='short')userPrefs.excludeLong=true;if(ans.q3==='no'){userPrefs.excludeHorror=true;userPrefs.excludeCrudo=true;}else if(ans.q3==='some')userPrefs.excludeCrudo=true;if(ans.q4==='commercial'){userPrefs.boostTags=['Colossal','CineComic'];userPrefs.excludeDifficile=true;}else if(ans.q4==='auteur')userPrefs.boostTags=["D'Autore","Capolavoro"];if(ans.q6==='never')userPrefs.excludeDifficile=true;else if(ans.q6==='sometimes')userPrefs.difficileOptIn=true;else userPrefs.excludeDifficile=false;userPrefs.onlyPlatform=ans.q7==='yes';
+// v366 · risposte FCK effettivamente applicate. I free usano solo le domande
+// del proprio tier (q6, q7+q7b, q9); le altre restano salvate in fckAnswers e
+// su user_data e tornano attive se l'utente ridiventa premium.
+var FCK_FREE_QS=['q6','q7','q7b','q9'];
+function _fckEffective(ans){
+  ans=ans||{};
+  if(isPremium)return ans;
+  var o={};
+  FCK_FREE_QS.forEach(function(k){if(ans[k]!==undefined)o[k]=ans[k];});
+  return o;
+}
+function applyFck(ans){userPrefs={};ans=_fckEffective(ans);if(ans.q1==='recent')userPrefs.minYear=2000;else if(ans.q1==='from80')userPrefs.minYear=1980;if(ans.q2==='short')userPrefs.excludeLong=true;if(ans.q3==='no'){userPrefs.excludeHorror=true;userPrefs.excludeCrudo=true;}else if(ans.q3==='some')userPrefs.excludeCrudo=true;if(ans.q4==='commercial'){userPrefs.boostTags=['Colossal','CineComic'];userPrefs.excludeDifficile=true;}else if(ans.q4==='auteur')userPrefs.boostTags=["D'Autore","Capolavoro"];if(ans.q6==='never')userPrefs.excludeDifficile=true;else if(ans.q6==='sometimes')userPrefs.difficileOptIn=true; /* v366: nessun reset — se q4='commercial' l'esclusione resta */userPrefs.onlyPlatform=ans.q7==='yes';
   if(ans.q7==='yes'&&ans.q7b&&ans.q7b.length>0){userPrefs.userPlatforms=ans.q7b;}else{userPrefs.userPlatforms=null;}userPrefs.excludedTags=new Set(ans.q8||[]);userPrefs.excludeConosciutissimo=(ans.q9==='weekly'||ans.q9==='often');
   // q10: Italian cinema preference
   if(ans.q10==='italian')userPrefs.boostItalian=true;
@@ -6540,7 +6551,7 @@ function setLang(l){
   _handlePaymentReturn();
   _restoreSession(function(valid){
     if(!valid){ // v329 (punto 20 fix A): nessuna sessione valida → nessun premium
-      if(isPremium){isPremium=false;try{localStorage.setItem('sw3_premium','0');}catch(e){}buildUI();try{_updatePremUI&&_updatePremUI();}catch(e){}}
+      if(isPremium){isPremium=false;try{localStorage.setItem('sw3_premium','0');}catch(e){}applyFck(fckAnswers);try{_updatePremUI&&_updatePremUI();}catch(e){}}
       return;
     }
     _dbReady.then(function(){
@@ -6774,9 +6785,9 @@ function _rpcSearchStatus(cb){
 }
 function _applyServerSearch(res){ // sincronizza UI/premium con la verita' del server
   if(!res)return;
-  if(res.premium===true){ if(!isPremium){isPremium=true;try{localStorage.setItem('sw3_premium','1');}catch(e){}buildUI();try{_updatePremUI&&_updatePremUI();}catch(e){}} return; }
+  if(res.premium===true){ if(!isPremium){isPremium=true;try{localStorage.setItem('sw3_premium','1');}catch(e){}applyFck(fckAnswers);try{_updatePremUI&&_updatePremUI();}catch(e){}} return; }
   if(res.premium===false&&isPremium&&_authToken&&currentUser){ // server smentisce il premium locale
-    isPremium=false;try{localStorage.setItem('sw3_premium','0');}catch(e){}buildUI();try{_updatePremUI&&_updatePremUI();}catch(e){}
+    isPremium=false;try{localStorage.setItem('sw3_premium','0');}catch(e){}applyFck(fckAnswers);try{_updatePremUI&&_updatePremUI();}catch(e){}
   }
   if(!isPremium&&typeof res.remaining==='number'&&res.remaining>=0){
     searches=res.remaining; // il server e' autoritativo
@@ -6869,7 +6880,7 @@ function _applyUserData(d) {
     // buildUI() azzera e ricostruisce i contenitori (idempotente), e al suo
     // interno chiama gia' _updatePremUI() e aggiorna la sidebar degli annunci:
     // una sola chiamata copre tutto.
-    try{if(typeof buildUI==='function')buildUI();}catch(e){}
+    try{applyFck(fckAnswers);}catch(e){try{buildUI();}catch(_e){}}  // v366: applyFck ricalcola le preferenze per il nuovo tier e chiama buildUI
   }
   var _prof=d.profile;
   if(_prof&&typeof _prof==='string'){try{_prof=JSON.parse(_prof);}catch(e){_prof=null;}}
