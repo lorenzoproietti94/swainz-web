@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="it"><head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>SWAINZ</title><!-- v366 · FCK. (1) Gating per tier: applyFck passa ora per _fckEffective(), che per i free tiene solo q6, q7+q7b e q9. Le altre risposte restano in fckAnswers, in sw3_fck e su user_data.fck_answers: un premium che torna free smette di subirne i filtri (q1-q4, q8, q10-q13) ma le ritrova compilate e attive se torna premium. Nei quattro punti in cui isPremium cambia (_restoreSession senza sessione, _applyServerSearch x2, _applyUserData) buildUI() e' sostituito da applyFck(fckAnswers), che ricalcola userPrefs e chiama buildUI. (2) Bug q4/q6: il ramo else di q6 azzerava excludeDifficile, annullando q4='Preferisco blockbuster' quando q6 era 'Molto' o senza risposta. Rimosso il reset: Difficile escluso se q4=blockbuster O q6=No; nel conflitto blockbuster+Molto prevale q4. --><!-- v365 · Spaziatura dei tag nella scheda film. I tag partivano da una y fissa del template (1131): con il verdetto su DUE righe — il caso piu' frequente — restavano appena 13px di stacco contro i 30px che separano riga regista e verdetto. Ora il blocco tag si ancora al FONDO EFFETTIVO del verdetto (variabile verdBottom) e non a una coordinata fissa, quindi la distanza resta costante sia con una riga sia con due; se il verdetto manca, i tag tornano alla posizione del template. Distacco fissato a 42px anziche' ai 30px misurati fra regista e verdetto, perche' le pillole hanno un bordo che riempie lo spazio e le fa percepire piu' vicine del testo nudo. Margine residuo dal footer SWAINZ.IT nel caso peggiore (verdetto 2 righe + tag 2 righe): 23px. -->
+<title>SWAINZ</title><!-- v367 · Onboarding snellito. (1) Passo A: restano Nome e Cognome (obbligatori) e Data di nascita (ora FACOLTATIVA per tutti); rimossi Film, Regista e Attore preferiti. Con Google/Facebook nome e cognome sono precompilati da user_metadata/identity (given_name+family_name, altrimenti split di full_name con le particelle del cognome: De, Di, Della, Van...) e bloccati in sola lettura: l'utente conferma, con il link 'Correggi nome e cognome' come via d'uscita; se il nome dell'account e' incompleto i campi restano compilabili. (2) Passo B: q6, q7+q7b, q9 invariate; 'Salta' diventa 'Salta e compila in seguito'. Entrambi i bottoni chiudono l'onboarding. (3) Passo C eliminato (markup, ~120 righe JS, CSS e 11 chiavi i18n): niente piu' consiglio automatico. (4) _onbComplete chiama login(): prima _onbFinish nascondeva l'overlay senza rendere visibile #app. (5) Fumetto di benvenuto (_swShowWelcome): pagina velata, mascotte seduta (cat/sit_0.webm), testo, freccia verso Chiedi a Swainz evidenziato e non cliccabile; si chiude solo con la X, poi il gatto riparte (initCat e wakeUpSequence restano bloccati mentre e' aperto). (6) Fix: saveFck lanciava TypeError se chiamata dall'onboarding (#fckOk inesistente), bloccando 'Continua' del Passo B. --><!-- v366 · FCK. (1) Gating per tier: applyFck passa ora per _fckEffective(), che per i free tiene solo q6, q7+q7b e q9. Le altre risposte restano in fckAnswers, in sw3_fck e su user_data.fck_answers: un premium che torna free smette di subirne i filtri (q1-q4, q8, q10-q13) ma le ritrova compilate e attive se torna premium. Nei quattro punti in cui isPremium cambia (_restoreSession senza sessione, _applyServerSearch x2, _applyUserData) buildUI() e' sostituito da applyFck(fckAnswers), che ricalcola userPrefs e chiama buildUI. (2) Bug q4/q6: il ramo else di q6 azzerava excludeDifficile, annullando q4='Preferisco blockbuster' quando q6 era 'Molto' o senza risposta. Rimosso il reset: Difficile escluso se q4=blockbuster O q6=No; nel conflitto blockbuster+Molto prevale q4. --><!-- v365 · Spaziatura dei tag nella scheda film. I tag partivano da una y fissa del template (1131): con il verdetto su DUE righe — il caso piu' frequente — restavano appena 13px di stacco contro i 30px che separano riga regista e verdetto. Ora il blocco tag si ancora al FONDO EFFETTIVO del verdetto (variabile verdBottom) e non a una coordinata fissa, quindi la distanza resta costante sia con una riga sia con due; se il verdetto manca, i tag tornano alla posizione del template. Distacco fissato a 42px anziche' ai 30px misurati fra regista e verdetto, perche' le pillole hanno un bordo che riempie lo spazio e le fa percepire piu' vicine del testo nudo. Margine residuo dal footer SWAINZ.IT nel caso peggiore (verdetto 2 righe + tag 2 righe): 23px. -->
 <!-- v363 · Locandina: (1) centratura ancorata al CENTRO PAGINA anziche' al riquadro, cosi' resta centrata qualunque sia la proporzione dell'immagine; (2) riquadro riportato a 470px — la misura precedente (442) era calibrata sulla fascia piu' stretta dei chevron (y 700-800, liberi 140-614) mentre nella fascia della locandina (y 300-700) lo spazio libero e' 84-667, quindi si sprecava larghezza; (3) aggiunta cornice bronzo a doppio tratto (#c2692f spesso + filo chiaro interno): senza, le locandine scure si confondevano con lo sfondo del template. -->
 <!-- v362 · Scheda film: calibrazione sul primo test reale. (1) Locandina ridotta da 586 a 442px e centrata (x 155-597): i chevron del template arrivano a x=140 a sinistra e ripartono da x=614 a destra, quindi la larghezza precedente li copriva da entrambi i lati. Le coordinate iniziali erano errate perche' ricavate dalla differenza fra template vuoto ed esempio compilato, che include l'ombra della locandina e non solo la locandina. (2) Corpo del titolo da 54 a 44px. (3) Il verdetto non compariva perche' la colonna Verdetto del DB e' ancora vuota: il campo e' letto correttamente, manca solo il dato. -->
 <!-- v360 · Scheda film condivisibile ricostruita sul template 'SWAINZ CONSIGLIA'. Il PNG fornito era a 752px e sgranava perche' Instagram lo ingrandisce a 1080: ricostruito come generatore canvas, quindi nativo a piena risoluzione. Due formati dallo stesso codice: 'story' 1080x1920 (9:16) e 'post' 1080x1350 (4:5), con selettore nell'anteprima di condivisione. Correzioni richieste: linee geometriche laterali in bronzo scuro #a85214, distinto dall'arancione brand #ff6820 di logo e mascotte (nell'originale erano rgb(148,101,60), troppo simili); sfondo schiarito (#241a15 → #17100d, prima ~rgb(19,11,8)); alone caldo dietro la mascotte, che sul fondo scuro aveva solo 0.9 punti di contrasto su 255 ed era praticamente invisibile. Asset di brand in cat/brand/ (mascotte.png, logo.png) ricavati dalla cattura ad alta risoluzione, con bordi sfumati per fondersi con lo sfondo; se assenti il disegno prosegue con un fallback testuale. Supporto al verdetto di Swainz via campo f.verdetto (colonna DB da popolare). -->
@@ -990,7 +990,6 @@ body.cat-revealing #afp-mobile,
 /* === ONBOARDING === */
 #onboarding{position:fixed;inset:0;z-index:600;background:rgba(0,0,0,.82);display:flex;align-items:center;justify-content:center;padding:16px;overflow-y:auto}
 .onb-card{background:var(--card);border:1px solid var(--br);border-radius:20px;padding:28px 28px 24px;width:100%;max-width:540px;display:flex;flex-direction:column;gap:18px;position:relative}
-.onb-card.onb-wide{max-width:680px}
 .onb-stepdots{display:flex;align-items:center;gap:8px;margin-bottom:4px}
 .onb-dot{width:9px;height:9px;border-radius:50%;background:rgba(255,255,255,.18);transition:all .3s}
 .onb-dot.active{background:var(--or);box-shadow:0 0 8px var(--gor);transform:scale(1.2)}
@@ -1005,24 +1004,31 @@ body.cat-revealing #afp-mobile,
 .onb-form-group input::placeholder{color:rgba(255,255,255,.2)}
 .onb-req{color:var(--or);margin-left:2px}
 .onb-opt{font-size:10px;font-weight:400;color:rgba(255,255,255,.3);margin-left:4px}
+.onb-form-group input[readonly]{background:rgba(255,255,255,.025);border-style:dashed;color:rgba(255,255,255,.82);cursor:default}
+.onb-oauth-note{font-size:12px;color:var(--td);line-height:1.5;background:rgba(255,114,40,.07);border:1px solid rgba(255,114,40,.22);border-radius:10px;padding:9px 12px}
+.onb-edit-link{align-self:flex-start;background:none;border:none;color:var(--or);font-size:12px;font-weight:600;cursor:pointer;padding:0;margin-top:-4px}
+.onb-edit-link:hover{text-decoration:underline}
+/* v367 · fumetto di benvenuto dopo l'onboarding (desktop + mobile) */
+#sw-welcome{position:fixed;inset:0;z-index:300;background:rgba(8,8,12,.58);opacity:0;transition:opacity .35s}
+#sw-welcome.show{opacity:1}
+body.sw-wel-on .cta-w{z-index:310}
+body.sw-wel-on #gobtn{pointer-events:none;animation:swWelPulse 1.6s ease-in-out infinite}
+@keyframes swWelPulse{0%,100%{box-shadow:0 4px 28px rgba(255,80,0,.25)}50%{box-shadow:0 0 0 6px rgba(255,114,40,.28),0 4px 40px rgba(255,80,0,.55)}}
+.sww-box{position:fixed;left:50%;transform:translateX(-50%);width:min(460px,92vw);z-index:320;display:flex;flex-direction:column;align-items:center}
+.sww-cat{width:140px;height:auto;margin-bottom:-6px;align-self:flex-start;margin-left:18px;pointer-events:none}
+.sww-bub{position:relative;background:linear-gradient(165deg,rgba(45,42,39,.98),rgba(32,33,37,.99));border:1px solid rgba(255,150,60,.5);border-radius:16px;padding:16px 44px 16px 18px;font-family:'Rajdhani',sans-serif;font-size:16px;font-weight:600;color:#ffc878;line-height:1.45;letter-spacing:.2px;box-shadow:0 10px 30px rgba(0,0,0,.55),0 0 22px rgba(255,122,24,.18)}
+.sww-bub::after{content:'';position:absolute;left:50%;bottom:-9px;width:16px;height:16px;transform:translateX(-50%) rotate(45deg);background:rgb(33,34,37);border-right:1px solid rgba(255,150,60,.5);border-bottom:1px solid rgba(255,150,60,.5)}
+.sww-x{position:absolute;top:8px;right:8px;width:28px;height:28px;border-radius:50%;border:1px solid rgba(255,255,255,.22);background:rgba(255,255,255,.06);color:#fff;font-size:15px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.sww-x:hover{background:rgba(255,114,40,.25);border-color:var(--or)}
+.sww-arrow{font-size:30px;color:var(--or);margin-top:10px;line-height:1;text-shadow:0 0 12px rgba(255,114,40,.6);animation:swWelArrow 1.1s ease-in-out infinite}
+@keyframes swWelArrow{0%,100%{transform:translateY(0)}50%{transform:translateY(7px)}}
+@media(max-width:600px){.sww-bub{font-size:14.5px;padding:14px 42px 14px 15px}.sww-cat{width:108px;margin-left:10px}}
 .onb-err{font-size:12px;color:#ff5e5e;min-height:16px;margin-top:-6px}
 .onb-actions{display:flex;align-items:center;gap:12px;justify-content:flex-end;padding-top:4px;flex-wrap:wrap}
 .onb-btn-primary{background:var(--or);color:#fff;border:none;border-radius:11px;padding:11px 24px;font-size:13px;font-weight:700;cursor:pointer;transition:opacity .15s}
 .onb-btn-primary:hover{opacity:.88}
 .onb-btn-skip{background:transparent;border:1px solid rgba(255,255,255,.18);border-radius:11px;padding:11px 20px;color:var(--td);font-size:13px;cursor:pointer;transition:all .15s}
 .onb-btn-skip:hover{border-color:rgba(255,255,255,.35);color:var(--tx)}
-.onb-group-wrap{position:relative;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:14px;padding:16px}
-.onb-group-title{font-family:'Syne',sans-serif;font-size:13px;font-weight:700;margin-bottom:12px;color:var(--tx)}
-.onb-chips{display:flex;flex-wrap:wrap;gap:7px}
-.onb-chip{padding:7px 13px;border-radius:9px;border:1px solid var(--br);background:var(--cb);color:var(--tx);font-size:12px;cursor:pointer;transition:all .15s;user-select:none}
-.onb-chip:hover{border-color:var(--bh);background:rgba(255,255,255,.06)}
-.onb-chip.on{border-color:var(--or);background:var(--coa);color:var(--or);font-weight:600}
-.onb-blur-wrap{position:relative;transition:filter .5s,opacity .5s}
-.onb-blur-wrap.locked{filter:blur(3px);opacity:.35;pointer-events:none}
-.onb-g1-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:14px}
-.onb-cat-wrap{position:absolute;right:-8px;top:-42px;display:flex;flex-direction:column;align-items:flex-end;pointer-events:none;transition:top .55s cubic-bezier(.34,1.3,.64,1),right .55s cubic-bezier(.34,1.3,.64,1)}
-.onb-cat-emoji{font-size:26px;line-height:1}
-.onb-cat-bubble{background:var(--card);border:1px solid var(--or);border-radius:12px 12px 2px 12px;padding:7px 12px;font-family:'Syne',sans-serif;font-size:11px;font-weight:700;color:var(--or);max-width:210px;text-align:left;line-height:1.4;box-shadow:0 0 14px var(--gor);margin-bottom:4px}
 /* === END ONBOARDING === */
 
 /* ── profilo: basalt hex background ── */
@@ -1456,15 +1462,6 @@ input[type=range]::-webkit-slider-thumb{
   content:'';position:absolute;top:7px;right:9px;width:11px;height:11px;
   border-top:1px solid rgba(255,176,69,.6);border-right:1px solid rgba(255,176,69,.6);
   border-top-right-radius:6px;
-}
-.onb-cat-bubble{
-  background:linear-gradient(165deg,rgba(45,42,39,.97),rgba(32,33,37,.985));
-  border:1px solid rgba(255,150,60,.45);
-  border-radius:13px 13px 2px 13px;
-  padding:10px 14px;
-  font-family:'Rajdhani',sans-serif;font-size:13.5px;font-weight:600;
-  color:#ffc878;line-height:1.45;letter-spacing:.2px;
-  box-shadow:0 8px 24px rgba(0,0,0,.5),0 0 18px rgba(255,122,24,.16),inset 0 1px 0 rgba(255,255,255,.06);
 }
 
 /* ── TABELLA "FILM CONSIGLIATI FINO A OGGI" ────────────────────── */
@@ -5596,7 +5593,7 @@ async function saveFck(){
     _saveUserData({fck_answers:fckAnswers,updated_at:new Date().toISOString()},
       function(ok){ if(!ok)console.error('[SW] salvataggio fck_answers fallito'); });
   }
-  const ok=document.getElementById('fckOk');ok.classList.add('show');setTimeout(()=>ok.classList.remove('show'),2800);
+  const ok=document.getElementById('fckOk');if(ok){ok.classList.add('show');setTimeout(()=>ok.classList.remove('show'),2800);} // v367: dall'onboarding l'elemento non esiste
   // Show blocking modal if user excluded tags
   if(fckAnswers.q8&&fckAnswers.q8.length>0){
     document.getElementById('excl-modal').classList.add('show');
@@ -5605,6 +5602,7 @@ async function saveFck(){
 
 // ── WAKE UP SEQUENCE ───────────────────────────────────────────────────────
 function wakeUpSequence(){
+  if(_swWelcomeOpen)return; // v367
   platforms=readPlatforms();
   const H=window.innerHeight;
   let p=platforms.find(pl=>pl.y>CAT_H+10&&pl.y<H-10);
@@ -5898,6 +5896,7 @@ function enterCrouch(){
 }
 
 function initCat(){
+  if(_swWelcomeOpen)return; // v367: durante il fumetto di benvenuto il gatto resta fermo
   if(cRaf){cancelAnimationFrame(cRaf);cRaf=null;}
   if(cHideTimer){clearTimeout(cHideTimer);cHideTimer=null;}
   platforms=readPlatforms();
@@ -6205,29 +6204,23 @@ const T={
   onb_sub_a:'Qualche informazione su di te per personalizzare la tua esperienza Swainz',
   onb_title_b:'Aiutami a conoscerti',
   onb_sub_b:'Tre domande veloci per consigliarti meglio (puoi saltare tutto)',
-  onb_title_c:'Richiedi il tuo primo consiglio',
-  onb_skip:'Salta',
+  onb_skip:'Salta e compila in seguito',
   onb_continue:'Continua',
   onb_teaser_t:'Passa a Premium!',
   onb_teaser_b:'Per farti conoscere al meglio da Swainz, sblocca tutte le ulteriori domande personalizzate.',
-  onb_bub_genre:'Scegli un genere, o salta e lascia scegliere a me :)',
-  onb_bub_final:'Vuoi film vecchi o recenti? Temi specifici? Piattaforme? Quando sei pronto chiedi il tuo primo consiglio!',
-  onb_req_fields:'Nome, Cognome e Data di nascita sono obbligatori.',
+  onb_req_fields:'Nome e Cognome sono obbligatori.',
   onb_l_nome:'Nome',
   onb_l_cognome:'Cognome',
   onb_l_nascita:'Data di nascita',
-  onb_l_film:'Film preferito',
-  onb_l_regista:'Regista preferito',
-  onb_l_attore:'Attore preferito',
   onb_opt:'facoltativo',
   onb_ph_nome:'Il tuo nome',
   onb_ph_cognome:'Il tuo cognome',
-  onb_ph_film:'Il film che ami di piu',
-  onb_ph_regista:'Il tuo regista del cuore', // v323 i18n punto 13
   onb_continue_a:'Continua',
-  onb_skip_genre:'Salta genere',
-  onb_ok_genre:'Conferma genere',
-  onb_ask:'Chiedi a Swainz',
+  onb_confirm_a:'Conferma',
+  onb_oauth_note:'Nome e cognome arrivano dal tuo account {p}: controlla e conferma.',
+  onb_edit_name:'Correggi nome e cognome',
+  wel_text:'Scegli una o più caratteristiche del film che vuoi vedere, oppure scegli una combinazione rapida e ricevi il tuo primo consiglio!',
+  wel_close:'Chiudi',
   back_btn:'Torna indietro',
   account_label:'Account' // v323 (back_btn/account_label: chiavi usate in HTML ma mai definite — al cambio lingua compariva il nome della chiave)
 },
@@ -6347,29 +6340,23 @@ const T={
   onb_sub_a:'A few details about you to personalise your Swainz experience',
   onb_title_b:'Help me get to know you',
   onb_sub_b:'Three quick questions to recommend better (you can skip everything)',
-  onb_title_c:'Ask for your first recommendation',
-  onb_skip:'Skip',
+  onb_skip:'Skip, fill in later',
   onb_continue:'Continue',
   onb_teaser_t:'Go Premium!',
   onb_teaser_b:'Let Swainz get to know you best: unlock all the extra personalised questions.',
-  onb_bub_genre:'Pick a genre, or skip and let me choose :)',
-  onb_bub_final:'Old or recent films? Specific themes? Platforms? When you\'re ready, ask for your first recommendation!',
-  onb_req_fields:'First name, last name and date of birth are required.',
+  onb_req_fields:'First name and last name are required.',
   onb_l_nome:'First name',
   onb_l_cognome:'Last name',
   onb_l_nascita:'Date of birth',
-  onb_l_film:'Favourite film',
-  onb_l_regista:'Favourite director',
-  onb_l_attore:'Favourite actor',
   onb_opt:'optional',
   onb_ph_nome:'Your first name',
   onb_ph_cognome:'Your last name',
-  onb_ph_film:'The film you love most',
-  onb_ph_regista:'Your favourite director', // v323 i18n punto 13
   onb_continue_a:'Continue',
-  onb_skip_genre:'Skip genre',
-  onb_ok_genre:'Confirm genre',
-  onb_ask:'Ask Swainz',
+  onb_confirm_a:'Confirm',
+  onb_oauth_note:'Your first and last name come from your {p} account: check and confirm.',
+  onb_edit_name:'Edit first and last name',
+  wel_text:'Pick one or more features of the film you want to watch, or choose a quick combo, and get your first recommendation!',
+  wel_close:'Close',
   back_btn:'Go back',
   account_label:'Account' // v323
 }
@@ -7844,59 +7831,31 @@ function _endLeap(){
 <div id="onboarding" style="display:none">
   <div id="onb-a" class="onb-card" style="display:none">
     <div>
-      <div class="onb-stepdots"><div class="onb-dot active"></div><div class="onb-dot"></div><div class="onb-dot"></div></div>
+      <div class="onb-stepdots"><div class="onb-dot active"></div><div class="onb-dot"></div></div>
       <div class="onb-title" data-i18n="onb_title_a">Chi sei?</div>
       <div class="onb-sub" data-i18n="onb_sub_a">Qualche informazione su di te per personalizzare la tua esperienza Swainz</div>
     </div>
+    <div class="onb-oauth-note" id="onb-oauth-note" style="display:none"></div>
     <div style="display:flex;flex-direction:column;gap:13px">
       <div class="onb-form-row">
         <div class="onb-form-group"><label><span data-i18n="onb_l_nome">Nome</span><span class="onb-req">*</span></label><input id="onb-nome" type="text" placeholder="Il tuo nome" data-i18n-ph="onb_ph_nome"></div>
         <div class="onb-form-group"><label><span data-i18n="onb_l_cognome">Cognome</span><span class="onb-req">*</span></label><input id="onb-cognome" type="text" placeholder="Il tuo cognome" data-i18n-ph="onb_ph_cognome"></div>
       </div>
-      <div class="onb-form-group"><label><span data-i18n="onb_l_nascita">Data di nascita</span><span class="onb-req">*</span></label><input id="onb-nascita" type="date"></div>
-      <div class="onb-form-group"><label><span data-i18n="onb_l_film">Film preferito</span><span class="onb-opt" data-i18n="onb_opt">facoltativo</span></label><input id="onb-film" type="text" placeholder="Il film che ami di piu" data-i18n-ph="onb_ph_film"></div>
-      <div class="onb-form-group"><label><span data-i18n="onb_l_regista">Regista preferito</span><span class="onb-opt" data-i18n="onb_opt">facoltativo</span></label><input id="onb-regista" type="text" placeholder="Il tuo regista del cuore" data-i18n-ph="onb_ph_regista"></div>
-      <div class="onb-form-group"><label><span data-i18n="onb_l_attore">Attore preferito</span><span class="onb-opt" data-i18n="onb_opt">facoltativo</span></label><input id="onb-attore" type="text" placeholder="Il tuo attore preferito"></div>
+      <button class="onb-edit-link" id="onb-edit-btn" style="display:none" onclick="_onbUnlockName()" data-i18n="onb_edit_name">Correggi nome e cognome</button>
+      <div class="onb-form-group"><label><span data-i18n="onb_l_nascita">Data di nascita</span><span class="onb-opt" data-i18n="onb_opt">facoltativo</span></label><input id="onb-nascita" type="date"></div>
     </div>
     <div class="onb-err" id="onb-a-err"></div>
-    <div class="onb-actions"><button class="onb-btn-primary" onclick="_onbANext()" data-i18n="onb_continue_a">Continua</button></div>
+    <div class="onb-actions"><button class="onb-btn-primary" id="onb-a-btn" onclick="_onbANext()" data-i18n="onb_continue_a">Continua</button></div>
   </div>
   <div id="onb-b" class="onb-card" style="display:none">
     <div>
-      <div class="onb-stepdots"><div class="onb-dot done"></div><div class="onb-dot active"></div><div class="onb-dot"></div></div>
+      <div class="onb-stepdots"><div class="onb-dot done"></div><div class="onb-dot active"></div></div>
       <div class="onb-title" data-i18n="onb_title_b">Aiutami a conoscerti</div>
       <div class="onb-sub" data-i18n="onb_sub_b">Tre domande veloci per consigliarti meglio (puoi saltare tutto)</div>
     </div>
     <div id="onb-b-body"></div>
     <div class="fck-prem-teaser" style="margin-bottom:0"><span class="fck-prem-teaser-ico">&#11088;</span><div class="fck-prem-teaser-body"><strong data-i18n="onb_teaser_t">Passa a Premium!</strong><span data-i18n="onb_teaser_b">Per farti conoscere al meglio da Swainz, sblocca tutte le ulteriori domande personalizzate.</span></div></div>
-    <div class="onb-actions"><button class="onb-btn-skip" onclick="_onbBSkip()" data-i18n="onb_skip">Salta</button><button class="onb-btn-primary" onclick="_onbBNext()" data-i18n="onb_continue">Continua</button></div>
-  </div>
-  <div id="onb-c" class="onb-card onb-wide" style="display:none">
-    <div>
-      <div class="onb-stepdots"><div class="onb-dot done"></div><div class="onb-dot done"></div><div class="onb-dot active"></div></div>
-      <div class="onb-title" data-i18n="onb_title_c">Richiedi il tuo primo consiglio</div>
-      <div class="onb-sub">Ora e il momento del tuo primo consiglio. Che cosa ti piacerebbe vedere?</div>
-    </div>
-    <div class="onb-group-wrap" id="onb-g1-wrap" style="position:relative">
-      <div class="onb-cat-wrap" id="onb-cat">
-        <div class="onb-cat-bubble" id="onb-cat-bubble">Scegli un genere, o salta e lascia scegliere a me :)</div>
-        <div class="onb-cat-emoji">&#128049;</div>
-      </div>
-      <div class="onb-group-title">&#127917; Genere &amp; Atmosfera</div>
-      <div class="onb-chips" id="onb-g1-chips"></div>
-      <div class="onb-g1-actions">
-        <button class="onb-btn-skip" id="onb-g1-skip-btn" onclick="_onbReveal(false)" style="padding:8px 16px;font-size:12px" data-i18n="onb_skip_genre">Salta genere</button>
-        <button class="onb-btn-primary" id="onb-g1-ok-btn" onclick="_onbReveal(true)" style="padding:8px 16px;font-size:12px" data-i18n="onb_ok_genre">Conferma genere</button>
-      </div>
-    </div>
-    <div id="onb-lower" style="display:flex;flex-direction:column;gap:12px">
-      <div class="onb-blur-wrap locked" id="onb-g8-wrap"><div class="onb-group-wrap"><div class="onb-group-title">&#128197; Periodo</div><div class="onb-chips" id="onb-g8-chips"></div></div></div>
-      <div class="onb-blur-wrap locked" id="onb-g3-wrap"><div class="onb-group-wrap" style="position:relative"><div class="onb-group-title">&#128269; Temi specifici</div><div class="onb-chips" id="onb-g3-chips"></div></div></div>
-      <div class="onb-blur-wrap locked" id="onb-g7-wrap"><div class="onb-group-wrap"><div class="onb-group-title">&#128250; Piattaforma</div><div class="onb-chips" id="onb-g7-chips"></div></div></div>
-    </div>
-    <div class="onb-actions" style="justify-content:center;padding-top:8px">
-      <button class="save-btn" style="font-size:14px;padding:13px 32px" onclick="_onbFinish()" data-i18n="onb_ask">Chiedi a Swainz</button>
-    </div>
+    <div class="onb-actions"><button class="onb-btn-skip" onclick="_onbBSkip()" data-i18n="onb_skip">Salta e compila in seguito</button><button class="onb-btn-primary" onclick="_onbBNext()" data-i18n="onb_continue">Continua</button></div>
   </div>
 </div>
 <!-- === END ONBOARDING === -->
@@ -7948,23 +7907,70 @@ function showOnboarding(){
   // (utente nuovo): fermo lo spinner e il suo timeout di sicurezza.
   try{ if(typeof _lsStopLoading==='function')_lsStopLoading(); }catch(e){}
   _onbActive=true;
+  _onbPrefill(); // v367: nome e cognome dall'account Google/Facebook
   _onbGoTo('a');
   ov.style.display='flex';
 }
 function _onbGoTo(step){
-  ['a','b','c'].forEach(function(s){var el=document.getElementById('onb-'+s);if(el)el.style.display='none';});
+  ['a','b'].forEach(function(s){var el=document.getElementById('onb-'+s);if(el)el.style.display='none';});
   var panel=document.getElementById('onb-'+step);if(panel)panel.style.display='flex';
   if(step==='b')_renderOnbB();
-  if(step==='c')_renderOnbC();
+}
+// v367 · precompilazione da Google/Facebook. Supabase restituisce il nome in
+// user_metadata (full_name/name) e talvolta given_name/family_name nella
+// identity. La data di nascita non arriva: richiederebbe permessi aggiuntivi.
+var _ONB_PARTICLES={'de':1,'di':1,'da':1,'del':1,'della':1,'dello':1,'dei':1,'degli':1,'delle':1,'dal':1,'dalla':1,'dall':1,'la':1,'lo':1,'le':1,'van':1,'von':1,'der':1,'den':1,'du':1,'des':1,'dos':1,'das':1,'st':1,'san':1,'santa':1};
+function _onbSplitName(full){
+  var tk=String(full||'').trim().split(/\s+/).filter(Boolean);
+  if(tk.length<2)return [tk.join(' '),''];
+  var i=tk.length-1;
+  while(i>1&&_ONB_PARTICLES[tk[i-1].toLowerCase().replace(/[’']/g,'')])i--;
+  return [tk.slice(0,i).join(' '),tk.slice(i).join(' ')];
+}
+function _onbOAuthName(){
+  var u=currentUser||{};
+  var prov=(u.app_metadata&&u.app_metadata.provider)||'email';
+  if(prov!=='google'&&prov!=='facebook')return null;
+  var md=u.user_metadata||{},idd={};
+  (u.identities||[]).forEach(function(x){if(x&&x.provider===prov&&x.identity_data)idd=x.identity_data;});
+  var nome=md.given_name||idd.given_name||'',cognome=md.family_name||idd.family_name||'';
+  if(!nome||!cognome){
+    var sp=_onbSplitName(md.full_name||md.name||idd.full_name||idd.name||'');
+    nome=nome||sp[0];cognome=cognome||sp[1];
+  }
+  return {provider:prov,nome:nome,cognome:cognome};
+}
+function _onbPrefill(){
+  var n=document.getElementById('onb-nome'),c=document.getElementById('onb-cognome');
+  var note=document.getElementById('onb-oauth-note'),ed=document.getElementById('onb-edit-btn'),btn=document.getElementById('onb-a-btn');
+  if(!n||!c)return;
+  n.readOnly=false;c.readOnly=false;
+  if(note)note.style.display='none';if(ed)ed.style.display='none';
+  if(btn)btn.textContent=t('onb_continue_a');
+  var o=null;try{o=_onbOAuthName();}catch(e){o=null;}
+  if(!o)return;                                   // email e password: tutto compilabile
+  if(o.nome)n.value=o.nome;
+  if(o.cognome)c.value=o.cognome;
+  if(o.nome&&o.cognome){                          // dati completi: solo conferma
+    n.readOnly=true;c.readOnly=true;
+    if(note){note.textContent=t('onb_oauth_note').replace('{p}',o.provider==='google'?'Google':'Facebook');note.style.display='';}
+    if(ed)ed.style.display='';
+    if(btn)btn.textContent=t('onb_confirm_a');
+  }
+}
+function _onbUnlockName(){
+  var n=document.getElementById('onb-nome'),c=document.getElementById('onb-cognome'),ed=document.getElementById('onb-edit-btn');
+  if(n)n.readOnly=false;if(c)c.readOnly=false;if(ed)ed.style.display='none';
+  if(n){n.focus();try{n.select();}catch(e){}}
 }
 function _onbANext(){
   var nome=document.getElementById('onb-nome').value.trim();
   var cognome=document.getElementById('onb-cognome').value.trim();
   var nascita=document.getElementById('onb-nascita').value;
   var err=document.getElementById('onb-a-err');
-  if(!nome||!cognome||!nascita){err.textContent=t('onb_req_fields');return;}
+  if(!nome||!cognome){err.textContent=t('onb_req_fields');return;} // v367: data di nascita facoltativa
   err.textContent='';
-  [['nome','pNome'],['cognome','pCognome'],['nascita','pNascita'],['film','pFilm']].forEach(function(pair){
+  [['nome','pNome'],['cognome','pCognome'],['nascita','pNascita']].forEach(function(pair){
     var s=document.getElementById('onb-'+pair[0]),d2=document.getElementById(pair[1]);
     if(s&&d2&&s.value.trim())d2.value=s.value.trim();
   });
@@ -7995,75 +8001,9 @@ function _renderOnbB(){
   });
   document.getElementById('onb-b-body').innerHTML=h;
 }
-function _onbBSkip(){_onbGoTo('c');}
-function _onbBNext(){saveFck();_onbGoTo('c');}
-function _onbAvailableTags(gid){
-  var group=GROUPS.find(function(g){return g.id===gid;});
-  if(!group)return[];
-  var tags=group.tags||group.opts||[];
-  var g1Sel=SEL['g1'];
-  var pool=DB.filter(function(f){
-    if(seenFilms.has(f.id))return false;
-    if(g1Sel.size>0){var arr=[...g1Sel];if(!arr.every(function(tag){return f.tags.includes(tag);}))return false;}
-    return true;
-  });
-  return tags.filter(function(tag){return pool.some(function(f){return(f.tags||[]).includes(tag)||(f.plt||[]).includes(tag);});});
-}
-function _renderOnbChips(cid,gid,items){
-  var el=document.getElementById(cid);if(!el)return;
-  var h='';
-  items.forEach(function(tag){
-    var safe=tag.replace(/'/g,"\\x27").replace(/"/g,'&quot;');
-    h+='<div class="onb-chip '+(SEL[gid]&&SEL[gid].has(tag)?'on':'')+'" onclick="_onbToggleChip(\''+gid+'\',\''+safe+'\',this)">'+tTag(tag)+'</div>';
-  });
-  el.innerHTML=h;
-}
-function _onbToggleChip(gid,tag,el){
-  if(!SEL[gid])return;
-  var g=GROUPS.find(function(x){return x.id===gid;});if(!g)return;
-  if(SEL[gid].has(tag)){SEL[gid].delete(tag);el.classList.remove('on');}
-  else{
-    if(!g.multi){SEL[gid].clear();document.querySelectorAll('#onb-'+gid+'-chips .onb-chip').forEach(function(c){c.classList.remove('on');});}
-    SEL[gid].add(tag);el.classList.add('on');
-  }
-}
-var _onbRevealed=false;
-function _renderOnbC(){
-  _onbRevealed=false;
-  var g1=GROUPS.find(function(g){return g.id==='g1';});_renderOnbChips('onb-g1-chips','g1',g1.tags);
-  var g8=GROUPS.find(function(g){return g.id==='g8';});_renderOnbChips('onb-g8-chips','g8',g8.opts);
-  var g7=GROUPS.find(function(g){return g.id==='g7';});
-  _renderOnbChips('onb-g7-chips','g7',g7.opts.filter(function(o){return o!=='Non su piattaforme';}));
-  _renderOnbChips('onb-g3-chips','g3',_onbAvailableTags('g3'));
-  ['onb-g8-wrap','onb-g3-wrap','onb-g7-wrap'].forEach(function(id){document.getElementById(id).classList.add('locked');});
-  var skipBtn=document.getElementById('onb-g1-skip-btn');var okBtn=document.getElementById('onb-g1-ok-btn');
-  if(skipBtn)skipBtn.style.display='';if(okBtn)okBtn.style.display='';
-  var cat=document.getElementById('onb-cat');var g1w=document.getElementById('onb-g1-wrap');
-  if(cat&&g1w&&!g1w.contains(cat))g1w.appendChild(cat);
-  var bub=document.getElementById('onb-cat-bubble');if(bub)bub.textContent=t('onb_bub_genre');
-}
-function _onbReveal(confirmed){
-  if(_onbRevealed)return;_onbRevealed=true;
-  var skipBtn=document.getElementById('onb-g1-skip-btn');var okBtn=document.getElementById('onb-g1-ok-btn');
-  if(skipBtn)skipBtn.style.display='none';if(okBtn)okBtn.style.display='none';
-  _renderOnbChips('onb-g3-chips','g3',_onbAvailableTags('g3'));
-  setTimeout(function(){
-    ['onb-g8-wrap','onb-g3-wrap','onb-g7-wrap'].forEach(function(id,i){
-      setTimeout(function(){document.getElementById(id).classList.remove('locked');},i*130);
-    });
-  },100);
-  setTimeout(function(){
-    var cat=document.getElementById('onb-cat');
-    var g3i=document.querySelector('#onb-g3-wrap .onb-group-wrap');
-    if(cat&&g3i){
-      g3i.style.position='relative';
-      g3i.appendChild(cat);
-      var bub=document.getElementById('onb-cat-bubble');
-      if(bub)bub.textContent=t('onb_bub_final');
-    }
-  },650);
-}
-function _onbFinish(){
+function _onbBSkip(){_onbComplete();}
+function _onbBNext(){try{saveFck();}catch(e){console.error('[SW] saveFck onboarding',e);}_onbComplete();}
+function _onbComplete(){
   try{localStorage.setItem('sw3_onboarded','1');}catch(e){}
   try{
     var lp=JSON.parse(localStorage.getItem('sw3_prof')||'{}');
@@ -8079,8 +8019,45 @@ function _onbFinish(){
   _persistOnboarded(); // v354: flag dedicato sul server, con retry
   document.getElementById('onboarding').style.display='none';
   _onbActive=false;
-  updatePanel();
-  go();
+  // v367: niente piu' consiglio automatico. Si entra nell'app (prima la
+  // chiusura dell'onboarding non chiamava login(): #app restava nascosta) e
+  // la mascotte mostra il fumetto di benvenuto sul bottone Chiedi a Swainz.
+  _swWelcomeOpen=true;          // blocca initCat/wakeUpSequence finche' e' aperto
+  try{updatePanel();}catch(e){}
+  login();
+  setTimeout(_swShowWelcome,1300);
+}
+// v367 · fumetto di benvenuto: compare una sola volta, alla fine
+// dell'onboarding. Si chiude solo con la X; fino ad allora la pagina e' velata
+// e il bottone Chiedi a Swainz resta evidenziato ma non cliccabile.
+var _swWelcomeOpen=false;
+function _swPlaceWelcome(){
+  var box=document.querySelector('#sw-welcome .sww-box'),b=document.getElementById('gobtn');
+  if(!box||!b)return;
+  var r=b.getBoundingClientRect();
+  box.style.bottom=Math.max(12,window.innerHeight-r.top+10)+'px';
+}
+function _swShowWelcome(){
+  var app=document.getElementById('app');
+  if(!app||document.getElementById('sw-welcome')){ if(!app){_swWelcomeOpen=false;} return; }
+  var w=document.createElement('div');w.id='sw-welcome';
+  w.innerHTML='<div class="sww-box" role="dialog" aria-modal="true">'+
+    '<video class="sww-cat" src="cat/sit_0.webm" autoplay loop muted playsinline></video>'+
+    '<div class="sww-bub"><button class="sww-x" onclick="_swCloseWelcome()" aria-label="'+t('wel_close')+'">&#10005;</button>'+t('wel_text')+'</div>'+
+    '<div class="sww-arrow">&#8595;</div></div>';
+  app.appendChild(w);
+  document.body.classList.add('sw-wel-on');
+  _swPlaceWelcome();
+  window.addEventListener('resize',_swPlaceWelcome);
+  requestAnimationFrame(function(){w.classList.add('show');});
+}
+function _swCloseWelcome(){
+  var w=document.getElementById('sw-welcome');
+  document.body.classList.remove('sw-wel-on');
+  window.removeEventListener('resize',_swPlaceWelcome);
+  _swWelcomeOpen=false;
+  if(w){w.classList.remove('show');setTimeout(function(){if(w.parentNode)w.parentNode.removeChild(w);},350);}
+  try{initCat();}catch(e){}     // la mascotte riprende a muoversi
 }
 // === END ONBOARDING JS ===
 
