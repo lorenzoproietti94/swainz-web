@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="it"><head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>SWAINZ</title><!-- v368 · Sessione persistente. Causa delle disconnessioni: _tryRefreshSession cancellava la sessione a QUALSIASI errore del rinnovo (rete assente al risveglio del PC o del telefono, timeout, 5xx, 429), e con piu' schede aperte due rinnovi paralleli con lo stesso refresh token si annullavano (Supabase ruota il token e rifiuta il riuso). Ora: rinnovo singolo per scheda (_refreshWaiters), lock tra schede (navigator.locks 'sw3_token_refresh'), adozione del token gia' rinnovato da un'altra scheda (_adoptStoredIfNewer, evento storage), logout solo su 400/401/403, altrimenti nuovo tentativo dopo 30s e all'evento online; al rientro sulla scheda (_swSessionWake) rinnovo se il token e' scaduto. All'avvio con rete assente si resta loggati. Nuovo limite di inattivita': SW_SESSION_MAX_IDLE_DAYS = 30 (last_active in sw3_session). --><!-- v367 · Onboarding snellito. (1) Passo A: restano Nome e Cognome (obbligatori) e Data di nascita (ora FACOLTATIVA per tutti); rimossi Film, Regista e Attore preferiti. Con Google/Facebook nome e cognome sono precompilati da user_metadata/identity (given_name+family_name, altrimenti split di full_name con le particelle del cognome: De, Di, Della, Van...) e bloccati in sola lettura: l'utente conferma, con il link 'Correggi nome e cognome' come via d'uscita; se il nome dell'account e' incompleto i campi restano compilabili. (2) Passo B: q6, q7+q7b, q9 invariate; 'Salta' diventa 'Salta e compila in seguito'. Entrambi i bottoni chiudono l'onboarding. (3) Passo C eliminato (markup, ~120 righe JS, CSS e 11 chiavi i18n): niente piu' consiglio automatico. (4) _onbComplete chiama login(): prima _onbFinish nascondeva l'overlay senza rendere visibile #app. (5) Fumetto di benvenuto (_swShowWelcome): pagina velata, mascotte seduta (cat/sit_0.webm), testo, freccia verso Chiedi a Swainz evidenziato e non cliccabile; si chiude solo con la X, poi il gatto riparte (initCat e wakeUpSequence restano bloccati mentre e' aperto). (6) Fix: saveFck lanciava TypeError se chiamata dall'onboarding (#fckOk inesistente), bloccando 'Continua' del Passo B. --><!-- v366 · FCK. (1) Gating per tier: applyFck passa ora per _fckEffective(), che per i free tiene solo q6, q7+q7b e q9. Le altre risposte restano in fckAnswers, in sw3_fck e su user_data.fck_answers: un premium che torna free smette di subirne i filtri (q1-q4, q8, q10-q13) ma le ritrova compilate e attive se torna premium. Nei quattro punti in cui isPremium cambia (_restoreSession senza sessione, _applyServerSearch x2, _applyUserData) buildUI() e' sostituito da applyFck(fckAnswers), che ricalcola userPrefs e chiama buildUI. (2) Bug q4/q6: il ramo else di q6 azzerava excludeDifficile, annullando q4='Preferisco blockbuster' quando q6 era 'Molto' o senza risposta. Rimosso il reset: Difficile escluso se q4=blockbuster O q6=No; nel conflitto blockbuster+Molto prevale q4. --><!-- v365 · Spaziatura dei tag nella scheda film. I tag partivano da una y fissa del template (1131): con il verdetto su DUE righe — il caso piu' frequente — restavano appena 13px di stacco contro i 30px che separano riga regista e verdetto. Ora il blocco tag si ancora al FONDO EFFETTIVO del verdetto (variabile verdBottom) e non a una coordinata fissa, quindi la distanza resta costante sia con una riga sia con due; se il verdetto manca, i tag tornano alla posizione del template. Distacco fissato a 42px anziche' ai 30px misurati fra regista e verdetto, perche' le pillole hanno un bordo che riempie lo spazio e le fa percepire piu' vicine del testo nudo. Margine residuo dal footer SWAINZ.IT nel caso peggiore (verdetto 2 righe + tag 2 righe): 23px. -->
+<title>SWAINZ</title><!-- v369 · Accesso gia' attivo: la schermata di login nasce in stato 'loading' (script inline subito dopo #ls, prima del primo disegno) quando esiste sw3_session e non si sta tornando da OAuth. All'avvio _lsStartLoading() arma il timeout di 15s e mostra 'Bentornato, carico il tuo profilo…'; se _restoreSession non trova una sessione valida (token rifiutato, 30 giorni di inattivita') _lsStopLoading() riattiva i controlli. Stesso stato anche dopo l'accesso con email/password e dopo la registrazione con sessione immediata. Anche i campi email e password diventano non cliccabili durante il caricamento. FIX (bug introdotto in v368): SW_SESSION_MAX_IDLE_DAYS, _refreshWaiters, _refreshRetryTimer, _tokRefreshTimer e _lsLoadingTimer erano dichiarate dopo il codice di avvio, che gira mentre lo script e' ancora in lettura: il limite di 30 giorni non funzionava e, con token scaduto all'apertura, il rinnovo riusciva ma l'app restava sulla schermata di accesso. Spostate accanto a _authToken. --><!-- v368 · Sessione persistente. Causa delle disconnessioni: _tryRefreshSession cancellava la sessione a QUALSIASI errore del rinnovo (rete assente al risveglio del PC o del telefono, timeout, 5xx, 429), e con piu' schede aperte due rinnovi paralleli con lo stesso refresh token si annullavano (Supabase ruota il token e rifiuta il riuso). Ora: rinnovo singolo per scheda (_refreshWaiters), lock tra schede (navigator.locks 'sw3_token_refresh'), adozione del token gia' rinnovato da un'altra scheda (_adoptStoredIfNewer, evento storage), logout solo su 400/401/403, altrimenti nuovo tentativo dopo 30s e all'evento online; al rientro sulla scheda (_swSessionWake) rinnovo se il token e' scaduto. All'avvio con rete assente si resta loggati. Nuovo limite di inattivita': SW_SESSION_MAX_IDLE_DAYS = 30 (last_active in sw3_session). --><!-- v367 · Onboarding snellito. (1) Passo A: restano Nome e Cognome (obbligatori) e Data di nascita (ora FACOLTATIVA per tutti); rimossi Film, Regista e Attore preferiti. Con Google/Facebook nome e cognome sono precompilati da user_metadata/identity (given_name+family_name, altrimenti split di full_name con le particelle del cognome: De, Di, Della, Van...) e bloccati in sola lettura: l'utente conferma, con il link 'Correggi nome e cognome' come via d'uscita; se il nome dell'account e' incompleto i campi restano compilabili. (2) Passo B: q6, q7+q7b, q9 invariate; 'Salta' diventa 'Salta e compila in seguito'. Entrambi i bottoni chiudono l'onboarding. (3) Passo C eliminato (markup, ~120 righe JS, CSS e 11 chiavi i18n): niente piu' consiglio automatico. (4) _onbComplete chiama login(): prima _onbFinish nascondeva l'overlay senza rendere visibile #app. (5) Fumetto di benvenuto (_swShowWelcome): pagina velata, mascotte seduta (cat/sit_0.webm), testo, freccia verso Chiedi a Swainz evidenziato e non cliccabile; si chiude solo con la X, poi il gatto riparte (initCat e wakeUpSequence restano bloccati mentre e' aperto). (6) Fix: saveFck lanciava TypeError se chiamata dall'onboarding (#fckOk inesistente), bloccando 'Continua' del Passo B. --><!-- v366 · FCK. (1) Gating per tier: applyFck passa ora per _fckEffective(), che per i free tiene solo q6, q7+q7b e q9. Le altre risposte restano in fckAnswers, in sw3_fck e su user_data.fck_answers: un premium che torna free smette di subirne i filtri (q1-q4, q8, q10-q13) ma le ritrova compilate e attive se torna premium. Nei quattro punti in cui isPremium cambia (_restoreSession senza sessione, _applyServerSearch x2, _applyUserData) buildUI() e' sostituito da applyFck(fckAnswers), che ricalcola userPrefs e chiama buildUI. (2) Bug q4/q6: il ramo else di q6 azzerava excludeDifficile, annullando q4='Preferisco blockbuster' quando q6 era 'Molto' o senza risposta. Rimosso il reset: Difficile escluso se q4=blockbuster O q6=No; nel conflitto blockbuster+Molto prevale q4. --><!-- v365 · Spaziatura dei tag nella scheda film. I tag partivano da una y fissa del template (1131): con il verdetto su DUE righe — il caso piu' frequente — restavano appena 13px di stacco contro i 30px che separano riga regista e verdetto. Ora il blocco tag si ancora al FONDO EFFETTIVO del verdetto (variabile verdBottom) e non a una coordinata fissa, quindi la distanza resta costante sia con una riga sia con due; se il verdetto manca, i tag tornano alla posizione del template. Distacco fissato a 42px anziche' ai 30px misurati fra regista e verdetto, perche' le pillole hanno un bordo che riempie lo spazio e le fa percepire piu' vicine del testo nudo. Margine residuo dal footer SWAINZ.IT nel caso peggiore (verdetto 2 righe + tag 2 righe): 23px. -->
 <!-- v363 · Locandina: (1) centratura ancorata al CENTRO PAGINA anziche' al riquadro, cosi' resta centrata qualunque sia la proporzione dell'immagine; (2) riquadro riportato a 470px — la misura precedente (442) era calibrata sulla fascia piu' stretta dei chevron (y 700-800, liberi 140-614) mentre nella fascia della locandina (y 300-700) lo spazio libero e' 84-667, quindi si sprecava larghezza; (3) aggiunta cornice bronzo a doppio tratto (#c2692f spesso + filo chiaro interno): senza, le locandine scure si confondevano con lo sfondo del template. -->
 <!-- v362 · Scheda film: calibrazione sul primo test reale. (1) Locandina ridotta da 586 a 442px e centrata (x 155-597): i chevron del template arrivano a x=140 a sinistra e ripartono da x=614 a destra, quindi la larghezza precedente li copriva da entrambi i lati. Le coordinate iniziali erano errate perche' ricavate dalla differenza fra template vuoto ed esempio compilato, che include l'ombra della locandina e non solo la locandina. (2) Corpo del titolo da 54 a 44px. (3) Il verdetto non compariva perche' la colonna Verdetto del DB e' ancora vuota: il campo e' letto correttamente, manca solo il dato. -->
 <!-- v360 · Scheda film condivisibile ricostruita sul template 'SWAINZ CONSIGLIA'. Il PNG fornito era a 752px e sgranava perche' Instagram lo ingrandisce a 1080: ricostruito come generatore canvas, quindi nativo a piena risoluzione. Due formati dallo stesso codice: 'story' 1080x1920 (9:16) e 'post' 1080x1350 (4:5), con selettore nell'anteprima di condivisione. Correzioni richieste: linee geometriche laterali in bronzo scuro #a85214, distinto dall'arancione brand #ff6820 di logo e mascotte (nell'originale erano rgb(148,101,60), troppo simili); sfondo schiarito (#241a15 → #17100d, prima ~rgb(19,11,8)); alone caldo dietro la mascotte, che sul fondo scuro aveva solo 0.9 punti di contrasto su 255 ed era praticamente invisibile. Asset di brand in cat/brand/ (mascotte.png, logo.png) ricavati dalla cattura ad alta risoluzione, con bordi sfumati per fondersi con lo sfondo; se assenti il disegno prosegue con un fallback testuale. Supporto al verdetto di Swainz via campo f.verdetto (colonna DB da popolare). -->
@@ -65,6 +65,7 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
 #ls.loading #ls-lang-bar,
 #ls.loading .ls-sep,
 #ls.loading .ls-sub{opacity:0;pointer-events:none;transition:opacity .25s}
+#ls.loading .ls-input{pointer-events:none} /* v369 */
 #ls-loading{display:none;flex-direction:column;align-items:center;gap:14px;margin-top:22px}
 #ls.loading #ls-loading{display:flex;animation:lsFadeIn .35s ease both}
 @keyframes lsFadeIn{from{opacity:0}to{opacity:1}}
@@ -1729,6 +1730,9 @@ input[type=range]{
     <p style="margin-top:16px;font-size:11px;color:var(--td)" data-i18n="login_sub">3 consigli gratuiti al giorno · Nessuna carta richiesta</p>
   </div>
 </div>
+<script>/* v369 · sessione salvata: la schermata di accesso nasce gia' in caricamento,
+   senza il lampo dei pulsanti cliccabili prima che parta lo script principale */
+try{if(localStorage.getItem('sw3_session')&&(location.hash||'').indexOf('access_token')<0)document.getElementById('ls').classList.add('loading');}catch(e){}</script>
 
 <!-- APP -->
 <div id="app">
@@ -2266,6 +2270,14 @@ function _supaFetchPage(lastId,step,resolve,reject,all,attempt){ // v327 (punto 
 }
 var _authToken=null;
 var _refreshToken=null;
+// v369 · FIX ORDINE DI ESECUZIONE. L'avvio (_restoreSession) gira mentre lo
+// script viene ancora letto: variabili dichiarate PIU' IN BASSO nel file
+// valevano undefined in quel momento e poi venivano riazzerate. Effetti in
+// v368: limite di 30 giorni ignorato; con token scaduto all'apertura il
+// rinnovo riusciva ma la sua callback andava persa (_refreshWaiters rimesso a
+// null) e l'app restava sulla schermata di accesso. Ora sono dichiarate qui.
+var SW_SESSION_MAX_IDLE_DAYS=30;   // nuovo accesso dopo 30 giorni senza aprire Swainz
+var _refreshWaiters=null,_refreshRetryTimer=null,_tokRefreshTimer=null,_lsLoadingTimer=null;
 var currentUser=null;
 
 var _dbReady=new Promise(function(resolve,reject){
@@ -6135,6 +6147,7 @@ const T={
     g1:'🎭 Genere & Atmosfera',g2:'✨ Qualità & Stile',g3:'🔍 Temi specifici',g4:'🧠 Mood',g5:'🌍 Contesto',g6:'⏱ Durata',g7:'📺 Piattaforma',g8:'📅 Periodo',
     g7_sub:'Abbonamento',g7_rent:'Noleggio/Acquisto',
     login_loading:'Accesso effettuato, carico il tuo profilo…',
+  login_loading_back:'Bentornato, carico il tuo profilo…',
     gdpr_title:'🔒 I tuoi dati',
     gdpr_desc:'Puoi scaricare una copia dei tuoi dati o eliminare definitivamente il tuo account in qualsiasi momento.',
     gdpr_export:'Scarica i miei dati',
@@ -6270,6 +6283,7 @@ const T={
     g1:'🎭 Genre & Mood',g2:'✨ Quality & Style',g3:'🔍 Specific Themes',g4:'🧠 Mood',g5:'🌍 Context',g6:'⏱ Length',g7:'📺 Platform',g8:'📅 Period',
     g7_sub:'Subscription',g7_rent:'Rent/Buy',
     login_loading:'Signed in, loading your profile…',
+  login_loading_back:'Welcome back, loading your profile…',
     gdpr_title:'🔒 Your data',
     gdpr_desc:'You can download a copy of your data or permanently delete your account at any time.',
     gdpr_export:'Download my data',
@@ -6536,8 +6550,17 @@ function setLang(l){
   // Handle OAuth redirect callback (hash in URL)
   if(_handleOAuthCallback())return;
   _handlePaymentReturn();
+  // v369: con una sessione salvata la schermata di accesso resta in caricamento
+  // (non cliccabile) fino all'ingresso nell'app; si sblocca solo se la sessione
+  // non e' piu' valida. Il timeout di 15s di _lsStartLoading resta come rete.
+  var _swHadSession=false;try{_swHadSession=!!localStorage.getItem('sw3_session');}catch(e){}
+  if(_swHadSession){
+    _lsStartLoading();
+    try{var _lt=document.getElementById('ls-loading-txt');if(_lt)_lt.textContent=t('login_loading_back');}catch(e){}
+  }
   _restoreSession(function(valid){
     if(!valid){ // v329 (punto 20 fix A): nessuna sessione valida → nessun premium
+      if(_swHadSession){try{_lsStopLoading();var _lt2=document.getElementById('ls-loading-txt');if(_lt2)_lt2.textContent=t('login_loading');}catch(e){}}
       if(isPremium){isPremium=false;try{localStorage.setItem('sw3_premium','0');}catch(e){}applyFck(fckAnswers);try{_updatePremUI&&_updatePremUI();}catch(e){}}
       return;
     }
@@ -6644,7 +6667,7 @@ function _saveSession(res) {
 }
 
 // v314: rinnovo proattivo del token ~2 minuti prima della scadenza (sessioni lunghe con tab aperta).
-var _tokRefreshTimer = null;
+// (v369: _tokRefreshTimer dichiarata in cima, accanto a _authToken)
 function _scheduleTokenRefresh(expiresAt) {
   if (_tokRefreshTimer) { clearTimeout(_tokRefreshTimer); _tokRefreshTimer = null; }
   if (!expiresAt) return;
@@ -6701,8 +6724,7 @@ function _supaXHR(method, path, body, token, cb, _retried) {
 // Ora: un solo rinnovo alla volta per scheda, lock condiviso tra schede,
 // adozione del token gia' rinnovato da un'altra scheda, logout solo se il
 // server rifiuta davvero il token (400/401/403); negli altri casi si riprova.
-var SW_SESSION_MAX_IDLE_DAYS = 30;       // nuovo accesso dopo 30 giorni senza aprire Swainz
-var _refreshWaiters = null, _refreshRetryTimer = null;
+// (v369: SW_SESSION_MAX_IDLE_DAYS, _refreshWaiters e _refreshRetryTimer dichiarate in cima)
 function _readStoredSession() {
   try { var r = localStorage.getItem('sw3_session'); return r ? JSON.parse(r) : null; } catch(e) { return null; }
 }
@@ -7032,6 +7054,7 @@ function _lsAuth(endpoint, body, onOk) {
 function doLogin() {
   _lsAuth('token?grant_type=password', {}, function(res) {
     _saveSession(res);
+    _lsStartLoading(); // v369: come per Google/Facebook, niente pulsanti attivi mentre carico
     // Ensure user_data row exists (upsert with empty patch = create if missing)
     var email = res.user ? res.user.email : (currentUser ? currentUser.email : '');
     _saveUserData({ email: email, updated_at: new Date().toISOString() });
@@ -7058,6 +7081,7 @@ function doRegister() {
   _lsAuth('signup', {}, function(res) {
     if (res.access_token && res.user) {
       _saveSession(res);
+      _lsStartLoading(); // v369
       _saveUserData({ email: res.user.email,
         consent_accepted_at: new Date().toISOString(), // v339 GDPR: prova del consenso
         consent_version: LEGAL_VERSION,
@@ -7212,7 +7236,7 @@ function loginWithProvider(provider) {
 // _lsStartLoading nasconde i controlli e mostra lo spinner; un timeout di
 // sicurezza lo rimuove se la rete non risponde, per non lasciare l'utente
 // bloccato davanti a una rotella infinita.
-var _lsLoadingTimer=null;
+// (v369: _lsLoadingTimer dichiarata in cima)
 function _lsStartLoading(){
   try{
     var el=document.getElementById('ls');
