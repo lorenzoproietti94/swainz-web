@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="it"><head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>SWAINZ</title><!-- v397 · Scheda film su desktop, nuova impaginazione (_swLayoutCard, sostituisce _swCenterPoster della v396). Tre gruppi a sinistra: regia + riga info (restano nell'intestazione .fch), descrizione, cast. G = 18px. Se la locandina e' piu' alta dei tre gruppi con spaziatura G: locandina a G dal titolo e a G dalla scheda sotto, i tre gruppi centrati e distanziati uniformemente nella sua altezza. Altrimenti: gruppi a G dal titolo e tra loro, locandina centrata sui tre, scheda sotto a G. La locandina e' posizionata in assoluto dentro .fcb (puo' salire accanto a regia e info); per farlo su desktop scorre l'intera scheda (#fcc) e non piu' solo .fcb, e la X e' fissata all'angolo della scheda. Mobile invariato. --><!-- v396 · Scheda film: la locandina si centra sul solo testo della descrizione (.fcdesc), non piu' su descrizione + cast come in v395. _swCenterPoster() misura altezza della locandina e del testo (offsetHeight, immune alle trasformazioni dell'apertura) e sposta in basso l'elemento piu' corto: la colonna testo con padding-top se la locandina e' piu' alta, la locandina con margin-top se il testo e' piu' lungo; il cast resta subito sotto la descrizione. Chiamata a fine showCard, al caricamento della locandina, a font caricati e al resize. Solo con la riga in orizzontale (sopra i 560px). --><!-- v395 · (1) Locandina assente nelle schede aperte da "Tutti i film consigliati": le miniature della v394 scaricavano le locandine TMDB senza CORS e il browser le metteva in cache senza Access-Control-Allow-Origin; la scheda, che le chiede con crossorigin="anonymous", riceveva la copia in cache, falliva e l'onerror toglieva l'immagine. Ora anche le miniature usano crossorigin e, se la copia in cache e' gia' senza CORS, _swPosterRetry ritenta una volta con ?cors=1 (nuova voce di cache); stesso ritentativo in _swLoadImg (scheda condivisibile). (2) Scheda film su desktop: .fc-body-row con align-items:center, locandina e colonna descrizione centrate in verticale tra loro (prima allineate in alto, con la locandina che scendeva sotto il testo). --><!-- v394 · Nuova grafica del pannello "Tutti i film consigliati": intestazione con titolo a due colori, pillola del piano e Torna; barra filtri a quattro controlli (ricerca unica titolo/regista/anno, piattaforme, caratteristiche, Azzera filtri); tabella a righe-card con locandina, verdetto, tag e badge piattaforme, ordinabile su tutte le colonne; larghezza come la pagina principale (980px, padding 18px). FIX: il filtro piattaforme leggeva f.platforms, campo inesistente (ora f.plt + f.plt_nol). --><!-- v393 · Separatore: filetti laterali centrati verticalmente sulle due righe (align-self:center); dalla v377 erano allineati alla sola riga 'oppure'. --><!-- v392 · Separatore tra proposte e Lab: seconda riga da 'componi tu' a 'componi tu il tuo film' (EN 'build your own film'). --><!-- v391 · Cornice discreta attorno alla zona della richiesta: .cta-row prende padding 10px, bordo 1px rgba(255,150,70,.22), fondo rgba(26,23,21,.6) e raggio 18px, restando larga 944px come il Lab (box-sizing border-box, quindi il contenuto interno scende a 924). Su <=600px la cornice non compare. --><!-- v390 · Tolte le due staffe agli angoli (in alto a sinistra e in basso a destra) del bottone Chiedi a Swainz: .cta::before/::after disattivati dentro .cta-w. --><!-- v389 · Barra in basso larga quanto la scheda Swainz Lab: .cta-row max-width da 1220 a 944px (980 di .fa meno i due padding da 18). Il pannello dei filtri mostra sempre la riga dei tag: senza filtri compare "Nessun filtro", quindi il riquadro parte gia' su due righe e il bottone non cambia altezza al primo tag; il testo e' anche nel markup iniziale, perche' updatePanel gira solo al primo cambiamento. --><!-- v388 · Barra in basso riorganizzata. Nuova .cta-row: a sinistra .cta-main con il contatore e 'Chiedi a Swainz' al 72% della larghezza (prima centrato, max 944px), ora arancione pieno (gradiente #c2410c -> #ff7a18 -> #ffa94d) con hover verso un arancione piu' chiaro al posto del viraggio al blu; a destra .cta-side con l'intestazione 'Filtri attivi' + Reset filtri e sotto il pannello #afp, spostato qui dalla colonna destra (dove le X non erano cliccabili). I due blocchi sono stirati alla stessa altezza: se i tag vanno a capo cresce anche il bottone. Il reset esce dall'intestazione del Lab, dove resta una copia (#resetBtnLab) visibile solo sotto i 600px; _updateBtnGlow illumina entrambi. Su mobile la colonna destra sparisce e resta il pannello #afp-mobile. --><!-- v387 · Stato abbonamento di nuovo nell'intestazione del profilo, in alto a destra (come prima della v386): #prem-free con etichetta e bottone 'Passa a Premium', #prem-active con il nuovo badge a pillola .prem-badge (fondo #232326, bordo 1.5px #ff8a2e con alone, stella dorata e 'Piano Premium attivo' in bianco). Tolti dal corpo del profilo i riquadri .prof-plan della v386. Il bottone 'Gestisci abbonamento' resta in fondo con Scarica ed Elimina. --><!-- v386 · (1) Header della pagina principale di nuovo fisso in alto: due cause, una regola successiva che imponeva position:relative!important e overflow-x:hidden sul body, che ne faceva un contenitore di scorrimento e annullava lo sticky; ora sticky!important e overflow-x:clip su html e body. (2) Intestazione del profilo (.vph) portata all'altezza dell'header principale: align-items center, padding 9px 22px (mobile 8px 14px), sottotitolo 11px. (3) Stato abbonamento riorganizzato: fuori dall'intestazione, in cima alla colonna del profilo. Free: riquadro con testo e bottone Passa a Premium. Premium: riquadro con bordo a sfumatura arancione, stella e 'PIANO PREMIUM ATTIVO' in Rajdhani 700 19px. Il bottone Gestisci abbonamento passa in fondo, tra Scarica i miei dati ed Elimina account, visibile solo ai premium. --><!-- v385 · Swainz Lab: filo di luce leggermente piu' acceso. Bordo da rgba(175,200,230,.5) a rgba(190,212,238,.68), alone da 14px .22 a 18px .3. --><!-- v384 · Bottoni Menu e Profilo dell'header ridisegnati sul modello fornito: pillola scura con bordo a sfumatura arancione (gradiente applicato su border-box), icona hamburger arancione, etichetta MENU separata da un filetto verticale, alone tenue; il bottone profilo diventa un cerchio con lo stesso bordo e icona arancione. Su <=600px resta la sola icona. Nuova chiave i18n menu_btn. --><!-- v383 · Tolta la zampa dopo il sottotitolo nella schermata di accesso. FIX menu lingua: #desktop-lang-drop aveva z-index 60, sotto #ls (200): nella schermata di accesso il menu si apriva ma restava dietro, quindi la bandiera sembrava non rispondere. Portato a 300, sopra #ls e sotto onboarding (600) e overlay di condivisione (700). --><!-- v382 · Schermata di accesso: sottotitolo e zampa sulla stessa riga (.ls-tagrow), tolte le due barrette arancioni '//' prima del testo (.logo-tag::before content:none, solo dentro #ls) e aumentato lo stacco dal logo (margin-bottom del logo da 10 a 26px; mobile 20px). Su mobile la riga va a capo centrata. FIX i18n: la chiave login_consent esisteva solo in inglese (in italiano la casella del consenso mostrava il nome della chiave) e setLang applicava le traduzioni con textContent, quindi i link della frase sul consenso comparivano come tag. Ora le voci che contengono HTML usano innerHTML. --><!-- v381 · Schermata di accesso: tolte le zampe grandi (58px) sopra il logo, aggiunta una zampa piccola sotto il sottotitolo (.ls-paw). Spazi ridistribuiti tra bandiera, logo e sottotitolo; #ls ora scorre (overflow-y:auto) se il contenuto supera lo schermo: prima, su finestre basse, la barra della lingua usciva sopra il bordo e non era cliccabile. --><!-- v380 · Tolti gli aloni arancioni (drop-shadow) da .logo-sm e .logo-big: con il logo a pennellata risultavano di troppo. --><!-- v378 · Proposte rapide con intestazione come il Lab: .proposte-hdr (titolo centrato + filetto di separazione arancione) e .proposte-body (sottotitolo + pillole); il padding passa dal riquadro alle due parti. Nessuna freccia e nessun click di chiusura: la scheda resta sempre aperta. --><!-- v377 · Separatore: 'oppure' e, a capo, 'componi tu' in arancione #ff7a18 (era 'scegli tu' in pesca, sulla stessa riga). Nuovi sottotitoli: .proposte-sub sotto il titolo delle proposte rapide ('Scegli una delle combinazioni studiate da Swainz', tono caldo) e .lab-sub in cima al corpo del Lab, sotto l'intestazione ('Indica una o piu' caratteristiche che vuoi nel film', tono freddo; nel corpo e non nell'header perche' li' il titolo e' in posizione assoluta accanto al bottone Reset). Chiavi i18n proposte_sub e lab_sub. --><!-- v376 · Spaziature pagina principale: distanza header -> proposte rapide dimezzata (.fa padding-top 28->14px desktop, 16->8px mobile); distanza proposte -> Swainz Lab aumentata di 45px, pari all'altezza dell'intestazione del gruppo 'Temi specifici' (proposte 14px + separatore 'oppure scegli tu' alto 45px + 14px = 73px). Separatore .sw-or: Rajdhani 600 14px maiuscolo spaziato, 'scegli tu' in pesca #ffb07a, filetto sinistro che sfuma dall'arancione e destro dall'azzurro del Lab; chiavi i18n or_pre/or_you (EN: 'or choose yourself'). Misure prese in browser headless su v375. --><!-- v375 · Proposte rapide: fondo da #221c17 a #2d2118 (piu' arancione, risalta sul nero della pagina). Swainz Lab ridisegnato come pannello incassato su ardesia: fondo #1b2028 con ombra interna, gruppi filtro #232a35 appoggiati con ombra leggera, bordo 'filo di luce' azzurro-ghiaccio rgba(175,200,230,.5) con alone tenue, titolo chiaro freddo, hover dei gruppi in azzurro. Tolte le staffe arancio/ambra agli angoli del pannello (.lab-box::before); restano i rivetti dei gruppi e le chip selezionate arancioni. --><!-- v374 · Proposte rapide: tolte le due linee luminose arancioni interne (::before/::after a 6px dal bordo). Restano fondo a tabellone, bordo al neon e titolo al neon. --><!-- v373 · Riquadro Proposte rapide come insegna da cinema: fondo a tabellone (scanalature orizzontali 1px ogni 7px su #221c17), due linee luminose arancioni in alto e in basso (::before/::after, prima ::before era una sfumatura diagonale), bordo 2px #ff7a18 con alone al neon esterno e interno, titolo color pesca #ffd9b0 con alone neon e sfarfallio ogni 5s (fermo con prefers-reduced-motion). Pillole invariate. --><!-- v372 · Proposte rapide: il testo dei tag nelle pillole passa da Syne 800 15px (13px mobile) a Bebas Neue 400 21px, letter-spacing .05em, line-height 1.05; su mobile 16px, letter-spacing .02em, senza andare a capo, con padding laterale della pillola ridotto a 6px (i tag piu' lunghi entrano da 360px di larghezza in su; prima con Syne 13px sforavano). Bebas Neue era gia' caricato dal link Google Fonts: nessuna richiesta in piu'. Il simbolo + resta in Share Tech Mono. --><!-- v371 · Forma decorativa rotante in alto a destra: classe rinominata da .b1 (condivisa con i bottoni arancioni) a .dq, con le proprieta' che prima ereditava dai bottoni (sfondo linear-gradient(135deg,--or2,--or), padding 12px, transition) scritte esplicitamente. Aspetto identico, verificato confrontando lo stile calcolato prima/dopo su desktop e mobile. --><!-- v370 · Indirizzi diretti per le pagine legali: swainz.it/privacy, swainz.it/termini e swainz.it/eliminazione-dati (apre la privacy sulla nuova sottosezione 'Come eliminare i tuoi dati', id elimina-dati). Route PUBBLICHE (pub:true): si aprono subito, anche sulla schermata di accesso e senza login; dopo login() non vengono riaperte se gia' visibili. La X riporta a '/' da tutte le route che condividono il pannello; tasto Indietro gestito anche prima del login. Nuovi URL per Meta: Privacy https://swainz.it/privacy, Termini https://swainz.it/termini, Eliminazione dati https://swainz.it/eliminazione-dati. Nessun cambio a vercel.json (il rewrite catch-all della v332 copre i nuovi path). --><!-- v369 · Accesso gia' attivo: la schermata di login nasce in stato 'loading' (script inline subito dopo #ls, prima del primo disegno) quando esiste sw3_session e non si sta tornando da OAuth. All'avvio _lsStartLoading() arma il timeout di 15s e mostra 'Bentornato, carico il tuo profilo…'; se _restoreSession non trova una sessione valida (token rifiutato, 30 giorni di inattivita') _lsStopLoading() riattiva i controlli. Stesso stato anche dopo l'accesso con email/password e dopo la registrazione con sessione immediata. Anche i campi email e password diventano non cliccabili durante il caricamento. FIX (bug introdotto in v368): SW_SESSION_MAX_IDLE_DAYS, _refreshWaiters, _refreshRetryTimer, _tokRefreshTimer e _lsLoadingTimer erano dichiarate dopo il codice di avvio, che gira mentre lo script e' ancora in lettura: il limite di 30 giorni non funzionava e, con token scaduto all'apertura, il rinnovo riusciva ma l'app restava sulla schermata di accesso. Spostate accanto a _authToken. --><!-- v368 · Sessione persistente. Causa delle disconnessioni: _tryRefreshSession cancellava la sessione a QUALSIASI errore del rinnovo (rete assente al risveglio del PC o del telefono, timeout, 5xx, 429), e con piu' schede aperte due rinnovi paralleli con lo stesso refresh token si annullavano (Supabase ruota il token e rifiuta il riuso). Ora: rinnovo singolo per scheda (_refreshWaiters), lock tra schede (navigator.locks 'sw3_token_refresh'), adozione del token gia' rinnovato da un'altra scheda (_adoptStoredIfNewer, evento storage), logout solo su 400/401/403, altrimenti nuovo tentativo dopo 30s e all'evento online; al rientro sulla scheda (_swSessionWake) rinnovo se il token e' scaduto. All'avvio con rete assente si resta loggati. Nuovo limite di inattivita': SW_SESSION_MAX_IDLE_DAYS = 30 (last_active in sw3_session). --><!-- v367 · Onboarding snellito. (1) Passo A: restano Nome e Cognome (obbligatori) e Data di nascita (ora FACOLTATIVA per tutti); rimossi Film, Regista e Attore preferiti. Con Google/Facebook nome e cognome sono precompilati da user_metadata/identity (given_name+family_name, altrimenti split di full_name con le particelle del cognome: De, Di, Della, Van...) e bloccati in sola lettura: l'utente conferma, con il link 'Correggi nome e cognome' come via d'uscita; se il nome dell'account e' incompleto i campi restano compilabili. (2) Passo B: q6, q7+q7b, q9 invariate; 'Salta' diventa 'Salta e compila in seguito'. Entrambi i bottoni chiudono l'onboarding. (3) Passo C eliminato (markup, ~120 righe JS, CSS e 11 chiavi i18n): niente piu' consiglio automatico. (4) _onbComplete chiama login(): prima _onbFinish nascondeva l'overlay senza rendere visibile #app. (5) Fumetto di benvenuto (_swShowWelcome): pagina velata, mascotte seduta (cat/sit_0.webm), testo, freccia verso Chiedi a Swainz evidenziato e non cliccabile; si chiude solo con la X, poi il gatto riparte (initCat e wakeUpSequence restano bloccati mentre e' aperto). (6) Fix: saveFck lanciava TypeError se chiamata dall'onboarding (#fckOk inesistente), bloccando 'Continua' del Passo B. --><!-- v366 · FCK. (1) Gating per tier: applyFck passa ora per _fckEffective(), che per i free tiene solo q6, q7+q7b e q9. Le altre risposte restano in fckAnswers, in sw3_fck e su user_data.fck_answers: un premium che torna free smette di subirne i filtri (q1-q4, q8, q10-q13) ma le ritrova compilate e attive se torna premium. Nei quattro punti in cui isPremium cambia (_restoreSession senza sessione, _applyServerSearch x2, _applyUserData) buildUI() e' sostituito da applyFck(fckAnswers), che ricalcola userPrefs e chiama buildUI. (2) Bug q4/q6: il ramo else di q6 azzerava excludeDifficile, annullando q4='Preferisco blockbuster' quando q6 era 'Molto' o senza risposta. Rimosso il reset: Difficile escluso se q4=blockbuster O q6=No; nel conflitto blockbuster+Molto prevale q4. --><!-- v365 · Spaziatura dei tag nella scheda film. I tag partivano da una y fissa del template (1131): con il verdetto su DUE righe — il caso piu' frequente — restavano appena 13px di stacco contro i 30px che separano riga regista e verdetto. Ora il blocco tag si ancora al FONDO EFFETTIVO del verdetto (variabile verdBottom) e non a una coordinata fissa, quindi la distanza resta costante sia con una riga sia con due; se il verdetto manca, i tag tornano alla posizione del template. Distacco fissato a 42px anziche' ai 30px misurati fra regista e verdetto, perche' le pillole hanno un bordo che riempie lo spazio e le fa percepire piu' vicine del testo nudo. Margine residuo dal footer SWAINZ.IT nel caso peggiore (verdetto 2 righe + tag 2 righe): 23px. -->
+<title>SWAINZ</title><!-- v400 · Lo sfondo SVG, la colonna larga (220px per lato per i banner) e l'intestazione trasparente della v399 valgono solo per "Film gia' visti": "Tutti i film consigliati" torna allo sfondo, alla colonna da 980px e all'intestazione della v398. --><!-- v399 · Sfondo SVG ricostruito dal modello (sfere con bordo arancione, lame di luce, puntini), colonna larga sopra i 1260px con 220px per lato per i banner, intestazione trasparente con fondo solo durante lo scorrimento. --><!-- v398 · Nuova pagina "Film gia' visti" (#seenp) sul modello fornito, con la larghezza della pagina principale: intestazione come "Tutti i film consigliati"; filtri (ricerca titolo/regista/attore/anno, generi, piattaforme, ordine, Azzera); statistiche generi e piattaforme sopra la tabella; tabella con locandina, anno, regista, genere, piattaforma, valutazione, stato e menu (Apri scheda, Rimuovi dai visti con conferma); Importa da Letterboxd direttamente nella pagina e Segna altri film; titoli in stand-by sotto la tabella. La scheda aperta da qui non finisce nello storico dei consigli (showCard noRec). --><!-- v397 · Scheda film su desktop, nuova impaginazione (_swLayoutCard, sostituisce _swCenterPoster della v396). Tre gruppi a sinistra: regia + riga info (restano nell'intestazione .fch), descrizione, cast. G = 18px. Se la locandina e' piu' alta dei tre gruppi con spaziatura G: locandina a G dal titolo e a G dalla scheda sotto, i tre gruppi centrati e distanziati uniformemente nella sua altezza. Altrimenti: gruppi a G dal titolo e tra loro, locandina centrata sui tre, scheda sotto a G. La locandina e' posizionata in assoluto dentro .fcb (puo' salire accanto a regia e info); per farlo su desktop scorre l'intera scheda (#fcc) e non piu' solo .fcb, e la X e' fissata all'angolo della scheda. Mobile invariato. --><!-- v396 · Scheda film: la locandina si centra sul solo testo della descrizione (.fcdesc), non piu' su descrizione + cast come in v395. _swCenterPoster() misura altezza della locandina e del testo (offsetHeight, immune alle trasformazioni dell'apertura) e sposta in basso l'elemento piu' corto: la colonna testo con padding-top se la locandina e' piu' alta, la locandina con margin-top se il testo e' piu' lungo; il cast resta subito sotto la descrizione. Chiamata a fine showCard, al caricamento della locandina, a font caricati e al resize. Solo con la riga in orizzontale (sopra i 560px). --><!-- v395 · (1) Locandina assente nelle schede aperte da "Tutti i film consigliati": le miniature della v394 scaricavano le locandine TMDB senza CORS e il browser le metteva in cache senza Access-Control-Allow-Origin; la scheda, che le chiede con crossorigin="anonymous", riceveva la copia in cache, falliva e l'onerror toglieva l'immagine. Ora anche le miniature usano crossorigin e, se la copia in cache e' gia' senza CORS, _swPosterRetry ritenta una volta con ?cors=1 (nuova voce di cache); stesso ritentativo in _swLoadImg (scheda condivisibile). (2) Scheda film su desktop: .fc-body-row con align-items:center, locandina e colonna descrizione centrate in verticale tra loro (prima allineate in alto, con la locandina che scendeva sotto il testo). --><!-- v394 · Nuova grafica del pannello "Tutti i film consigliati": intestazione con titolo a due colori, pillola del piano e Torna; barra filtri a quattro controlli (ricerca unica titolo/regista/anno, piattaforme, caratteristiche, Azzera filtri); tabella a righe-card con locandina, verdetto, tag e badge piattaforme, ordinabile su tutte le colonne; larghezza come la pagina principale (980px, padding 18px). FIX: il filtro piattaforme leggeva f.platforms, campo inesistente (ora f.plt + f.plt_nol). --><!-- v393 · Separatore: filetti laterali centrati verticalmente sulle due righe (align-self:center); dalla v377 erano allineati alla sola riga 'oppure'. --><!-- v392 · Separatore tra proposte e Lab: seconda riga da 'componi tu' a 'componi tu il tuo film' (EN 'build your own film'). --><!-- v391 · Cornice discreta attorno alla zona della richiesta: .cta-row prende padding 10px, bordo 1px rgba(255,150,70,.22), fondo rgba(26,23,21,.6) e raggio 18px, restando larga 944px come il Lab (box-sizing border-box, quindi il contenuto interno scende a 924). Su <=600px la cornice non compare. --><!-- v390 · Tolte le due staffe agli angoli (in alto a sinistra e in basso a destra) del bottone Chiedi a Swainz: .cta::before/::after disattivati dentro .cta-w. --><!-- v389 · Barra in basso larga quanto la scheda Swainz Lab: .cta-row max-width da 1220 a 944px (980 di .fa meno i due padding da 18). Il pannello dei filtri mostra sempre la riga dei tag: senza filtri compare "Nessun filtro", quindi il riquadro parte gia' su due righe e il bottone non cambia altezza al primo tag; il testo e' anche nel markup iniziale, perche' updatePanel gira solo al primo cambiamento. --><!-- v388 · Barra in basso riorganizzata. Nuova .cta-row: a sinistra .cta-main con il contatore e 'Chiedi a Swainz' al 72% della larghezza (prima centrato, max 944px), ora arancione pieno (gradiente #c2410c -> #ff7a18 -> #ffa94d) con hover verso un arancione piu' chiaro al posto del viraggio al blu; a destra .cta-side con l'intestazione 'Filtri attivi' + Reset filtri e sotto il pannello #afp, spostato qui dalla colonna destra (dove le X non erano cliccabili). I due blocchi sono stirati alla stessa altezza: se i tag vanno a capo cresce anche il bottone. Il reset esce dall'intestazione del Lab, dove resta una copia (#resetBtnLab) visibile solo sotto i 600px; _updateBtnGlow illumina entrambi. Su mobile la colonna destra sparisce e resta il pannello #afp-mobile. --><!-- v387 · Stato abbonamento di nuovo nell'intestazione del profilo, in alto a destra (come prima della v386): #prem-free con etichetta e bottone 'Passa a Premium', #prem-active con il nuovo badge a pillola .prem-badge (fondo #232326, bordo 1.5px #ff8a2e con alone, stella dorata e 'Piano Premium attivo' in bianco). Tolti dal corpo del profilo i riquadri .prof-plan della v386. Il bottone 'Gestisci abbonamento' resta in fondo con Scarica ed Elimina. --><!-- v386 · (1) Header della pagina principale di nuovo fisso in alto: due cause, una regola successiva che imponeva position:relative!important e overflow-x:hidden sul body, che ne faceva un contenitore di scorrimento e annullava lo sticky; ora sticky!important e overflow-x:clip su html e body. (2) Intestazione del profilo (.vph) portata all'altezza dell'header principale: align-items center, padding 9px 22px (mobile 8px 14px), sottotitolo 11px. (3) Stato abbonamento riorganizzato: fuori dall'intestazione, in cima alla colonna del profilo. Free: riquadro con testo e bottone Passa a Premium. Premium: riquadro con bordo a sfumatura arancione, stella e 'PIANO PREMIUM ATTIVO' in Rajdhani 700 19px. Il bottone Gestisci abbonamento passa in fondo, tra Scarica i miei dati ed Elimina account, visibile solo ai premium. --><!-- v385 · Swainz Lab: filo di luce leggermente piu' acceso. Bordo da rgba(175,200,230,.5) a rgba(190,212,238,.68), alone da 14px .22 a 18px .3. --><!-- v384 · Bottoni Menu e Profilo dell'header ridisegnati sul modello fornito: pillola scura con bordo a sfumatura arancione (gradiente applicato su border-box), icona hamburger arancione, etichetta MENU separata da un filetto verticale, alone tenue; il bottone profilo diventa un cerchio con lo stesso bordo e icona arancione. Su <=600px resta la sola icona. Nuova chiave i18n menu_btn. --><!-- v383 · Tolta la zampa dopo il sottotitolo nella schermata di accesso. FIX menu lingua: #desktop-lang-drop aveva z-index 60, sotto #ls (200): nella schermata di accesso il menu si apriva ma restava dietro, quindi la bandiera sembrava non rispondere. Portato a 300, sopra #ls e sotto onboarding (600) e overlay di condivisione (700). --><!-- v382 · Schermata di accesso: sottotitolo e zampa sulla stessa riga (.ls-tagrow), tolte le due barrette arancioni '//' prima del testo (.logo-tag::before content:none, solo dentro #ls) e aumentato lo stacco dal logo (margin-bottom del logo da 10 a 26px; mobile 20px). Su mobile la riga va a capo centrata. FIX i18n: la chiave login_consent esisteva solo in inglese (in italiano la casella del consenso mostrava il nome della chiave) e setLang applicava le traduzioni con textContent, quindi i link della frase sul consenso comparivano come tag. Ora le voci che contengono HTML usano innerHTML. --><!-- v381 · Schermata di accesso: tolte le zampe grandi (58px) sopra il logo, aggiunta una zampa piccola sotto il sottotitolo (.ls-paw). Spazi ridistribuiti tra bandiera, logo e sottotitolo; #ls ora scorre (overflow-y:auto) se il contenuto supera lo schermo: prima, su finestre basse, la barra della lingua usciva sopra il bordo e non era cliccabile. --><!-- v380 · Tolti gli aloni arancioni (drop-shadow) da .logo-sm e .logo-big: con il logo a pennellata risultavano di troppo. --><!-- v378 · Proposte rapide con intestazione come il Lab: .proposte-hdr (titolo centrato + filetto di separazione arancione) e .proposte-body (sottotitolo + pillole); il padding passa dal riquadro alle due parti. Nessuna freccia e nessun click di chiusura: la scheda resta sempre aperta. --><!-- v377 · Separatore: 'oppure' e, a capo, 'componi tu' in arancione #ff7a18 (era 'scegli tu' in pesca, sulla stessa riga). Nuovi sottotitoli: .proposte-sub sotto il titolo delle proposte rapide ('Scegli una delle combinazioni studiate da Swainz', tono caldo) e .lab-sub in cima al corpo del Lab, sotto l'intestazione ('Indica una o piu' caratteristiche che vuoi nel film', tono freddo; nel corpo e non nell'header perche' li' il titolo e' in posizione assoluta accanto al bottone Reset). Chiavi i18n proposte_sub e lab_sub. --><!-- v376 · Spaziature pagina principale: distanza header -> proposte rapide dimezzata (.fa padding-top 28->14px desktop, 16->8px mobile); distanza proposte -> Swainz Lab aumentata di 45px, pari all'altezza dell'intestazione del gruppo 'Temi specifici' (proposte 14px + separatore 'oppure scegli tu' alto 45px + 14px = 73px). Separatore .sw-or: Rajdhani 600 14px maiuscolo spaziato, 'scegli tu' in pesca #ffb07a, filetto sinistro che sfuma dall'arancione e destro dall'azzurro del Lab; chiavi i18n or_pre/or_you (EN: 'or choose yourself'). Misure prese in browser headless su v375. --><!-- v375 · Proposte rapide: fondo da #221c17 a #2d2118 (piu' arancione, risalta sul nero della pagina). Swainz Lab ridisegnato come pannello incassato su ardesia: fondo #1b2028 con ombra interna, gruppi filtro #232a35 appoggiati con ombra leggera, bordo 'filo di luce' azzurro-ghiaccio rgba(175,200,230,.5) con alone tenue, titolo chiaro freddo, hover dei gruppi in azzurro. Tolte le staffe arancio/ambra agli angoli del pannello (.lab-box::before); restano i rivetti dei gruppi e le chip selezionate arancioni. --><!-- v374 · Proposte rapide: tolte le due linee luminose arancioni interne (::before/::after a 6px dal bordo). Restano fondo a tabellone, bordo al neon e titolo al neon. --><!-- v373 · Riquadro Proposte rapide come insegna da cinema: fondo a tabellone (scanalature orizzontali 1px ogni 7px su #221c17), due linee luminose arancioni in alto e in basso (::before/::after, prima ::before era una sfumatura diagonale), bordo 2px #ff7a18 con alone al neon esterno e interno, titolo color pesca #ffd9b0 con alone neon e sfarfallio ogni 5s (fermo con prefers-reduced-motion). Pillole invariate. --><!-- v372 · Proposte rapide: il testo dei tag nelle pillole passa da Syne 800 15px (13px mobile) a Bebas Neue 400 21px, letter-spacing .05em, line-height 1.05; su mobile 16px, letter-spacing .02em, senza andare a capo, con padding laterale della pillola ridotto a 6px (i tag piu' lunghi entrano da 360px di larghezza in su; prima con Syne 13px sforavano). Bebas Neue era gia' caricato dal link Google Fonts: nessuna richiesta in piu'. Il simbolo + resta in Share Tech Mono. --><!-- v371 · Forma decorativa rotante in alto a destra: classe rinominata da .b1 (condivisa con i bottoni arancioni) a .dq, con le proprieta' che prima ereditava dai bottoni (sfondo linear-gradient(135deg,--or2,--or), padding 12px, transition) scritte esplicitamente. Aspetto identico, verificato confrontando lo stile calcolato prima/dopo su desktop e mobile. --><!-- v370 · Indirizzi diretti per le pagine legali: swainz.it/privacy, swainz.it/termini e swainz.it/eliminazione-dati (apre la privacy sulla nuova sottosezione 'Come eliminare i tuoi dati', id elimina-dati). Route PUBBLICHE (pub:true): si aprono subito, anche sulla schermata di accesso e senza login; dopo login() non vengono riaperte se gia' visibili. La X riporta a '/' da tutte le route che condividono il pannello; tasto Indietro gestito anche prima del login. Nuovi URL per Meta: Privacy https://swainz.it/privacy, Termini https://swainz.it/termini, Eliminazione dati https://swainz.it/eliminazione-dati. Nessun cambio a vercel.json (il rewrite catch-all della v332 copre i nuovi path). --><!-- v369 · Accesso gia' attivo: la schermata di login nasce in stato 'loading' (script inline subito dopo #ls, prima del primo disegno) quando esiste sw3_session e non si sta tornando da OAuth. All'avvio _lsStartLoading() arma il timeout di 15s e mostra 'Bentornato, carico il tuo profilo…'; se _restoreSession non trova una sessione valida (token rifiutato, 30 giorni di inattivita') _lsStopLoading() riattiva i controlli. Stesso stato anche dopo l'accesso con email/password e dopo la registrazione con sessione immediata. Anche i campi email e password diventano non cliccabili durante il caricamento. FIX (bug introdotto in v368): SW_SESSION_MAX_IDLE_DAYS, _refreshWaiters, _refreshRetryTimer, _tokRefreshTimer e _lsLoadingTimer erano dichiarate dopo il codice di avvio, che gira mentre lo script e' ancora in lettura: il limite di 30 giorni non funzionava e, con token scaduto all'apertura, il rinnovo riusciva ma l'app restava sulla schermata di accesso. Spostate accanto a _authToken. --><!-- v368 · Sessione persistente. Causa delle disconnessioni: _tryRefreshSession cancellava la sessione a QUALSIASI errore del rinnovo (rete assente al risveglio del PC o del telefono, timeout, 5xx, 429), e con piu' schede aperte due rinnovi paralleli con lo stesso refresh token si annullavano (Supabase ruota il token e rifiuta il riuso). Ora: rinnovo singolo per scheda (_refreshWaiters), lock tra schede (navigator.locks 'sw3_token_refresh'), adozione del token gia' rinnovato da un'altra scheda (_adoptStoredIfNewer, evento storage), logout solo su 400/401/403, altrimenti nuovo tentativo dopo 30s e all'evento online; al rientro sulla scheda (_swSessionWake) rinnovo se il token e' scaduto. All'avvio con rete assente si resta loggati. Nuovo limite di inattivita': SW_SESSION_MAX_IDLE_DAYS = 30 (last_active in sw3_session). --><!-- v367 · Onboarding snellito. (1) Passo A: restano Nome e Cognome (obbligatori) e Data di nascita (ora FACOLTATIVA per tutti); rimossi Film, Regista e Attore preferiti. Con Google/Facebook nome e cognome sono precompilati da user_metadata/identity (given_name+family_name, altrimenti split di full_name con le particelle del cognome: De, Di, Della, Van...) e bloccati in sola lettura: l'utente conferma, con il link 'Correggi nome e cognome' come via d'uscita; se il nome dell'account e' incompleto i campi restano compilabili. (2) Passo B: q6, q7+q7b, q9 invariate; 'Salta' diventa 'Salta e compila in seguito'. Entrambi i bottoni chiudono l'onboarding. (3) Passo C eliminato (markup, ~120 righe JS, CSS e 11 chiavi i18n): niente piu' consiglio automatico. (4) _onbComplete chiama login(): prima _onbFinish nascondeva l'overlay senza rendere visibile #app. (5) Fumetto di benvenuto (_swShowWelcome): pagina velata, mascotte seduta (cat/sit_0.webm), testo, freccia verso Chiedi a Swainz evidenziato e non cliccabile; si chiude solo con la X, poi il gatto riparte (initCat e wakeUpSequence restano bloccati mentre e' aperto). (6) Fix: saveFck lanciava TypeError se chiamata dall'onboarding (#fckOk inesistente), bloccando 'Continua' del Passo B. --><!-- v366 · FCK. (1) Gating per tier: applyFck passa ora per _fckEffective(), che per i free tiene solo q6, q7+q7b e q9. Le altre risposte restano in fckAnswers, in sw3_fck e su user_data.fck_answers: un premium che torna free smette di subirne i filtri (q1-q4, q8, q10-q13) ma le ritrova compilate e attive se torna premium. Nei quattro punti in cui isPremium cambia (_restoreSession senza sessione, _applyServerSearch x2, _applyUserData) buildUI() e' sostituito da applyFck(fckAnswers), che ricalcola userPrefs e chiama buildUI. (2) Bug q4/q6: il ramo else di q6 azzerava excludeDifficile, annullando q4='Preferisco blockbuster' quando q6 era 'Molto' o senza risposta. Rimosso il reset: Difficile escluso se q4=blockbuster O q6=No; nel conflitto blockbuster+Molto prevale q4. --><!-- v365 · Spaziatura dei tag nella scheda film. I tag partivano da una y fissa del template (1131): con il verdetto su DUE righe — il caso piu' frequente — restavano appena 13px di stacco contro i 30px che separano riga regista e verdetto. Ora il blocco tag si ancora al FONDO EFFETTIVO del verdetto (variabile verdBottom) e non a una coordinata fissa, quindi la distanza resta costante sia con una riga sia con due; se il verdetto manca, i tag tornano alla posizione del template. Distacco fissato a 42px anziche' ai 30px misurati fra regista e verdetto, perche' le pillole hanno un bordo che riempie lo spazio e le fa percepire piu' vicine del testo nudo. Margine residuo dal footer SWAINZ.IT nel caso peggiore (verdetto 2 righe + tag 2 righe): 23px. -->
 <!-- v363 · Locandina: (1) centratura ancorata al CENTRO PAGINA anziche' al riquadro, cosi' resta centrata qualunque sia la proporzione dell'immagine; (2) riquadro riportato a 470px — la misura precedente (442) era calibrata sulla fascia piu' stretta dei chevron (y 700-800, liberi 140-614) mentre nella fascia della locandina (y 300-700) lo spazio libero e' 84-667, quindi si sprecava larghezza; (3) aggiunta cornice bronzo a doppio tratto (#c2692f spesso + filo chiaro interno): senza, le locandine scure si confondevano con lo sfondo del template. -->
 <!-- v362 · Scheda film: calibrazione sul primo test reale. (1) Locandina ridotta da 586 a 442px e centrata (x 155-597): i chevron del template arrivano a x=140 a sinistra e ripartono da x=614 a destra, quindi la larghezza precedente li copriva da entrambi i lati. Le coordinate iniziali erano errate perche' ricavate dalla differenza fra template vuoto ed esempio compilato, che include l'ombra della locandina e non solo la locandina. (2) Corpo del titolo da 54 a 44px. (3) Il verdetto non compariva perche' la colonna Verdetto del DB e' ancora vuota: il campo e' letto correttamente, manca solo il dato. -->
 <!-- v360 · Scheda film condivisibile ricostruita sul template 'SWAINZ CONSIGLIA'. Il PNG fornito era a 752px e sgranava perche' Instagram lo ingrandisce a 1080: ricostruito come generatore canvas, quindi nativo a piena risoluzione. Due formati dallo stesso codice: 'story' 1080x1920 (9:16) e 'post' 1080x1350 (4:5), con selettore nell'anteprima di condivisione. Correzioni richieste: linee geometriche laterali in bronzo scuro #a85214, distinto dall'arancione brand #ff6820 di logo e mascotte (nell'originale erano rgb(148,101,60), troppo simili); sfondo schiarito (#241a15 → #17100d, prima ~rgb(19,11,8)); alone caldo dietro la mascotte, che sul fondo scuro aveva solo 0.9 punti di contrasto su 255 ed era praticamente invisibile. Asset di brand in cat/brand/ (mascotte.png, logo.png) ricavati dalla cattura ad alta risoluzione, con bordi sfumati per fondersi con lo sfondo; se assenti il disegno prosegue con un fallback testuale. Supporto al verdetto di Swainz via campo f.verdetto (colonna DB da popolare). -->
@@ -1931,6 +1931,112 @@ button.arx-ctl{cursor:pointer;text-align:left}
   #fc.fc-lay .fc-desc-col{margin-right:188px}
   #fc.fc-lay .fc-dir,#fc.fc-lay .fc-sub{margin-right:188px}
 }
+
+/* ══ v398 · PAGINA "FILM GIA' VISTI" (#seenp) ═══════════════════════════
+   Riusa intestazione, filtri, tendine e righe-card del pannello consigli (.arx-*). */
+#seenp{display:block;background:linear-gradient(180deg,#07090d 0%,#0a0c11 55%,#07080b 100%)}
+#seenp::before{content:'';position:absolute;inset:0;pointer-events:none;z-index:0;
+  background:
+    linear-gradient(118deg,transparent 0 84%,rgba(255,122,24,.26) 84.6%,transparent 85.4%),
+    linear-gradient(126deg,transparent 0 88%,rgba(255,150,60,.16) 88.5%,transparent 89.3%),
+    linear-gradient(62deg,transparent 0 9%,rgba(255,122,24,.2) 9.6%,transparent 10.6%),
+    radial-gradient(38% 55% at 100% 62%,rgba(255,100,15,.16),transparent 70%),
+    radial-gradient(34% 45% at 0% 100%,rgba(255,100,15,.14),transparent 70%),
+    radial-gradient(30% 22% at 50% 0%,rgba(255,122,24,.10),transparent 75%);}
+#seenp .panel-inner{position:relative;z-index:1}
+/* in una colonna flex i margini auto rendono .arx-wrap larga quanto il contenuto: la fisso alla larghezza disponibile */
+#seenp .arx-wrap,#allrecsp .arx-wrap{width:100%}
+.sx-icon{width:44px;height:44px;flex-shrink:0;display:flex;align-items:center;justify-content:center;filter:drop-shadow(0 0 8px rgba(255,122,24,.45))}
+.sx-filters{grid-template-columns:minmax(0,1.15fr) minmax(0,1fr) minmax(0,1.25fr) minmax(0,1.2fr) minmax(0,.8fr)}
+.sx-filters .arx-ctl{padding:0 11px;gap:8px;font-size:12.5px}
+.sx-filters .arx-search input{font-size:12.5px}
+/* statistiche */
+.sx-stats{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px}
+.sx-card{padding:14px 16px 12px;border-radius:14px;background:rgba(10,12,17,.88);border:1px solid rgba(255,255,255,.1);box-shadow:0 0 18px rgba(0,0,0,.35)}
+.sx-card-h{display:flex;align-items:center;gap:10px;margin-bottom:10px;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:18px;color:#f4f5f7}
+.sx-card-h .sx-more{margin-left:auto;background:none;border:none;cursor:pointer;color:#ff8a2e;font-family:'Inter',sans-serif;font-weight:600;font-size:12.5px;padding:2px 0}
+.sx-card-h .sx-more:hover{color:#ffb45e}
+.sx-bar-row{display:grid;grid-template-columns:118px minmax(0,1fr) 34px;align-items:center;gap:12px;height:25px;font-family:'Inter',sans-serif;font-size:13px;color:#d9dce1}
+.sx-bar-row .n{text-align:right;color:#f1f3f6}
+.sx-bar-row .l{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sx-bar{height:6px;border-radius:3px;background:rgba(255,255,255,.07);overflow:hidden}
+.sx-bar i{display:block;height:100%;border-radius:3px;background:linear-gradient(90deg,#c2410c,#ff7a18 70%,#ffa552);box-shadow:0 0 8px rgba(255,122,24,.45)}
+.sx-plt-row{display:grid;grid-template-columns:auto minmax(0,1fr) 34px;align-items:center;gap:12px;height:31px;border-bottom:1px solid rgba(255,255,255,.05);font-family:'Inter',sans-serif;font-size:13px;color:#d9dce1}
+.sx-plt-row:last-child{border-bottom:none}
+.sx-plt-row .n{text-align:right;color:#f1f3f6}
+.sx-plt-row .arx-plt{min-width:72px}
+.sx-empty-s{font-family:'Inter',sans-serif;font-size:12.5px;color:#8d949e;padding:6px 0}
+/* tabella */
+.sx-table{margin-top:14px}
+.sx-toolbar{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;padding-bottom:10px;margin-bottom:4px;border-bottom:1px solid rgba(255,255,255,.07)}
+.sx-toolbar .arx-count{border-bottom:none;margin:0;padding:4px 0 4px 12px}
+.sx-actions{display:flex;gap:10px;flex-wrap:wrap}
+.sx-btn{display:inline-flex;align-items:center;gap:8px;height:38px;padding:0 14px;border-radius:10px;cursor:pointer;
+  background:rgba(13,15,20,.92);border:1px solid rgba(255,255,255,.18);color:#e6e8ec;font-family:'Inter',sans-serif;font-size:13px;transition:border-color .2s,box-shadow .2s}
+.sx-btn:hover{border-color:rgba(255,138,46,.6)}
+.sx-btn.pri{border:1.5px solid #ff8a2e;color:#ff9d4d;font-weight:600;box-shadow:0 0 10px rgba(255,138,46,.22)}
+.sx-btn.pri:hover{box-shadow:0 0 16px rgba(255,138,46,.45)}
+.sx-msg{margin:8px 0 2px;padding:9px 12px;border-radius:10px;font-family:'Inter',sans-serif;font-size:12.5px;white-space:pre-line;border:1px solid rgba(74,222,128,.35);background:rgba(74,222,128,.07);color:#bbf7d0}
+.sx-msg.warn{border-color:rgba(255,180,60,.45);background:rgba(255,180,60,.08);color:#ffd9a0}
+.sx-grid{display:grid;grid-template-columns:minmax(0,1fr) 44px 108px 146px 96px 80px 66px 24px;column-gap:10px;align-items:center}
+.sx-head{padding:8px 13px 6px}
+.sx-head .arx-h{font-size:11.5px;letter-spacing:.07em}
+.arx-row.sx-grid .arx-c-tags,.arx-row.sx-grid .arx-c-plt{flex-wrap:nowrap;overflow:hidden}
+.sx-head .sx-h-static{cursor:default}
+.sx-head .sx-h-static:hover{color:#aab1bb}
+.arx-row.sx-grid .arx-thumb{width:64px;height:42px}
+.sx-plt-n{font-family:'Inter',sans-serif;font-size:10.5px;color:#8d949e;margin-left:4px;align-self:center}
+.sx-rating{font-family:'Inter',sans-serif;font-size:13px;color:#e6e8ec;white-space:nowrap}
+.sx-rating .s{color:#ff9d2e;margin-right:5px}
+.sx-status{display:flex;align-items:center;gap:7px;font-family:'Inter',sans-serif;font-size:13px;color:#d9dce1;white-space:nowrap}
+.sx-status .ok{width:18px;height:18px;border-radius:50%;flex-shrink:0;display:inline-flex;align-items:center;justify-content:center;background:rgba(255,138,46,.18);color:#ff9d4d;font-size:11px;font-weight:700}
+.sx-menu-btn{width:24px;height:24px;border-radius:6px;border:none;background:none;color:#aab1bb;font-size:16px;line-height:1;cursor:pointer;letter-spacing:1px}
+.sx-menu-btn:hover{background:rgba(255,255,255,.08);color:#fff}
+#sx-menu{position:fixed;z-index:340;display:none;min-width:190px;padding:6px;border-radius:12px;background:rgba(15,17,22,.98);border:1px solid rgba(255,138,46,.5);box-shadow:0 14px 40px rgba(0,0,0,.7)}
+#sx-menu.open{display:block}
+#sx-menu button{display:flex;align-items:center;gap:9px;width:100%;padding:9px 11px;border:none;border-radius:8px;background:none;color:#e6e8ec;font-family:'Inter',sans-serif;font-size:13px;cursor:pointer;text-align:left}
+#sx-menu button:hover{background:rgba(255,122,24,.1)}
+#sx-menu button.danger{color:#ff8a8a}
+#sx-menu button.danger.armed{background:rgba(220,60,60,.18);color:#ffb0b0}
+.sx-standby{margin:0 0 30px}
+.sx-standby-d{margin:0 0 8px;font-family:'Inter',sans-serif;font-size:12px;color:#8d949e;line-height:1.5}
+.sx-sb-item{display:flex;gap:10px;align-items:baseline;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.05);font-family:'Inter',sans-serif;font-size:13px;color:#aab1bb}
+.sx-sb-item:last-child{border-bottom:none}
+.sx-sb-item .y{color:#6b7280;font-size:12px}
+@media (max-width:600px){
+  .sx-filters{grid-template-columns:1fr 1fr}
+  .sx-filters>.arx-search{grid-column:1/-1}
+  .sx-filters>.arx-reset{grid-column:auto;height:42px}
+  .sx-stats{grid-template-columns:1fr;gap:10px}
+  .sx-bar-row{grid-template-columns:100px minmax(0,1fr) 30px}
+  .sx-toolbar{flex-direction:column;align-items:stretch}
+  .sx-actions .sx-btn{flex:1;justify-content:center}
+  .sx-head{display:flex;gap:14px;padding:8px 4px 4px}
+  .sx-head .arx-h[data-col="genre"],.sx-head .arx-h[data-col="plt"],.sx-head .sx-h-static,.sx-head .sx-h-menu{display:none}
+  .arx-row.sx-grid{display:flex;flex-wrap:wrap;align-items:center;gap:6px 12px;padding:8px 10px}
+  .arx-row.sx-grid .arx-c-title{order:1;flex:1 1 calc(100% - 40px);min-width:0}
+  .arx-row.sx-grid .sx-c-menu{order:2;align-self:flex-start}
+  .arx-row.sx-grid .arx-c-year{order:3}
+  .arx-row.sx-grid .arx-c-dir{order:4;flex:1;min-width:0}
+  .arx-row.sx-grid .arx-c-tags{order:5;flex:1 1 100%;flex-wrap:wrap}
+  .arx-row.sx-grid .arx-c-plt{order:6}
+  .arx-row.sx-grid .sx-rating{order:7}
+  .arx-row.sx-grid .sx-status{order:8}
+}
+
+/* v399-v400 · sfondo della sola pagina "Film gia' visti", ricostruito dal modello
+   dell'utente in SVG: sfere scure con bordo arancione, lame di luce diagonali, trama a puntini.
+   viewBox 1920x1080 con preserveAspectRatio slice + background-size:cover: su schermi di proporzioni
+   diverse si taglia ai bordi. Il ::before resta fermo mentre il contenuto scorre. */
+#seenp{background:#08090b}
+/* v399 · colonna piu' larga della pagina principale: ai lati restano 220px (banner da 180px + margini)
+   per le pubblicita'. Sotto i 1261px, dove i banner laterali non compaiono, resta la colonna da 980px. */
+@media (min-width:1261px){ #seenp .arx-wrap{max-width:min(1596px,calc(100vw - 404px))} }
+#seenp::before{background:url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 1920 1080%22 preserveAspectRatio=%22xMidYMid slice%22%3E%3Cdefs%3E  %3CradialGradient id=%22bg%22 cx=%2250%25%22 cy=%2245%25%22 r=%2275%25%22%3E%3Cstop offset=%220%22 stop-color=%22%230f1013%22/%3E%3Cstop offset=%221%22 stop-color=%22%2308090b%22/%3E%3C/radialGradient%3E  %3CradialGradient id=%22orb%22 cx=%2235%25%22 cy=%2235%25%22 r=%2275%25%22%3E%3Cstop offset=%220%22 stop-color=%22%2317181c%22/%3E%3Cstop offset=%22.7%22 stop-color=%22%230e0f12%22/%3E%3Cstop offset=%221%22 stop-color=%22%230b0c0e%22/%3E%3C/radialGradient%3E  %3CradialGradient id=%22warmL%22 cx=%2280%25%22 cy=%2215%25%22 r=%2270%25%22%3E%3Cstop offset=%220%22 stop-color=%22%23ff7a18%22 stop-opacity=%22.22%22/%3E%3Cstop offset=%22.45%22 stop-color=%22%23ff7a18%22 stop-opacity=%22.06%22/%3E%3Cstop offset=%221%22 stop-color=%22%23ff7a18%22 stop-opacity=%220%22/%3E%3C/radialGradient%3E  %3CradialGradient id=%22warmR%22 cx=%2210%25%22 cy=%2245%25%22 r=%2270%25%22%3E%3Cstop offset=%220%22 stop-color=%22%23ff7a18%22 stop-opacity=%22.18%22/%3E%3Cstop offset=%22.45%22 stop-color=%22%23ff7a18%22 stop-opacity=%22.05%22/%3E%3Cstop offset=%221%22 stop-color=%22%23ff7a18%22 stop-opacity=%220%22/%3E%3C/radialGradient%3E  %3ClinearGradient id=%22rimTL%22 x1=%220%22 y1=%220%22 x2=%221%22 y2=%221%22%3E%3Cstop offset=%22.45%22 stop-color=%22%23ff8a2e%22 stop-opacity=%220%22/%3E%3Cstop offset=%22.85%22 stop-color=%22%23ff8a2e%22 stop-opacity=%22.45%22/%3E%3Cstop offset=%221%22 stop-color=%22%23ff8a2e%22 stop-opacity=%22.2%22/%3E%3C/linearGradient%3E  %3ClinearGradient id=%22rimL%22 x1=%220%22 y1=%221%22 x2=%221%22 y2=%220%22%3E%3Cstop offset=%22.35%22 stop-color=%22%23ff7a18%22 stop-opacity=%220%22/%3E%3Cstop offset=%22.75%22 stop-color=%22%23ff8a2e%22 stop-opacity=%22.95%22/%3E%3Cstop offset=%221%22 stop-color=%22%23ffb060%22 stop-opacity=%221%22/%3E%3C/linearGradient%3E  %3ClinearGradient id=%22rimR%22 x1=%221%22 y1=%220%22 x2=%220%22 y2=%220%22%3E%3Cstop offset=%22.45%22 stop-color=%22%23ff7a18%22 stop-opacity=%220%22/%3E%3Cstop offset=%22.85%22 stop-color=%22%23ff8a2e%22 stop-opacity=%22.8%22/%3E%3Cstop offset=%221%22 stop-color=%22%23ffa552%22 stop-opacity=%22.9%22/%3E%3C/linearGradient%3E  %3ClinearGradient id=%22beam%22 x1=%220%22 y1=%220%22 x2=%221%22 y2=%220%22%3E%3Cstop offset=%220%22 stop-color=%22%23ff8a2e%22 stop-opacity=%220%22/%3E%3Cstop offset=%22.35%22 stop-color=%22%23ff8a2e%22 stop-opacity=%22.9%22/%3E%3Cstop offset=%22.75%22 stop-color=%22%23ffb060%22 stop-opacity=%221%22/%3E%3Cstop offset=%221%22 stop-color=%22%23ff8a2e%22 stop-opacity=%220%22/%3E%3C/linearGradient%3E  %3Cfilter id=%22glow%22 x=%22-50%25%22 y=%22-50%25%22 width=%22200%25%22 height=%22200%25%22%3E%3CfeGaussianBlur stdDeviation=%229%22/%3E%3C/filter%3E  %3Cfilter id=%22glow2%22 x=%22-50%25%22 y=%22-50%25%22 width=%22200%25%22 height=%22200%25%22%3E%3CfeGaussianBlur stdDeviation=%223%22/%3E%3C/filter%3E  %3Cfilter id=%22soft%22 x=%22-50%25%22 y=%22-50%25%22 width=%22200%25%22 height=%22200%25%22%3E%3CfeGaussianBlur stdDeviation=%2228%22/%3E%3C/filter%3E  %3Cpattern id=%22dots%22 width=%229%22 height=%229%22 patternUnits=%22userSpaceOnUse%22%3E%3Ccircle cx=%221.5%22 cy=%221.5%22 r=%221.1%22 fill=%22%23ffffff%22 fill-opacity=%22.15%22/%3E%3C/pattern%3E  %3CradialGradient id=%22fadeA%22 cx=%2250%25%22 cy=%2250%25%22 r=%2250%25%22%3E%3Cstop offset=%220%22 stop-color=%22%23fff%22/%3E%3Cstop offset=%221%22 stop-color=%22%23000%22/%3E%3C/radialGradient%3E  %3Cmask id=%22dotsTop%22%3E%3Cellipse cx=%22560%22 cy=%2260%22 rx=%22520%22 ry=%22240%22 fill=%22url(%23fadeA)%22/%3E%3C/mask%3E  %3Cmask id=%22dotsRight%22%3E%3Cellipse cx=%221780%22 cy=%22330%22 rx=%22260%22 ry=%22260%22 fill=%22url(%23fadeA)%22/%3E%3C/mask%3E  %3Cmask id=%22dotsLeft%22%3E%3Cellipse cx=%22140%22 cy=%22860%22 rx=%22260%22 ry=%22200%22 fill=%22url(%23fadeA)%22/%3E%3C/mask%3E%3C/defs%3E%3Crect width=%221920%22 height=%221080%22 fill=%22url(%23bg)%22/%3E%3C%21-- trama a puntini --%3E%3Crect width=%221920%22 height=%221080%22 fill=%22url(%23dots)%22 mask=%22url(%23dotsTop)%22/%3E%3Crect width=%221920%22 height=%221080%22 fill=%22url(%23dots)%22 mask=%22url(%23dotsRight)%22/%3E%3Crect width=%221920%22 height=%221080%22 fill=%22url(%23dots)%22 mask=%22url(%23dotsLeft)%22/%3E%3C%21-- arco tenue in alto --%3E%3Ccircle cx=%221560%22 cy=%22360%22 r=%22330%22 fill=%22%230c0d10%22 stroke=%22%23ff8a2e%22 stroke-opacity=%22.11%22 stroke-width=%221.2%22/%3E%3C%21-- sfera in alto a sinistra --%3E%3Ccircle cx=%2270%22 cy=%2230%22 r=%22330%22 fill=%22url(%23orb)%22/%3E%3Ccircle cx=%2270%22 cy=%2230%22 r=%22330%22 fill=%22none%22 stroke=%22url(%23rimTL)%22 stroke-width=%221.4%22/%3E%3C%21-- sfera a sinistra con bordo acceso --%3E%3Ccircle cx=%22-40%22 cy=%22600%22 r=%22330%22 fill=%22url(%23orb)%22/%3E%3Ccircle cx=%22-40%22 cy=%22600%22 r=%22330%22 fill=%22url(%23warmL)%22/%3E%3Ccircle cx=%22-40%22 cy=%22600%22 r=%22330%22 fill=%22none%22 stroke=%22url(%23rimL)%22 stroke-width=%2216%22 filter=%22url(%23glow)%22 opacity=%22.75%22/%3E%3Ccircle cx=%22-40%22 cy=%22600%22 r=%22330%22 fill=%22none%22 stroke=%22url(%23rimL)%22 stroke-width=%222.2%22/%3E%3C%21-- sfera a destra --%3E%3Ccircle cx=%222060%22 cy=%22560%22 r=%22420%22 fill=%22url(%23orb)%22/%3E%3Ccircle cx=%222060%22 cy=%22560%22 r=%22420%22 fill=%22url(%23warmR)%22/%3E%3Ccircle cx=%222060%22 cy=%22560%22 r=%22420%22 fill=%22none%22 stroke=%22url(%23rimR)%22 stroke-width=%2214%22 filter=%22url(%23glow)%22 opacity=%22.6%22/%3E%3Ccircle cx=%222060%22 cy=%22560%22 r=%22420%22 fill=%22none%22 stroke=%22url(%23rimR)%22 stroke-width=%221.8%22/%3E%3Ccircle cx=%222060%22 cy=%22560%22 r=%22470%22 fill=%22none%22 stroke=%22%23ff8a2e%22 stroke-opacity=%22.12%22 stroke-width=%221%22/%3E%3C%21-- lame di luce diagonali --%3E%3Cg transform=%22translate(1930 -60) rotate(137)%22%3E  %3Crect x=%220%22 y=%22-9%22 width=%22700%22 height=%2218%22 fill=%22url(%23beam)%22 filter=%22url(%23glow)%22 opacity=%22.55%22/%3E  %3Crect x=%220%22 y=%22-1.6%22 width=%22700%22 height=%223.2%22 fill=%22url(%23beam)%22/%3E%3C/g%3E%3Cg transform=%22translate(1930 600) rotate(137)%22%3E  %3Crect x=%220%22 y=%22-12%22 width=%22720%22 height=%2224%22 fill=%22url(%23beam)%22 filter=%22url(%23glow)%22 opacity=%22.6%22/%3E  %3Crect x=%220%22 y=%22-2%22 width=%22720%22 height=%224%22 fill=%22url(%23beam)%22/%3E%3C/g%3E%3Cg transform=%22translate(1930 760) rotate(137)%22%3E  %3Crect x=%220%22 y=%22-5%22 width=%22480%22 height=%2210%22 fill=%22url(%23beam)%22 filter=%22url(%23glow2)%22 opacity=%22.45%22/%3E  %3Crect x=%220%22 y=%22-.8%22 width=%22480%22 height=%221.6%22 fill=%22url(%23beam)%22 opacity=%22.75%22/%3E%3C/g%3E%3C%21-- lama sopra la sfera di sinistra (v399) --%3E%3Cg transform=%22translate(-30 410) rotate(-43)%22%3E  %3Crect x=%220%22 y=%22-10%22 width=%22400%22 height=%2220%22 fill=%22url(%23beam)%22 filter=%22url(%23glow)%22 opacity=%22.55%22/%3E  %3Crect x=%220%22 y=%22-1.8%22 width=%22400%22 height=%223.6%22 fill=%22url(%23beam)%22/%3E%3C/g%3E%3Cg transform=%22translate(-20 1100) rotate(-40)%22%3E  %3Crect x=%220%22 y=%22-4%22 width=%22420%22 height=%228%22 fill=%22url(%23beam)%22 filter=%22url(%23glow2)%22 opacity=%22.45%22/%3E  %3Crect x=%220%22 y=%22-.8%22 width=%22420%22 height=%221.6%22 fill=%22url(%23beam)%22 opacity=%22.8%22/%3E%3C/g%3E%3C%21-- velo caldo diffuso ai lati --%3E%3Cellipse cx=%221880%22 cy=%22200%22 rx=%22260%22 ry=%22200%22 fill=%22%23ff6a10%22 opacity=%22.07%22 filter=%22url(%23soft)%22/%3E%3Cellipse cx=%2260%22 cy=%22520%22 rx=%22220%22 ry=%22200%22 fill=%22%23ff6a10%22 opacity=%22.06%22 filter=%22url(%23soft)%22/%3E%3C/svg%3E") center/cover no-repeat}
+#seenp .arx-top{background:transparent;backdrop-filter:none;-webkit-backdrop-filter:none;transition:background .25s}
+/* fondo solo quando il contenuto scorre sotto intestazione e filtri (classe .scrolled, vedi _swPanelScroll) */
+#seenp .arx-top.scrolled{background:linear-gradient(180deg,rgba(8,9,12,.9),rgba(8,9,12,.8));backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+#seenp .arx-hdr{border-bottom-color:rgba(255,255,255,.08)}
 </style></head>
 <body>
 <div id="deco"><span class="o1"></span><span class="dq"></span></div>
@@ -2375,18 +2481,64 @@ try{if(localStorage.getItem('sw3_session')&&(location.hash||'').indexOf('access_
 <!-- FILM GIÀ VISTI PANEL -->
 <div id="seenp" class="slide-panel">
 <div class="panel-inner">
-  <div class="vph"><button class="vp-back" onclick="closeSeenPanel()">← Torna</button><div class="vph-t"><h2>Film già visti</h2><p>La tua lista personale di film visti</p></div></div>
-  <div class="vpb" style="overflow-y:auto;overscroll-behavior:contain">
-    <div id="seen-list-items"></div>
-    <div class="fdiv" id="seen-standby-div" style="display:none"></div>
-    <div id="seen-standby-section" style="display:none">
-      <div class="standby-lbl">Titoli in stand-by</div>
-      <p class="standby-desc">Se in futuro venissero aggiunti nel database di Swainz saranno automaticamente segnati come visti</p>
-      <div id="standby-list-items"></div>
+  <div class="arx-top">
+    <div class="arx-hdr"><div class="arx-wrap">
+      <div class="arx-ttl-wrap">
+        <span class="sx-icon"><svg width="40" height="40" viewBox="0 0 40 40" fill="none" stroke="#ff8a2e" stroke-width="2.4" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="5" width="32" height="30" rx="4"/><path d="M12 5v30M28 5v30M4 13h8M4 20h8M4 27h8M28 13h8M28 20h8M28 27h8"/></svg></span>
+        <div>
+          <h2 class="arx-h1"><span data-i18n="seen_h2_pre">Film</span> <span class="hl" data-i18n="seen_h2_hl">già visti</span></h2>
+          <p class="arx-sub" data-i18n="seen_sub">La tua lista personale di film visti</p>
+        </div>
+      </div>
+      <button class="arx-plan" id="sx-plan" onclick="_sxPlanClick()"></button>
+      <button class="arx-back" onclick="closeSeenPanel()"><span aria-hidden="true">←</span><span data-i18n="arec_back">Torna</span></button>
+    </div></div>
+    <div class="arx-wrap">
+      <div class="arx-filters sx-filters">
+        <label class="arx-ctl arx-search"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ff8a2e" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.6-3.6"/></svg><input id="sx-q" type="text" oninput="_sxApply()" data-i18n-ph="seen_search_ph" placeholder="Cerca per titolo, regista, attore…" autocomplete="off"></label>
+        <div class="arec-ms-wrap" id="sx-gen-wrap"><button class="arx-ctl" id="sx-gen-btn" onclick="_sxToggleDrop(event,'gen')"><svg width="19" height="19" viewBox="0 0 24 24" fill="#ff8a2e" aria-hidden="true"><path d="M3 4.5c3 1.3 6 1.9 9 1.9s6-.6 9-1.9v6.2c0 5.4-4 9.3-9 9.3s-9-3.9-9-9.3z"/><path d="M7.2 10.4c.9-.7 2.2-.7 3.1 0M13.7 10.4c.9-.7 2.2-.7 3.1 0M8.5 14.3c2.2 1.6 4.8 1.6 7 0" stroke="#0d0f14" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg><span class="arx-lbl" id="sx-gen-label">Tutti i generi</span><span class="arx-chev">▾</span></button><div class="arec-ms-drop" id="sx-gen-drop"><div class="arec-ms-list" id="sx-gen-list"></div><button class="arec-ms-clear" onclick="_sxClear(event,'gen')" data-i18n="arec_clear_all">✕ Deseleziona tutto</button></div></div>
+        <div class="arec-ms-wrap" id="sx-pl-wrap"><button class="arx-ctl" id="sx-pl-btn" onclick="_sxToggleDrop(event,'pl')"><svg width="20" height="18" viewBox="0 0 24 22" fill="none" stroke="#ff8a2e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="2" width="20" height="14" rx="2"/><path d="M8 20h8M12 16v4"/></svg><span class="arx-lbl" id="sx-pl-label">Tutte le piattaforme</span><span class="arx-chev">▾</span></button><div class="arec-ms-drop" id="sx-pl-drop"><div class="arec-ms-list" id="sx-pl-list"></div><button class="arec-ms-clear" onclick="_sxClear(event,'pl')" data-i18n="arec_clear_all">✕ Deseleziona tutto</button></div></div>
+        <div class="arec-ms-wrap" id="sx-so-wrap"><button class="arx-ctl" id="sx-so-btn" onclick="_sxToggleDrop(event,'so')"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#ff8a2e" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 4v16M3.5 7.5L7 4l3.5 3.5M17 20V4M13.5 16.5L17 20l3.5-3.5"/></svg><span class="arx-lbl" id="sx-so-label">Ordine: più recenti</span><span class="arx-chev">▾</span></button><div class="arec-ms-drop" id="sx-so-drop"><div class="arec-ms-list" id="sx-so-list"></div></div></div>
+        <button class="arx-ctl arx-reset" id="sx-reset" onclick="_sxReset()"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#ff8a2e" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.34-5.66"/><path d="M20 4v5h-5"/></svg><span data-i18n="arec_reset">Azzera filtri</span></button>
+      </div>
     </div>
   </div>
-</div><!-- /panel-inner v342 -->
+  <div class="arx-wrap">
+    <div class="sx-stats">
+      <div class="sx-card"><div class="sx-card-h"><svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="11" width="4.2" height="10" rx="1" fill="#ff8a2e"/><rect x="9.9" y="4" width="4.2" height="17" rx="1" fill="#ff8a2e"/><rect x="16.8" y="8" width="4.2" height="13" rx="1" fill="#ff8a2e"/></svg><span data-i18n="seen_stats_gen">Statistiche generi</span><button class="sx-more" id="sx-gen-more" onclick="_sxToggleAll('gen')"></button></div><div id="sx-gen-stats"></div></div>
+      <div class="sx-card"><div class="sx-card-h"><svg width="24" height="22" viewBox="0 0 24 22" fill="none" stroke="#ff8a2e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="2" width="20" height="14" rx="2"/><path d="M8 20h8M12 16v4"/></svg><span data-i18n="seen_stats_plt">Piattaforme più usate</span><button class="sx-more" id="sx-plt-more" onclick="_sxToggleAll('plt')"></button></div><div id="sx-plt-stats"></div></div>
+    </div>
+    <div class="arx-card sx-table">
+      <div class="sx-toolbar">
+        <div class="arx-count" id="sx-count"></div>
+        <div class="sx-actions">
+          <button class="sx-btn" onclick="_sxMarkMore()"><span aria-hidden="true">＋</span><span data-i18n="seen_mark_more">Segna altri film</span></button>
+          <button class="sx-btn pri" onclick="document.getElementById('sx-lb-file').click()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 15v4a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-4"/><path d="M12 4v11M7.5 8.5L12 4l4.5 4.5"/></svg><span data-i18n="seen_import">Importa da Letterboxd</span></button>
+          <input type="file" id="sx-lb-file" accept=".csv" style="display:none" onchange="importLetterboxd(this)">
+        </div>
+      </div>
+      <div id="sx-lb-msg" class="sx-msg" style="display:none"></div>
+      <div class="arx-head sx-head sx-grid" id="sx-head">
+        <button class="arx-h" data-col="title" onclick="_sxSortCol('title')"><span data-i18n="arec_col_title">Titolo</span><span class="arx-sort" aria-hidden="true"><i></i><i></i></span></button>
+        <button class="arx-h" data-col="year" onclick="_sxSortCol('year')"><span data-i18n="arec_col_year">Anno</span><span class="arx-sort" aria-hidden="true"><i></i><i></i></span></button>
+        <button class="arx-h" data-col="dir" onclick="_sxSortCol('dir')"><span data-i18n="arec_col_dir">Regista</span><span class="arx-sort" aria-hidden="true"><i></i><i></i></span></button>
+        <button class="arx-h" data-col="genre" onclick="_sxSortCol('genre')"><span data-i18n="seen_col_genre">Genere</span><span class="arx-sort" aria-hidden="true"><i></i><i></i></span></button>
+        <button class="arx-h" data-col="plt" onclick="_sxSortCol('plt')"><span data-i18n="seen_col_plt">Piattaforma</span><span class="arx-sort" aria-hidden="true"><i></i><i></i></span></button>
+        <button class="arx-h" data-col="rating" onclick="_sxSortCol('rating')"><span data-i18n="seen_col_rating">Valutazione</span><span class="arx-sort" aria-hidden="true"><i></i><i></i></span></button>
+        <span class="arx-h sx-h-static" data-i18n="seen_col_status">Stato</span>
+        <span class="sx-h-menu"></span>
+      </div>
+      <div id="sx-rows"></div>
+    </div>
+    <div class="sx-card sx-standby" id="sx-standby" style="display:none">
+      <div class="sx-card-h"><span data-i18n="seen_standby_t">Titoli in stand-by</span></div>
+      <p class="sx-standby-d" data-i18n="seen_standby_d">Se in futuro venissero aggiunti nel database di Swainz saranno automaticamente segnati come visti</p>
+      <div id="sx-standby-list"></div>
+    </div>
+  </div>
+</div><!-- /panel-inner -->
 </div>
+<div id="sx-menu" role="menu"></div>
 
 <!-- FATTI CONOSCERE -->
 <div id="fcp" class="slide-panel">
@@ -2796,8 +2948,8 @@ function openAllRecs(){
 function closeAllRecs(){document.getElementById('allrecsp').classList.remove('on');}
 
 // ── pillola del piano ──────────────────────────────────────────────────
-function _arecRenderPlan(){
-  const el=document.getElementById('arec-plan');if(!el)return;
+function _arecRenderPlan(elId){
+  const el=document.getElementById(elId||'arec-plan');if(!el)return;   // v398: riusata da "Film già visti"
   const crown='<svg width="26" height="22" viewBox="0 0 26 22" aria-hidden="true"><path d="M2 7l5.5 4.5L13 3l5.5 8.5L24 7l-2.2 11H4.2z" fill="#ff8a2e"/><rect x="4" y="19" width="18" height="2.4" rx="1" fill="#ff8a2e"/></svg>';
   el.innerHTML=crown+'<span><span class="arx-plan-t">'+_arecEsc(isPremium?t('plan_prem_title'):t('arec_plan_free_t'))+
     '</span><span class="arx-plan-s">'+_arecEsc(isPremium?t('arec_plan_prem_s'):t('plan_free_label'))+'</span></span><span class="arx-plan-chev" aria-hidden="true">›</span>';
@@ -4812,8 +4964,7 @@ function showCard(res,opts={}) {
   if(!res){return;}
   {
     const{f,mx}=res,sn=seenFilms.has(f.id);
-    sessionShown.add(f.id);
-    addAllRec(f.id, mx||[]);
+    if(!opts.noRec){sessionShown.add(f.id);addAllRec(f.id, mx||[]);}   // v398: dalla pagina "Film già visti" non si registra un consiglio
     const displayTitle=LANG==='en'?(TITLE_ORIG[f.id]||f.title):f.title;
     const descHTML=f.desc_en&&LANG==='en'?f.desc_en:f.desc;
     const posterHTML=f.poster
@@ -4856,7 +5007,7 @@ function showCard(res,opts={}) {
   _lockScroll();
   _swLayoutCard(); // v397
 }
-function toggleSeen(id,btn){seenFilms.has(id)?(seenFilms.delete(id),btn.textContent=t('card_mark'),btn.classList.remove('marked')):(seenFilms.add(id),btn.textContent=t('card_marked'),btn.classList.add('marked'));saveSeen();}
+function toggleSeen(id,btn){seenFilms.has(id)?(seenFilms.delete(id),btn.textContent=t('card_mark'),btn.classList.remove('marked')):(seenFilms.add(id),btn.textContent=t('card_marked'),btn.classList.add('marked'));saveSeen();if(typeof _sxRefreshIfOpen==='function')_sxRefreshIfOpen();}
 function stars(r){if(r==null||isNaN(r))return ''; // v325
   const f=Math.floor(r/2),h=(r/2)%1>=.5?1:0,e=5-f-h;let s='<div class="st">';for(let i=0;i<f;i++)s+='<span>★</span>';if(h)s+='<span style="color:#a09040">★</span>';for(let i=0;i<e;i++)s+='<span class="e">☆</span>';return s+`</div><span class="rn">${r}</span>`;}
 
@@ -5623,36 +5774,292 @@ function _startFireworks(intensity){
   frame();
 }
 
+/* ══ v398 · Film già visti ══════════════════════════════════════════════
+   _sxEntries: film visti presenti nel DB, con la posizione in seenFilms (ordine di inserimento). */
+let _sxEntries=[],_sxMissing=[];
+let _sxSelGen=new Set(),_sxSelPlt=new Set();
+let _sxSort='recent',_sxCol='',_sxDir=1;
+let _sxShowAll={gen:false,plt:false};
+let _sxMenuArmed=null;
+const SX_GEN_BUDGET=146,SX_TOP_GEN=7,SX_TOP_PLT=5;
+const SX_SORTS=['recent','oldest','title','year','rating'];
+
+// genere di un film: tag di Genere & Atmosfera (g1); se non ne ha, i Temi specifici (g3)
+function _sxGenres(f){
+  var g1=(GROUPS.find(function(g){return g.id==='g1';})||{tags:[]}).tags,
+      g3=(GROUPS.find(function(g){return g.id==='g3';})||{tags:[]}).tags;
+  var r=f.tags.filter(function(t){return g1.indexOf(t)>=0;});
+  if(!r.length)r=f.tags.filter(function(t){return g3.indexOf(t)>=0;});
+  return r;
+}
+function _sxBuild(){
+  var byId=new Map(DB.map(function(f){return [f.id,f];}));
+  var arr=[...seenFilms];
+  _sxEntries=[];_sxMissing=[];
+  arr.forEach(function(id,i){var f=byId.get(id);if(f)_sxEntries.push({id:id,order:i,film:f,gen:_sxGenres(f)});else _sxMissing.push(id);});
+}
+function _sxRefreshIfOpen(){var p=document.getElementById('seenp');if(p&&p.classList.contains('on')){_sxBuild();_sxRender();}}
+
 function openSeenPanel(){
-  const seenArr=[...seenFilms];
-  const inDB=seenArr.filter(id=>DB.some(f=>f.id===id));
-  const notInDB=seenArr.filter(id=>!DB.some(f=>f.id===id));
-  // Build seen list (most recent first → reverse insertion order)
-  const listEl=document.getElementById('seen-list-items');
-  if(inDB.length){
-    listEl.innerHTML=inDB.slice().reverse().map(id=>{
-      const f=DB.find(f=>f.id===id);
-      if(!f)return'';
-      return`<div class="seen-item"><span class="seen-chk">✓</span><span class="seen-ttl">${f.title}</span><span class="seen-yr">${f.year}</span></div>`;
-    }).join('');
-  } else {
-    listEl.innerHTML='<div class="seen-empty">Nessun film ancora segnato come visto</div>';
-  }
-  // Standby: IDs not found in current DB
-  const standbyEl=document.getElementById('standby-list-items');
-  const standbySection=document.getElementById('seen-standby-section');
-  const standbyDiv=document.getElementById('seen-standby-div');
-  if(notInDB.length){
-    standbyEl.innerHTML=notInDB.map(id=>`<div class="seen-item standby-item"><span class="seen-chk">⏳</span><span class="seen-ttl" style="opacity:.6">ID #${id}</span></div>`).join('');
-    standbySection.style.display='block';
-    standbyDiv.style.display='block';
-  } else {
-    standbySection.style.display='none';
-    standbyDiv.style.display='none';
-  }
+  try{checkLbStandby();}catch(e){}
+  _sxBuild();
+  var q=document.getElementById('sx-q');if(q)q.value='';
+  _sxSelGen=new Set();_sxSelPlt=new Set();_sxSort='recent';_sxCol='';_sxDir=1;
+  _sxShowAll={gen:false,plt:false};
+  var m=document.getElementById('sx-lb-msg');if(m)m.style.display='none';
+  _sxCloseDrops();_sxCloseMenu();
+  _arecRenderPlan('sx-plan');
+  _sxRender();
   document.getElementById('seenp').classList.add('on');
 }
-function closeSeenPanel(){document.getElementById('seenp').classList.remove('on');}
+function closeSeenPanel(){_sxCloseDrops();_sxCloseMenu();document.getElementById('seenp').classList.remove('on');}
+function _sxPlanClick(){
+  closeSeenPanel();
+  if(isPremium){var p=document.getElementById('profp');if(!p||!p.classList.contains('on'))openProfp();}
+  else openUpgradePanel();
+}
+function _sxMarkMore(){closeSeenPanel();openVisti();}
+
+// ── filtri e ordinamento ────────────────────────────────────────────────
+function _sxFiltered(){
+  var q=_arecNorm(((document.getElementById('sx-q')||{}).value||'').trim());
+  return _sxEntries.filter(function(e){
+    var f=e.film;
+    if(q){
+      var hay=_arecNorm([f.title,TITLE_ORIG[f.id]||'',f.dir,(f.cast||[]).join(' '),String(f.year||'')].join(' | '));
+      if(hay.indexOf(q)<0)return false;
+    }
+    if(_sxSelGen.size&&!e.gen.some(function(g){return _sxSelGen.has(g);}))return false;
+    if(_sxSelPlt.size&&!_arecAllPlt(f).some(function(p){return _sxSelPlt.has(p);}))return false;
+    return true;
+  });
+}
+function _sxKey(e,c){
+  var f=e.film;
+  if(c==='title')return _arecNorm(_arecTitle(f));
+  if(c==='year')return f.year||0;
+  if(c==='dir')return _arecNorm(f.dir);
+  if(c==='genre')return _arecNorm(e.gen.map(tTag).join(' '));
+  if(c==='plt')return _arecNorm(_arecPlt(f).list.join(' '));
+  if(c==='rating')return f.r==null?'':f.r;
+  return '';
+}
+function _sxSorted(list){
+  var c,d;
+  if(_sxCol){c=_sxCol;d=_sxDir;}
+  else if(_sxSort==='recent')return list.slice().sort(function(a,b){return b.order-a.order;});
+  else if(_sxSort==='oldest')return list.slice().sort(function(a,b){return a.order-b.order;});
+  else if(_sxSort==='title'){c='title';d=1;}
+  else if(_sxSort==='year'){c='year';d=-1;}
+  else {c='rating';d=-1;}
+  return list.slice().sort(function(a,b){
+    var va=_sxKey(a,c),vb=_sxKey(b,c);
+    if(va===''&&vb!=='')return 1;
+    if(vb===''&&va!=='')return -1;
+    if(typeof va==='string')return va.localeCompare(vb)*d;
+    return (va-vb)*d;
+  });
+}
+function _sxSortCol(c){
+  if(_sxCol===c)_sxDir*=-1;else{_sxCol=c;_sxDir=1;}
+  _sxRender();
+}
+function _sxApply(){_sxRender();}
+function _sxReset(){
+  var q=document.getElementById('sx-q');if(q)q.value='';
+  _sxSelGen.clear();_sxSelPlt.clear();_sxSort='recent';_sxCol='';_sxDir=1;
+  _sxCloseDrops();_sxRender();
+}
+
+// ── render ─────────────────────────────────────────────────────────────
+function _sxRender(){
+  var list=_sxSorted(_sxFiltered());
+  var cnt=document.getElementById('sx-count');if(cnt)cnt.textContent=list.length+' '+t('arec_films');
+  document.querySelectorAll('#sx-head .arx-h[data-col]').forEach(function(h){
+    var on=h.getAttribute('data-col')===_sxCol;
+    h.classList.toggle('sorted',on);h.classList.toggle('asc',on&&_sxDir===1);h.classList.toggle('desc',on&&_sxDir===-1);
+  });
+  _sxLabels();
+  var rb=document.getElementById('sx-reset');
+  if(rb)rb.classList.toggle('active',!!(((document.getElementById('sx-q')||{}).value||'').trim()||_sxSelGen.size||_sxSelPlt.size||_sxCol||_sxSort!=='recent'));
+  var rows=document.getElementById('sx-rows');
+  if(rows){
+    if(!list.length){
+      rows.innerHTML='<div class="arx-empty">'+_arecEsc(_sxEntries.length?t('arec_no_match'):t('seen_empty'))+'</div>';
+    }else{
+      var mob=window.matchMedia&&window.matchMedia('(max-width:600px)').matches;
+      var bG=mob?Math.max(SX_GEN_BUDGET,rows.clientWidth-44):SX_GEN_BUDGET;
+      rows.innerHTML=list.map(function(e){
+        var f=e.film,title=_arecTitle(f),line=_arecLine(f);
+        var thumb=f.poster?'<img src="'+_arecEsc(f.poster)+'" alt="" loading="lazy" crossorigin="anonymous" onerror="_swPosterRetry(this,true)">':'';
+        var tg=e.gen.map(tTag),nT=_arecFit(tg,bG,_arecTagW);
+        var gHTML=tg.length?tg.slice(0,nT).map(function(x){return '<span class="arx-tag">'+_arecEsc(x)+'</span>';}).join('')+
+          (tg.length>nT?'<span class="arx-more" title="'+_arecEsc(tg.join(', '))+'">+'+(tg.length-nT)+'</span>':''):'<span class="arx-none">—</span>';
+        // piattaforma: un solo badge (la prima); l'elenco completo nel tooltip
+        var pl=_arecPlt(f),p0=pl.list[0];
+        var pHTML=p0?'<span class="arx-plt '+(_AREC_PLT_CLS[p0]||'')+(pl.rent?' rent':'')+'" title="'+_arecEsc((pl.rent?t('arec_rent')+': ':'')+pl.list.join(', '))+'">'+_arecEsc(p0)+'</span>'+
+          (pl.list.length>1?'<span class="sx-plt-n" title="'+_arecEsc(pl.list.join(', '))+'">+'+(pl.list.length-1)+'</span>':''):'<span class="arx-none">—</span>';
+        var rt=f.r==null?'<span class="arx-none">N/D</span>':'<span class="s">★</span>'+String(f.r);
+        return '<div class="arx-row sx-grid" role="button" tabindex="0" onclick="openSeenFilm('+f.id+')" onkeydown="if(event.key===\'Enter\')openSeenFilm('+f.id+')">'+
+          '<div class="arx-c-title"><div class="arx-thumb">'+thumb+'</div><div class="arx-tt"><div class="arx-name" title="'+_arecEsc(title)+'">'+_arecEsc(title)+'</div>'+
+          (line?'<div class="arx-line">'+_arecEsc(line)+'</div>':'')+'</div></div>'+
+          '<div class="arx-c-year">'+(f.year||'—')+'</div>'+
+          '<div class="arx-c-dir">'+_arecEsc(f.dir||'—')+'</div>'+
+          '<div class="arx-c-tags">'+gHTML+'</div>'+
+          '<div class="arx-c-plt">'+pHTML+'</div>'+
+          '<div class="sx-rating">'+rt+'</div>'+
+          '<div class="sx-status"><span class="ok" aria-hidden="true">✓</span>'+_arecEsc(t('seen_status'))+'</div>'+
+          '<div class="sx-c-menu"><button class="sx-menu-btn" aria-label="Menu" onclick="event.stopPropagation();_sxOpenMenu('+f.id+',this)">⋯</button></div></div>';
+      }).join('');
+    }
+  }
+  _sxRenderStats();
+  _sxRenderStandby();
+}
+function _sxLabels(){
+  var g=document.getElementById('sx-gen-label'),p=document.getElementById('sx-pl-label'),o=document.getElementById('sx-so-label');
+  if(g){var n=_sxSelGen.size;g.textContent=n===0?t('seen_gen_all'):n+' '+(n===1?t('seen_gen_one'):t('seen_gen_many'));}
+  if(p){var m=_sxSelPlt.size;p.textContent=m===0?t('arec_pl_all'):m+' '+(m===1?t('arec_pl_one'):t('arec_pl_many'));}
+  if(o)o.textContent=t('seen_sort_lbl')+': '+(_sxCol?t('seen_sort_col'):t('seen_sort_'+_sxSort));
+}
+
+// ── statistiche (sull'intera lista, non sul filtrato) ─────────────────────
+function _sxRenderStats(){
+  var gEl=document.getElementById('sx-gen-stats'),pEl=document.getElementById('sx-plt-stats');
+  // generi
+  var gc=new Map();
+  _sxEntries.forEach(function(e){e.gen.forEach(function(g){gc.set(g,(gc.get(g)||0)+1);});});
+  var gs=[...gc.entries()].sort(function(a,b){return b[1]-a[1]||tTag(a[0]).localeCompare(tTag(b[0]));});
+  var gShow=_sxShowAll.gen?gs:gs.slice(0,SX_TOP_GEN);
+  var gSet=new Set(gShow.map(function(x){return x[0];}));
+  var gOther=_sxEntries.filter(function(e){return !e.gen.some(function(g){return gSet.has(g);});}).length;
+  var gMax=Math.max(1,gs.length?gs[0][1]:1);
+  if(gEl){
+    gEl.innerHTML=gs.length?gShow.map(function(x){
+      return '<div class="sx-bar-row"><span class="l">'+_arecEsc(tTag(x[0]))+'</span><span class="sx-bar"><i style="width:'+Math.round(x[1]/gMax*100)+'%"></i></span><span class="n">'+x[1]+'</span></div>';
+    }).join('')+'<div class="sx-bar-row"><span class="l">'+_arecEsc(t('seen_others'))+'</span><span class="sx-bar"><i style="width:'+Math.round(gOther/gMax*100)+'%"></i></span><span class="n">'+gOther+'</span></div>'
+    :'<div class="sx-empty-s">'+_arecEsc(t('seen_empty'))+'</div>';
+  }
+  var gm=document.getElementById('sx-gen-more');
+  if(gm){gm.style.display=gs.length>SX_TOP_GEN?'':'none';gm.textContent=_sxShowAll.gen?t('seen_see_less'):t('seen_see_all')+' →';}
+  // piattaforme (abbonamento): dove sono disponibili oggi i film visti
+  var pc=new Map();
+  _sxEntries.forEach(function(e){(e.film.plt||[]).forEach(function(p){pc.set(p,(pc.get(p)||0)+1);});});
+  var ps=[...pc.entries()].sort(function(a,b){return b[1]-a[1]||a[0].localeCompare(b[0]);});
+  var pShow=_sxShowAll.plt?ps:ps.slice(0,SX_TOP_PLT);
+  var pSet=new Set(pShow.map(function(x){return x[0];}));
+  var pOther=_sxEntries.filter(function(e){var l=e.film.plt||[];return l.length&&!l.some(function(p){return pSet.has(p);});}).length;
+  if(pEl){
+    pEl.innerHTML=ps.length?pShow.map(function(x){
+      return '<div class="sx-plt-row"><span class="arx-plt '+(_AREC_PLT_CLS[x[0]]||'')+'">'+_arecEsc(x[0])+'</span><span></span><span class="n">'+x[1]+'</span></div>';
+    }).join('')+(pOther?'<div class="sx-plt-row"><span class="arx-plt">••••</span><span>'+_arecEsc(t('seen_others'))+'</span><span class="n">'+pOther+'</span></div>':'')
+    :'<div class="sx-empty-s">—</div>';
+  }
+  var pm=document.getElementById('sx-plt-more');
+  if(pm){pm.style.display=ps.length>SX_TOP_PLT?'':'none';pm.textContent=_sxShowAll.plt?t('seen_see_less'):t('seen_see_all')+' →';}
+}
+function _sxToggleAll(k){_sxShowAll[k]=!_sxShowAll[k];_sxRenderStats();}
+
+// ── stand-by: titoli Letterboxd non trovati + id non piu' nel catalogo ──────
+function _sxRenderStandby(){
+  var box=document.getElementById('sx-standby'),el=document.getElementById('sx-standby-list');if(!box||!el)return;
+  var sb=[];try{var raw=_lbLoad('sw3_lb_standby');if(raw)sb=JSON.parse(raw)||[];}catch(e){}
+  var html=sb.map(function(x){return '<div class="sx-sb-item"><span aria-hidden="true">⏳</span><span>'+_arecEsc(x.name||'')+'</span>'+(x.year?'<span class="y">'+_arecEsc(x.year)+'</span>':'')+'</div>';}).join('')+
+    _sxMissing.map(function(id){return '<div class="sx-sb-item"><span aria-hidden="true">⏳</span><span>'+_arecEsc(t('seen_unknown'))+'</span><span class="y">ID #'+id+'</span></div>';}).join('');
+  box.style.display=html?'':'none';
+  el.innerHTML=html;
+}
+
+// ── tendine ────────────────────────────────────────────────────────────
+function _sxCloseDrops(){
+  ['gen','pl','so'].forEach(function(k){
+    var d=document.getElementById('sx-'+k+'-drop'),b=document.getElementById('sx-'+k+'-btn');
+    if(d)d.classList.remove('open');if(b)b.classList.remove('open');
+  });
+}
+function _sxToggleDrop(e,k){
+  e.stopPropagation();_sxCloseMenu();
+  var d=document.getElementById('sx-'+k+'-drop'),b=document.getElementById('sx-'+k+'-btn');if(!d||!b)return;
+  var open=d.classList.contains('open');
+  _sxCloseDrops();
+  if(!open){_sxRenderDrop(k);d.classList.add('open');b.classList.add('open');}
+}
+function _sxRenderDrop(k){
+  var list=document.getElementById('sx-'+k+'-list');if(!list)return;
+  var opts=[];
+  if(k==='gen'){
+    var gc=new Map();_sxEntries.forEach(function(e){e.gen.forEach(function(g){gc.set(g,(gc.get(g)||0)+1);});});
+    opts=[...gc.keys()].sort(function(a,b){return tTag(a).localeCompare(tTag(b));}).map(function(g){return {v:g,l:tTag(g)+'  ('+gc.get(g)+')',on:_sxSelGen.has(g)};});
+  }else if(k==='pl'){
+    var ps=new Set();_sxEntries.forEach(function(e){_arecAllPlt(e.film).forEach(function(p){ps.add(p);});});
+    var order=[].concat(typeof SW_PLAT_SUB!=='undefined'?SW_PLAT_SUB:[],typeof SW_PLAT_RENT!=='undefined'?SW_PLAT_RENT:[]);
+    var rank=function(p){var i=order.indexOf(p);return i<0?999:i;};
+    opts=[...ps].sort(function(a,b){return rank(a)-rank(b)||a.localeCompare(b);}).map(function(p){return {v:p,l:p,on:_sxSelPlt.has(p)};});
+  }else{
+    opts=SX_SORTS.map(function(x){return {v:x,l:t('seen_sort_'+x),on:!_sxCol&&_sxSort===x,radio:true};});
+  }
+  if(!opts.length){list.innerHTML='<div class="arec-ms-empty">'+_arecEsc(k==='gen'?t('arec_no_tag'):t('arec_no_plt'))+'</div>';return;}
+  list.innerHTML=opts.map(function(o){
+    return '<label class="arec-ms-opt '+(o.on?'checked':'')+'" data-v="'+_arecEsc(o.v)+'" onclick="_sxPick(event,\''+k+'\',this.getAttribute(\'data-v\'))">'+
+      (o.radio?'<span style="width:14px;text-align:center;color:#ff7a18">'+(o.on?'●':'')+'</span>':'<input type="checkbox" '+(o.on?'checked':'')+'>')+' '+_arecEsc(o.l)+'</label>';
+  }).join('');
+}
+function _sxPick(e,k,v){
+  e.preventDefault();e.stopPropagation();
+  if(k==='gen'){if(_sxSelGen.has(v))_sxSelGen.delete(v);else _sxSelGen.add(v);}
+  else if(k==='pl'){if(_sxSelPlt.has(v))_sxSelPlt.delete(v);else _sxSelPlt.add(v);}
+  else{_sxSort=v;_sxCol='';_sxDir=1;_sxCloseDrops();}
+  _sxRender();
+  if(k!=='so')_sxRenderDrop(k);
+}
+function _sxClear(e,k){
+  e.stopPropagation();
+  if(k==='gen')_sxSelGen.clear();else if(k==='pl')_sxSelPlt.clear();
+  _sxRender();_sxRenderDrop(k);
+}
+
+// ── menu di riga ───────────────────────────────────────────────────────
+function _sxOpenMenu(id,btn){
+  _sxCloseDrops();
+  var m=document.getElementById('sx-menu');if(!m)return;
+  if(m.classList.contains('open')&&m.getAttribute('data-id')===String(id)){_sxCloseMenu();return;}
+  _sxMenuArmed=null;
+  m.setAttribute('data-id',String(id));
+  m.innerHTML='<button onclick="openSeenFilm('+id+')"><span aria-hidden="true">🎬</span>'+_arecEsc(t('seen_open'))+'</button>'+
+    '<button class="danger" id="sx-menu-rm" onclick="_sxRemove(event,'+id+')"><span aria-hidden="true">✕</span><span>'+_arecEsc(t('seen_remove'))+'</span></button>';
+  m.classList.add('open');
+  var r=btn.getBoundingClientRect(),w=m.offsetWidth,h=m.offsetHeight;
+  var x=Math.max(8,Math.min(window.innerWidth-w-8,r.right-w));
+  var y=r.bottom+6;if(y+h>window.innerHeight-8)y=Math.max(8,r.top-h-6);
+  m.style.left=x+'px';m.style.top=y+'px';
+}
+function _sxCloseMenu(){var m=document.getElementById('sx-menu');if(m){m.classList.remove('open');m.removeAttribute('data-id');}_sxMenuArmed=null;}
+function _sxRemove(e,id){
+  e.stopPropagation();
+  var b=document.getElementById('sx-menu-rm');
+  if(_sxMenuArmed!==id){   // primo clic: chiede conferma
+    _sxMenuArmed=id;
+    if(b){b.classList.add('armed');b.lastChild.textContent=t('seen_remove_confirm');}
+    return;
+  }
+  seenFilms.delete(id);saveSeen();
+  try{if(typeof _updateStoricoCounts==='function')_updateStoricoCounts();}catch(x){}
+  _sxCloseMenu();_sxBuild();_sxRender();
+}
+function openSeenFilm(id){
+  _sxCloseMenu();
+  var f=DB.find(function(x){return x.id===id;});if(!f)return;
+  document.getElementById('mbk').style.zIndex='350';
+  document.getElementById('fc').style.zIndex='360';
+  showCard({f:f,mx:f.tags||[]},{hideMore:true,returnTo:'seen',noRec:true});   // noRec: non entra nello storico dei consigli
+}
+document.addEventListener('click',function(e){
+  var t0=e.target;if(!t0||!t0.closest)return;
+  if(!t0.closest('#seenp .arec-ms-wrap'))_sxCloseDrops();
+  if(!t0.closest('#sx-menu')&&!t0.closest('.sx-menu-btn'))_sxCloseMenu();
+});
+window.addEventListener('resize',function(){_sxCloseMenu();});
+document.addEventListener('scroll',function(){_sxCloseMenu();},true);
 async function loadProfp(){
   try{const lp=localStorage.getItem('sw3_prof');if(lp){const d=JSON.parse(lp);['pNome','pCognome','pNascita','pFilm'].forEach(id=>{const el=document.getElementById(id);if(el&&d[id])el.value=d[id];});}}catch(e){}
   _updatePremUI();
@@ -6554,7 +6961,7 @@ const T={
     search_results:'risultati',mark_all_seen:'✓ Segna tutti come visti',today_btn:'🎬 Film consigliati oggi',mark_all_unseen:'✕ Deseleziona tutti',
     seen_count:' film già visti da te',
     prof_h2:'Il tuo profilo',allrec_btn:'Tutti i film consigliati',allrec_h2:'Tutti i film consigliati',allrec_p:'Ogni film che Swainz ti ha consigliato',allrec_empty:'Nessun film ancora consigliato.',prof_p:'Informazioni personali — non influenzano i consigli di Swainz',
-    arec_col_title:'Titolo',arec_col_year:'Anno',arec_col_dir:'Regista',arec_col_tags:'Caratteristiche',arec_f_tag:'Tag…',arec_f_tag_all:'Tutte le caratteristiche',allrec_h2_pre:'Tutti i film',allrec_h2_hl:'consigliati',allrec_sub:'Qui trovi tutti i film che Swainz ti ha consigliato',arec_back:'Torna',arec_search_ph:'Cerca titolo, regista o anno…',arec_pl_all:'Tutte le piattaforme',arec_reset:'Azzera filtri',arec_col_plt:'Piattaforme',arec_films:'film',arec_no_match:'Nessun film corrisponde ai filtri.',arec_rent:'Solo a noleggio o acquisto',arec_plan_free_t:'Passa a Premium',arec_plan_prem_s:'Accesso completo a tutte le funzionalità',arec_pl_one:'piattaforma',arec_pl_many:'piattaforme',arec_tag_one:'caratteristica',arec_tag_many:'caratteristiche',arec_no_tag:'Nessuna caratteristica',arec_no_plt:'Nessuna piattaforma',arec_clear_all:'✕ Deseleziona tutto',arec_tag_search_ph:'Cerca caratteristica…',
+    arec_col_title:'Titolo',arec_col_year:'Anno',arec_col_dir:'Regista',arec_col_tags:'Caratteristiche',arec_f_tag:'Tag…',arec_f_tag_all:'Tutte le caratteristiche',allrec_h2_pre:'Tutti i film',allrec_h2_hl:'consigliati',allrec_sub:'Qui trovi tutti i film che Swainz ti ha consigliato',arec_back:'Torna',arec_search_ph:'Cerca titolo, regista o anno…',arec_pl_all:'Tutte le piattaforme',arec_reset:'Azzera filtri',arec_col_plt:'Piattaforme',arec_films:'film',arec_no_match:'Nessun film corrisponde ai filtri.',arec_rent:'Solo a noleggio o acquisto',arec_plan_free_t:'Passa a Premium',arec_plan_prem_s:'Accesso completo a tutte le funzionalità',arec_pl_one:'piattaforma',arec_pl_many:'piattaforme',arec_tag_one:'caratteristica',arec_tag_many:'caratteristiche',arec_no_tag:'Nessuna caratteristica',arec_no_plt:'Nessuna piattaforma',arec_clear_all:'✕ Deseleziona tutto',arec_tag_search_ph:'Cerca caratteristica…',seen_h2_pre:'Film',seen_h2_hl:'già visti',seen_sub:'La tua lista personale di film visti',seen_search_ph:'Cerca per titolo, regista, attore…',seen_gen_all:'Tutti i generi',seen_gen_one:'genere',seen_gen_many:'generi',seen_sort_lbl:'Ordine',seen_sort_recent:'più recenti',seen_sort_oldest:'meno recenti',seen_sort_title:'titolo A–Z',seen_sort_year:'anno',seen_sort_rating:'valutazione',seen_sort_col:'per colonna',seen_import:'Importa da Letterboxd',seen_mark_more:'Segna altri film',seen_col_genre:'Genere',seen_col_plt:'Piattaforma',seen_col_rating:'Valutazione',seen_col_status:'Stato',seen_status:'Visto',seen_open:'Apri scheda',seen_remove:'Rimuovi dai visti',seen_remove_confirm:'Conferma rimozione',seen_stats_gen:'Statistiche generi',seen_stats_plt:'Piattaforme più usate',seen_see_all:'Vedi tutti',seen_see_less:'Mostra meno',seen_others:'Altri',seen_empty:'Nessun film ancora segnato come visto.',seen_standby_t:'Titoli in stand-by',seen_standby_d:'Se in futuro venissero aggiunti nel database di Swainz saranno automaticamente segnati come visti',seen_unknown:'Film non più in catalogo',
     prof_nome:'Nome',prof_cog:'Cognome',prof_data:'Data di nascita',
     prof_film:'Film preferito',prof_reg:'Regista preferito',prof_att:'Attore preferito',
     prof_nome_ph:'Es. Marco',prof_cog_ph:'Es. Rossi',prof_film_ph:'Es. Il Padrino',
@@ -6691,7 +7098,7 @@ const T={
     search_results:'results',mark_all_seen:'✓ Mark all as watched',today_btn:'🎬 Films recommended today',mark_all_unseen:'✕ Unmark all',
     seen_count:' films watched by you',
     prof_h2:'Your profile',allrec_btn:'All recommended films',allrec_h2:'All recommended films',allrec_p:'Every film Swainz has ever suggested to you',allrec_empty:'No films recommended yet.',prof_p:'Personal info — does not affect Swainz recommendations',
-    arec_col_title:'Title',arec_col_year:'Year',arec_col_dir:'Director',arec_col_tags:'Characteristics',arec_f_tag:'Tag…',arec_f_tag_all:'All characteristics',allrec_h2_pre:'All your',allrec_h2_hl:'recommendations',allrec_sub:'Every film Swainz has recommended to you, in one place',arec_back:'Back',arec_search_ph:'Search title, director or year…',arec_pl_all:'All platforms',arec_reset:'Clear filters',arec_col_plt:'Platforms',arec_films:'films',arec_no_match:'No films match the filters.',arec_rent:'Rent or buy only',arec_plan_free_t:'Go Premium',arec_plan_prem_s:'Full access to every feature',arec_pl_one:'platform',arec_pl_many:'platforms',arec_tag_one:'characteristic',arec_tag_many:'characteristics',arec_no_tag:'No characteristics',arec_no_plt:'No platforms',arec_clear_all:'✕ Clear selection',arec_tag_search_ph:'Search characteristic…',
+    arec_col_title:'Title',arec_col_year:'Year',arec_col_dir:'Director',arec_col_tags:'Characteristics',arec_f_tag:'Tag…',arec_f_tag_all:'All characteristics',allrec_h2_pre:'All your',allrec_h2_hl:'recommendations',allrec_sub:'Every film Swainz has recommended to you, in one place',arec_back:'Back',arec_search_ph:'Search title, director or year…',arec_pl_all:'All platforms',arec_reset:'Clear filters',arec_col_plt:'Platforms',arec_films:'films',arec_no_match:'No films match the filters.',arec_rent:'Rent or buy only',arec_plan_free_t:'Go Premium',arec_plan_prem_s:'Full access to every feature',arec_pl_one:'platform',arec_pl_many:'platforms',arec_tag_one:'characteristic',arec_tag_many:'characteristics',arec_no_tag:'No characteristics',arec_no_plt:'No platforms',arec_clear_all:'✕ Clear selection',arec_tag_search_ph:'Search characteristic…',seen_h2_pre:'Watched',seen_h2_hl:'films',seen_sub:'Your personal list of watched films',seen_search_ph:'Search by title, director, actor…',seen_gen_all:'All genres',seen_gen_one:'genre',seen_gen_many:'genres',seen_sort_lbl:'Sort',seen_sort_recent:'most recent',seen_sort_oldest:'least recent',seen_sort_title:'title A–Z',seen_sort_year:'year',seen_sort_rating:'rating',seen_sort_col:'by column',seen_import:'Import from Letterboxd',seen_mark_more:'Mark more films',seen_col_genre:'Genre',seen_col_plt:'Platform',seen_col_rating:'Rating',seen_col_status:'Status',seen_status:'Watched',seen_open:'Open card',seen_remove:'Remove from watched',seen_remove_confirm:'Confirm removal',seen_stats_gen:'Genre stats',seen_stats_plt:'Most used platforms',seen_see_all:'See all',seen_see_less:'Show less',seen_others:'Others',seen_empty:'No films marked as watched yet.',seen_standby_t:'Titles on stand-by',seen_standby_d:'If they are added to the Swainz database in the future they will be marked as watched automatically',seen_unknown:'No longer in the catalogue',
     prof_nome:'First name',prof_cog:'Last name',prof_data:'Date of birth',
     prof_film:'Favourite film',prof_reg:'Favourite director',prof_att:'Favourite actor',
     prof_nome_ph:'E.g. John',prof_cog_ph:'E.g. Smith',prof_film_ph:'E.g. The Godfather',
@@ -7613,6 +8020,7 @@ function importLetterboxd(inp){
       standby.forEach(function(s){var k=s.name+'|'+s.year;if(!exk.has(k)){ex.push(s);exk.add(k);}});
       _lbStore('sw3_lb_standby',JSON.stringify(ex));
       _lbShowStandby(ex.length);
+      if(typeof _sxRefreshIfOpen==='function')_sxRefreshIfOpen(); // v398
       var it=LANG==='en';
       var msg='\u2713 '+matched+(it?' films marked as watched.':' film marcati come visti.');
       if(already)msg+='\n'+already+(it?' already marked.':' già segnati.');
@@ -7625,7 +8033,8 @@ function importLetterboxd(inp){
   };
   rdr.readAsText(file,'utf-8');
 }
-function _lbMsg(type,msg){var el=document.getElementById('lb-result');if(el){el.className=type;el.style.display='block';el.textContent=msg;}}
+function _lbMsg(type,msg){var el=document.getElementById('lb-result');if(el){el.className=type;el.style.display='block';el.textContent=msg;}
+  var sx=document.getElementById('sx-lb-msg');if(sx){sx.className='sx-msg'+(type==='warn'?' warn':'');sx.style.display='block';sx.textContent=msg;}} // v398: esito anche nella pagina "Film già visti"
 function _lbShowStandby(n){
   var el=document.getElementById('lb-standby-box');if(!el)return;
   if(n>0){el.style.display='block';el.innerHTML=(LANG==='en'?'<b>'+n+'</b> films in standby — auto-matched when added to Swainz DB.':'<b>'+n+'</b> film in standby — abbinati automaticamente quando aggiunti al DB Swainz.');}
@@ -9098,4 +9507,7 @@ function _swCloseWelcome(){
 </div>
 
 <div id="payment-toast">🎉 Benvenuto in Premium!</div>
-</body></html>
+<script>/* v399 · intestazione dei pannelli consigli/visti: fondo solo quando il contenuto le scorre sotto */
+(function(){function bind(id){var p=document.getElementById(id);if(!p)return;var pi=p.querySelector('.panel-inner'),top=p.querySelector('.arx-top');if(!pi||!top)return;
+pi.addEventListener('scroll',function(){top.classList.toggle('scrolled',pi.scrollTop>4);},{passive:true});}
+bind('seenp');})();</script></body></html>
