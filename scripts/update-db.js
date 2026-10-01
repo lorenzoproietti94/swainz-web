@@ -1,5 +1,5 @@
 /**
- * Swainz — update-db.js  (v200)
+ * Swainz — update-db.js  (v201)
  * ─────────────────────────────────────────────────────────────────────────────
  * Aggiorna ogni notte le colonne:
  *   poster_url            → URL locandina TMDB (w342)
@@ -17,6 +17,19 @@
  *   0.65–0.75 → LOW CONF  — aggiorna tutto, logga avviso
  *   > 0.75  → HIGH CONF  — aggiorna tutto normalmente
  *
+ * v201 — Sicurezza dei dati quando TMDB non risponde come previsto.
+ *         (1) Se la chiamata /watch/providers fallisce (errore di rete, 5xx,
+ *         429 oltre i tentativi) tmdbProviders restituisce null e le colonne
+ *         Piattaforme / Piattaforme_noleggio NON vengono toccate. Fino alla
+ *         v200 il fallimento diventava un array vuoto e svuotava le
+ *         piattaforme del film. Una risposta valida senza dati per l'Italia
+ *         resta un legittimo "nessuna piattaforma" e viene scritta.
+ *         (2) 401/403 da TMDB (chiave non valida, revocata o sospesa):
+ *         l'esecuzione si ferma subito, senza scrivere nulla, ed esce con
+ *         errore: il workflow GitHub risulta fallito e arriva l'email.
+ *         (3) Interruttore di sicurezza: dopo 25 film consecutivi senza
+ *         risposta valida da TMDB l'esecuzione si ferma (servizio giù o
+ *         blocco), per non lavorare a vuoto. Nessuna scrittura in quei casi.
  * v200 — Il campo Regista viene ora preso da TMDB (endpoint /credits) nel
  *         formato ufficiale "Nome Cognome". Motivo: la colonna era stata
  *         compilata a mano nel tempo e conteneva formati MESCOLATI
@@ -174,7 +187,16 @@ async function apiFetch(url, _retry = 0) {
     return apiFetch(url, _retry + 1);
   }
 
-  if (!res.ok) return null;
+  // v201: chiave rifiutata (non valida, revocata, sospesa) → stop immediato.
+  if (res.status === 401 || res.status === 403) {
+    const err = new Error(`TMDB ha rifiutato la richiesta (HTTP ${res.status}): chiave API non valida o revocata`);
+    err.fatal = true;
+    throw err;
+  }
+  if (!res.ok) {
+    console.log(`  [HTTP ${res.status}] ${url.replace(/api_key=[^&]+/, 'api_key=***')}`);
+    return null;
+  }
   return res.json().catch(() => null);
 }
 
@@ -184,11 +206,13 @@ async function tmdbSearch(title, year) {
   const base = `https://api.themoviedb.org/3/search/movie?api_key=${TMDB_API_KEY}&language=it-IT`;
   const q    = encodeURIComponent(title);
 
+  let answered = false; // v201: almeno una risposta valida da TMDB
   for (const extra of [`&year=${year}`, '']) {
     const data = await apiFetch(`${base}&query=${q}${extra}`);
+    if (data && Array.isArray(data.results)) answered = true;
     if (data?.results?.length) return data.results;
   }
-  return [];
+  return answered ? [] : null; // null = TMDB non ha risposto (≠ nessun risultato)
 }
 
 // ─── TMDB: provider italiani ──────────────────────────────────────────────────
@@ -204,7 +228,9 @@ async function tmdbProviders(tmdbId) {
   const data = await apiFetch(
     `https://api.themoviedb.org/3/movie/${tmdbId}/watch/providers?api_key=${TMDB_API_KEY}`
   );
-  const it = data?.results?.IT || {};
+  // v201: risposta mancante o malformata → null, il chiamante non tocca le colonne
+  if (!data || typeof data.results !== 'object' || data.results === null) return null;
+  const it = data.results.IT || {};
 
   const mapWith = (arr, table) => [
     ...new Set(
@@ -264,6 +290,10 @@ async function processFilm(film) {
   const { id, Titolo, Anno } = film;  // film.Regista usato nel confronto log
 
   const results = await tmdbSearch(Titolo, Anno);
+  if (results === null) {             // v201: TMDB non ha risposto
+    console.log(`  [NORISP] ${Titolo} (${Anno}) — nessuna risposta valida da TMDB, film non toccato`);
+    return { noAnswer: true };
+  }
   if (!results.length) {
     console.log(`  [SKIP]  ${Titolo} (${Anno}) — nessun risultato TMDB`);
     return null;
@@ -288,9 +318,14 @@ async function processFilm(film) {
   // Piattaforme — richiede una chiamata API separata.
   // sub  → abbonamento/gratis (flatrate+free+ads) → colonna "Piattaforme"
   // rent → noleggio/acquisto  (rent+buy)          → colonna "Piattaforme_noleggio"
-  const { sub, rent } = await tmdbProviders(best.id);
-  update['Piattaforme']          = sub;
-  update['Piattaforme_noleggio'] = rent;
+  const prov = await tmdbProviders(best.id);
+  if (prov) {
+    update['Piattaforme']          = prov.sub;
+    update['Piattaforme_noleggio'] = prov.rent;
+  } else {
+    // v201: la chiamata è fallita → piattaforme lasciate come sono
+    console.log(`           piattaforme: nessuna risposta da TMDB, valori esistenti mantenuti`);
+  }
 
   // Poster — già nel risultato search, condizionato alla soglia confidenza
   if (bestScore >= 0.65 && best.poster_path) {
@@ -365,6 +400,8 @@ async function main() {
   );
 
   let updated = 0, skipped = 0, errors = 0;
+  let noAnswerRun = 0;                // v201: film consecutivi senza risposta TMDB
+  const MAX_NO_ANSWER = 25;
 
   for (let i = 0; i < batch.length; i++) {
     const film = batch[i];
@@ -372,6 +409,16 @@ async function main() {
 
     try {
       const result = await processFilm(film);
+
+      if (result && result.noAnswer) {
+        skipped++;
+        if (++noAnswerRun >= MAX_NO_ANSWER) {
+          throw Object.assign(new Error(`${MAX_NO_ANSWER} film consecutivi senza risposta valida da TMDB: esecuzione interrotta, nessun dato toccato`), { fatal: true });
+        }
+        await new Promise(r => setTimeout(r, DELAY_MS));
+        continue;
+      }
+      noAnswerRun = 0;
 
       if (result && Object.keys(result.update).length > 0) {
         const { error } = await DB
@@ -389,6 +436,11 @@ async function main() {
         skipped++;
       }
     } catch (e) {
+      if (e.fatal) {                  // v201: chiave rifiutata o TMDB irraggiungibile
+        console.error(`\n  [STOP] ${e.message}`);
+        console.error(`  Aggiornati prima dello stop: ${updated} · saltati: ${skipped} · errori: ${errors}`);
+        throw e;
+      }
       console.error(`  [ERR]  ${film.Titolo}: ${e.message}`);
       errors++;
     }
