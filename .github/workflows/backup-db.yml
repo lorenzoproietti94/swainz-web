@@ -1,4 +1,5 @@
-# Swainz — backup notturno delle tabelle Supabase (v1, ottobre 2026)
+# Swainz — backup notturno delle tabelle Supabase (v2, ottobre 2026)
+# v2: azioni checkout/setup-node/upload-artifact @v6 (Node 24, niente avviso su Node 20)
 # Gira alle 3:30 UTC, prima di update-db (4:00 UTC): se l'aggiornamento
 # combinasse un guaio, c'è la copia della notte stessa.
 # Secret richiesti: SUPABASE_URL, SUPABASE_SERVICE_KEY (già presenti per
@@ -18,9 +19,9 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
           node-version: 24
 
@@ -51,7 +52,7 @@ jobs:
           rm -rf backup-out swainz-backup.json.gz
           echo "STAMP=$STAMP" >> "$GITHUB_ENV"
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v6
         with:
           name: swainz-backup-${{ env.STAMP }}
           path: swainz-backup-*.json.gz.enc
