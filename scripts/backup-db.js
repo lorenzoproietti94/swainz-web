@@ -1,5 +1,5 @@
 /**
- * Swainz — backup-db.js  (v1, ottobre 2026)
+ * Swainz — backup-db.js  (v2, ottobre 2026)
  * ─────────────────────────────────────────────────────────────────────────────
  * Esporta ogni notte le tabelle di Supabase in un unico file JSON. Il workflow
  * .github/workflows/backup-db.yml lo comprime, lo cifra (AES-256, chiave nel
@@ -8,6 +8,11 @@
  * Perché: il piano gratuito di Supabase non fa backup automatici. Copre la
  * perdita di dati nelle tabelle (es. una query sbagliata), non la perdita
  * dell'intero progetto: lo schema auth (account, password) resta a Supabase.
+ *
+ * v2 — Pagine da 500 righe come il sito e update-db.js, avanzamento in base alle
+ *      righe ricevute (funziona con qualunque limite "max rows" del progetto),
+ *      barra finale tolta da SUPABASE_URL, tabella "mancante" solo se lo dice
+ *      PostgREST (PGRST205/42P01), errori con stato e risposta completi.
  *
  * Usa gli stessi secret di update-db.js: SUPABASE_URL, SUPABASE_SERVICE_KEY.
  * Nessuna dipendenza npm (fetch nativo di Node 18+).
@@ -20,10 +25,10 @@
 import fs from 'fs';
 import path from 'path';
 
-const SUPABASE_URL         = process.env.SUPABASE_URL;
-const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_KEY;
+const SUPABASE_URL         = (process.env.SUPABASE_URL || '').trim().replace(/\/+$/, '');
+const SUPABASE_SERVICE_KEY = (process.env.SUPABASE_SERVICE_KEY || '').trim();
 const MIN_MOVIES           = parseInt(process.env.MIN_MOVIES || '1000', 10);
-const PAGE                 = 1000;
+const PAGE                 = 500;
 
 // order: chiave stabile per la paginazione; required: errore se manca
 const TABLES = [
@@ -51,23 +56,28 @@ async function getPage(table, order, offset, wantCount) {
 
 async function exportTable(t) {
   let order = t.order, rows = [], total = null;
-  for (let offset = 0; ; offset += PAGE) {
+  for (let offset = 0; ; ) {
     let r = await getPage(t.name, order, offset, offset === 0);
     if (r.status === 400 && order && offset === 0) {          // colonna d'ordine diversa da quella attesa
-      console.log(`  [AVVISO] ${t.name}: ordinamento "${order}" non accettato, esporto senza ordine`);
+      console.log(`  [AVVISO] ${t.name}: ordinamento "${order}" non accettato (${JSON.stringify(r.body).slice(0, 160)}), esporto senza ordine`);
       order = null; r = await getPage(t.name, null, 0, true);
     }
-    if (r.status === 404 || (r.body && /PGRST205|42P01|does not exist|Could not find the table/i.test(JSON.stringify(r.body)))) {
+    const raw = JSON.stringify(r.body || '');
+    if (/PGRST205|42P01|Could not find the table|does not exist/i.test(raw) && r.status >= 400) {
       return { missing: true };
     }
     if (r.status < 200 || r.status >= 300 || !Array.isArray(r.body)) {
-      throw new Error(`${t.name}: HTTP ${r.status} ${JSON.stringify(r.body).slice(0, 200)}`);
+      const hint = r.status === 404 ? ' — indirizzo non trovato: controlla il secret SUPABASE_URL (deve essere https://<progetto>.supabase.co)'
+                 : (r.status === 401 || r.status === 403) ? ' — accesso negato: controlla il secret SUPABASE_SERVICE_KEY (serve la service_role key)' : '';
+      throw new Error(`${t.name}: HTTP ${r.status} ${raw.slice(0, 300)}${hint}`);
     }
     if (offset === 0 && r.range && r.range.includes('/')) {
       const n = parseInt(r.range.split('/')[1], 10); if (!isNaN(n)) total = n;
     }
     rows.push(...r.body);
-    if (r.body.length < PAGE) break;
+    offset += r.body.length;
+    // fine: pagina vuota, oppure raggiunto il totale dichiarato, oppure (senza totale) pagina corta
+    if (!r.body.length || (total !== null ? rows.length >= total : r.body.length < PAGE)) break;
   }
   if (total !== null && rows.length !== total) {
     throw new Error(`${t.name}: esportate ${rows.length} righe su ${total} attese`);
@@ -78,6 +88,7 @@ async function exportTable(t) {
 async function main() {
   const outDir = process.argv[2] || 'backup-out';
   if (!SUPABASE_URL || !SUPABASE_SERVICE_KEY) throw new Error('Mancano SUPABASE_URL o SUPABASE_SERVICE_KEY');
+  console.log(`Progetto: ${SUPABASE_URL.replace(/^https?:\/\//, '').split('.')[0]} · pagine da ${PAGE} righe`);
   fs.mkdirSync(outDir, { recursive: true });
 
   const started = new Date().toISOString();
