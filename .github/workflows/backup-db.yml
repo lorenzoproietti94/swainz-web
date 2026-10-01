@@ -1,0 +1,59 @@
+# Swainz — backup notturno delle tabelle Supabase (v1, ottobre 2026)
+# Gira alle 3:30 UTC, prima di update-db (4:00 UTC): se l'aggiornamento
+# combinasse un guaio, c'è la copia della notte stessa.
+# Secret richiesti: SUPABASE_URL, SUPABASE_SERVICE_KEY (già presenti per
+# update-db) e BACKUP_PASSPHRASE (nuovo: la chiave di cifratura).
+name: Backup DB
+
+on:
+  schedule:
+    - cron: '30 3 * * *'
+  workflow_dispatch:        # avvio manuale dal tab Actions
+
+permissions:
+  contents: read
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Esporta le tabelle
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+        run: node scripts/backup-db.js backup-out
+
+      - name: Comprimi e cifra
+        env:
+          BACKUP_PASSPHRASE: ${{ secrets.BACKUP_PASSPHRASE }}
+        run: |
+          if [ -z "$BACKUP_PASSPHRASE" ]; then echo "Manca il secret BACKUP_PASSPHRASE"; exit 1; fi
+          STAMP=$(date -u +%Y-%m-%d)
+          gzip -9 -c backup-out/swainz-backup.json > swainz-backup.json.gz
+          openssl enc -aes-256-cbc -pbkdf2 -iter 200000 -md sha256 -salt \
+            -in swainz-backup.json.gz -out "swainz-backup-$STAMP.json.gz.enc" -pass env:BACKUP_PASSPHRASE
+          # prova di decifratura prima di salvare: un backup illeggibile non serve
+          openssl enc -d -aes-256-cbc -pbkdf2 -iter 200000 -md sha256 \
+            -in "swainz-backup-$STAMP.json.gz.enc" -pass env:BACKUP_PASSPHRASE | gunzip | head -c 40 | grep -q '"manifest"'
+          {
+            echo "### Backup Swainz $STAMP"
+            echo '```'
+            cat backup-out/counts.json
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+          rm -rf backup-out swainz-backup.json.gz
+          echo "STAMP=$STAMP" >> "$GITHUB_ENV"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: swainz-backup-${{ env.STAMP }}
+          path: swainz-backup-*.json.gz.enc
+          retention-days: 30
+          if-no-files-found: error
