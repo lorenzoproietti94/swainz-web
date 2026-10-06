@@ -1,5 +1,5 @@
 /**
- * Swainz — backup-db.js  (v2, ottobre 2026)
+ * Swainz — backup-db.js  (v3, ottobre 2026)
  * ─────────────────────────────────────────────────────────────────────────────
  * Esporta ogni notte le tabelle di Supabase in un unico file JSON. Il workflow
  * .github/workflows/backup-db.yml lo comprime, lo cifra (AES-256, chiave nel
@@ -9,6 +9,7 @@
  * perdita di dati nelle tabelle (es. una query sbagliata), non la perdita
  * dell'intero progetto: lo schema auth (account, password) resta a Supabase.
  *
+ * v3 — Aggiunta la tabella sw_wl_alerts (avvisi email di “Lo guarderò”, sito v438).
  * v2 — Pagine da 500 righe come il sito e update-db.js, avanzamento in base alle
  *      righe ricevute (funziona con qualunque limite "max rows" del progetto),
  *      barra finale tolta da SUPABASE_URL, tabella "mancante" solo se lo dice
@@ -37,6 +38,7 @@ const TABLES = [
   { name: 'sw_rec_log',   order: 'user_id,film_id', required: false },
   { name: 'search_usage', order: 'user_id,day',     required: false },
   { name: 'sw_api_usage', order: null,              required: false },
+  { name: 'sw_wl_alerts', order: 'user_id,film_id,platform', required: false },   // v3: avvisi di Lo guarderò (v438)
 ];
 
 function headers(extra = {}) {

@@ -27,7 +27,8 @@ import fs from 'fs';
 import zlib from 'zlib';
 import crypto from 'crypto';
 
-const KEYS = { Movies: 'id', user_data: 'user_id', sw_rec_log: 'user_id,film_id', search_usage: 'user_id,day' };
+const KEYS = { Movies: 'id', user_data: 'user_id', sw_rec_log: 'user_id,film_id', search_usage: 'user_id,day',
+               sw_wl_alerts: 'user_id,film_id,platform' };   // v438: avvisi di Lo guarderò
 const BILLING = ['is_premium', 'stripe_customer_id', 'stripe_subscription_id', 'subscription_status'];
 
 function arg(name) { const i = process.argv.indexOf(name); return i > 0 ? process.argv[i + 1] : undefined; }
