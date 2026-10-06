@@ -1,5 +1,7 @@
 /**
- * Swainz — wl-alerts.js  (v1, ottobre 2026, con la v438 del sito)
+ * Swainz — wl-alerts.js  (v1.1, ottobre 2026, con la v438 del sito)
+ * v1.1 — La prova a secco scrive sempre un’anteprima: se non ci sono arrivi
+ *        reali, un esempio con i primi film della lista del primo utente.
  * ─────────────────────────────────────────────────────────────────────────────
  * Avvisi email di “Lo guarderò” per gli utenti Premium che li hanno attivati
  * nel Profilo (user_data.wl_alerts.on = true).
@@ -222,7 +224,7 @@ async function main() {
   const now = new Date().toISOString();
   const doSend = SEND === 'yes' || (SEND === 'auto' && romeWeekday() === 'Fri');
   if (doSend && !BREVO_KEY && !DRY_RUN) throw new Error('Manca il secret BREVO_API_KEY');
-  console.log(`wl-alerts v1 · ${now} · invio: ${doSend ? 'sì' : 'no'} (SEND=${SEND}, giorno a Roma: ${romeWeekday()})${ONLY_EMAIL ? ' · solo ' + ONLY_EMAIL : ''}${DRY_RUN ? ' · PROVA (nessuna scrittura)' : ''}`);
+  console.log(`wl-alerts v1.1 · ${now} · invio: ${doSend ? 'sì' : 'no'} (SEND=${SEND}, giorno a Roma: ${romeWeekday()})${ONLY_EMAIL ? ' · solo ' + ONLY_EMAIL : ''}${DRY_RUN ? ' · PROVA (nessuna scrittura)' : ''}`);
 
   // 1. utenti idonei: Premium con avvisi accesi
   const users = (await getAll('user_data',
@@ -312,8 +314,27 @@ async function main() {
     console.log(`Scritture: ${inserts.length} righe nuove, ${delFilms.length} film tolti, ${delRows.length} avvisi annullati (piattaforma sparita)`);
   }
 
+  // prova a secco senza email da mandare: anteprima d'esempio con i film delle liste
+  const samplePreview = () => {
+    if (!DRY_RUN) return;
+    for (const uid of uids) {
+      const u = byUser.get(uid);
+      const items = [...active.get(uid)].filter((f) => films.has(f)).slice(0, 3).map((f) => {
+        const film = films.get(f), cur = [...subPlatforms(film)];
+        return { film_id: f, title: film.Titolo || '', year: film.Anno || '', poster: film.poster_url || '', platforms: cur.length ? cur : ['Netflix'] };
+      });
+      if (!items.length) continue;
+      const lang = u.wl_alerts && u.wl_alerts.lang === 'en' ? 'en' : 'it';
+      const mail = buildEmail({ lang, name: String(u.nome || '').trim(), items, unsubUrl: `${SITE}/disiscrizione?u=${uid}&t=ANTEPRIMA&l=${lang}` });
+      fs.writeFileSync('wl-alerts-anteprima.html', mail.html);
+      console.log(`Nessun arrivo reale da avvisare: anteprima d'ESEMPIO con ${items.length} film della lista (piattaforme attuali), oggetto "${mail.subject}" → wl-alerts-anteprima.html`);
+      return;
+    }
+    console.log('Nessun film nelle liste: niente anteprima.');
+  };
+
   // 6. invio
-  if (!doSend) { console.log('Oggi niente invio.'); return; }
+  if (!doSend) { console.log('Oggi niente invio.'); samplePreview(); return; }
   // indirizzo: colonna email di user_data, altrimenti quello dell'account (Auth)
   const emails = new Map();
   for (const uid of pendingByUser.keys()) {
@@ -329,7 +350,7 @@ async function main() {
     console.log(`[AVVISO] ${targets.length} email da inviare: ne invio ${MAX_EMAILS_PER_RUN} (limite del piano gratuito di Brevo), le altre restano in attesa`);
     targets = targets.slice(0, MAX_EMAILS_PER_RUN);
   }
-  if (!targets.length) { console.log('Nessuna email da inviare.'); return; }
+  if (!targets.length) { console.log('Nessuna email da inviare.'); samplePreview(); return; }
   const tokens = new Map();
   if (!DRY_RUN) for (const c of chunks(targets, 200)) {
     const rows = await rest('POST', '/rest/v1/rpc/sw_wl_unsub_tokens', { p_uids: c });
