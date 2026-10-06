@@ -1,5 +1,5 @@
 /**
- * Swainz — update-db.js  (v201)
+ * Swainz — update-db.js  (v202)
  * ─────────────────────────────────────────────────────────────────────────────
  * Aggiorna ogni notte le colonne:
  *   poster_url            → URL locandina TMDB (w342)
@@ -7,6 +7,7 @@
  *   Piattaforme_noleggio  → piattaforme a NOLEGGIO/ACQUISTO   (rent+buy)
  *   Voto IMDB             → vote_average da TMDB (scala 0–10, zero chiamate extra)
  *   Regista               → nome ufficiale TMDB, formato "Nome Cognome"
+ *   tmdb_id, trailer_key  → id TMDB e trailer YouTube (v202, solo match ≥ 0.75)
  *
  * Variabili d'ambiente richieste (GitHub Secrets):
  *   SUPABASE_URL, SUPABASE_SERVICE_KEY, TMDB_API_KEY
@@ -17,6 +18,15 @@
  *   0.65–0.75 → LOW CONF  — aggiorna tutto, logga avviso
  *   > 0.75  → HIGH CONF  — aggiorna tutto normalmente
  *
+ * v202 — Trailer (fase B1). Con match ≥ 0.75 salva tmdb_id e cerca il trailer su
+ *         /movie/{id}/videos: YouTube, tipo Trailer (altrimenti Teaser), ufficiale
+ *         prima, italiano prima dell'inglese. Il controllo si ripete solo se il
+ *         film non è mai stato controllato, se è cambiato l'id TMDB o dopo
+ *         TRAILER_RECHECK_DAYS giorni: a regime quasi nessuna chiamata in più.
+ *         Nessun trailer trovato = trailer_key vuoto + data del controllo.
+ *         Chiamata fallita = colonne trailer non toccate (stessa regola v201).
+ *         Se le colonne non esistono ancora (SQL non eseguito) lo script lo
+ *         rileva all'avvio e lavora come la v201.
  * v201 — Sicurezza dei dati quando TMDB non risponde come previsto.
  *         (1) Se la chiamata /watch/providers fallisce (errore di rete, 5xx,
  *         429 oltre i tentativi) tmdbProviders restituisce null e le colonne
@@ -78,6 +88,8 @@ const TMDB_API_KEY        = process.env.TMDB_API_KEY;
 
 const POSTER_BASE  = 'https://image.tmdb.org/t/p/w342';
 const BATCH_SIZE   = 950;
+const TRAILER_RECHECK_DAYS = 60; // v202: ogni quanto ricontrollare il trailer di un film
+let HAS_TRAILER_COLS = false;    // v202: rilevato all'avvio
 const DELAY_MS     = 350;  // v200: da 280ms. La chiamata /credits porta le
                            // richieste per film da ~3 a ~4; il margine sul
                            // limite TMDB (40 req/10s) è garantito soprattutto
@@ -284,6 +296,31 @@ async function tmdbDirectors(tmdbId) {
   return names.join(' & ');
 }
 
+// ─── TMDB: trailer (v202) ─────────────────────────────────────────────────────
+
+/** Ritorna { key } (key = codice YouTube oppure null se il film non ha trailer)
+ *  oppure null se TMDB non ha risposto: in quel caso non si tocca nulla. */
+function pickTrailer(results) {
+  const yt = (results || []).filter(v => v && v.site === 'YouTube' && typeof v.key === 'string' && /^[A-Za-z0-9_-]{6,20}$/.test(v.key));
+  const score = v => (v.type === 'Trailer' ? 100 : v.type === 'Teaser' ? 50 : 0)
+                   + (v.official ? 20 : 0)
+                   + (v.iso_639_1 === 'it' ? 10 : v.iso_639_1 === 'en' ? 5 : 0);
+  const cands = yt.filter(v => v.type === 'Trailer' || v.type === 'Teaser').sort((a, b) => score(b) - score(a));
+  return cands.length ? cands[0].key : null;
+}
+async function tmdbTrailer(tmdbId) {
+  const base = `https://api.themoviedb.org/3/movie/${tmdbId}/videos?api_key=${TMDB_API_KEY}`;
+  const it = await apiFetch(`${base}&language=it-IT&include_video_language=it,en,null`);
+  if (!it || !Array.isArray(it.results)) return null;
+  let key = pickTrailer(it.results);
+  if (!key) {                                   // nessun trailer in italiano: provo l'inglese
+    const en = await apiFetch(`${base}&language=en-US`);
+    if (!en || !Array.isArray(en.results)) return null;
+    key = pickTrailer(en.results);
+  }
+  return { key };
+}
+
 // ─── Elaborazione singolo film ────────────────────────────────────────────────
 
 async function processFilm(film) {
@@ -346,6 +383,23 @@ async function processFilm(film) {
     }
   }
 
+  // v202 · id TMDB e trailer, solo con match ad alta confidenza
+  if (HAS_TRAILER_COLS && bestScore >= 0.75) {
+    if (film.tmdb_id !== best.id) update['tmdb_id'] = best.id;
+    const last = film.trailer_checked_at ? Date.parse(film.trailer_checked_at) : 0;
+    const due = film.tmdb_id !== best.id || !last || (Date.now() - last) > TRAILER_RECHECK_DAYS * 86400000;
+    if (due) {
+      const tr = await tmdbTrailer(best.id);
+      if (tr) {
+        update['trailer_key'] = tr.key;
+        update['trailer_checked_at'] = new Date().toISOString();
+        if (tr.key !== (film.trailer_key || null)) console.log(`           trailer: ${tr.key ? 'youtube ' + tr.key : 'nessuno'}`);
+      } else {
+        console.log('           trailer: nessuna risposta da TMDB, valori esistenti mantenuti');
+      }
+    }
+  }
+
   // Voto IMDB — già nel risultato search, zero chiamate extra
   const voto = best.vote_average;
   if (typeof voto === 'number' && voto > 0) {
@@ -369,6 +423,13 @@ async function main() {
     );
   }
 
+  // v202 · le colonne del trailer esistono? (swainz_trailer_v434.sql)
+  {
+    const { error } = await DB.from('Movies').select('tmdb_id, trailer_key, trailer_checked_at').limit(1);
+    HAS_TRAILER_COLS = !error;
+    console.log(HAS_TRAILER_COLS ? 'Colonne trailer: presenti' : `Colonne trailer: assenti (${error.message}) — lavoro come la v201`);
+  }
+
   // Paginazione a cursore: più robusta di .range() con qualsiasi impostazione max_rows
   const allFilms = [];
   const PAGE = 500;
@@ -376,7 +437,7 @@ async function main() {
   while (true) {
     const { data, error } = await DB
       .from('Movies')
-      .select('id, Titolo, Anno, Regista')  // v200: Regista serve per il log del cambio
+      .select('id, Titolo, Anno, Regista' + (HAS_TRAILER_COLS ? ', tmdb_id, trailer_key, trailer_checked_at' : ''))  // v200: Regista per il log · v202: trailer
       .order('id', { ascending: true })
       .gt('id', lastId)
       .limit(PAGE);
