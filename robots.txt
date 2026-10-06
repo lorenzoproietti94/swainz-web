@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://swainz.it/sitemap.xml
