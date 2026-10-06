@@ -1,0 +1,60 @@
+name: Avvisi Lo guarderò (email Premium)
+
+# Ogni mattina registra i nuovi arrivi sulle piattaforme dei film in "Lo guarderò";
+# il venerdì (ora di Roma) manda le email. Gira dopo update-db (4:00 UTC, max 30 min).
+on:
+  schedule:
+    - cron: '15 6 * * *'   # 6:15 UTC = 8:15 in Italia con l'ora legale, 7:15 con l'ora solare
+  workflow_dispatch:
+    inputs:
+      send:
+        description: 'Invio delle email: auto = solo il venerdì · yes = invia adesso · no = solo aggiornamento'
+        type: choice
+        options: ['auto', 'yes', 'no']
+        default: 'auto'
+      only_email:
+        description: 'Prova: invia solo a questo indirizzo (vuoto = a tutti)'
+        type: string
+        default: ''
+      dry_run:
+        description: 'Prova a secco: nessuna scrittura e nessuna email, solo il resoconto'
+        type: boolean
+        default: false
+
+concurrency:
+  group: wl-alerts
+  cancel-in-progress: false
+
+jobs:
+  wl-alerts:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Setup Node.js 24
+        uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+
+      - name: Avvisi
+        working-directory: scripts
+        env:
+          SUPABASE_URL:         ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+          BREVO_API_KEY:        ${{ secrets.BREVO_API_KEY }}
+          SEND:                 ${{ github.event_name == 'workflow_dispatch' && inputs.send || 'auto' }}
+          ONLY_EMAIL:           ${{ github.event_name == 'workflow_dispatch' && inputs.only_email || '' }}
+          DRY_RUN:              ${{ github.event_name == 'workflow_dispatch' && inputs.dry_run || false }}
+        run: node wl-alerts.js
+
+      - name: Anteprima della prova a secco
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.dry_run }}
+        uses: actions/upload-artifact@v6
+        with:
+          name: wl-alerts-anteprima
+          path: scripts/wl-alerts-anteprima.html
+          if-no-files-found: ignore
+          retention-days: 3
