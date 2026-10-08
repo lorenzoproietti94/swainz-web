@@ -11,6 +11,6 @@
     }
   ],
   "rewrites": [
-    { "source": "/((?!api/|assets/|.*\\.[a-zA-Z0-9]+$).*)", "destination": "/index.html" }
+    { "source": "/((?!api/|assets/|.*\\.[a-zA-Z0-9]+$).+)", "destination": "/app.html" }
   ]
 }
