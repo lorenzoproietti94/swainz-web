@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<!-- Swainz · pagina pubblica v443 (fase D). L'app vive in /app (app.html); vercel.json manda a app.html ogni altro percorso. -->
+<!-- Swainz · pagina pubblica v443 (fase D). L'app vive in /home (app.html); vercel.json manda a app.html ogni altro percorso. -->
 <script>
 /* Chi ha già una sessione, o torna da Google/Facebook/Stripe, va subito all'app senza vedere questa pagina.
    Il resto dell'indirizzo (?… e #…) passa all'app intatto. */
@@ -11,7 +11,7 @@
   var h=location.hash||'',q=location.search||'';
   var back=/access_token=|refresh_token=|error_description=|type=recovery/.test(h)||/[?&](code|payment|session_id|error)=/.test(q);
   var sess=false;try{sess=!!localStorage.getItem('sw3_session');}catch(e){}
-  if(back||(sess&&!/[?&]home=1/.test(q))){location.replace('/app'+q+h);}
+  if(back||(sess&&!/[?&]pubblica=1/.test(q))){location.replace('/home'+q+h);}
 }catch(e){}})();
 </script>
 <title>Swainz – Il film giusto per stasera, scelto su misura per te</title>
@@ -250,7 +250,7 @@ footer{border-top:1px solid var(--line);padding:40px 0 48px;font-size:14px;color
         <h1>Il film giusto per stasera, scelto su misura per te.</h1>
         <p class="lead">Dimmi che serata è. Swainz sceglie un film tra oltre 2.000, solo tra quelli che non hai ancora visto, e ti dice su quale piattaforma guardarlo.</p>
         <div class="hero-cta">
-          <a class="btn btn-main btn-xl" href="/app">Inizia ora<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+          <a class="btn btn-main btn-xl" href="/home">Inizia ora<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
         </div>
         <p class="hero-note">Account gratuito con 3 consigli al giorno. Nessuna carta richiesta.</p>
       </div>
@@ -370,7 +370,7 @@ footer{border-top:1px solid var(--line);padding:40px 0 48px;font-size:14px;color
     <div class="wrap">
       <h2>Stasera decide Swainz.</h2>
       <p class="lead">Crea l'account gratuito e ricevi il tuo primo consiglio in meno di un minuto.</p>
-      <a class="btn btn-main btn-xl" href="/app">Inizia ora<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+      <a class="btn btn-main btn-xl" href="/home">Inizia ora<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
     </div>
   </section>
 </main>
@@ -423,7 +423,7 @@ var SW_DEMO={
         '<button type="button" class="card-again">Prova un\'altra combinazione</button></div>'+
       '</div>'+
       '<div class="card-limit">Questa prova sceglie tra 8 film. Su Swainz scegli tra oltre 2.000, con decine di caratteristiche, le tue piattaforme e mai un film che hai già visto.'+
-        '<a class="btn btn-main" href="/app">Inizia ora</a></div>';
+        '<a class="btn btn-main" href="/home">Inizia ora</a></div>';
     if(window.matchMedia('(max-width:860px)').matches)card.scrollIntoView({behavior:'smooth',block:'start'}); // su telefono la scheda è sotto le domande
     card.querySelector('.card-again').addEventListener('click',function(){
       document.getElementById('prova').scrollIntoView({behavior:'smooth',block:'start'});
