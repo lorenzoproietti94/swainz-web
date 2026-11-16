@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<!-- Swainz · pagina pubblica v443 (fase D). L'app vive in /home (app.html); vercel.json manda a app.html ogni altro percorso. -->
+<!-- Swainz · pagina pubblica v444 (fase D, italiano e inglese). L'app vive in /home (app.html); vercel.json manda a app.html ogni altro percorso. -->
 <script>
 /* Chi ha già una sessione, o torna da Google/Facebook/Stripe, va subito all'app senza vedere questa pagina.
    Il resto dell'indirizzo (?… e #…) passa all'app intatto. */
@@ -17,6 +17,9 @@
 <title>Swainz – Il film giusto per stasera, scelto su misura per te</title>
 <meta name="description" content="Dimmi che serata è: Swainz sceglie per te un film tra oltre 2.000, solo tra quelli che non hai visto, e ti dice su quale piattaforma guardarlo. Gratis, 3 consigli al giorno.">
 <link rel="canonical" href="https://swainz.it/">
+<link rel="alternate" hreflang="it" href="https://swainz.it/">
+<link rel="alternate" hreflang="en" href="https://swainz.it/?lang=en">
+<link rel="alternate" hreflang="x-default" href="https://swainz.it/">
 <meta name="theme-color" content="#0d0f14">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Swainz">
@@ -81,6 +84,13 @@ p{margin:0}
 .top nav a{color:#c7ccd4;text-decoration:none;font-size:15.5px;font-weight:500}
 .top nav a:hover{color:var(--amber)}
 .menu-btn{display:none}
+/* selettore lingua (v444) */
+.top nav{order:1}
+.lang{order:2;display:flex;border:1px solid #3a3f4c;border-radius:10px;overflow:hidden;background:rgba(13,15,20,.55)}
+.lang button{background:none;border:0;color:var(--muted);font:600 13px/1 var(--body);letter-spacing:.6px;padding:9px 11px;cursor:pointer}
+.lang button[aria-pressed="true"]{background:var(--ember);color:#160a00}
+.lang button:not([aria-pressed="true"]):hover{color:var(--text)}
+.lang-m{display:none}
 
 /* apertura */
 .hero{position:relative;min-height:min(820px,100svh);display:flex;align-items:flex-start;overflow:hidden;background:var(--night)}
@@ -201,6 +211,9 @@ footer{border-top:1px solid var(--line);padding:40px 0 48px;font-size:14px;color
   .top.open nav{display:flex}
   .top nav a{padding:12px 14px;border-radius:10px;font-size:16px}
   .top nav a:hover{background:#1f2330}
+  .top .wrap>.lang{display:none}
+  .top nav .lang-m{display:flex;order:2;margin:6px 6px 4px}
+  .lang-m button{flex:1;padding:11px 8px;font-size:14px;letter-spacing:.2px}
   .hero-bg{display:none}
   .hero{min-height:auto;display:block;background:var(--night)}
   .hero-pic{display:block;margin-top:44px;height:min(100vw,440px);background:linear-gradient(180deg,rgba(13,15,20,.75) 0%,rgba(13,15,20,0) 30%,rgba(13,15,20,0) 62%,var(--night) 100%),url('/cat/brand/landing-bg-m.webp') 57% 12%/auto 112% no-repeat}
@@ -230,12 +243,14 @@ footer{border-top:1px solid var(--line);padding:40px 0 48px;font-size:14px;color
 
 <header class="top">
   <div class="wrap">
-    <a class="top-logo" href="/" aria-label="Swainz, pagina iniziale"><img src="/cat/brand/logo.webp" alt="Swainz" width="380" height="130"></a>
+    <a class="top-logo" href="/" data-i18n-aria="a_home" aria-label="Swainz, pagina iniziale"><img src="/cat/brand/logo.webp" alt="Swainz" width="380" height="130"></a>
     <button type="button" class="menu-btn" id="menu-btn" aria-label="Menu" aria-expanded="false" aria-controls="top-nav"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
-    <nav aria-label="Sezioni" id="top-nav">
-      <a href="#come-funziona">Come funziona</a>
-      <a href="#prova">Prova rapida</a>
-      <a href="#prezzi">Prezzi</a>
+    <div class="lang" role="group" data-i18n-aria="lang_group" aria-label="Lingua"><button type="button" data-l="it" aria-pressed="true" lang="it">IT</button><button type="button" data-l="en" aria-pressed="false" lang="en">EN</button></div>
+    <nav data-i18n-aria="a_sections" aria-label="Sezioni" id="top-nav">
+      <div class="lang lang-m" role="group" data-i18n-aria="lang_group" aria-label="Lingua"><button type="button" data-l="it" aria-pressed="true" lang="it">Italiano</button><button type="button" data-l="en" aria-pressed="false" lang="en">English</button></div>
+      <a href="#come-funziona" data-i18n="nav_how">Come funziona</a>
+      <a href="#prova" data-i18n="nav_try">Prova rapida</a>
+      <a href="#prezzi" data-i18n="nav_price">Prezzi</a>
       <a href="#faq">FAQ</a>
     </nav>
   </div>
@@ -244,40 +259,40 @@ footer{border-top:1px solid var(--line);padding:40px 0 48px;font-size:14px;color
 <main>
   <div class="hero">
     <div class="hero-bg" aria-hidden="true"></div>
-    <div class="hero-pic" role="img" aria-label="Swainz, il gatto nero che ti consiglia i film, sul divano davanti ai poster"></div>
+    <div class="hero-pic" role="img" data-i18n-aria="a_pic" aria-label="Swainz, il gatto nero che ti consiglia i film, sul divano davanti ai poster"></div>
     <div class="wrap">
       <div>
-        <h1>Il film giusto per stasera, scelto su misura per te.</h1>
-        <p class="lead">Dimmi che serata è. Swainz sceglie un film tra oltre 2.000, solo tra quelli che non hai ancora visto, e ti dice su quale piattaforma guardarlo.</p>
+        <h1 data-i18n="h1">Il film giusto per stasera, scelto su misura per te.</h1>
+        <p class="lead" data-i18n="hero_lead">Dimmi che serata è. Swainz sceglie un film tra oltre 2.000, solo tra quelli che non hai ancora visto, e ti dice su quale piattaforma guardarlo.</p>
         <div class="hero-cta">
-          <a class="btn btn-main btn-xl" href="/home">Inizia ora<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+          <a class="btn btn-main btn-xl" href="/home"><span data-i18n="cta">Inizia ora</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
         </div>
-        <p class="hero-note">Account gratuito con 3 consigli al giorno. Nessuna carta richiesta.</p>
+        <p class="hero-note" data-i18n="hero_note">Account gratuito con 3 consigli al giorno. Nessuna carta richiesta.</p>
       </div>
     </div>
   </div>
 
   <section id="come-funziona">
     <div class="wrap">
-      <div class="sec-head"><h2>Come funziona</h2><p class="lead">Meno tempo a scegliere, più tempo a guardare.</p></div>
+      <div class="sec-head"><h2 data-i18n="how_h">Come funziona</h2><p class="lead" data-i18n="how_lead">Meno tempo a scegliere, più tempo a guardare.</p></div>
       <ol class="steps">
-        <li><h3>Scegli che serata è</h3><p>Umore, genere, durata, epoca, piattaforme: tocca le caratteristiche che ti interessano e Swainz ti dice quanti film restano.</p></li>
-        <li><h3>Ricevi un solo film</h3><p>Niente liste infinite da scorrere: un consiglio alla volta, con trama, cast, trailer e il motivo per cui fa per te.</p></li>
-        <li><h3>Guardalo dove ce l'hai</h3><p>La scheda mostra dove si trova in abbonamento o a noleggio, e un tocco ti porta sulla piattaforma.</p></li>
+        <li><h3 data-i18n="s1_h">Scegli che serata è</h3><p data-i18n="s1_p">Umore, genere, durata, epoca, piattaforme: tocca le caratteristiche che ti interessano e Swainz ti dice quanti film restano.</p></li>
+        <li><h3 data-i18n="s2_h">Ricevi un solo film</h3><p data-i18n="s2_p">Niente liste infinite da scorrere: un consiglio alla volta, con trama, cast, trailer e il motivo per cui fa per te.</p></li>
+        <li><h3 data-i18n="s3_h">Guardalo dove ce l'hai</h3><p data-i18n="s3_p">La scheda mostra dove si trova in abbonamento o a noleggio, e un tocco ti porta sulla piattaforma.</p></li>
       </ol>
     </div>
   </section>
 
   <section id="perche" style="padding-top:0">
     <div class="wrap">
-      <div class="sec-head"><h2>Pensato per chi ama il cinema</h2></div>
+      <div class="sec-head"><h2 data-i18n="why_h">Pensato per chi ama il cinema</h2></div>
       <div class="diff">
-        <div><h3>Mai un film che hai già visto</h3><p>Segna i film visti, o importali da Letterboxd in un minuto: Swainz non te li proporrà più.</p></div>
-        <div><h3>Le tue piattaforme, prima di tutto</h3><p>Indica i servizi a cui sei abbonato e i consigli partiranno da lì.</p></div>
-        <div><h3>Ti conosce sempre meglio</h3><p>Con “Fatti conoscere” rispondi a qualche domanda sui tuoi gusti e ogni consiglio diventa più preciso.</p></div>
-        <div><h3>Lo guarderò</h3><p>Salva i film per un'altra sera. Con Premium ti scriviamo quando arrivano sulle tue piattaforme.</p></div>
-        <div><h3>Cine-Score</h3><p>Più film vedi, e più sono vari, più sali di livello. I badge si possono condividere.</p></div>
-        <div><h3>Il tuo archivio</h3><p>Ritrovi ogni film consigliato, lo filtri e lo esporti in Excel o su Letterboxd.</p></div>
+        <div><h3 data-i18n="d1_h">Mai un film che hai già visto</h3><p data-i18n="d1_p">Segna i film visti, o importali da Letterboxd in un minuto: Swainz non te li proporrà più.</p></div>
+        <div><h3 data-i18n="d2_h">Le tue piattaforme, prima di tutto</h3><p data-i18n="d2_p">Indica i servizi a cui sei abbonato e i consigli partiranno da lì.</p></div>
+        <div><h3 data-i18n="d3_h">Ti conosce sempre meglio</h3><p data-i18n="d3_p">Con “Fatti conoscere” rispondi a qualche domanda sui tuoi gusti e ogni consiglio diventa più preciso.</p></div>
+        <div><h3 data-i18n="d4_h">Lo guarderò</h3><p data-i18n="d4_p">Salva i film per un'altra sera. Con Premium ti scriviamo quando arrivano sulle tue piattaforme.</p></div>
+        <div><h3>Cine-Score</h3><p data-i18n="d5_p">Più film vedi, e più sono vari, più sali di livello. I badge si possono condividere.</p></div>
+        <div><h3 data-i18n="d6_h">Il tuo archivio</h3><p data-i18n="d6_p">Ritrovi ogni film consigliato, lo filtri e lo esporti in Excel o su Letterboxd.</p></div>
       </div>
     </div>
   </section>
@@ -285,92 +300,92 @@ footer{border-top:1px solid var(--line);padding:40px 0 48px;font-size:14px;color
   <section id="prova" class="try">
     <div class="wrap try-grid">
       <div>
-        <h2>Prova rapida</h2>
-        <p class="lead">Due domande e Swainz ti propone un film. È una versione ridotta: nel sito scegli tra decine di caratteristiche.</p>
+        <h2 data-i18n="try_h">Prova rapida</h2>
+        <p class="lead" data-i18n="try_lead">Due domande e Swainz ti propone un film. È una versione ridotta: nel sito scegli tra decine di caratteristiche.</p>
         <div class="q" role="group" aria-labelledby="q1t">
-          <p class="q-t" id="q1t">Che serata è?</p>
+          <p class="q-t" id="q1t" data-i18n="q1">Che serata è?</p>
           <div class="chips" data-q="mood">
-            <button type="button" class="chip" data-v="ridere" aria-pressed="false">Da ridere</button>
-            <button type="button" class="chip" data-v="brividi" aria-pressed="false">Da brividi</button>
-            <button type="button" class="chip" data-v="romantica" aria-pressed="false">Romantica</button>
-            <button type="button" class="chip" data-v="avventura" aria-pressed="false">Avventura</button>
+            <button type="button" class="chip" data-v="ridere" aria-pressed="false" data-i18n="m_ridere">Da ridere</button>
+            <button type="button" class="chip" data-v="brividi" aria-pressed="false" data-i18n="m_brividi">Da brividi</button>
+            <button type="button" class="chip" data-v="romantica" aria-pressed="false" data-i18n="m_romantica">Romantica</button>
+            <button type="button" class="chip" data-v="avventura" aria-pressed="false" data-i18n="m_avventura">Avventura</button>
           </div>
         </div>
         <div class="q" role="group" aria-labelledby="q2t">
-          <p class="q-t" id="q2t">Quanto tempo hai?</p>
+          <p class="q-t" id="q2t" data-i18n="q2">Quanto tempo hai?</p>
           <div class="chips" data-q="time">
-            <button type="button" class="chip" data-v="breve" aria-pressed="false">Meno di due ore</button>
-            <button type="button" class="chip" data-v="lungo" aria-pressed="false">Tutta la sera</button>
+            <button type="button" class="chip" data-v="breve" aria-pressed="false" data-i18n="t_breve">Meno di due ore</button>
+            <button type="button" class="chip" data-v="lungo" aria-pressed="false" data-i18n="t_lungo">Tutta la sera</button>
           </div>
         </div>
-        <button type="button" class="btn btn-main try-go" id="try-go" disabled>Scegli per me</button>
-        <p class="try-small">La prova sceglie tra 8 film d'esempio e non salva nulla.</p>
+        <button type="button" class="btn btn-main try-go" id="try-go" disabled data-i18n="try_go">Scegli per me</button>
+        <p class="try-small" data-i18n="try_small">La prova sceglie tra 8 film d'esempio e non salva nulla.</p>
       </div>
       <div class="card" id="try-card" aria-live="polite">
-        <div class="card-empty"><img src="/cat/brand/mascotte-soft.webp" alt="" width="387" height="301"><p>Rispondi alle due domande e qui comparirà il film scelto da Swainz.</p></div>
+        <div class="card-empty"><img src="/cat/brand/mascotte-soft.webp" alt="" width="387" height="301"><p data-i18n="try_empty">Rispondi alle due domande e qui comparirà il film scelto da Swainz.</p></div>
       </div>
     </div>
   </section>
 
   <section id="piattaforme">
     <div class="wrap">
-      <div class="sec-head"><h2>Sa dove trovare ogni film</h2><p class="lead">Per ogni film Swainz indica dove è disponibile in Italia, in abbonamento o a noleggio.</p></div>
-      <div class="plats" aria-label="Piattaforme in abbonamento">
+      <div class="sec-head"><h2 data-i18n="plat_h">Sa dove trovare ogni film</h2><p class="lead" data-i18n="plat_lead">Per ogni film Swainz indica dove è disponibile in Italia, in abbonamento o a noleggio.</p></div>
+      <div class="plats" data-i18n-aria="a_plats" aria-label="Piattaforme in abbonamento">
         <span>Netflix</span><span>Prime Video</span><span>Disney+</span><span>Apple TV</span><span>Sky Go</span><span>NOW</span><span>Paramount+</span><span>HBO Max</span><span>TIMVISION</span><span>Mediaset Infinity</span><span>RaiPlay</span><span>MUBI</span><span>YouTube Premium</span><span>Crunchyroll</span><span>MGM+</span>
       </div>
-      <p class="plats-note">E a noleggio o in acquisto su Prime Video Store, Apple TV Store, Google Play, CHILI, Rakuten TV e altri. Dati sulla disponibilità forniti da JustWatch.</p>
+      <p class="plats-note" data-i18n="plat_note">E a noleggio o in acquisto su Prime Video Store, Apple TV Store, Google Play, CHILI, Rakuten TV e altri. Dati sulla disponibilità forniti da JustWatch.</p>
     </div>
   </section>
 
   <section id="prezzi" style="padding-top:0">
     <div class="wrap">
-      <div class="sec-head"><h2>Gratis per iniziare</h2><p class="lead">Premium è facoltativo e si attiva quando vuoi dal tuo profilo.</p></div>
+      <div class="sec-head"><h2 data-i18n="price_h">Gratis per iniziare</h2><p class="lead" data-i18n="price_lead">Premium è facoltativo e si attiva quando vuoi dal tuo profilo.</p></div>
       <div class="plans">
         <div class="plan">
           <h3>Free</h3>
-          <p class="price">0 €</p>
+          <p class="price" data-i18n="f_price">0 €</p>
           <ul>
-            <li>3 consigli al giorno</li>
-            <li>I filtri principali</li>
-            <li>Un consiglio in più al giorno se ti proponiamo un film già visto</li>
-            <li>Lo guarderò, film visti e archivio dei consigli</li>
-            <li>Con pubblicità</li>
+            <li data-i18n="f1">3 consigli al giorno</li>
+            <li data-i18n="f2">I filtri principali</li>
+            <li data-i18n="f3">Un consiglio in più al giorno se ti proponiamo un film già visto</li>
+            <li data-i18n="f4">Lo guarderò, film visti e archivio dei consigli</li>
+            <li data-i18n="f5">Con pubblicità</li>
           </ul>
         </div>
         <div class="plan plan-prem">
           <h3>Premium</h3>
-          <p class="price">2,50 € <small>al mese, oppure 20 € l'anno</small></p>
+          <p class="price" data-i18n="p_price" data-html>2,50 € <small>al mese, oppure 20 € l'anno</small></p>
           <ul>
-            <li>Fino a 50 consigli al giorno</li>
-            <li>Tutti i filtri e il questionario completo</li>
-            <li>Avvisi email quando un film di “Lo guarderò” arriva sulle tue piattaforme</li>
-            <li>Niente pubblicità</li>
+            <li data-i18n="p1">Fino a 50 consigli al giorno</li>
+            <li data-i18n="p2">Tutti i filtri e il questionario completo</li>
+            <li data-i18n="p3">Avvisi email quando un film di “Lo guarderò” arriva sulle tue piattaforme</li>
+            <li data-i18n="p4">Niente pubblicità</li>
           </ul>
         </div>
       </div>
-      <p class="plan-note">Prezzi IVA inclusa. Pagamento sicuro con Stripe, disdici quando vuoi.</p>
+      <p class="plan-note" data-i18n="plan_note">Prezzi IVA inclusa. Pagamento sicuro con Stripe, disdici quando vuoi.</p>
     </div>
   </section>
 
   <section id="faq" style="padding-top:0">
     <div class="wrap">
-      <div class="sec-head"><h2>Domande frequenti</h2></div>
+      <div class="sec-head"><h2 data-i18n="faq_h">Domande frequenti</h2></div>
       <div class="faq">
-        <details><summary>È gratis?</summary><p>Sì. Con l'account gratuito hai 3 consigli al giorno e le funzioni principali. Premium è facoltativo.</p></details>
-        <details><summary>Devo avere un abbonamento a una piattaforma?</summary><p>No. Swainz ti dice dove trovare il film; se vuoi, puoi limitare i consigli alle piattaforme che hai.</p></details>
-        <details><summary>Come sceglie i film?</summary><p>Parte dalle caratteristiche che scegli e dalle tue risposte a “Fatti conoscere”, esclude i film che hai già visto e quelli che ti ha già consigliato, e ti propone quello più adatto.</p></details>
-        <details><summary>Che film ci sono?</summary><p>Oltre 2.000 film, dai grandi classici alle uscite più recenti, ognuno con trama, cast, voto e piattaforme.</p></details>
-        <details><summary>Come disdico Premium?</summary><p>Dal tuo profilo, in qualsiasi momento. Premium resta attivo fino alla fine del periodo già pagato.</p></details>
-        <details><summary>Che dati raccogliete?</summary><p>Solo quelli che servono al servizio: email, preferenze, film visti e consigliati. Nessuna pubblicità profilata. Trovi tutto nella <a href="/privacy">Privacy Policy</a>.</p></details>
+        <details><summary data-i18n="q_free">È gratis?</summary><p data-i18n="a_free">Sì. Con l'account gratuito hai 3 consigli al giorno e le funzioni principali. Premium è facoltativo.</p></details>
+        <details><summary data-i18n="q_sub">Devo avere un abbonamento a una piattaforma?</summary><p data-i18n="a_sub">No. Swainz ti dice dove trovare il film; se vuoi, puoi limitare i consigli alle piattaforme che hai.</p></details>
+        <details><summary data-i18n="q_how">Come sceglie i film?</summary><p data-i18n="a_how">Parte dalle caratteristiche che scegli e dalle tue risposte a “Fatti conoscere”, esclude i film che hai già visto e quelli che ti ha già consigliato, e ti propone quello più adatto.</p></details>
+        <details><summary data-i18n="q_which">Che film ci sono?</summary><p data-i18n="a_which">Oltre 2.000 film, dai grandi classici alle uscite più recenti, ognuno con trama, cast, voto e piattaforme.</p></details>
+        <details><summary data-i18n="q_cancel">Come disdico Premium?</summary><p data-i18n="a_cancel">Dal tuo profilo, in qualsiasi momento. Premium resta attivo fino alla fine del periodo già pagato.</p></details>
+        <details><summary data-i18n="q_data">Che dati raccogliete?</summary><p data-i18n="a_data" data-html>Solo quelli che servono al servizio: email, preferenze, film visti e consigliati. Nessuna pubblicità profilata. Trovi tutto nella <a href="/privacy">Privacy Policy</a>.</p></details>
       </div>
     </div>
   </section>
 
   <section class="end">
     <div class="wrap">
-      <h2>Stasera decide Swainz.</h2>
-      <p class="lead">Crea l'account gratuito e ricevi il tuo primo consiglio in meno di un minuto.</p>
-      <a class="btn btn-main btn-xl" href="/home">Inizia ora<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+      <h2 data-i18n="end_h">Stasera decide Swainz.</h2>
+      <p class="lead" data-i18n="end_lead">Crea l'account gratuito e ricevi il tuo primo consiglio in meno di un minuto.</p>
+      <a class="btn btn-main btn-xl" href="/home"><span data-i18n="cta">Inizia ora</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
     </div>
   </section>
 </main>
@@ -379,29 +394,24 @@ footer{border-top:1px solid var(--line);padding:40px 0 48px;font-size:14px;color
   <div class="wrap">
     <div class="foot">
       <img src="/cat/brand/logo.webp" alt="Swainz" width="117" height="40" style="height:34px;width:auto">
-      <nav aria-label="Informazioni">
-        <a href="/privacy">Privacy</a><a href="/termini">Termini di servizio</a><a href="/crediti">Crediti</a><a href="mailto:support@swainz.it">support@swainz.it</a>
+      <nav data-i18n-aria="a_info" aria-label="Informazioni">
+        <a href="/privacy">Privacy</a><a href="/termini" data-i18n="f_terms">Termini di servizio</a><a href="/crediti" data-i18n="f_credits">Crediti</a><a href="mailto:support@swainz.it">support@swainz.it</a>
       </nav>
     </div>
-    <p class="foot-legal">© 2026 Swainz<span id="piva"></span>. Questo prodotto usa le API di TMDB ma non è approvato né certificato da TMDB. Dati sulla disponibilità in streaming: JustWatch.</p>
+    <p class="foot-legal">© 2026 Swainz<span id="piva"></span>. <span data-i18n="legal">Questo prodotto usa le API di TMDB ma non è approvato né certificato da TMDB. Dati sulla disponibilità in streaming: JustWatch.</span></p>
   </div>
 </footer>
 
 <script>
-/* Prova senza registrarti: 8 film d'esempio, nessuna chiamata al server.
-   id = id del film nel catalogo (per locandina e link futuri), poster = indirizzo della locandina. */
-var SW_DEMO={
-  ridere:   {breve:{title:'Quasi amici',year:2011,dir:'Olivier Nakache, Éric Toledano',dur:112,id:null,poster:'',why:'Una commedia che fa ridere e commuovere insieme: perfetta per staccare senza pensieri.'},
-             lungo:{title:'Forrest Gump',year:1994,dir:'Robert Zemeckis',dur:142,id:null,poster:'',why:'Una vita intera in una serata: ironia, tenerezza e una colonna sonora indimenticabile.'}},
-  brividi:  {breve:{title:'Scappa – Get Out',year:2017,dir:'Jordan Peele',dur:104,id:null,poster:'',why:'Un thriller teso e pieno di sorprese, che non ti lascia fino all\'ultima scena.'},
-             lungo:{title:'Prisoners',year:2013,dir:'Denis Villeneuve',dur:153,id:null,poster:'',why:'Due ore e mezza di tensione costante, con due interpretazioni enormi.'}},
-  romantica:{breve:{title:'Prima dell\'alba',year:1995,dir:'Richard Linklater',dur:101,id:null,poster:'',why:'Due sconosciuti, una notte a Vienna e una conversazione che non vorresti finisse mai.'},
-             lungo:{title:'La La Land',year:2016,dir:'Damien Chazelle',dur:128,id:null,poster:'',why:'Musica, colori e un amore che fa i conti con i sogni.'}},
-  avventura:{breve:{title:'Ritorno al futuro',year:1985,dir:'Robert Zemeckis',dur:116,id:null,poster:'',why:'L\'avventura per eccellenza: ritmo, invenzioni e una DeLorean.'},
-             lungo:{title:'Interstellar',year:2014,dir:'Christopher Nolan',dur:169,id:null,poster:'',why:'Un viaggio oltre le stelle che è anche una storia di padri e figli.'}}
-};
+/* Testi in italiano e inglese (v444). La lingua scelta resta in sw3_lang, la stessa chiave che legge l'app. */
+var SW_I18N={"it":{"nav_how":"Come funziona","nav_try":"Prova rapida","nav_price":"Prezzi","h1":"Il film giusto per stasera, scelto su misura per te.","hero_lead":"Dimmi che serata è. Swainz sceglie un film tra oltre 2.000, solo tra quelli che non hai ancora visto, e ti dice su quale piattaforma guardarlo.","hero_note":"Account gratuito con 3 consigli al giorno. Nessuna carta richiesta.","how_h":"Come funziona","how_lead":"Meno tempo a scegliere, più tempo a guardare.","s1_h":"Scegli che serata è","s1_p":"Umore, genere, durata, epoca, piattaforme: tocca le caratteristiche che ti interessano e Swainz ti dice quanti film restano.","s2_h":"Ricevi un solo film","s2_p":"Niente liste infinite da scorrere: un consiglio alla volta, con trama, cast, trailer e il motivo per cui fa per te.","s3_h":"Guardalo dove ce l'hai","s3_p":"La scheda mostra dove si trova in abbonamento o a noleggio, e un tocco ti porta sulla piattaforma.","why_h":"Pensato per chi ama il cinema","d1_h":"Mai un film che hai già visto","d1_p":"Segna i film visti, o importali da Letterboxd in un minuto: Swainz non te li proporrà più.","d2_h":"Le tue piattaforme, prima di tutto","d2_p":"Indica i servizi a cui sei abbonato e i consigli partiranno da lì.","d3_h":"Ti conosce sempre meglio","d3_p":"Con “Fatti conoscere” rispondi a qualche domanda sui tuoi gusti e ogni consiglio diventa più preciso.","d4_h":"Lo guarderò","d4_p":"Salva i film per un'altra sera. Con Premium ti scriviamo quando arrivano sulle tue piattaforme.","d5_p":"Più film vedi, e più sono vari, più sali di livello. I badge si possono condividere.","d6_h":"Il tuo archivio","d6_p":"Ritrovi ogni film consigliato, lo filtri e lo esporti in Excel o su Letterboxd.","try_h":"Prova rapida","try_lead":"Due domande e Swainz ti propone un film. È una versione ridotta: nel sito scegli tra decine di caratteristiche.","q1":"Che serata è?","m_ridere":"Da ridere","m_brividi":"Da brividi","m_romantica":"Romantica","m_avventura":"Avventura","q2":"Quanto tempo hai?","t_breve":"Meno di due ore","t_lungo":"Tutta la sera","try_go":"Scegli per me","plat_h":"Sa dove trovare ogni film","plat_lead":"Per ogni film Swainz indica dove è disponibile in Italia, in abbonamento o a noleggio.","plat_note":"E a noleggio o in acquisto su Prime Video Store, Apple TV Store, Google Play, CHILI, Rakuten TV e altri. Dati sulla disponibilità forniti da JustWatch.","price_h":"Gratis per iniziare","price_lead":"Premium è facoltativo e si attiva quando vuoi dal tuo profilo.","f1":"3 consigli al giorno","f2":"I filtri principali","f3":"Un consiglio in più al giorno se ti proponiamo un film già visto","f4":"Lo guarderò, film visti e archivio dei consigli","f5":"Con pubblicità","p1":"Fino a 50 consigli al giorno","p2":"Tutti i filtri e il questionario completo","p3":"Avvisi email quando un film di “Lo guarderò” arriva sulle tue piattaforme","p4":"Niente pubblicità","plan_note":"Prezzi IVA inclusa. Pagamento sicuro con Stripe, disdici quando vuoi.","faq_h":"Domande frequenti","q_free":"È gratis?","a_free":"Sì. Con l'account gratuito hai 3 consigli al giorno e le funzioni principali. Premium è facoltativo.","q_sub":"Devo avere un abbonamento a una piattaforma?","a_sub":"No. Swainz ti dice dove trovare il film; se vuoi, puoi limitare i consigli alle piattaforme che hai.","q_how":"Come sceglie i film?","a_how":"Parte dalle caratteristiche che scegli e dalle tue risposte a “Fatti conoscere”, esclude i film che hai già visto e quelli che ti ha già consigliato, e ti propone quello più adatto.","q_which":"Che film ci sono?","a_which":"Oltre 2.000 film, dai grandi classici alle uscite più recenti, ognuno con trama, cast, voto e piattaforme.","q_cancel":"Come disdico Premium?","a_cancel":"Dal tuo profilo, in qualsiasi momento. Premium resta attivo fino alla fine del periodo già pagato.","q_data":"Che dati raccogliete?","end_h":"Stasera decide Swainz.","end_lead":"Crea l'account gratuito e ricevi il tuo primo consiglio in meno di un minuto.","f_terms":"Termini di servizio","f_credits":"Crediti","a_data":"Solo quelli che servono al servizio: email, preferenze, film visti e consigliati. Nessuna pubblicità profilata. Trovi tutto nella <a href=\"/privacy\">Privacy Policy</a>.","p_price":"2,50 € <small>al mese, oppure 20 € l'anno</small>","f_price":"0 €","legal":"Questo prodotto usa le API di TMDB ma non è approvato né certificato da TMDB. Dati sulla disponibilità in streaming: JustWatch.","cta":"Inizia ora","try_small":"La prova sceglie tra {n} film d'esempio e non salva nulla.","try_empty":"Rispondi alle due domande e qui comparirà il film scelto da Swainz.","a_home":"Swainz, pagina iniziale","a_sections":"Sezioni","a_pic":"Swainz, il gatto nero che ti consiglia i film, sul divano davanti ai poster","a_plats":"Piattaforme in abbonamento","a_info":"Informazioni","kicker":"Swainz ti consiglia","again":"Un altro film","limit":"Questa prova sceglie tra {n} film. Su Swainz scegli tra oltre 2.000, con decine di caratteristiche, le tue piattaforme e mai un film che hai già visto.","poster_alt":"Locandina di {t}","doc_title":"Swainz – Il film giusto per stasera, scelto su misura per te","doc_desc":"Dimmi che serata è: Swainz sceglie per te un film tra oltre 2.000, solo tra quelli che non hai visto, e ti dice su quale piattaforma guardarlo. Gratis, 3 consigli al giorno.","lang_group":"Lingua"},"en":{"nav_how":"How it works","nav_try":"Quick try","nav_price":"Pricing","h1":"The right film for tonight, picked just for you.","hero_lead":"Tell me what kind of evening it is. Swainz picks one film out of more than 2,000, only from those you haven’t seen yet, and tells you where to watch it.","hero_note":"Free account with 3 recommendations a day. No card required.","how_h":"How it works","how_lead":"Less time choosing, more time watching.","s1_h":"Pick your kind of evening","s1_p":"Mood, genre, length, era, platforms: tap the features you care about and Swainz tells you how many films are left.","s2_h":"Get just one film","s2_p":"No endless lists to scroll through: one recommendation at a time, with plot, cast, trailer and the reason it suits you.","s3_h":"Watch it where you already can","s3_p":"The film card shows where it’s available by subscription or to rent, and one tap takes you to the platform.","why_h":"Made for film lovers","d1_h":"Never a film you’ve already seen","d1_p":"Mark the films you’ve seen, or import them from Letterboxd in a minute: Swainz won’t suggest them again.","d2_h":"Your platforms come first","d2_p":"Tell Swainz which services you subscribe to and recommendations will start from there.","d3_h":"It gets to know you better and better","d3_p":"With “Let Swainz know you” you answer a few questions about your taste, and every recommendation gets sharper.","d4_h":"Watch later","d4_p":"Save films for another evening. With Premium we email you when they land on your platforms.","d5_p":"The more films you watch, and the more varied they are, the higher you climb. Badges can be shared.","d6_h":"Your archive","d6_p":"Find every film you’ve been recommended, filter the list and export it to Excel or Letterboxd.","try_h":"Quick try","try_lead":"Two questions and Swainz suggests a film. It’s a cut-down version: on the site you choose from dozens of features.","q1":"What kind of evening is it?","m_ridere":"Make me laugh","m_brividi":"Thrills and chills","m_romantica":"Romantic","m_avventura":"Adventure","q2":"How much time do you have?","t_breve":"Under two hours","t_lungo":"The whole evening","try_go":"Pick for me","plat_h":"It knows where to find every film","plat_lead":"For every film Swainz shows where it’s available in Italy, by subscription or to rent.","plat_note":"Also to rent or buy on Prime Video Store, Apple TV Store, Google Play, CHILI, Rakuten TV and more. Availability data provided by JustWatch.","price_h":"Free to start","price_lead":"Premium is optional and you can switch it on from your profile whenever you like.","f1":"3 recommendations a day","f2":"The main filters","f3":"One extra recommendation a day if we suggest a film you’ve already seen","f4":"Watch later, watched films and recommendation archive","f5":"With ads","p1":"Up to 50 recommendations a day","p2":"All filters and the full questionnaire","p3":"Email alerts when a film on your “Watch later” list lands on your platforms","p4":"No ads","plan_note":"Prices include VAT. Secure payment with Stripe, cancel anytime.","faq_h":"Frequently asked questions","q_free":"Is it free?","a_free":"Yes. The free account gives you 3 recommendations a day and the main features. Premium is optional.","q_sub":"Do I need a streaming subscription?","a_sub":"No. Swainz tells you where to find the film; if you like, you can limit recommendations to the platforms you have.","q_how":"How does it choose the films?","a_how":"It starts from the features you pick and your answers in “Let Swainz know you”, leaves out the films you’ve already seen and those it has already recommended, and suggests the best match.","q_which":"Which films are there?","a_which":"Over 2,000 films, from the great classics to recent releases, each with plot, cast, rating and platforms.","q_cancel":"How do I cancel Premium?","a_cancel":"From your profile, at any time. Premium stays active until the end of the period you’ve already paid for.","q_data":"What data do you collect?","end_h":"Tonight, Swainz decides.","end_lead":"Create your free account and get your first recommendation in under a minute.","f_terms":"Terms of service","f_credits":"Credits","a_data":"Only what the service needs: email, preferences, films watched and recommended. No targeted advertising. All the details are in the <a href=\"/privacy\">Privacy Policy</a>.","p_price":"€2.50 <small>a month, or €20 a year</small>","f_price":"€0","legal":"This product uses the TMDB API but is not endorsed or certified by TMDB. Streaming availability data: JustWatch.","cta":"Start now","try_small":"The demo picks from {n} sample films and saves nothing.","try_empty":"Answer the two questions and the film Swainz picks will appear here.","a_home":"Swainz, home page","a_sections":"Sections","a_pic":"Swainz, the black cat who recommends films, on the sofa in front of the posters","a_plats":"Subscription platforms","a_info":"Information","kicker":"Swainz recommends","again":"Another film","limit":"This demo picks from {n} films. On Swainz you choose from over 2,000, with dozens of features, your platforms and never a film you’ve already seen.","poster_alt":"Poster of {t}","doc_title":"Swainz – The right film for tonight, picked just for you","doc_desc":"Tell me what kind of evening it is: Swainz picks one film out of more than 2,000, only from those you haven’t seen, and tells you where to watch it. Free, 3 recommendations a day.","lang_group":"Language"}};
+/* Prova rapida: film d'esempio, nessuna chiamata al server. Durata sotto i 120 minuti = "meno di due ore".
+   id = id del film nel catalogo, poster = indirizzo della locandina (poster_url). */
+var SW_DEMO=[{"mood": "ridere","t_it": "Quasi amici","t_en": "The Intouchables","year": 2011,"dir": "Olivier Nakache, Éric Toledano","dur": 112,"id": null,"poster": "","why_it": "Una commedia che fa ridere e commuovere insieme: perfetta per staccare senza pensieri.","why_en": "A comedy that makes you laugh and moves you at the same time: perfect for switching off."},{"mood": "ridere","t_it": "Forrest Gump","t_en": "Forrest Gump","year": 1994,"dir": "Robert Zemeckis","dur": 142,"id": null,"poster": "","why_it": "Una vita intera in una serata: ironia, tenerezza e una colonna sonora indimenticabile.","why_en": "A whole life in one evening: wit, tenderness and an unforgettable soundtrack."},{"mood": "brividi","t_it": "Scappa – Get Out","t_en": "Get Out","year": 2017,"dir": "Jordan Peele","dur": 104,"id": null,"poster": "","why_it": "Un thriller teso e pieno di sorprese, che non ti lascia fino all'ultima scena.","why_en": "A tense thriller full of surprises that keeps its grip until the very last scene."},{"mood": "brividi","t_it": "Prisoners","t_en": "Prisoners","year": 2013,"dir": "Denis Villeneuve","dur": 153,"id": null,"poster": "","why_it": "Due ore e mezza di tensione costante, con due interpretazioni enormi.","why_en": "Two and a half hours of relentless tension, with two huge performances."},{"mood": "romantica","t_it": "Prima dell'alba","t_en": "Before Sunrise","year": 1995,"dir": "Richard Linklater","dur": 101,"id": null,"poster": "","why_it": "Due sconosciuti, una notte a Vienna e una conversazione che non vorresti finisse mai.","why_en": "Two strangers, one night in Vienna and a conversation you never want to end."},{"mood": "romantica","t_it": "La La Land","t_en": "La La Land","year": 2016,"dir": "Damien Chazelle","dur": 128,"id": null,"poster": "","why_it": "Musica, colori e un amore che fa i conti con i sogni.","why_en": "Music, colour and a love story that has to reckon with dreams."},{"mood": "avventura","t_it": "Ritorno al futuro","t_en": "Back to the Future","year": 1985,"dir": "Robert Zemeckis","dur": 116,"id": null,"poster": "","why_it": "L'avventura per eccellenza: ritmo, invenzioni e una DeLorean.","why_en": "The adventure film par excellence: pace, inventiveness and a DeLorean."},{"mood": "avventura","t_it": "Interstellar","t_en": "Interstellar","year": 2014,"dir": "Christopher Nolan","dur": 169,"id": null,"poster": "","why_it": "Un viaggio oltre le stelle che è anche una storia di padri e figli.","why_en": "A journey beyond the stars that is also a story of fathers and children."}];
+var SW_LANG='it';
+function swT(k,v){var d=SW_I18N[SW_LANG]||SW_I18N.it,s=(k in d)?d[k]:(SW_I18N.it[k]||k);if(v)for(var x in v)s=s.split('{'+x+'}').join(v[x]);return s;}
 (function(){
-  var sel={mood:null,time:null},go=document.getElementById('try-go'),card=document.getElementById('try-card');
+  var sel={mood:null,time:null},last={},cur=null,go=document.getElementById('try-go'),card=document.getElementById('try-card');
   document.querySelectorAll('.chips').forEach(function(g){
     g.addEventListener('click',function(e){
       var b=e.target.closest('.chip');if(!b)return;
@@ -412,23 +422,53 @@ var SW_DEMO={
   });
   function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
   function dur(m){var h=Math.floor(m/60),r=m%60;return h+' h'+(r?' '+r+' min':'');}
-  go.addEventListener('click',function(){
-    var f=SW_DEMO[sel.mood]&&SW_DEMO[sel.mood][sel.time];if(!f)return;
+  function pick(){
+    var key=sel.mood+'|'+sel.time;
+    var list=SW_DEMO.filter(function(f){return f.mood===sel.mood&&((f.dur<120)===(sel.time==='breve'));});
+    if(!list.length)return null;
+    var pool=list.length>1?list.filter(function(f){return f!==last[key];}):list;   // mai lo stesso film due volte di fila
+    var f=pool[Math.floor(Math.random()*pool.length)];last[key]=f;return f;
+  }
+  function render(){
+    var f=cur;if(!f)return;var en=SW_LANG==='en',title=en?f.t_en:f.t_it;
     card.innerHTML=
       '<div class="card-film">'+
-        '<div class="poster">'+(f.poster?'<img src="'+esc(f.poster)+'" alt="Locandina di '+esc(f.title)+'">':esc(f.title))+'</div>'+
-        '<div><p class="card-kicker">Swainz ti consiglia</p><p class="card-title">'+esc(f.title)+'</p>'+
+        '<div class="poster">'+(f.poster?'<img src="'+esc(f.poster)+'" alt="'+esc(swT('poster_alt',{t:title}))+'" loading="lazy">':esc(title))+'</div>'+
+        '<div><p class="card-kicker">'+esc(swT('kicker'))+'</p><p class="card-title">'+esc(title)+'</p>'+
         '<p class="card-meta">'+f.year+', '+esc(f.dir)+', '+dur(f.dur)+'</p>'+
-        '<p class="card-why">'+esc(f.why)+'</p>'+
-        '<button type="button" class="card-again">Prova un\'altra combinazione</button></div>'+
+        '<p class="card-why">'+esc(en?f.why_en:f.why_it)+'</p>'+
+        '<button type="button" class="card-again">'+esc(swT('again'))+'</button></div>'+
       '</div>'+
-      '<div class="card-limit">Questa prova sceglie tra 8 film. Su Swainz scegli tra oltre 2.000, con decine di caratteristiche, le tue piattaforme e mai un film che hai già visto.'+
-        '<a class="btn btn-main" href="/home">Inizia ora</a></div>';
+      '<div class="card-limit">'+esc(swT('limit',{n:SW_DEMO.length}))+
+        '<a class="btn btn-main" href="/home">'+esc(swT('cta'))+'</a></div>';
+    card.querySelector('.card-again').addEventListener('click',function(){cur=pick()||cur;render();});
+  }
+  go.addEventListener('click',function(){
+    cur=pick();if(!cur)return;render();
     if(window.matchMedia('(max-width:860px)').matches)card.scrollIntoView({behavior:'smooth',block:'start'}); // su telefono la scheda è sotto le domande
-    card.querySelector('.card-again').addEventListener('click',function(){
-      document.getElementById('prova').scrollIntoView({behavior:'smooth',block:'start'});
-    });
   });
+  window._swDemoRender=render;
+})();
+/* lingua: ?lang=en|it > scelta salvata (sw3_lang) > italiano */
+(function(){
+  function apply(l,save){
+    SW_LANG=(l==='en')?'en':'it';
+    if(save){try{localStorage.setItem('sw3_lang',SW_LANG);}catch(e){}}
+    document.documentElement.lang=SW_LANG;
+    document.querySelectorAll('[data-i18n]').forEach(function(el){
+      var v=swT(el.getAttribute('data-i18n'),{n:SW_DEMO.length});
+      if(el.hasAttribute('data-html'))el.innerHTML=v;else el.textContent=v;
+    });
+    document.querySelectorAll('[data-i18n-aria]').forEach(function(el){el.setAttribute('aria-label',swT(el.getAttribute('data-i18n-aria')));});
+    document.querySelectorAll('.lang button').forEach(function(b){b.setAttribute('aria-pressed',String(b.getAttribute('data-l')===SW_LANG));});
+    document.title=swT('doc_title');
+    var md=document.querySelector('meta[name="description"]');if(md)md.setAttribute('content',swT('doc_desc'));
+    if(window._swDemoRender)window._swDemoRender();
+  }
+  var q=(location.search.match(/[?&]lang=(it|en)\b/)||[])[1],st=null;
+  try{st=localStorage.getItem('sw3_lang');}catch(e){}
+  apply(q||st||'it',!!q);
+  document.querySelectorAll('.lang button').forEach(function(b){b.addEventListener('click',function(){apply(b.getAttribute('data-l'),true);});});
 })();
 </script>
 <script>
