@@ -26,7 +26,7 @@
 <meta name="twitter:image" content="https://swainz.it/cat/brand/og-image.jpg">
 <!-- v433 · statistiche di visita Vercel Web Analytics: senza cookie, dati aggregati. Il gancio beforeSend toglie dall'indirizzo # e ? (il ritorno da Google/Facebook porta i token nel #) -->
 <script>window.va=window.va||function(){(window.vaq=window.vaq||[]).push(arguments);};window.va('beforeSend',function(e){try{e.url=String(e.url).split('#')[0].split('?')[0];}catch(x){}return e;});</script>
-<script defer src="/_vercel/insights/script.js"></script><!-- v454 · Restyling mobile, compiti M1.7 e M2.1–M2.8. Correzione: avviando l'app in inglese (lingua salvata, v444) 42 testi posti dopo lo script principale restavano in italiano (primo accesso, Premium, 'Torna indietro', esclusioni, condivisione): setLang viene riapplicata a DOMContentLoaded. Il resto e' solo CSS. Sotto i 600px: Premium (pulsante mensile ben visibile, note leggibili, avviso di benvenuto sopra la barra), menu e lingua con voci da 46–48px, filtri (chip da 38px, cursore del voto con maniglia da 26px, etichetta Premium leggibile), liste (titoli su due righe, ordinamento in una riga scorrevole di pulsanti con 'seleziona tutti' sulla stessa riga), finestre (pulsanti e X piu' grandi), pagine legali con 'Torna indietro' sempre in alto. Sotto i 380px il titolo del pannello va su due righe. Schermata di accesso: se e' piu' alta dello schermo parte dall'alto (a 320px il logo era tagliato). Telefoni in orizzontale: barra e intestazione compatte. Desktop invariato. --><!-- v453 · Restyling mobile, compito M1.5 (scheda film), solo sotto i 561px: scorre tutta la scheda (#fcc) e non solo il corpo, cosi' titolo e dati non restano fissi (con un titolo lungo su uno schermo piccolo restavano circa 200px per leggere); X sempre nell'angolo; titolo con dimensione adattiva; badge delle piattaforme alti 40px; pulsanti in fondo su due colonne da 48px (restano in fondo allo scorrimento, come deciso). Desktop invariato. --><!-- v452 · Restyling mobile, compito M1.1 (primo accesso), solo sotto i 600px: Nome e Cognome uno sotto l'altro (il Cognome usciva dallo schermo), campi da 48px a tutta larghezza, sfondo coprente, pulsanti a tutta larghezza con 'Continua' sopra e 'Salta' sotto, margini che tengono conto della tacca. Desktop invariato. --><!-- v451 · Restyling mobile, compito M1.3 (home), solo sotto i 600px: barra in basso unica a fondo pieno con, dall'alto, i filtri attivi (riga scorrevole, #afp-mobile spostato nella barra da _afpPlace; sopra i 600px torna al suo posto), il contatore dei film su una riga e 'Chiedi a Swainz' su una riga (54px). Il margine in fondo alla pagina segue l'altezza reale della barra (--bar-h, misurata con ResizeObserver): pie' di pagina e ultimo gruppo di filtri non restano piu' coperti. Corretto anche il margine inferiore della barra azzerato dalla v445 sui telefoni senza tacca. Desktop invariato. --><!-- v450 · Restyling mobile, compito M1.2 (home), solo sotto i 600px: proposte rapide su 2 colonne con i tag interi (vanno a capo; dopo la barra di 'Psicologico/mentale' c'e' uno spazio di larghezza zero); intestazione di Swainz Lab con titolo a sinistra e 'Reset filtri' + freccia a destra, senza sovrapposizioni. Desktop invariato. --><!-- v449 · Gatto sospeso su telefoni e tablet (decisione di Lorenzo: i WebM con trasparenza hanno un rettangolo nero su Safari iOS; se ne riparla con la revisione delle animazioni). Criterio unico _catOff(): (max-width:600px) oppure dispositivo touch senza hover. In quel caso: nessun filmato creato o scaricato (_buildVidStage), initCat/wakeUpSequence/reappearCat non partono, #catwrapper, fumetti dei suggerimenti e #loafcatw nascosti; durante la ricerca compare #sw-think (muso di Swainz che gira + 'Swainz sta scegliendo…') dal tocco fino alla scheda, con attesa dopo la risposta ridotta da 2,5 a 1,1 s; nel fumetto di benvenuto il muso fermo sostituisce il filmato. Desktop invariato. Per riattivare: _catOff() deve restituire false. --><!-- v448 · Restyling mobile, compito M0.2, solo sotto i 600px: con un avviso a tutto schermo aperto (annuncio, consigli terminati, nessun film, caratteristiche aggiuntive, esclusioni, salto di livello, condivisione, trailer, consiglio gratuito, benvenuto, primo accesso) la pagina sotto non scorre piu' (html:has(...){overflow:hidden}). Pannelli e scheda film lo facevano gia' (sw-seclock, v425). Solo CSS. --><!-- v447 · Profilo (desktop e mobile). Il campo 'Film preferito' e il divisore #pfdiv1 escono dalla colonna dei dati: il campo (stesso id pFilm) passa nella nuova sezione 'I tuoi preferiti' (details#prof-fav, chiusa all'apertura, sotto le due colonne e sopra 'I tuoi dati') insieme a due campi nuovi, pRegista e pAttore, salvati nello stesso oggetto profile (nessuna modifica al database; pulsante 'Salva preferiti' = saveProfp, conferma in #profOk2). La scheda 'Avvisi email' sta ora nella colonna sinistra anche su desktop, sotto i dati personali (_wlaPlace non la sposta piu' nella colonna destra). --><!-- v446 · Restyling mobile, compito M1.6 (profilo), solo sotto i 600px: la pagina del profilo non esce piu' dallo schermo (il riquadro Account va su due righe, la colonna della griglia non si allarga oltre lo schermo, pulsanti dei dati a tutta larghezza); il riquadro "I tuoi dati" passa in fondo e sparisce la fascia vuota in alto. Desktop invariato. --><!-- v445 · Restyling mobile, compito M0.1 (fondamenta), solo sotto i 600px: viewport-fit=cover e variabili --sat/--sab per tacca e barra del browser; 100dvh; tutti i campi a 16px (niente zoom automatico su iPhone); bersagli toccabili da 40–44px (pulsanti a riga piena piu' alti, icone con area estesa via ::after); nessun testo sotto i 12px. Desktop invariato. --><!-- v444 · La lingua scelta resta in localStorage (sw3_lang, it|en): la scrive setLang e la pagina pubblica (selettore IT/EN, ?lang=en); all'avvio l'app la legge e, se è inglese, applica subito setLang. Prima l'app partiva sempre in italiano. sw3_lang non è un dato personale: resta al logout e non va in SW_PERSONAL_KEYS. --><!-- v443 · Fase D: pagina pubblica. Questo file diventa app.html e vive in /home; "/" serve index.html (pagina pubblica, file separato). vercel.json: ogni percorso senza estensione diverso da "/" va ad app.html (/home, /login, /profilo, /privacy, /termini, /crediti, /disiscrizione…). Router: home dell'app /home (chiusura sezioni, logo, Indietro); disiscrizione → /home. Ritorni da Google/Facebook, conferma email, Stripe e utenti già collegati arrivano su "/" e la pagina pubblica li manda subito su /home con ?… e #… intatti. Eliminazione account → "/" (pagina pubblica). Nessun cambio a database, funzioni o testi legali. --><!-- v442 · Fase C: consiglio gratuito se il film appena consigliato è già visto. Solo Free, una volta al giorno, dalla scheda di un consiglio appena ricevuto: “Segna visto” apre un riquadro di conferma (#rf-ov); confermando, l’azione refund della funzione recommend v442 concede il buono (ultimo film consigliato, meno di 30 minuti, nessun buono oggi), il film va tra i visti e “↺ Altro” diventa “🎁 Altro gratis” con una pulsazione tenue; premuto, il consiglio arriva con free_retry e il server lo concede senza consumare solo con le stesse caratteristiche (impronta state_sig in sw_rec_log). Richiede sql/swainz_refund_v442.sql e la nuova recommend. Termini sez. 4 con la riga del consiglio gratuito; LEGAL_VERSION 2026-10.7. i18n +9 (479). --><!-- v441 · Badge delle piattaforme: RaiPlay con la ricerca del titolo (raiplay.it/ricerca.html?q=, provata dall’utente); Infinity e Infinity Store aprono la pagina di ricerca del sito (mediasetinfinity.mediaset.it/ricerca?search), perché l’indirizzo di Infinity non contiene il testo cercato. Nessuna search_test rimasta. --><!-- v440 · Badge delle piattaforme: attivate le ricerche provate dall’utente (Prime Video, Prime Video Store, MGM+, Crunchyroll, CHILI, Rakuten TV); Disney+ e NOW sulla home (la loro ricerca porta a “pagina non trovata”); Infinity e Infinity Store (mediasetinfinity.mediaset.it/ricerca?search=) e RaiPlay (raiplay.it/ricerca.html?q=) con gli indirizzi trovati dall’utente, ancora da confermare (search_test). --><!-- v439 · B2 badge delle piattaforme come link: nella scheda film ogni badge (abbonamento e noleggio) è un link che apre il servizio, con la ricerca del titolo dove l’indirizzo è noto (Netflix, Apple TV, MUBI, YouTube/Google Play) e la home negli altri casi. Configurazione unica SW_PLAT_LINKS (home, search, search_test, e per le affiliazioni tag Amazon Associates o wrap della rete): le affiliazioni si attivano compilando i campi; con un’affiliazione attiva rel="sponsored" e nota in fondo alla scheda. Conteggio anonimo dei clic con la RPC sw_plat_click (sql/swainz_platclicks_v439.sql). Termini sez. 9 e Privacy sez. 7: collegamenti e link di affiliazione; LEGAL_VERSION 2026-10.6. i18n +3 (470). --><!-- v438 · B4 avvisi email di “Lo guarderò” (Premium): (1) Profilo, colonna destra sotto lo Storico: scheda “Avvisi email” con interruttore (#wla-sw) che salva user_data.wl_alerts {on, lang, at} (sql/swainz_alerts_v438.sql); per i Free l’interruttore apre il pannello Premium; descrizione con le piattaforme del questionario (q7b) o “tutte”. (2) “Tutti i film consigliati”: invito (#arec-wla) quando la lista non è vuota e gli avvisi sono spenti (Premium: Attiva gli avvisi · Free: Scopri Premium), chiudibile per sempre (sw3_wla_hint). (3) Pagina swainz.it/disiscrizione?u&t&l: riquadro con bottone che chiama la RPC sw_wl_unsub (firma verificata nel DB). (4) Premium: vantaggio upg_f6; Termini sez. 4 con la riga degli avvisi; Privacy: finalità, Brevo e dati di utilizzo; LEGAL_VERSION 2026-10.5. Le email partono da scripts/wl-alerts.js (workflow wl-alerts.yml, ogni mattina il tracciamento, il venerdì l’invio). i18n +26 (467). --><!-- v437 · “Tutti i film consigliati”: la casella di selezione passa in fondo alla riga, dopo “Lo guarderò” (anche la casella generale nell’intestazione e, su mobile, in alto a destra dopo occhio e segnalibro). Colonne desktop 1fr | 44 | 112 | 150 | 146 | 44 | 72 | 24. --><!-- v436 · “Tutti i film consigliati”: (1) colonna “Visto” con occhio cliccabile su ogni riga (_arecSnCell, _arecSetSeen: un solo salvataggio, aggiorna Segna visti, Film già visti, contatori e la scheda aperta); il segnalibro “Lo guarderò” dei film visti resta spento. (2) Selezione multipla: casella su ogni riga e casella generale (tutti i film mostrati, stato intermedio), righe selezionate evidenziate, barra azioni con Segna visti / Segna non visti / Lo guarderò / Togli da Lo guarderò / Annulla selezione e messaggio con l’esito; la selezione vale solo per i film mostrati (filtri e ricerca la riducono). _wlSetMany salva più film in una volta e non aggiunge i visti. Colonne desktop 24 | 1fr | 44 | 112 | 150 | 146 | 44 | 72, spazio 10, miniatura 58×38 fino a 1500 px; budget pillole 150/146. i18n +17 −1 (441). --><!-- v435 · B3 “Lo guarderò”: (1) bottone “🔖 Lo guarderò” nella scheda film accanto a “Segna visto” (nascosto se il film è già visto); (2) in “Tutti i film consigliati” nuova colonna con segnalibro cliccabile (i film già visti mostrano “Visto”), ordinabile, e filtro “Lo guarderò” con contatore; (3) esportazioni con colonna Lo guarderò. Dati: watchList [{id, at}] in sw3_watch e in user_data.watchlist (sql/swainz_watchlist_v435.sql, GRANT solo su quella colonna); salvataggio immediato, sw3_watch_dirty se fallisce; lista del server letta all’accesso e all’apertura del pannello; segnare un film come visto lo toglie dalla lista. (4) Attribuzione JustWatch spostata in fondo alla scheda, solo testo. Privacy: dati di utilizzo con “Lo guarderò”, LEGAL_VERSION 2026-10.4. i18n +9 (425). --><!-- v434 · B1 Trailer: bottone “▶ Guarda il trailer” nella scheda (accanto a Condividi, solo se il film ha il trailer) e riquadro #trl-ov con lettore youtube-nocookie creato al clic e rimosso alla chiusura (X, Esc, clic fuori; chiusura anche con la scheda). Dati: tmdb_id e trailer_key da Movies/movies_public (swainz_trailer_v434.sql) scritti da update-db v202; _supaTransform li mappa in f.tmdb e f.trailer, SW_KEEP_FIELDS li conserva se la risposta del server non li porta. Privacy: YouTube nella riga di Google, LEGAL_VERSION 2026-10.3. i18n +3 (416). --><!-- v433 · Fase A: (1) titolo della pagina, descrizione, canonical e meta Open Graph/Twitter con immagine 1200×630 (cat/brand/og-image.jpg, da caricare nel repository); (2) Vercel Web Analytics (script /_vercel/insights/script.js, senza cookie; da attivare nel pannello Vercel), con beforeSend che toglie # e ? dagli indirizzi; (3) “Condividi scheda” e “Condividi badge” tradotti (share_card_btn, share_badge_btn); (4) Privacy: statistiche anonime di Vercel (sez. 7), Brevo per le email di servizio, TMDB per le locandine e Google Fonts tra i fornitori; LEGAL_VERSION 2026-10.2. NB: i commenti di versione ora seguono questo blocco, non piu' il tag title. --><!-- v432 · Recupero password con CODICE via email (le email partono da Brevo, che riscrive i link per tracciarli: niente link nelle email di accesso). Schermata di accesso: “Password dimenticata?” → email + verifica anti-bot → POST /auth/v1/recover → codice + nuova password → POST /auth/v1/verify (type recovery) → PUT /auth/v1/user → accesso con _lsAfterLogin (estratta da doLogin, comune ai due percorsi). Rinvio del codice dopo 60 s. Profilo: “Cambia password” per gli account con email e password (PUT /auth/v1/user; se Supabase chiede la riautenticazione, GET /auth/v1/reauthenticate e codice via email come nonce). Template email in italiano con {{ .Token }} da incollare in Supabase. i18n +27 chiavi (411). --><!-- v431 · (1) Logo ufficiale TMDB (blue_square_1.svg fornito dall'utente, non modificato) nella pagina Crediti, come data URI per non mescolare le classi interne dell'SVG con il CSS del sito. (2) Banner Premium nei 9 riquadri pubblicitari (ad-slot-l/r/bottom, vp-ad-l/r/b, profp-ad-l/r/b), solo Free come prima: versione verticale con titolo, vantaggi (chiavi upg_f*), prezzo da €1,67/mese e bottone, versione orizzontale su una riga; si adattano con container query; clic o Invio → openUpgradePanel(). Un riquadro con data-real-ad="1" viene lasciato alla futura rete pubblicitaria. i18n +5 chiavi (384). --><!-- v430 · Fonti dei dati: (1) filtro “Voto minimo IMDb” rinominato “Voto minimo” / “Minimum rating” (il voto e' il vote_average di TMDB dalla v196 di update-db.js); nella scheda film il voto porta la sigla TMDB (.fc-rsrc). (2) Nuova pagina Crediti (#creditsp, route pubblica /crediti, link nel footer) con la dicitura richiesta da TMDB e l'attribuzione a JustWatch; logo TMDB in attesa del file ufficiale (#cred-tmdb-logo, per ora scritta). (3) Scheda film: sotto “Disponibile su” la riga “Disponibilità in streaming: JustWatch” (card_plt_src). (4) Termini sez. 8: fonti TMDB e JustWatch al posto di “TMDB e IMDb”, con link ai Crediti. Footer © 2026. Chiavi i18n +2 (379). --><!-- v429 · Limite Premium allineato al server: il pannello Premium (upg_tagline, upg_f2, it/en e markup dei due piani) e la tabella Free/Premium dei Termini (sez. 4) promettevano consigli illimitati, mentre dalla v420 la funzione recommend concede fino a 50 consigli al giorno ai Premium (sw_rec_consume). Ora: 'Fino a 50 consigli al giorno' / 'Up to 50 recommendations a day'; Termini: 'Fino a 50 al giorno', ultimo aggiornamento ottobre 2026; sez. 1 'oltre 2.000 titoli' (era 1.000); sez. 10: il divieto di aggirare i limiti vale per entrambi i piani, compresi i limiti giornalieri, account multipli e sistemi automatizzati. LEGAL_VERSION invariata (2026-10). Nessuna modifica alla logica. --><!-- v428 · Pulizia dopo la fase 3: tolti il motore del browser (findFilm, filtri, contatore e proposte locali, parte film del Cine-Score, sequel e opt-in locali), le strade di riserva verso di esso, il conteggio delle ricerche lato browser, gli strumenti di confronto _swServerCheck e _swDiag. Il catalogo viene chiesto direttamente a movies_public (una richiesta rifiutata in meno all'avvio). Comportamento invariato con utente loggato; senza sessione il sito chiede di accedere di nuovo. --><!-- v427 · Verifica anti-bot Cloudflare Turnstile su accesso e registrazione con email (Google e Facebook non ne hanno bisogno): il token va a Supabase Auth in gotrue_meta_security.captcha_token, Supabase lo verifica con la chiave segreta. Widget in modalita' interaction-only (compare solo se Cloudflare chiede un'azione). Privacy Policy aggiornata (Cloudflare tra i fornitori, LEGAL_VERSION 2026-10). Il consenso viene registrato anche al primo accesso con email dopo la conferma dell'indirizzo. --><!-- v426 · Tempi del contatore: funzione recommend v426 (vista compatta movies_engine per il motore, righe complete lette solo per i film da mostrare, verifica del token in parallelo alle altre letture, tempi di ogni fase nella risposta, campo _t) e nuovo script swainz_engine_view_v426.sql. Nel sito la diagnosi da console _swSpeed(). --><!-- v425 · (1) Header delle sezioni: se la pagina principale era scorsa verso il basso, all'apertura di una sezione il blocco dello scorrimento (v416) faceva uscire l'header dallo schermo e in alto si vedeva la pagina sotto (proposte rapide). Ora con la pagina bloccata l'header e' fisso in alto e opaco. (2) Contatore e chip incompatibili: la richiesta parte subito al clic (attesa di 150 ms solo per clic ravvicinati e per lo slider) e il contatore si attenua mentre aspetta la risposta. Funzione recommend v425 da ripubblicare: limite, catalogo e dati utente letti in parallelo, dati utente tenuti 20 s per contatore/proposte/Cine-Score, catalogo scaricato 4 pagine alla volta. --><!-- v424 · Scelta dell'utente: trama e verdetto sono pubblici, il segreto sono le caratteristiche. Ogni scheda mostra sempre la trama; le caratteristiche compaiono solo nei film consigliati all'utente. Tolti il limite di 30 schede al giorno della v423 e le note card_pub_note / card_cap_note. Funzione recommend v424 da ripubblicare. --><!-- v423 · Richiesta dell'utente: le schede dei film mai consigliati (Film gia' visti, Segna i film gia' visti) tornano complete di trama, verdetto e caratteristiche. La funzione recommend (da ripubblicare) le concede quando l'utente apre la scheda, fino a 30 film diversi al giorno; oltre il limite scheda pubblica con avviso (card_cap_note). --><!-- v422 · Schede dal server: unendo la risposta al catalogo in memoria un campo vuoto non cancella piu' quello gia' presente (locandina, regia, titolo, cast, durata, voto, piattaforme); le schede pubbliche prendono la locandina dal catalogo se manca. Nuova diagnosi da console _swDiag(). Script swainz_backfill_reclog_v422.sql per i consigli dati tra fase 1 e v421. --><!-- v421 · Motore lato server, fase 2: con utente loggato consigli, contatore film, chip incompatibili, proposte rapide, Cine-Score e schede arrivano dalla Edge Function recommend (SW_SERVER_ENGINE=true). Righe di "Segna i film gia' visti" e "Film gia' visti" con il cast al posto del verdetto; schede dei film mai consigliati con i soli dati pubblici; tetto Premium 50 consigli al giorno con avviso; catalogo da movies_public se Movies non e' piu' leggibile (fase 3). Il motore del browser resta come riserva finche' il catalogo completo e' scaricabile. --><!-- v420 · Motore lato server, fase 1: nuova Edge Function recommend e script swainz_server_fase1_v420.sql (vista movies_public, registro sw_rec_log, limiti sw_api_hit / sw_rec_consume). Nel sito solo la verifica da console _swServerCheck(), che confronta il server con il motore del browser senza consumare consigli; l'app continua a usare il motore del browser (SW_SERVER_ENGINE=false). --><!-- v419 · Esportazione di "Tutti i film consigliati": tolte le colonne Caratteristiche e Trama (scelta dell'utente: non consegnare i dati propri del database). Restano N., Titolo, Titolo originale, Anno, Regia, Cast, Durata, Voto, In abbonamento, Noleggio / acquisto, Visto. --><!-- v418 · "Tutti i film consigliati": pulsante "Esporta" accanto al conteggio, con menu: Excel (.xlsx, generato nel browser senza librerie: zip non compresso + fogli XML, riga d'intestazione bloccata, filtro automatico, larghezze colonne), CSV (UTF-8 con BOM, virgole), Letterboxd (.csv con Title, Year, Directors da importare come lista), PDF / Stampa (tabella impaginata in un iframe, dialogo di stampa del browser con "Salva come PDF"). Esporta la lista come la si vede: filtri e ordinamento correnti; il menu dice quanti film. Colonne: N., Titolo, Titolo originale, Anno, Regia, Cast, Durata, Voto, Caratteristiche, In abbonamento, Noleggio/acquisto, Visto, Trama. --><!-- v417 · (1) FIX film segnati come visti che restavano tra i popolari anche riaprendo la pagina, di nuovo con "Segna visto". Causa probabile: tipo dell'id. Le righe passano l'id come numero (toggleSeenV(123)), ma l'id che arriva dal DB (row.ID||row.id) puo' essere una stringa ("123"): Set.has distingue 123 da "123", quindi il film risultava "non visto" nei controlli fatti con l'id del DB. Ora ogni aggiunta usa l'id esatto del film nel DB (_swIdKey), i controlli accettano entrambe le forme (_swSeen) e _swSeenNorm riallinea i visti gia' salvati al tipo del DB (all'arrivo del DB, dopo i dati del server, all'apertura delle pagine). Vale anche per la scheda film, per il motore dei consigli, per la pagina Film gia' visti e per l'apertura delle schede dalle liste (confronti con String(id)). (2) Pulsanti "Aggiorna elenco" in testa e in fondo alla lista: ricaricano i risultati senza i film appena segnati come visti (popolari ricalcolati; nella ricerca i visti vengono nascosti fino al cambio di testo), con il numero dei film da togliere; disattivati se non ce ne sono. Se il DB arriva dopo l'apertura della pagina la lista si ricompone da sola. --><!-- v416 · Pagine secondarie (Profilo, Segna i film gia' visti, Fatti conoscere, Tutti i film consigliati, Film gia' visti, pannello Premium, Privacy, Termini): mentre una e' aperta la pagina principale sotto non scorre piu' e la sua barra di scorrimento sparisce (html.sw-seclock: overflow hidden su html e body, overscroll-behavior none); resta solo la barra della pagina aperta. Un MutationObserver sulla classe .on dei pannelli attiva e toglie il blocco; la posizione della principale resta quella di prima. L'header compensa con padding-right la larghezza della barra scomparsa, cosi' icone e badge non si spostano. --><!-- v415 · Header alto uguale in tutte le pagine anche su mobile (59px come nella principale; su desktop era gia' 75px ovunque): tolta la seconda riga della v414, titolo (15px) e sottotitolo (11px) stanno accanto al logo su una riga ciascuno, con i puntini se non ci stanno; altezza bloccata con height sull'header. Fino a 1100px (telefoni e tablet) testi brevi scelti dall'utente (chiavi *_s), sopra i testi completi; tra 601 e 1280px lo spazio del titolo sale a 50vw. --><!-- v414 · Sottotitoli delle pagine nell'header comune, sotto il titolo e allineati a esso (#hdr-sub), tutti in bianco Inter 13px (12px tra 601 e 1280px; mobile 11px su una riga propria sotto titolo e icone, allineata al titolo). Testi: Segna i film gia' visti = quello attuale (visti_p); Fatti conoscere = "Rispondi alle domande e guida i consigli di Swainz"; Tutti i film consigliati = "Tutti i film che Swainz ti ha consigliato"; Film gia' visti = "Lista dei film che hai segnato come visti"; Il tuo profilo = "Informazioni personali e storico". Tolti i sottotitoli dentro le sezioni. --><!-- v413 · (1) Termini di Servizio: tolta la riga "Pannello news cinema" dalla tabella Free/Premium. (2) Scheda "Piattaforma" del Swainz Lab: accanto al titolo, in piccolo e in bianco, "richiedi consigli mirati su una o piu' piattaforme specifiche" (g7_hint). (3) Bottoni "Importa da Letterboxd" (Segna i film gia' visti e Film gia' visti): al passaggio del mouse (o con il focus da tastiera) un fumetto spiega come esportare i dati da Letterboxd (Impostazioni > Import & Export > Export your data, file ZIP, watched.csv) e caricarli (lb_tip). --><!-- v412 · (1) Tolto il pannello "Notizie del giorno" (premium) dalla pagina principale: markup, stili e chiamate a loadNews (buildUI, setLang); tolta la voce "Pannello news cinema" dai due piani del pannello upgrade. (2) Margini uguali in tutte le pagine sopra i 1279px: colonna del contenuto larga min(1520px, 100vw - 400px) nella pagina principale (.fa), in Segna i film, Film gia' visti e Tutti i film consigliati (prima: principale e consigliati 980px, le altre due 100vw - 404px); ai lati 200px = banner verticale standard 160x600 (Wide Skyscraper IAB) + 20px dal bordo + 20px dal contenuto. Stessi slot 160x600 (o piu' bassi se la finestra non basta) nella stessa posizione su principale, Segna i film e Profilo, centrati in verticale sotto l'header; sotto i 1280px niente banner laterali. --><!-- v411 · Icona della scheda del browser: il muso di Swainz su fondo arancione fornito dall'utente (1024px), ridotto a PNG 32 e 48px (link rel=icon) e 180px (apple-touch-icon), incorporati come data URI: funzionano caricando solo index.html. Per i risultati di Google, che vuole un file raggiungibile, a parte favicon.ico (16/32/48) da mettere nella radice del repository. --><!-- v410 · Schermata di accesso in caricamento: la scheda resta della stessa misura ma vuota (via anche Email, Password e separatore), al centro il muso di Swainz (posa in basso a sinistra del foglio dell'utente, scontornato senza collo, WebP 240px con trasparenza in data URI) che ruota in senso orario (1,6 s a giro) al posto dello spinner; sotto resta la scritta di caricamento. A caricamento concluso (login(), oppure _lsStopLoading per errore/sessione scaduta/onboarding) il muso completa il giro e si ferma dritto (_lsCatSettle, 0,3-0,6 s) prima di sparire. --><!-- v409 · Header comune a tutte le pagine: logo +50% (cliccabile = pagina principale), titolo della pagina (Rajdhani bicolore, assente nella principale), badge del piano al centro, a destra bandierina, menu e profilo. L'header esce da #app (che ha z-index 4 e ne limitava il livello) e resta visibile sopra le sezioni. Le cinque sezioni (Profilo, Segna i film gia' visti, Fatti conoscere, Tutti i film consigliati, Film gia' visti) non scorrono piu' da destra: si aprono sotto l'header con una breve dissolvenza, una alla volta (aprirne una chiude l'altra); si torna con il logo o con il tasto Indietro del browser (router v332, nuova route /gia-visti). Tolti dalle sezioni titolo, badge e Torna: resta il sottotitolo in cima al contenuto. Mobile: una riga, badge nascosto, titolo su massimo due righe. --><!-- v408 · (1) Badge del piano nelle intestazioni di "Tutti i film consigliati", "Film gia' visti" e "Segna i film gia' visti": per i premium e' solo visivo (classe .arx-plan-static: niente clic, niente freccia, niente effetto al passaggio, fuori dal Tab); prima il clic chiudeva la pagina e riportava al Profilo. Per i free resta il pulsante "Passa a Premium" che apre il pannello upgrade. (2) Profilo: al posto di #prem-free/#prem-active c'e' lo stesso badge delle altre pagine (#prof-plan), centrato nell'intestazione; "Torna" passa a destra. Su mobile il badge va su una seconda riga, centrato. --><!-- v407 · "Segna i film gia' visti": la ricerca guarda solo titolo, regista e attori. Tolti il titolo originale non mostrato (TITLE_ORIG in italiano: faceva comparire film il cui titolo visibile non conteneva il testo cercato) e l'anno. Il titolo confrontato e' quello mostrato nella riga (_arecTitle: italiano in IT, originale in EN). Segnaposto aggiornato. --><!-- v406 · "Segna i film gia' visti": i suggerimenti rapidi (chip) cambiano ogni giorno. Ogni giorno 3 registi e 3 attori, alternati, presi a rotazione dai 24 registi e dai 24 attori con piu' film nel catalogo (almeno 2). Ordine delle due liste mescolato una volta con seme fisso, poi finestra di 3 nomi che avanza di 3 ogni giorno (data locale): tutti i nomi passano prima di ripetersi (8 giorni) e nello stesso giorno tutti vedono gli stessi nomi. Tooltip con ruolo e numero di film. I 6 nomi fissi della v405 restano solo come riserva se il catalogo non e' ancora caricato. --><!-- v405 · "Segna i film gia' visti": (1) i risultati della ricerca partono da 3 caratteri (prima 2); con 1-2 caratteri resta la lista dei popolari e il sottotitolo invita a scrivere almeno 3 caratteri. (2) Tornano i suggerimenti rapidi di registi e attori delle versioni precedenti alla v403 (Christopher Nolan, Stanley Kubrick, Quentin Tarantino, Leonardo Di Caprio, Martin Scorsese, David Lynch) come chip sotto la barra (.vpx-chips): il clic mostra i film di quella persona, il chip attivo e' evidenziato, un secondo clic lo toglie. Confronto dei nomi senza spazi (Di Caprio = DiCaprio). --><!-- v404 · "Segna i film gia' visti" (#vp): copia bloccata su tutti i testi della pagina. CSS: user-select:none e -webkit-touch-callout:none su #vp (resta selezionabile solo il campo di ricerca), immagini non trascinabili. JS (capture su document): copy e cut annullati se la pagina e' in primo piano (senza scheda film sopra) o se partono/selezionano da #vp, tranne nel campo di ricerca; Ctrl/Cmd+A bloccato con la pagina in primo piano; selectstart, dragstart e contextmenu annullati su #vp (campo di ricerca escluso). La scheda film aperta da qui resta copiabile come altrove. Deterrente lato client: il contenuto resta leggibile da strumenti per sviluppatori. --><!-- v403 · "Segna i film gia' visti" (#vp) rifatta sul modello delle altre pagine: intestazione .arx (titolo "Segna i film" + "gia' visti" in arancione, piano, Torna), sfondo = immagine dell'utente ripulita (WebP in data URI su #vp::before), colonna larga con 220px ai lati per le pubblicita' come "Film gia' visti". Barra con ricerca e Importa da Letterboxd agganciata sotto l'intestazione. Ricerca con risultati mentre si scrive (da 2 caratteri: titolo, titolo originale, regista, attore, anno); la tendina propone solo registi e attori (da 3 caratteri) e, scelti, mostra i loro film. A ricerca vuota: film piu' popolari non ancora segnati (Conosciutissimo, poi valutazione), 50 alla volta con "Mostra altri", senza filtri. Righe come le altre pagine (miniatura, titolo, anno, regista, generi, piattaforma) con pulsante "Segna visto / Visto" a fine riga; clic sulla riga = scheda film. Contatore dei visti che apre "Film gia' visti". --><!-- v402 · Film gia' visti: la barra con ricerca e filtri passa dall'intestazione a sotto le statistiche, sopra la tabella (#sx-fbar). Su desktop resta agganciata sotto l'intestazione quando la lista scorre (sticky, top = altezza dell'intestazione), con fondo solo quando e' agganciata; su mobile scorre con la pagina. --><!-- v401 · FIX "Segna altri film" (Film gia' visti): il pannello Segna i film gia' visti (#vp) si apriva ma restava sotto il Profilo, che ha lo stesso z-index 310 e viene dopo nel DOM; sembrava che il bottone riportasse al Profilo. Ora, se il Profilo e' aperto, #vp sale a z-index 312 finche' resta aperto; chiudendolo si torna al Profilo. --><!-- v400 · Lo sfondo SVG, la colonna larga (220px per lato per i banner) e l'intestazione trasparente della v399 valgono solo per "Film gia' visti": "Tutti i film consigliati" torna allo sfondo, alla colonna da 980px e all'intestazione della v398. --><!-- v399 · Sfondo SVG ricostruito dal modello (sfere con bordo arancione, lame di luce, puntini), colonna larga sopra i 1260px con 220px per lato per i banner, intestazione trasparente con fondo solo durante lo scorrimento. --><!-- v398 · Nuova pagina "Film gia' visti" (#seenp) sul modello fornito, con la larghezza della pagina principale: intestazione come "Tutti i film consigliati"; filtri (ricerca titolo/regista/attore/anno, generi, piattaforme, ordine, Azzera); statistiche generi e piattaforme sopra la tabella; tabella con locandina, anno, regista, genere, piattaforma, valutazione, stato e menu (Apri scheda, Rimuovi dai visti con conferma); Importa da Letterboxd direttamente nella pagina e Segna altri film; titoli in stand-by sotto la tabella. La scheda aperta da qui non finisce nello storico dei consigli (showCard noRec). --><!-- v397 · Scheda film su desktop, nuova impaginazione (_swLayoutCard, sostituisce _swCenterPoster della v396). Tre gruppi a sinistra: regia + riga info (restano nell'intestazione .fch), descrizione, cast. G = 18px. Se la locandina e' piu' alta dei tre gruppi con spaziatura G: locandina a G dal titolo e a G dalla scheda sotto, i tre gruppi centrati e distanziati uniformemente nella sua altezza. Altrimenti: gruppi a G dal titolo e tra loro, locandina centrata sui tre, scheda sotto a G. La locandina e' posizionata in assoluto dentro .fcb (puo' salire accanto a regia e info); per farlo su desktop scorre l'intera scheda (#fcc) e non piu' solo .fcb, e la X e' fissata all'angolo della scheda. Mobile invariato. --><!-- v396 · Scheda film: la locandina si centra sul solo testo della descrizione (.fcdesc), non piu' su descrizione + cast come in v395. _swCenterPoster() misura altezza della locandina e del testo (offsetHeight, immune alle trasformazioni dell'apertura) e sposta in basso l'elemento piu' corto: la colonna testo con padding-top se la locandina e' piu' alta, la locandina con margin-top se il testo e' piu' lungo; il cast resta subito sotto la descrizione. Chiamata a fine showCard, al caricamento della locandina, a font caricati e al resize. Solo con la riga in orizzontale (sopra i 560px). --><!-- v395 · (1) Locandina assente nelle schede aperte da "Tutti i film consigliati": le miniature della v394 scaricavano le locandine TMDB senza CORS e il browser le metteva in cache senza Access-Control-Allow-Origin; la scheda, che le chiede con crossorigin="anonymous", riceveva la copia in cache, falliva e l'onerror toglieva l'immagine. Ora anche le miniature usano crossorigin e, se la copia in cache e' gia' senza CORS, _swPosterRetry ritenta una volta con ?cors=1 (nuova voce di cache); stesso ritentativo in _swLoadImg (scheda condivisibile). (2) Scheda film su desktop: .fc-body-row con align-items:center, locandina e colonna descrizione centrate in verticale tra loro (prima allineate in alto, con la locandina che scendeva sotto il testo). --><!-- v394 · Nuova grafica del pannello "Tutti i film consigliati": intestazione con titolo a due colori, pillola del piano e Torna; barra filtri a quattro controlli (ricerca unica titolo/regista/anno, piattaforme, caratteristiche, Azzera filtri); tabella a righe-card con locandina, verdetto, tag e badge piattaforme, ordinabile su tutte le colonne; larghezza come la pagina principale (980px, padding 18px). FIX: il filtro piattaforme leggeva f.platforms, campo inesistente (ora f.plt + f.plt_nol). --><!-- v393 · Separatore: filetti laterali centrati verticalmente sulle due righe (align-self:center); dalla v377 erano allineati alla sola riga 'oppure'. --><!-- v392 · Separatore tra proposte e Lab: seconda riga da 'componi tu' a 'componi tu il tuo film' (EN 'build your own film'). --><!-- v391 · Cornice discreta attorno alla zona della richiesta: .cta-row prende padding 10px, bordo 1px rgba(255,150,70,.22), fondo rgba(26,23,21,.6) e raggio 18px, restando larga 944px come il Lab (box-sizing border-box, quindi il contenuto interno scende a 924). Su <=600px la cornice non compare. --><!-- v390 · Tolte le due staffe agli angoli (in alto a sinistra e in basso a destra) del bottone Chiedi a Swainz: .cta::before/::after disattivati dentro .cta-w. --><!-- v389 · Barra in basso larga quanto la scheda Swainz Lab: .cta-row max-width da 1220 a 944px (980 di .fa meno i due padding da 18). Il pannello dei filtri mostra sempre la riga dei tag: senza filtri compare "Nessun filtro", quindi il riquadro parte gia' su due righe e il bottone non cambia altezza al primo tag; il testo e' anche nel markup iniziale, perche' updatePanel gira solo al primo cambiamento. --><!-- v388 · Barra in basso riorganizzata. Nuova .cta-row: a sinistra .cta-main con il contatore e 'Chiedi a Swainz' al 72% della larghezza (prima centrato, max 944px), ora arancione pieno (gradiente #c2410c -> #ff7a18 -> #ffa94d) con hover verso un arancione piu' chiaro al posto del viraggio al blu; a destra .cta-side con l'intestazione 'Filtri attivi' + Reset filtri e sotto il pannello #afp, spostato qui dalla colonna destra (dove le X non erano cliccabili). I due blocchi sono stirati alla stessa altezza: se i tag vanno a capo cresce anche il bottone. Il reset esce dall'intestazione del Lab, dove resta una copia (#resetBtnLab) visibile solo sotto i 600px; _updateBtnGlow illumina entrambi. Su mobile la colonna destra sparisce e resta il pannello #afp-mobile. --><!-- v387 · Stato abbonamento di nuovo nell'intestazione del profilo, in alto a destra (come prima della v386): #prem-free con etichetta e bottone 'Passa a Premium', #prem-active con il nuovo badge a pillola .prem-badge (fondo #232326, bordo 1.5px #ff8a2e con alone, stella dorata e 'Piano Premium attivo' in bianco). Tolti dal corpo del profilo i riquadri .prof-plan della v386. Il bottone 'Gestisci abbonamento' resta in fondo con Scarica ed Elimina. --><!-- v386 · (1) Header della pagina principale di nuovo fisso in alto: due cause, una regola successiva che imponeva position:relative!important e overflow-x:hidden sul body, che ne faceva un contenitore di scorrimento e annullava lo sticky; ora sticky!important e overflow-x:clip su html e body. (2) Intestazione del profilo (.vph) portata all'altezza dell'header principale: align-items center, padding 9px 22px (mobile 8px 14px), sottotitolo 11px. (3) Stato abbonamento riorganizzato: fuori dall'intestazione, in cima alla colonna del profilo. Free: riquadro con testo e bottone Passa a Premium. Premium: riquadro con bordo a sfumatura arancione, stella e 'PIANO PREMIUM ATTIVO' in Rajdhani 700 19px. Il bottone Gestisci abbonamento passa in fondo, tra Scarica i miei dati ed Elimina account, visibile solo ai premium. --><!-- v385 · Swainz Lab: filo di luce leggermente piu' acceso. Bordo da rgba(175,200,230,.5) a rgba(190,212,238,.68), alone da 14px .22 a 18px .3. --><!-- v384 · Bottoni Menu e Profilo dell'header ridisegnati sul modello fornito: pillola scura con bordo a sfumatura arancione (gradiente applicato su border-box), icona hamburger arancione, etichetta MENU separata da un filetto verticale, alone tenue; il bottone profilo diventa un cerchio con lo stesso bordo e icona arancione. Su <=600px resta la sola icona. Nuova chiave i18n menu_btn. --><!-- v383 · Tolta la zampa dopo il sottotitolo nella schermata di accesso. FIX menu lingua: #desktop-lang-drop aveva z-index 60, sotto #ls (200): nella schermata di accesso il menu si apriva ma restava dietro, quindi la bandiera sembrava non rispondere. Portato a 300, sopra #ls e sotto onboarding (600) e overlay di condivisione (700). --><!-- v382 · Schermata di accesso: sottotitolo e zampa sulla stessa riga (.ls-tagrow), tolte le due barrette arancioni '//' prima del testo (.logo-tag::before content:none, solo dentro #ls) e aumentato lo stacco dal logo (margin-bottom del logo da 10 a 26px; mobile 20px). Su mobile la riga va a capo centrata. FIX i18n: la chiave login_consent esisteva solo in inglese (in italiano la casella del consenso mostrava il nome della chiave) e setLang applicava le traduzioni con textContent, quindi i link della frase sul consenso comparivano come tag. Ora le voci che contengono HTML usano innerHTML. --><!-- v381 · Schermata di accesso: tolte le zampe grandi (58px) sopra il logo, aggiunta una zampa piccola sotto il sottotitolo (.ls-paw). Spazi ridistribuiti tra bandiera, logo e sottotitolo; #ls ora scorre (overflow-y:auto) se il contenuto supera lo schermo: prima, su finestre basse, la barra della lingua usciva sopra il bordo e non era cliccabile. --><!-- v380 · Tolti gli aloni arancioni (drop-shadow) da .logo-sm e .logo-big: con il logo a pennellata risultavano di troppo. --><!-- v378 · Proposte rapide con intestazione come il Lab: .proposte-hdr (titolo centrato + filetto di separazione arancione) e .proposte-body (sottotitolo + pillole); il padding passa dal riquadro alle due parti. Nessuna freccia e nessun click di chiusura: la scheda resta sempre aperta. --><!-- v377 · Separatore: 'oppure' e, a capo, 'componi tu' in arancione #ff7a18 (era 'scegli tu' in pesca, sulla stessa riga). Nuovi sottotitoli: .proposte-sub sotto il titolo delle proposte rapide ('Scegli una delle combinazioni studiate da Swainz', tono caldo) e .lab-sub in cima al corpo del Lab, sotto l'intestazione ('Indica una o piu' caratteristiche che vuoi nel film', tono freddo; nel corpo e non nell'header perche' li' il titolo e' in posizione assoluta accanto al bottone Reset). Chiavi i18n proposte_sub e lab_sub. --><!-- v376 · Spaziature pagina principale: distanza header -> proposte rapide dimezzata (.fa padding-top 28->14px desktop, 16->8px mobile); distanza proposte -> Swainz Lab aumentata di 45px, pari all'altezza dell'intestazione del gruppo 'Temi specifici' (proposte 14px + separatore 'oppure scegli tu' alto 45px + 14px = 73px). Separatore .sw-or: Rajdhani 600 14px maiuscolo spaziato, 'scegli tu' in pesca #ffb07a, filetto sinistro che sfuma dall'arancione e destro dall'azzurro del Lab; chiavi i18n or_pre/or_you (EN: 'or choose yourself'). Misure prese in browser headless su v375. --><!-- v375 · Proposte rapide: fondo da #221c17 a #2d2118 (piu' arancione, risalta sul nero della pagina). Swainz Lab ridisegnato come pannello incassato su ardesia: fondo #1b2028 con ombra interna, gruppi filtro #232a35 appoggiati con ombra leggera, bordo 'filo di luce' azzurro-ghiaccio rgba(175,200,230,.5) con alone tenue, titolo chiaro freddo, hover dei gruppi in azzurro. Tolte le staffe arancio/ambra agli angoli del pannello (.lab-box::before); restano i rivetti dei gruppi e le chip selezionate arancioni. --><!-- v374 · Proposte rapide: tolte le due linee luminose arancioni interne (::before/::after a 6px dal bordo). Restano fondo a tabellone, bordo al neon e titolo al neon. --><!-- v373 · Riquadro Proposte rapide come insegna da cinema: fondo a tabellone (scanalature orizzontali 1px ogni 7px su #221c17), due linee luminose arancioni in alto e in basso (::before/::after, prima ::before era una sfumatura diagonale), bordo 2px #ff7a18 con alone al neon esterno e interno, titolo color pesca #ffd9b0 con alone neon e sfarfallio ogni 5s (fermo con prefers-reduced-motion). Pillole invariate. --><!-- v372 · Proposte rapide: il testo dei tag nelle pillole passa da Syne 800 15px (13px mobile) a Bebas Neue 400 21px, letter-spacing .05em, line-height 1.05; su mobile 16px, letter-spacing .02em, senza andare a capo, con padding laterale della pillola ridotto a 6px (i tag piu' lunghi entrano da 360px di larghezza in su; prima con Syne 13px sforavano). Bebas Neue era gia' caricato dal link Google Fonts: nessuna richiesta in piu'. Il simbolo + resta in Share Tech Mono. --><!-- v371 · Forma decorativa rotante in alto a destra: classe rinominata da .b1 (condivisa con i bottoni arancioni) a .dq, con le proprieta' che prima ereditava dai bottoni (sfondo linear-gradient(135deg,--or2,--or), padding 12px, transition) scritte esplicitamente. Aspetto identico, verificato confrontando lo stile calcolato prima/dopo su desktop e mobile. --><!-- v370 · Indirizzi diretti per le pagine legali: swainz.it/privacy, swainz.it/termini e swainz.it/eliminazione-dati (apre la privacy sulla nuova sottosezione 'Come eliminare i tuoi dati', id elimina-dati). Route PUBBLICHE (pub:true): si aprono subito, anche sulla schermata di accesso e senza login; dopo login() non vengono riaperte se gia' visibili. La X riporta a '/' da tutte le route che condividono il pannello; tasto Indietro gestito anche prima del login. Nuovi URL per Meta: Privacy https://swainz.it/privacy, Termini https://swainz.it/termini, Eliminazione dati https://swainz.it/eliminazione-dati. Nessun cambio a vercel.json (il rewrite catch-all della v332 copre i nuovi path). --><!-- v369 · Accesso gia' attivo: la schermata di login nasce in stato 'loading' (script inline subito dopo #ls, prima del primo disegno) quando esiste sw3_session e non si sta tornando da OAuth. All'avvio _lsStartLoading() arma il timeout di 15s e mostra 'Bentornato, carico il tuo profilo…'; se _restoreSession non trova una sessione valida (token rifiutato, 30 giorni di inattivita') _lsStopLoading() riattiva i controlli. Stesso stato anche dopo l'accesso con email/password e dopo la registrazione con sessione immediata. Anche i campi email e password diventano non cliccabili durante il caricamento. FIX (bug introdotto in v368): SW_SESSION_MAX_IDLE_DAYS, _refreshWaiters, _refreshRetryTimer, _tokRefreshTimer e _lsLoadingTimer erano dichiarate dopo il codice di avvio, che gira mentre lo script e' ancora in lettura: il limite di 30 giorni non funzionava e, con token scaduto all'apertura, il rinnovo riusciva ma l'app restava sulla schermata di accesso. Spostate accanto a _authToken. --><!-- v368 · Sessione persistente. Causa delle disconnessioni: _tryRefreshSession cancellava la sessione a QUALSIASI errore del rinnovo (rete assente al risveglio del PC o del telefono, timeout, 5xx, 429), e con piu' schede aperte due rinnovi paralleli con lo stesso refresh token si annullavano (Supabase ruota il token e rifiuta il riuso). Ora: rinnovo singolo per scheda (_refreshWaiters), lock tra schede (navigator.locks 'sw3_token_refresh'), adozione del token gia' rinnovato da un'altra scheda (_adoptStoredIfNewer, evento storage), logout solo su 400/401/403, altrimenti nuovo tentativo dopo 30s e all'evento online; al rientro sulla scheda (_swSessionWake) rinnovo se il token e' scaduto. All'avvio con rete assente si resta loggati. Nuovo limite di inattivita': SW_SESSION_MAX_IDLE_DAYS = 30 (last_active in sw3_session). --><!-- v367 · Onboarding snellito. (1) Passo A: restano Nome e Cognome (obbligatori) e Data di nascita (ora FACOLTATIVA per tutti); rimossi Film, Regista e Attore preferiti. Con Google/Facebook nome e cognome sono precompilati da user_metadata/identity (given_name+family_name, altrimenti split di full_name con le particelle del cognome: De, Di, Della, Van...) e bloccati in sola lettura: l'utente conferma, con il link 'Correggi nome e cognome' come via d'uscita; se il nome dell'account e' incompleto i campi restano compilabili. (2) Passo B: q6, q7+q7b, q9 invariate; 'Salta' diventa 'Salta e compila in seguito'. Entrambi i bottoni chiudono l'onboarding. (3) Passo C eliminato (markup, ~120 righe JS, CSS e 11 chiavi i18n): niente piu' consiglio automatico. (4) _onbComplete chiama login(): prima _onbFinish nascondeva l'overlay senza rendere visibile #app. (5) Fumetto di benvenuto (_swShowWelcome): pagina velata, mascotte seduta (cat/sit_0.webm), testo, freccia verso Chiedi a Swainz evidenziato e non cliccabile; si chiude solo con la X, poi il gatto riparte (initCat e wakeUpSequence restano bloccati mentre e' aperto). (6) Fix: saveFck lanciava TypeError se chiamata dall'onboarding (#fckOk inesistente), bloccando 'Continua' del Passo B. --><!-- v366 · FCK. (1) Gating per tier: applyFck passa ora per _fckEffective(), che per i free tiene solo q6, q7+q7b e q9. Le altre risposte restano in fckAnswers, in sw3_fck e su user_data.fck_answers: un premium che torna free smette di subirne i filtri (q1-q4, q8, q10-q13) ma le ritrova compilate e attive se torna premium. Nei quattro punti in cui isPremium cambia (_restoreSession senza sessione, _applyServerSearch x2, _applyUserData) buildUI() e' sostituito da applyFck(fckAnswers), che ricalcola userPrefs e chiama buildUI. (2) Bug q4/q6: il ramo else di q6 azzerava excludeDifficile, annullando q4='Preferisco blockbuster' quando q6 era 'Molto' o senza risposta. Rimosso il reset: Difficile escluso se q4=blockbuster O q6=No; nel conflitto blockbuster+Molto prevale q4. --><!-- v365 · Spaziatura dei tag nella scheda film. I tag partivano da una y fissa del template (1131): con il verdetto su DUE righe — il caso piu' frequente — restavano appena 13px di stacco contro i 30px che separano riga regista e verdetto. Ora il blocco tag si ancora al FONDO EFFETTIVO del verdetto (variabile verdBottom) e non a una coordinata fissa, quindi la distanza resta costante sia con una riga sia con due; se il verdetto manca, i tag tornano alla posizione del template. Distacco fissato a 42px anziche' ai 30px misurati fra regista e verdetto, perche' le pillole hanno un bordo che riempie lo spazio e le fa percepire piu' vicine del testo nudo. Margine residuo dal footer SWAINZ.IT nel caso peggiore (verdetto 2 righe + tag 2 righe): 23px. -->
+<script defer src="/_vercel/insights/script.js"></script><!-- v455 · Restyling mobile, compiti M2.9, M2.10 e liste in orizzontale. (1) Le regole CSS con :hover sono dentro @media (hover:hover): su computer nessun cambiamento, su touch l'effetto non resta acceso dopo il tocco; il suggerimento dei chip al tocco si chiude da solo dopo 2,6 s. (2) Peso e velocita': preconnect a Google Fonts, Supabase e TMDB; badge del profilo caricato solo quando serve; miniature delle liste w185 su telefoni e tablet; la pioggia della schermata di accesso si ferma dopo l'accesso (prima disegnava per tutta la sessione, anche su computer). (3) Liste su telefono in orizzontale e tablet touch (601–960px): niente colonna Caratteristiche/Genere, colonne piu' strette, titolo su due righe. --><!-- v454 · Restyling mobile, compiti M1.7 e M2.1–M2.8. Correzione: avviando l'app in inglese (lingua salvata, v444) 42 testi posti dopo lo script principale restavano in italiano (primo accesso, Premium, 'Torna indietro', esclusioni, condivisione): setLang viene riapplicata a DOMContentLoaded. Il resto e' solo CSS. Sotto i 600px: Premium (pulsante mensile ben visibile, note leggibili, avviso di benvenuto sopra la barra), menu e lingua con voci da 46–48px, filtri (chip da 38px, cursore del voto con maniglia da 26px, etichetta Premium leggibile), liste (titoli su due righe, ordinamento in una riga scorrevole di pulsanti con 'seleziona tutti' sulla stessa riga), finestre (pulsanti e X piu' grandi), pagine legali con 'Torna indietro' sempre in alto. Sotto i 380px il titolo del pannello va su due righe. Schermata di accesso: se e' piu' alta dello schermo parte dall'alto (a 320px il logo era tagliato). Telefoni in orizzontale: barra e intestazione compatte. Desktop invariato. --><!-- v453 · Restyling mobile, compito M1.5 (scheda film), solo sotto i 561px: scorre tutta la scheda (#fcc) e non solo il corpo, cosi' titolo e dati non restano fissi (con un titolo lungo su uno schermo piccolo restavano circa 200px per leggere); X sempre nell'angolo; titolo con dimensione adattiva; badge delle piattaforme alti 40px; pulsanti in fondo su due colonne da 48px (restano in fondo allo scorrimento, come deciso). Desktop invariato. --><!-- v452 · Restyling mobile, compito M1.1 (primo accesso), solo sotto i 600px: Nome e Cognome uno sotto l'altro (il Cognome usciva dallo schermo), campi da 48px a tutta larghezza, sfondo coprente, pulsanti a tutta larghezza con 'Continua' sopra e 'Salta' sotto, margini che tengono conto della tacca. Desktop invariato. --><!-- v451 · Restyling mobile, compito M1.3 (home), solo sotto i 600px: barra in basso unica a fondo pieno con, dall'alto, i filtri attivi (riga scorrevole, #afp-mobile spostato nella barra da _afpPlace; sopra i 600px torna al suo posto), il contatore dei film su una riga e 'Chiedi a Swainz' su una riga (54px). Il margine in fondo alla pagina segue l'altezza reale della barra (--bar-h, misurata con ResizeObserver): pie' di pagina e ultimo gruppo di filtri non restano piu' coperti. Corretto anche il margine inferiore della barra azzerato dalla v445 sui telefoni senza tacca. Desktop invariato. --><!-- v450 · Restyling mobile, compito M1.2 (home), solo sotto i 600px: proposte rapide su 2 colonne con i tag interi (vanno a capo; dopo la barra di 'Psicologico/mentale' c'e' uno spazio di larghezza zero); intestazione di Swainz Lab con titolo a sinistra e 'Reset filtri' + freccia a destra, senza sovrapposizioni. Desktop invariato. --><!-- v449 · Gatto sospeso su telefoni e tablet (decisione di Lorenzo: i WebM con trasparenza hanno un rettangolo nero su Safari iOS; se ne riparla con la revisione delle animazioni). Criterio unico _catOff(): (max-width:600px) oppure dispositivo touch senza hover. In quel caso: nessun filmato creato o scaricato (_buildVidStage), initCat/wakeUpSequence/reappearCat non partono, #catwrapper, fumetti dei suggerimenti e #loafcatw nascosti; durante la ricerca compare #sw-think (muso di Swainz che gira + 'Swainz sta scegliendo…') dal tocco fino alla scheda, con attesa dopo la risposta ridotta da 2,5 a 1,1 s; nel fumetto di benvenuto il muso fermo sostituisce il filmato. Desktop invariato. Per riattivare: _catOff() deve restituire false. --><!-- v448 · Restyling mobile, compito M0.2, solo sotto i 600px: con un avviso a tutto schermo aperto (annuncio, consigli terminati, nessun film, caratteristiche aggiuntive, esclusioni, salto di livello, condivisione, trailer, consiglio gratuito, benvenuto, primo accesso) la pagina sotto non scorre piu' (html:has(...){overflow:hidden}). Pannelli e scheda film lo facevano gia' (sw-seclock, v425). Solo CSS. --><!-- v447 · Profilo (desktop e mobile). Il campo 'Film preferito' e il divisore #pfdiv1 escono dalla colonna dei dati: il campo (stesso id pFilm) passa nella nuova sezione 'I tuoi preferiti' (details#prof-fav, chiusa all'apertura, sotto le due colonne e sopra 'I tuoi dati') insieme a due campi nuovi, pRegista e pAttore, salvati nello stesso oggetto profile (nessuna modifica al database; pulsante 'Salva preferiti' = saveProfp, conferma in #profOk2). La scheda 'Avvisi email' sta ora nella colonna sinistra anche su desktop, sotto i dati personali (_wlaPlace non la sposta piu' nella colonna destra). --><!-- v446 · Restyling mobile, compito M1.6 (profilo), solo sotto i 600px: la pagina del profilo non esce piu' dallo schermo (il riquadro Account va su due righe, la colonna della griglia non si allarga oltre lo schermo, pulsanti dei dati a tutta larghezza); il riquadro "I tuoi dati" passa in fondo e sparisce la fascia vuota in alto. Desktop invariato. --><!-- v445 · Restyling mobile, compito M0.1 (fondamenta), solo sotto i 600px: viewport-fit=cover e variabili --sat/--sab per tacca e barra del browser; 100dvh; tutti i campi a 16px (niente zoom automatico su iPhone); bersagli toccabili da 40–44px (pulsanti a riga piena piu' alti, icone con area estesa via ::after); nessun testo sotto i 12px. Desktop invariato. --><!-- v444 · La lingua scelta resta in localStorage (sw3_lang, it|en): la scrive setLang e la pagina pubblica (selettore IT/EN, ?lang=en); all'avvio l'app la legge e, se è inglese, applica subito setLang. Prima l'app partiva sempre in italiano. sw3_lang non è un dato personale: resta al logout e non va in SW_PERSONAL_KEYS. --><!-- v443 · Fase D: pagina pubblica. Questo file diventa app.html e vive in /home; "/" serve index.html (pagina pubblica, file separato). vercel.json: ogni percorso senza estensione diverso da "/" va ad app.html (/home, /login, /profilo, /privacy, /termini, /crediti, /disiscrizione…). Router: home dell'app /home (chiusura sezioni, logo, Indietro); disiscrizione → /home. Ritorni da Google/Facebook, conferma email, Stripe e utenti già collegati arrivano su "/" e la pagina pubblica li manda subito su /home con ?… e #… intatti. Eliminazione account → "/" (pagina pubblica). Nessun cambio a database, funzioni o testi legali. --><!-- v442 · Fase C: consiglio gratuito se il film appena consigliato è già visto. Solo Free, una volta al giorno, dalla scheda di un consiglio appena ricevuto: “Segna visto” apre un riquadro di conferma (#rf-ov); confermando, l’azione refund della funzione recommend v442 concede il buono (ultimo film consigliato, meno di 30 minuti, nessun buono oggi), il film va tra i visti e “↺ Altro” diventa “🎁 Altro gratis” con una pulsazione tenue; premuto, il consiglio arriva con free_retry e il server lo concede senza consumare solo con le stesse caratteristiche (impronta state_sig in sw_rec_log). Richiede sql/swainz_refund_v442.sql e la nuova recommend. Termini sez. 4 con la riga del consiglio gratuito; LEGAL_VERSION 2026-10.7. i18n +9 (479). --><!-- v441 · Badge delle piattaforme: RaiPlay con la ricerca del titolo (raiplay.it/ricerca.html?q=, provata dall’utente); Infinity e Infinity Store aprono la pagina di ricerca del sito (mediasetinfinity.mediaset.it/ricerca?search), perché l’indirizzo di Infinity non contiene il testo cercato. Nessuna search_test rimasta. --><!-- v440 · Badge delle piattaforme: attivate le ricerche provate dall’utente (Prime Video, Prime Video Store, MGM+, Crunchyroll, CHILI, Rakuten TV); Disney+ e NOW sulla home (la loro ricerca porta a “pagina non trovata”); Infinity e Infinity Store (mediasetinfinity.mediaset.it/ricerca?search=) e RaiPlay (raiplay.it/ricerca.html?q=) con gli indirizzi trovati dall’utente, ancora da confermare (search_test). --><!-- v439 · B2 badge delle piattaforme come link: nella scheda film ogni badge (abbonamento e noleggio) è un link che apre il servizio, con la ricerca del titolo dove l’indirizzo è noto (Netflix, Apple TV, MUBI, YouTube/Google Play) e la home negli altri casi. Configurazione unica SW_PLAT_LINKS (home, search, search_test, e per le affiliazioni tag Amazon Associates o wrap della rete): le affiliazioni si attivano compilando i campi; con un’affiliazione attiva rel="sponsored" e nota in fondo alla scheda. Conteggio anonimo dei clic con la RPC sw_plat_click (sql/swainz_platclicks_v439.sql). Termini sez. 9 e Privacy sez. 7: collegamenti e link di affiliazione; LEGAL_VERSION 2026-10.6. i18n +3 (470). --><!-- v438 · B4 avvisi email di “Lo guarderò” (Premium): (1) Profilo, colonna destra sotto lo Storico: scheda “Avvisi email” con interruttore (#wla-sw) che salva user_data.wl_alerts {on, lang, at} (sql/swainz_alerts_v438.sql); per i Free l’interruttore apre il pannello Premium; descrizione con le piattaforme del questionario (q7b) o “tutte”. (2) “Tutti i film consigliati”: invito (#arec-wla) quando la lista non è vuota e gli avvisi sono spenti (Premium: Attiva gli avvisi · Free: Scopri Premium), chiudibile per sempre (sw3_wla_hint). (3) Pagina swainz.it/disiscrizione?u&t&l: riquadro con bottone che chiama la RPC sw_wl_unsub (firma verificata nel DB). (4) Premium: vantaggio upg_f6; Termini sez. 4 con la riga degli avvisi; Privacy: finalità, Brevo e dati di utilizzo; LEGAL_VERSION 2026-10.5. Le email partono da scripts/wl-alerts.js (workflow wl-alerts.yml, ogni mattina il tracciamento, il venerdì l’invio). i18n +26 (467). --><!-- v437 · “Tutti i film consigliati”: la casella di selezione passa in fondo alla riga, dopo “Lo guarderò” (anche la casella generale nell’intestazione e, su mobile, in alto a destra dopo occhio e segnalibro). Colonne desktop 1fr | 44 | 112 | 150 | 146 | 44 | 72 | 24. --><!-- v436 · “Tutti i film consigliati”: (1) colonna “Visto” con occhio cliccabile su ogni riga (_arecSnCell, _arecSetSeen: un solo salvataggio, aggiorna Segna visti, Film già visti, contatori e la scheda aperta); il segnalibro “Lo guarderò” dei film visti resta spento. (2) Selezione multipla: casella su ogni riga e casella generale (tutti i film mostrati, stato intermedio), righe selezionate evidenziate, barra azioni con Segna visti / Segna non visti / Lo guarderò / Togli da Lo guarderò / Annulla selezione e messaggio con l’esito; la selezione vale solo per i film mostrati (filtri e ricerca la riducono). _wlSetMany salva più film in una volta e non aggiunge i visti. Colonne desktop 24 | 1fr | 44 | 112 | 150 | 146 | 44 | 72, spazio 10, miniatura 58×38 fino a 1500 px; budget pillole 150/146. i18n +17 −1 (441). --><!-- v435 · B3 “Lo guarderò”: (1) bottone “🔖 Lo guarderò” nella scheda film accanto a “Segna visto” (nascosto se il film è già visto); (2) in “Tutti i film consigliati” nuova colonna con segnalibro cliccabile (i film già visti mostrano “Visto”), ordinabile, e filtro “Lo guarderò” con contatore; (3) esportazioni con colonna Lo guarderò. Dati: watchList [{id, at}] in sw3_watch e in user_data.watchlist (sql/swainz_watchlist_v435.sql, GRANT solo su quella colonna); salvataggio immediato, sw3_watch_dirty se fallisce; lista del server letta all’accesso e all’apertura del pannello; segnare un film come visto lo toglie dalla lista. (4) Attribuzione JustWatch spostata in fondo alla scheda, solo testo. Privacy: dati di utilizzo con “Lo guarderò”, LEGAL_VERSION 2026-10.4. i18n +9 (425). --><!-- v434 · B1 Trailer: bottone “▶ Guarda il trailer” nella scheda (accanto a Condividi, solo se il film ha il trailer) e riquadro #trl-ov con lettore youtube-nocookie creato al clic e rimosso alla chiusura (X, Esc, clic fuori; chiusura anche con la scheda). Dati: tmdb_id e trailer_key da Movies/movies_public (swainz_trailer_v434.sql) scritti da update-db v202; _supaTransform li mappa in f.tmdb e f.trailer, SW_KEEP_FIELDS li conserva se la risposta del server non li porta. Privacy: YouTube nella riga di Google, LEGAL_VERSION 2026-10.3. i18n +3 (416). --><!-- v433 · Fase A: (1) titolo della pagina, descrizione, canonical e meta Open Graph/Twitter con immagine 1200×630 (cat/brand/og-image.jpg, da caricare nel repository); (2) Vercel Web Analytics (script /_vercel/insights/script.js, senza cookie; da attivare nel pannello Vercel), con beforeSend che toglie # e ? dagli indirizzi; (3) “Condividi scheda” e “Condividi badge” tradotti (share_card_btn, share_badge_btn); (4) Privacy: statistiche anonime di Vercel (sez. 7), Brevo per le email di servizio, TMDB per le locandine e Google Fonts tra i fornitori; LEGAL_VERSION 2026-10.2. NB: i commenti di versione ora seguono questo blocco, non piu' il tag title. --><!-- v432 · Recupero password con CODICE via email (le email partono da Brevo, che riscrive i link per tracciarli: niente link nelle email di accesso). Schermata di accesso: “Password dimenticata?” → email + verifica anti-bot → POST /auth/v1/recover → codice + nuova password → POST /auth/v1/verify (type recovery) → PUT /auth/v1/user → accesso con _lsAfterLogin (estratta da doLogin, comune ai due percorsi). Rinvio del codice dopo 60 s. Profilo: “Cambia password” per gli account con email e password (PUT /auth/v1/user; se Supabase chiede la riautenticazione, GET /auth/v1/reauthenticate e codice via email come nonce). Template email in italiano con {{ .Token }} da incollare in Supabase. i18n +27 chiavi (411). --><!-- v431 · (1) Logo ufficiale TMDB (blue_square_1.svg fornito dall'utente, non modificato) nella pagina Crediti, come data URI per non mescolare le classi interne dell'SVG con il CSS del sito. (2) Banner Premium nei 9 riquadri pubblicitari (ad-slot-l/r/bottom, vp-ad-l/r/b, profp-ad-l/r/b), solo Free come prima: versione verticale con titolo, vantaggi (chiavi upg_f*), prezzo da €1,67/mese e bottone, versione orizzontale su una riga; si adattano con container query; clic o Invio → openUpgradePanel(). Un riquadro con data-real-ad="1" viene lasciato alla futura rete pubblicitaria. i18n +5 chiavi (384). --><!-- v430 · Fonti dei dati: (1) filtro “Voto minimo IMDb” rinominato “Voto minimo” / “Minimum rating” (il voto e' il vote_average di TMDB dalla v196 di update-db.js); nella scheda film il voto porta la sigla TMDB (.fc-rsrc). (2) Nuova pagina Crediti (#creditsp, route pubblica /crediti, link nel footer) con la dicitura richiesta da TMDB e l'attribuzione a JustWatch; logo TMDB in attesa del file ufficiale (#cred-tmdb-logo, per ora scritta). (3) Scheda film: sotto “Disponibile su” la riga “Disponibilità in streaming: JustWatch” (card_plt_src). (4) Termini sez. 8: fonti TMDB e JustWatch al posto di “TMDB e IMDb”, con link ai Crediti. Footer © 2026. Chiavi i18n +2 (379). --><!-- v429 · Limite Premium allineato al server: il pannello Premium (upg_tagline, upg_f2, it/en e markup dei due piani) e la tabella Free/Premium dei Termini (sez. 4) promettevano consigli illimitati, mentre dalla v420 la funzione recommend concede fino a 50 consigli al giorno ai Premium (sw_rec_consume). Ora: 'Fino a 50 consigli al giorno' / 'Up to 50 recommendations a day'; Termini: 'Fino a 50 al giorno', ultimo aggiornamento ottobre 2026; sez. 1 'oltre 2.000 titoli' (era 1.000); sez. 10: il divieto di aggirare i limiti vale per entrambi i piani, compresi i limiti giornalieri, account multipli e sistemi automatizzati. LEGAL_VERSION invariata (2026-10). Nessuna modifica alla logica. --><!-- v428 · Pulizia dopo la fase 3: tolti il motore del browser (findFilm, filtri, contatore e proposte locali, parte film del Cine-Score, sequel e opt-in locali), le strade di riserva verso di esso, il conteggio delle ricerche lato browser, gli strumenti di confronto _swServerCheck e _swDiag. Il catalogo viene chiesto direttamente a movies_public (una richiesta rifiutata in meno all'avvio). Comportamento invariato con utente loggato; senza sessione il sito chiede di accedere di nuovo. --><!-- v427 · Verifica anti-bot Cloudflare Turnstile su accesso e registrazione con email (Google e Facebook non ne hanno bisogno): il token va a Supabase Auth in gotrue_meta_security.captcha_token, Supabase lo verifica con la chiave segreta. Widget in modalita' interaction-only (compare solo se Cloudflare chiede un'azione). Privacy Policy aggiornata (Cloudflare tra i fornitori, LEGAL_VERSION 2026-10). Il consenso viene registrato anche al primo accesso con email dopo la conferma dell'indirizzo. --><!-- v426 · Tempi del contatore: funzione recommend v426 (vista compatta movies_engine per il motore, righe complete lette solo per i film da mostrare, verifica del token in parallelo alle altre letture, tempi di ogni fase nella risposta, campo _t) e nuovo script swainz_engine_view_v426.sql. Nel sito la diagnosi da console _swSpeed(). --><!-- v425 · (1) Header delle sezioni: se la pagina principale era scorsa verso il basso, all'apertura di una sezione il blocco dello scorrimento (v416) faceva uscire l'header dallo schermo e in alto si vedeva la pagina sotto (proposte rapide). Ora con la pagina bloccata l'header e' fisso in alto e opaco. (2) Contatore e chip incompatibili: la richiesta parte subito al clic (attesa di 150 ms solo per clic ravvicinati e per lo slider) e il contatore si attenua mentre aspetta la risposta. Funzione recommend v425 da ripubblicare: limite, catalogo e dati utente letti in parallelo, dati utente tenuti 20 s per contatore/proposte/Cine-Score, catalogo scaricato 4 pagine alla volta. --><!-- v424 · Scelta dell'utente: trama e verdetto sono pubblici, il segreto sono le caratteristiche. Ogni scheda mostra sempre la trama; le caratteristiche compaiono solo nei film consigliati all'utente. Tolti il limite di 30 schede al giorno della v423 e le note card_pub_note / card_cap_note. Funzione recommend v424 da ripubblicare. --><!-- v423 · Richiesta dell'utente: le schede dei film mai consigliati (Film gia' visti, Segna i film gia' visti) tornano complete di trama, verdetto e caratteristiche. La funzione recommend (da ripubblicare) le concede quando l'utente apre la scheda, fino a 30 film diversi al giorno; oltre il limite scheda pubblica con avviso (card_cap_note). --><!-- v422 · Schede dal server: unendo la risposta al catalogo in memoria un campo vuoto non cancella piu' quello gia' presente (locandina, regia, titolo, cast, durata, voto, piattaforme); le schede pubbliche prendono la locandina dal catalogo se manca. Nuova diagnosi da console _swDiag(). Script swainz_backfill_reclog_v422.sql per i consigli dati tra fase 1 e v421. --><!-- v421 · Motore lato server, fase 2: con utente loggato consigli, contatore film, chip incompatibili, proposte rapide, Cine-Score e schede arrivano dalla Edge Function recommend (SW_SERVER_ENGINE=true). Righe di "Segna i film gia' visti" e "Film gia' visti" con il cast al posto del verdetto; schede dei film mai consigliati con i soli dati pubblici; tetto Premium 50 consigli al giorno con avviso; catalogo da movies_public se Movies non e' piu' leggibile (fase 3). Il motore del browser resta come riserva finche' il catalogo completo e' scaricabile. --><!-- v420 · Motore lato server, fase 1: nuova Edge Function recommend e script swainz_server_fase1_v420.sql (vista movies_public, registro sw_rec_log, limiti sw_api_hit / sw_rec_consume). Nel sito solo la verifica da console _swServerCheck(), che confronta il server con il motore del browser senza consumare consigli; l'app continua a usare il motore del browser (SW_SERVER_ENGINE=false). --><!-- v419 · Esportazione di "Tutti i film consigliati": tolte le colonne Caratteristiche e Trama (scelta dell'utente: non consegnare i dati propri del database). Restano N., Titolo, Titolo originale, Anno, Regia, Cast, Durata, Voto, In abbonamento, Noleggio / acquisto, Visto. --><!-- v418 · "Tutti i film consigliati": pulsante "Esporta" accanto al conteggio, con menu: Excel (.xlsx, generato nel browser senza librerie: zip non compresso + fogli XML, riga d'intestazione bloccata, filtro automatico, larghezze colonne), CSV (UTF-8 con BOM, virgole), Letterboxd (.csv con Title, Year, Directors da importare come lista), PDF / Stampa (tabella impaginata in un iframe, dialogo di stampa del browser con "Salva come PDF"). Esporta la lista come la si vede: filtri e ordinamento correnti; il menu dice quanti film. Colonne: N., Titolo, Titolo originale, Anno, Regia, Cast, Durata, Voto, Caratteristiche, In abbonamento, Noleggio/acquisto, Visto, Trama. --><!-- v417 · (1) FIX film segnati come visti che restavano tra i popolari anche riaprendo la pagina, di nuovo con "Segna visto". Causa probabile: tipo dell'id. Le righe passano l'id come numero (toggleSeenV(123)), ma l'id che arriva dal DB (row.ID||row.id) puo' essere una stringa ("123"): Set.has distingue 123 da "123", quindi il film risultava "non visto" nei controlli fatti con l'id del DB. Ora ogni aggiunta usa l'id esatto del film nel DB (_swIdKey), i controlli accettano entrambe le forme (_swSeen) e _swSeenNorm riallinea i visti gia' salvati al tipo del DB (all'arrivo del DB, dopo i dati del server, all'apertura delle pagine). Vale anche per la scheda film, per il motore dei consigli, per la pagina Film gia' visti e per l'apertura delle schede dalle liste (confronti con String(id)). (2) Pulsanti "Aggiorna elenco" in testa e in fondo alla lista: ricaricano i risultati senza i film appena segnati come visti (popolari ricalcolati; nella ricerca i visti vengono nascosti fino al cambio di testo), con il numero dei film da togliere; disattivati se non ce ne sono. Se il DB arriva dopo l'apertura della pagina la lista si ricompone da sola. --><!-- v416 · Pagine secondarie (Profilo, Segna i film gia' visti, Fatti conoscere, Tutti i film consigliati, Film gia' visti, pannello Premium, Privacy, Termini): mentre una e' aperta la pagina principale sotto non scorre piu' e la sua barra di scorrimento sparisce (html.sw-seclock: overflow hidden su html e body, overscroll-behavior none); resta solo la barra della pagina aperta. Un MutationObserver sulla classe .on dei pannelli attiva e toglie il blocco; la posizione della principale resta quella di prima. L'header compensa con padding-right la larghezza della barra scomparsa, cosi' icone e badge non si spostano. --><!-- v415 · Header alto uguale in tutte le pagine anche su mobile (59px come nella principale; su desktop era gia' 75px ovunque): tolta la seconda riga della v414, titolo (15px) e sottotitolo (11px) stanno accanto al logo su una riga ciascuno, con i puntini se non ci stanno; altezza bloccata con height sull'header. Fino a 1100px (telefoni e tablet) testi brevi scelti dall'utente (chiavi *_s), sopra i testi completi; tra 601 e 1280px lo spazio del titolo sale a 50vw. --><!-- v414 · Sottotitoli delle pagine nell'header comune, sotto il titolo e allineati a esso (#hdr-sub), tutti in bianco Inter 13px (12px tra 601 e 1280px; mobile 11px su una riga propria sotto titolo e icone, allineata al titolo). Testi: Segna i film gia' visti = quello attuale (visti_p); Fatti conoscere = "Rispondi alle domande e guida i consigli di Swainz"; Tutti i film consigliati = "Tutti i film che Swainz ti ha consigliato"; Film gia' visti = "Lista dei film che hai segnato come visti"; Il tuo profilo = "Informazioni personali e storico". Tolti i sottotitoli dentro le sezioni. --><!-- v413 · (1) Termini di Servizio: tolta la riga "Pannello news cinema" dalla tabella Free/Premium. (2) Scheda "Piattaforma" del Swainz Lab: accanto al titolo, in piccolo e in bianco, "richiedi consigli mirati su una o piu' piattaforme specifiche" (g7_hint). (3) Bottoni "Importa da Letterboxd" (Segna i film gia' visti e Film gia' visti): al passaggio del mouse (o con il focus da tastiera) un fumetto spiega come esportare i dati da Letterboxd (Impostazioni > Import & Export > Export your data, file ZIP, watched.csv) e caricarli (lb_tip). --><!-- v412 · (1) Tolto il pannello "Notizie del giorno" (premium) dalla pagina principale: markup, stili e chiamate a loadNews (buildUI, setLang); tolta la voce "Pannello news cinema" dai due piani del pannello upgrade. (2) Margini uguali in tutte le pagine sopra i 1279px: colonna del contenuto larga min(1520px, 100vw - 400px) nella pagina principale (.fa), in Segna i film, Film gia' visti e Tutti i film consigliati (prima: principale e consigliati 980px, le altre due 100vw - 404px); ai lati 200px = banner verticale standard 160x600 (Wide Skyscraper IAB) + 20px dal bordo + 20px dal contenuto. Stessi slot 160x600 (o piu' bassi se la finestra non basta) nella stessa posizione su principale, Segna i film e Profilo, centrati in verticale sotto l'header; sotto i 1280px niente banner laterali. --><!-- v411 · Icona della scheda del browser: il muso di Swainz su fondo arancione fornito dall'utente (1024px), ridotto a PNG 32 e 48px (link rel=icon) e 180px (apple-touch-icon), incorporati come data URI: funzionano caricando solo index.html. Per i risultati di Google, che vuole un file raggiungibile, a parte favicon.ico (16/32/48) da mettere nella radice del repository. --><!-- v410 · Schermata di accesso in caricamento: la scheda resta della stessa misura ma vuota (via anche Email, Password e separatore), al centro il muso di Swainz (posa in basso a sinistra del foglio dell'utente, scontornato senza collo, WebP 240px con trasparenza in data URI) che ruota in senso orario (1,6 s a giro) al posto dello spinner; sotto resta la scritta di caricamento. A caricamento concluso (login(), oppure _lsStopLoading per errore/sessione scaduta/onboarding) il muso completa il giro e si ferma dritto (_lsCatSettle, 0,3-0,6 s) prima di sparire. --><!-- v409 · Header comune a tutte le pagine: logo +50% (cliccabile = pagina principale), titolo della pagina (Rajdhani bicolore, assente nella principale), badge del piano al centro, a destra bandierina, menu e profilo. L'header esce da #app (che ha z-index 4 e ne limitava il livello) e resta visibile sopra le sezioni. Le cinque sezioni (Profilo, Segna i film gia' visti, Fatti conoscere, Tutti i film consigliati, Film gia' visti) non scorrono piu' da destra: si aprono sotto l'header con una breve dissolvenza, una alla volta (aprirne una chiude l'altra); si torna con il logo o con il tasto Indietro del browser (router v332, nuova route /gia-visti). Tolti dalle sezioni titolo, badge e Torna: resta il sottotitolo in cima al contenuto. Mobile: una riga, badge nascosto, titolo su massimo due righe. --><!-- v408 · (1) Badge del piano nelle intestazioni di "Tutti i film consigliati", "Film gia' visti" e "Segna i film gia' visti": per i premium e' solo visivo (classe .arx-plan-static: niente clic, niente freccia, niente effetto al passaggio, fuori dal Tab); prima il clic chiudeva la pagina e riportava al Profilo. Per i free resta il pulsante "Passa a Premium" che apre il pannello upgrade. (2) Profilo: al posto di #prem-free/#prem-active c'e' lo stesso badge delle altre pagine (#prof-plan), centrato nell'intestazione; "Torna" passa a destra. Su mobile il badge va su una seconda riga, centrato. --><!-- v407 · "Segna i film gia' visti": la ricerca guarda solo titolo, regista e attori. Tolti il titolo originale non mostrato (TITLE_ORIG in italiano: faceva comparire film il cui titolo visibile non conteneva il testo cercato) e l'anno. Il titolo confrontato e' quello mostrato nella riga (_arecTitle: italiano in IT, originale in EN). Segnaposto aggiornato. --><!-- v406 · "Segna i film gia' visti": i suggerimenti rapidi (chip) cambiano ogni giorno. Ogni giorno 3 registi e 3 attori, alternati, presi a rotazione dai 24 registi e dai 24 attori con piu' film nel catalogo (almeno 2). Ordine delle due liste mescolato una volta con seme fisso, poi finestra di 3 nomi che avanza di 3 ogni giorno (data locale): tutti i nomi passano prima di ripetersi (8 giorni) e nello stesso giorno tutti vedono gli stessi nomi. Tooltip con ruolo e numero di film. I 6 nomi fissi della v405 restano solo come riserva se il catalogo non e' ancora caricato. --><!-- v405 · "Segna i film gia' visti": (1) i risultati della ricerca partono da 3 caratteri (prima 2); con 1-2 caratteri resta la lista dei popolari e il sottotitolo invita a scrivere almeno 3 caratteri. (2) Tornano i suggerimenti rapidi di registi e attori delle versioni precedenti alla v403 (Christopher Nolan, Stanley Kubrick, Quentin Tarantino, Leonardo Di Caprio, Martin Scorsese, David Lynch) come chip sotto la barra (.vpx-chips): il clic mostra i film di quella persona, il chip attivo e' evidenziato, un secondo clic lo toglie. Confronto dei nomi senza spazi (Di Caprio = DiCaprio). --><!-- v404 · "Segna i film gia' visti" (#vp): copia bloccata su tutti i testi della pagina. CSS: user-select:none e -webkit-touch-callout:none su #vp (resta selezionabile solo il campo di ricerca), immagini non trascinabili. JS (capture su document): copy e cut annullati se la pagina e' in primo piano (senza scheda film sopra) o se partono/selezionano da #vp, tranne nel campo di ricerca; Ctrl/Cmd+A bloccato con la pagina in primo piano; selectstart, dragstart e contextmenu annullati su #vp (campo di ricerca escluso). La scheda film aperta da qui resta copiabile come altrove. Deterrente lato client: il contenuto resta leggibile da strumenti per sviluppatori. --><!-- v403 · "Segna i film gia' visti" (#vp) rifatta sul modello delle altre pagine: intestazione .arx (titolo "Segna i film" + "gia' visti" in arancione, piano, Torna), sfondo = immagine dell'utente ripulita (WebP in data URI su #vp::before), colonna larga con 220px ai lati per le pubblicita' come "Film gia' visti". Barra con ricerca e Importa da Letterboxd agganciata sotto l'intestazione. Ricerca con risultati mentre si scrive (da 2 caratteri: titolo, titolo originale, regista, attore, anno); la tendina propone solo registi e attori (da 3 caratteri) e, scelti, mostra i loro film. A ricerca vuota: film piu' popolari non ancora segnati (Conosciutissimo, poi valutazione), 50 alla volta con "Mostra altri", senza filtri. Righe come le altre pagine (miniatura, titolo, anno, regista, generi, piattaforma) con pulsante "Segna visto / Visto" a fine riga; clic sulla riga = scheda film. Contatore dei visti che apre "Film gia' visti". --><!-- v402 · Film gia' visti: la barra con ricerca e filtri passa dall'intestazione a sotto le statistiche, sopra la tabella (#sx-fbar). Su desktop resta agganciata sotto l'intestazione quando la lista scorre (sticky, top = altezza dell'intestazione), con fondo solo quando e' agganciata; su mobile scorre con la pagina. --><!-- v401 · FIX "Segna altri film" (Film gia' visti): il pannello Segna i film gia' visti (#vp) si apriva ma restava sotto il Profilo, che ha lo stesso z-index 310 e viene dopo nel DOM; sembrava che il bottone riportasse al Profilo. Ora, se il Profilo e' aperto, #vp sale a z-index 312 finche' resta aperto; chiudendolo si torna al Profilo. --><!-- v400 · Lo sfondo SVG, la colonna larga (220px per lato per i banner) e l'intestazione trasparente della v399 valgono solo per "Film gia' visti": "Tutti i film consigliati" torna allo sfondo, alla colonna da 980px e all'intestazione della v398. --><!-- v399 · Sfondo SVG ricostruito dal modello (sfere con bordo arancione, lame di luce, puntini), colonna larga sopra i 1260px con 220px per lato per i banner, intestazione trasparente con fondo solo durante lo scorrimento. --><!-- v398 · Nuova pagina "Film gia' visti" (#seenp) sul modello fornito, con la larghezza della pagina principale: intestazione come "Tutti i film consigliati"; filtri (ricerca titolo/regista/attore/anno, generi, piattaforme, ordine, Azzera); statistiche generi e piattaforme sopra la tabella; tabella con locandina, anno, regista, genere, piattaforma, valutazione, stato e menu (Apri scheda, Rimuovi dai visti con conferma); Importa da Letterboxd direttamente nella pagina e Segna altri film; titoli in stand-by sotto la tabella. La scheda aperta da qui non finisce nello storico dei consigli (showCard noRec). --><!-- v397 · Scheda film su desktop, nuova impaginazione (_swLayoutCard, sostituisce _swCenterPoster della v396). Tre gruppi a sinistra: regia + riga info (restano nell'intestazione .fch), descrizione, cast. G = 18px. Se la locandina e' piu' alta dei tre gruppi con spaziatura G: locandina a G dal titolo e a G dalla scheda sotto, i tre gruppi centrati e distanziati uniformemente nella sua altezza. Altrimenti: gruppi a G dal titolo e tra loro, locandina centrata sui tre, scheda sotto a G. La locandina e' posizionata in assoluto dentro .fcb (puo' salire accanto a regia e info); per farlo su desktop scorre l'intera scheda (#fcc) e non piu' solo .fcb, e la X e' fissata all'angolo della scheda. Mobile invariato. --><!-- v396 · Scheda film: la locandina si centra sul solo testo della descrizione (.fcdesc), non piu' su descrizione + cast come in v395. _swCenterPoster() misura altezza della locandina e del testo (offsetHeight, immune alle trasformazioni dell'apertura) e sposta in basso l'elemento piu' corto: la colonna testo con padding-top se la locandina e' piu' alta, la locandina con margin-top se il testo e' piu' lungo; il cast resta subito sotto la descrizione. Chiamata a fine showCard, al caricamento della locandina, a font caricati e al resize. Solo con la riga in orizzontale (sopra i 560px). --><!-- v395 · (1) Locandina assente nelle schede aperte da "Tutti i film consigliati": le miniature della v394 scaricavano le locandine TMDB senza CORS e il browser le metteva in cache senza Access-Control-Allow-Origin; la scheda, che le chiede con crossorigin="anonymous", riceveva la copia in cache, falliva e l'onerror toglieva l'immagine. Ora anche le miniature usano crossorigin e, se la copia in cache e' gia' senza CORS, _swPosterRetry ritenta una volta con ?cors=1 (nuova voce di cache); stesso ritentativo in _swLoadImg (scheda condivisibile). (2) Scheda film su desktop: .fc-body-row con align-items:center, locandina e colonna descrizione centrate in verticale tra loro (prima allineate in alto, con la locandina che scendeva sotto il testo). --><!-- v394 · Nuova grafica del pannello "Tutti i film consigliati": intestazione con titolo a due colori, pillola del piano e Torna; barra filtri a quattro controlli (ricerca unica titolo/regista/anno, piattaforme, caratteristiche, Azzera filtri); tabella a righe-card con locandina, verdetto, tag e badge piattaforme, ordinabile su tutte le colonne; larghezza come la pagina principale (980px, padding 18px). FIX: il filtro piattaforme leggeva f.platforms, campo inesistente (ora f.plt + f.plt_nol). --><!-- v393 · Separatore: filetti laterali centrati verticalmente sulle due righe (align-self:center); dalla v377 erano allineati alla sola riga 'oppure'. --><!-- v392 · Separatore tra proposte e Lab: seconda riga da 'componi tu' a 'componi tu il tuo film' (EN 'build your own film'). --><!-- v391 · Cornice discreta attorno alla zona della richiesta: .cta-row prende padding 10px, bordo 1px rgba(255,150,70,.22), fondo rgba(26,23,21,.6) e raggio 18px, restando larga 944px come il Lab (box-sizing border-box, quindi il contenuto interno scende a 924). Su <=600px la cornice non compare. --><!-- v390 · Tolte le due staffe agli angoli (in alto a sinistra e in basso a destra) del bottone Chiedi a Swainz: .cta::before/::after disattivati dentro .cta-w. --><!-- v389 · Barra in basso larga quanto la scheda Swainz Lab: .cta-row max-width da 1220 a 944px (980 di .fa meno i due padding da 18). Il pannello dei filtri mostra sempre la riga dei tag: senza filtri compare "Nessun filtro", quindi il riquadro parte gia' su due righe e il bottone non cambia altezza al primo tag; il testo e' anche nel markup iniziale, perche' updatePanel gira solo al primo cambiamento. --><!-- v388 · Barra in basso riorganizzata. Nuova .cta-row: a sinistra .cta-main con il contatore e 'Chiedi a Swainz' al 72% della larghezza (prima centrato, max 944px), ora arancione pieno (gradiente #c2410c -> #ff7a18 -> #ffa94d) con hover verso un arancione piu' chiaro al posto del viraggio al blu; a destra .cta-side con l'intestazione 'Filtri attivi' + Reset filtri e sotto il pannello #afp, spostato qui dalla colonna destra (dove le X non erano cliccabili). I due blocchi sono stirati alla stessa altezza: se i tag vanno a capo cresce anche il bottone. Il reset esce dall'intestazione del Lab, dove resta una copia (#resetBtnLab) visibile solo sotto i 600px; _updateBtnGlow illumina entrambi. Su mobile la colonna destra sparisce e resta il pannello #afp-mobile. --><!-- v387 · Stato abbonamento di nuovo nell'intestazione del profilo, in alto a destra (come prima della v386): #prem-free con etichetta e bottone 'Passa a Premium', #prem-active con il nuovo badge a pillola .prem-badge (fondo #232326, bordo 1.5px #ff8a2e con alone, stella dorata e 'Piano Premium attivo' in bianco). Tolti dal corpo del profilo i riquadri .prof-plan della v386. Il bottone 'Gestisci abbonamento' resta in fondo con Scarica ed Elimina. --><!-- v386 · (1) Header della pagina principale di nuovo fisso in alto: due cause, una regola successiva che imponeva position:relative!important e overflow-x:hidden sul body, che ne faceva un contenitore di scorrimento e annullava lo sticky; ora sticky!important e overflow-x:clip su html e body. (2) Intestazione del profilo (.vph) portata all'altezza dell'header principale: align-items center, padding 9px 22px (mobile 8px 14px), sottotitolo 11px. (3) Stato abbonamento riorganizzato: fuori dall'intestazione, in cima alla colonna del profilo. Free: riquadro con testo e bottone Passa a Premium. Premium: riquadro con bordo a sfumatura arancione, stella e 'PIANO PREMIUM ATTIVO' in Rajdhani 700 19px. Il bottone Gestisci abbonamento passa in fondo, tra Scarica i miei dati ed Elimina account, visibile solo ai premium. --><!-- v385 · Swainz Lab: filo di luce leggermente piu' acceso. Bordo da rgba(175,200,230,.5) a rgba(190,212,238,.68), alone da 14px .22 a 18px .3. --><!-- v384 · Bottoni Menu e Profilo dell'header ridisegnati sul modello fornito: pillola scura con bordo a sfumatura arancione (gradiente applicato su border-box), icona hamburger arancione, etichetta MENU separata da un filetto verticale, alone tenue; il bottone profilo diventa un cerchio con lo stesso bordo e icona arancione. Su <=600px resta la sola icona. Nuova chiave i18n menu_btn. --><!-- v383 · Tolta la zampa dopo il sottotitolo nella schermata di accesso. FIX menu lingua: #desktop-lang-drop aveva z-index 60, sotto #ls (200): nella schermata di accesso il menu si apriva ma restava dietro, quindi la bandiera sembrava non rispondere. Portato a 300, sopra #ls e sotto onboarding (600) e overlay di condivisione (700). --><!-- v382 · Schermata di accesso: sottotitolo e zampa sulla stessa riga (.ls-tagrow), tolte le due barrette arancioni '//' prima del testo (.logo-tag::before content:none, solo dentro #ls) e aumentato lo stacco dal logo (margin-bottom del logo da 10 a 26px; mobile 20px). Su mobile la riga va a capo centrata. FIX i18n: la chiave login_consent esisteva solo in inglese (in italiano la casella del consenso mostrava il nome della chiave) e setLang applicava le traduzioni con textContent, quindi i link della frase sul consenso comparivano come tag. Ora le voci che contengono HTML usano innerHTML. --><!-- v381 · Schermata di accesso: tolte le zampe grandi (58px) sopra il logo, aggiunta una zampa piccola sotto il sottotitolo (.ls-paw). Spazi ridistribuiti tra bandiera, logo e sottotitolo; #ls ora scorre (overflow-y:auto) se il contenuto supera lo schermo: prima, su finestre basse, la barra della lingua usciva sopra il bordo e non era cliccabile. --><!-- v380 · Tolti gli aloni arancioni (drop-shadow) da .logo-sm e .logo-big: con il logo a pennellata risultavano di troppo. --><!-- v378 · Proposte rapide con intestazione come il Lab: .proposte-hdr (titolo centrato + filetto di separazione arancione) e .proposte-body (sottotitolo + pillole); il padding passa dal riquadro alle due parti. Nessuna freccia e nessun click di chiusura: la scheda resta sempre aperta. --><!-- v377 · Separatore: 'oppure' e, a capo, 'componi tu' in arancione #ff7a18 (era 'scegli tu' in pesca, sulla stessa riga). Nuovi sottotitoli: .proposte-sub sotto il titolo delle proposte rapide ('Scegli una delle combinazioni studiate da Swainz', tono caldo) e .lab-sub in cima al corpo del Lab, sotto l'intestazione ('Indica una o piu' caratteristiche che vuoi nel film', tono freddo; nel corpo e non nell'header perche' li' il titolo e' in posizione assoluta accanto al bottone Reset). Chiavi i18n proposte_sub e lab_sub. --><!-- v376 · Spaziature pagina principale: distanza header -> proposte rapide dimezzata (.fa padding-top 28->14px desktop, 16->8px mobile); distanza proposte -> Swainz Lab aumentata di 45px, pari all'altezza dell'intestazione del gruppo 'Temi specifici' (proposte 14px + separatore 'oppure scegli tu' alto 45px + 14px = 73px). Separatore .sw-or: Rajdhani 600 14px maiuscolo spaziato, 'scegli tu' in pesca #ffb07a, filetto sinistro che sfuma dall'arancione e destro dall'azzurro del Lab; chiavi i18n or_pre/or_you (EN: 'or choose yourself'). Misure prese in browser headless su v375. --><!-- v375 · Proposte rapide: fondo da #221c17 a #2d2118 (piu' arancione, risalta sul nero della pagina). Swainz Lab ridisegnato come pannello incassato su ardesia: fondo #1b2028 con ombra interna, gruppi filtro #232a35 appoggiati con ombra leggera, bordo 'filo di luce' azzurro-ghiaccio rgba(175,200,230,.5) con alone tenue, titolo chiaro freddo, hover dei gruppi in azzurro. Tolte le staffe arancio/ambra agli angoli del pannello (.lab-box::before); restano i rivetti dei gruppi e le chip selezionate arancioni. --><!-- v374 · Proposte rapide: tolte le due linee luminose arancioni interne (::before/::after a 6px dal bordo). Restano fondo a tabellone, bordo al neon e titolo al neon. --><!-- v373 · Riquadro Proposte rapide come insegna da cinema: fondo a tabellone (scanalature orizzontali 1px ogni 7px su #221c17), due linee luminose arancioni in alto e in basso (::before/::after, prima ::before era una sfumatura diagonale), bordo 2px #ff7a18 con alone al neon esterno e interno, titolo color pesca #ffd9b0 con alone neon e sfarfallio ogni 5s (fermo con prefers-reduced-motion). Pillole invariate. --><!-- v372 · Proposte rapide: il testo dei tag nelle pillole passa da Syne 800 15px (13px mobile) a Bebas Neue 400 21px, letter-spacing .05em, line-height 1.05; su mobile 16px, letter-spacing .02em, senza andare a capo, con padding laterale della pillola ridotto a 6px (i tag piu' lunghi entrano da 360px di larghezza in su; prima con Syne 13px sforavano). Bebas Neue era gia' caricato dal link Google Fonts: nessuna richiesta in piu'. Il simbolo + resta in Share Tech Mono. --><!-- v371 · Forma decorativa rotante in alto a destra: classe rinominata da .b1 (condivisa con i bottoni arancioni) a .dq, con le proprieta' che prima ereditava dai bottoni (sfondo linear-gradient(135deg,--or2,--or), padding 12px, transition) scritte esplicitamente. Aspetto identico, verificato confrontando lo stile calcolato prima/dopo su desktop e mobile. --><!-- v370 · Indirizzi diretti per le pagine legali: swainz.it/privacy, swainz.it/termini e swainz.it/eliminazione-dati (apre la privacy sulla nuova sottosezione 'Come eliminare i tuoi dati', id elimina-dati). Route PUBBLICHE (pub:true): si aprono subito, anche sulla schermata di accesso e senza login; dopo login() non vengono riaperte se gia' visibili. La X riporta a '/' da tutte le route che condividono il pannello; tasto Indietro gestito anche prima del login. Nuovi URL per Meta: Privacy https://swainz.it/privacy, Termini https://swainz.it/termini, Eliminazione dati https://swainz.it/eliminazione-dati. Nessun cambio a vercel.json (il rewrite catch-all della v332 copre i nuovi path). --><!-- v369 · Accesso gia' attivo: la schermata di login nasce in stato 'loading' (script inline subito dopo #ls, prima del primo disegno) quando esiste sw3_session e non si sta tornando da OAuth. All'avvio _lsStartLoading() arma il timeout di 15s e mostra 'Bentornato, carico il tuo profilo…'; se _restoreSession non trova una sessione valida (token rifiutato, 30 giorni di inattivita') _lsStopLoading() riattiva i controlli. Stesso stato anche dopo l'accesso con email/password e dopo la registrazione con sessione immediata. Anche i campi email e password diventano non cliccabili durante il caricamento. FIX (bug introdotto in v368): SW_SESSION_MAX_IDLE_DAYS, _refreshWaiters, _refreshRetryTimer, _tokRefreshTimer e _lsLoadingTimer erano dichiarate dopo il codice di avvio, che gira mentre lo script e' ancora in lettura: il limite di 30 giorni non funzionava e, con token scaduto all'apertura, il rinnovo riusciva ma l'app restava sulla schermata di accesso. Spostate accanto a _authToken. --><!-- v368 · Sessione persistente. Causa delle disconnessioni: _tryRefreshSession cancellava la sessione a QUALSIASI errore del rinnovo (rete assente al risveglio del PC o del telefono, timeout, 5xx, 429), e con piu' schede aperte due rinnovi paralleli con lo stesso refresh token si annullavano (Supabase ruota il token e rifiuta il riuso). Ora: rinnovo singolo per scheda (_refreshWaiters), lock tra schede (navigator.locks 'sw3_token_refresh'), adozione del token gia' rinnovato da un'altra scheda (_adoptStoredIfNewer, evento storage), logout solo su 400/401/403, altrimenti nuovo tentativo dopo 30s e all'evento online; al rientro sulla scheda (_swSessionWake) rinnovo se il token e' scaduto. All'avvio con rete assente si resta loggati. Nuovo limite di inattivita': SW_SESSION_MAX_IDLE_DAYS = 30 (last_active in sw3_session). --><!-- v367 · Onboarding snellito. (1) Passo A: restano Nome e Cognome (obbligatori) e Data di nascita (ora FACOLTATIVA per tutti); rimossi Film, Regista e Attore preferiti. Con Google/Facebook nome e cognome sono precompilati da user_metadata/identity (given_name+family_name, altrimenti split di full_name con le particelle del cognome: De, Di, Della, Van...) e bloccati in sola lettura: l'utente conferma, con il link 'Correggi nome e cognome' come via d'uscita; se il nome dell'account e' incompleto i campi restano compilabili. (2) Passo B: q6, q7+q7b, q9 invariate; 'Salta' diventa 'Salta e compila in seguito'. Entrambi i bottoni chiudono l'onboarding. (3) Passo C eliminato (markup, ~120 righe JS, CSS e 11 chiavi i18n): niente piu' consiglio automatico. (4) _onbComplete chiama login(): prima _onbFinish nascondeva l'overlay senza rendere visibile #app. (5) Fumetto di benvenuto (_swShowWelcome): pagina velata, mascotte seduta (cat/sit_0.webm), testo, freccia verso Chiedi a Swainz evidenziato e non cliccabile; si chiude solo con la X, poi il gatto riparte (initCat e wakeUpSequence restano bloccati mentre e' aperto). (6) Fix: saveFck lanciava TypeError se chiamata dall'onboarding (#fckOk inesistente), bloccando 'Continua' del Passo B. --><!-- v366 · FCK. (1) Gating per tier: applyFck passa ora per _fckEffective(), che per i free tiene solo q6, q7+q7b e q9. Le altre risposte restano in fckAnswers, in sw3_fck e su user_data.fck_answers: un premium che torna free smette di subirne i filtri (q1-q4, q8, q10-q13) ma le ritrova compilate e attive se torna premium. Nei quattro punti in cui isPremium cambia (_restoreSession senza sessione, _applyServerSearch x2, _applyUserData) buildUI() e' sostituito da applyFck(fckAnswers), che ricalcola userPrefs e chiama buildUI. (2) Bug q4/q6: il ramo else di q6 azzerava excludeDifficile, annullando q4='Preferisco blockbuster' quando q6 era 'Molto' o senza risposta. Rimosso il reset: Difficile escluso se q4=blockbuster O q6=No; nel conflitto blockbuster+Molto prevale q4. --><!-- v365 · Spaziatura dei tag nella scheda film. I tag partivano da una y fissa del template (1131): con il verdetto su DUE righe — il caso piu' frequente — restavano appena 13px di stacco contro i 30px che separano riga regista e verdetto. Ora il blocco tag si ancora al FONDO EFFETTIVO del verdetto (variabile verdBottom) e non a una coordinata fissa, quindi la distanza resta costante sia con una riga sia con due; se il verdetto manca, i tag tornano alla posizione del template. Distacco fissato a 42px anziche' ai 30px misurati fra regista e verdetto, perche' le pillole hanno un bordo che riempie lo spazio e le fa percepire piu' vicine del testo nudo. Margine residuo dal footer SWAINZ.IT nel caso peggiore (verdetto 2 righe + tag 2 righe): 23px. -->
 <!-- v363 · Locandina: (1) centratura ancorata al CENTRO PAGINA anziche' al riquadro, cosi' resta centrata qualunque sia la proporzione dell'immagine; (2) riquadro riportato a 470px — la misura precedente (442) era calibrata sulla fascia piu' stretta dei chevron (y 700-800, liberi 140-614) mentre nella fascia della locandina (y 300-700) lo spazio libero e' 84-667, quindi si sprecava larghezza; (3) aggiunta cornice bronzo a doppio tratto (#c2692f spesso + filo chiaro interno): senza, le locandine scure si confondevano con lo sfondo del template. -->
 <!-- v362 · Scheda film: calibrazione sul primo test reale. (1) Locandina ridotta da 586 a 442px e centrata (x 155-597): i chevron del template arrivano a x=140 a sinistra e ripartono da x=614 a destra, quindi la larghezza precedente li copriva da entrambi i lati. Le coordinate iniziali erano errate perche' ricavate dalla differenza fra template vuoto ed esempio compilato, che include l'ombra della locandina e non solo la locandina. (2) Corpo del titolo da 54 a 44px. (3) Il verdetto non compariva perche' la colonna Verdetto del DB e' ancora vuota: il campo e' letto correttamente, manca solo il dato. -->
 <!-- v360 · Scheda film condivisibile ricostruita sul template 'SWAINZ CONSIGLIA'. Il PNG fornito era a 752px e sgranava perche' Instagram lo ingrandisce a 1080: ricostruito come generatore canvas, quindi nativo a piena risoluzione. Due formati dallo stesso codice: 'story' 1080x1920 (9:16) e 'post' 1080x1350 (4:5), con selettore nell'anteprima di condivisione. Correzioni richieste: linee geometriche laterali in bronzo scuro #a85214, distinto dall'arancione brand #ff6820 di logo e mascotte (nell'originale erano rgb(148,101,60), troppo simili); sfondo schiarito (#241a15 → #17100d, prima ~rgb(19,11,8)); alone caldo dietro la mascotte, che sul fondo scuro aveva solo 0.9 punti di contrasto su 255 ed era praticamente invisibile. Asset di brand in cat/brand/ (mascotte.png, logo.png) ricavati dalla cattura ad alta risoluzione, con bordi sfumati per fondersi con lo sfondo; se assenti il disegno prosegue con un fallback testuale. Supporto al verdetto di Swainz via campo f.verdetto (colonna DB da popolare). -->
@@ -58,6 +58,7 @@
 <!-- v333 · piattaforme streaming ampliate (da 6 a 17 filtri) + toggle noleggio/acquisto. Nuovi canonici: RaiPlay, Infinity, NowTV, Sky Go, Google Play, Paramount+, TIMVISION, YouTube Premium, CHILI, Crunchyroll, MGM+, HBO Max. Lista unica SW_PLATFORMS (ordine per popolarita' display_priority IT) condivisa da g7.opts + liste FCK/onboarding (niente piu' duplicati). _safeArr esteso con alias per le grafie TMDB. Nuova colonna DB Piattaforme_noleggio (rent+buy) letta in f.plt_nol. Toggle 'Includi noleggio/acquisto' nella sezione g7 (sotto header): off=solo abbonamento (f.plt), on=abbonamento+noleggio. Match unificato via helper _pltArr/_pltSome/_pltEmpty applicato a tutte le sedi (filtri principali, FCK, onboarding, onlyPlatform). Prerequisito: swainz_add_noleggio_v197.sql + update-db.js v197. -->
 <!-- v332 · client-side routing con History API (path puliti stesso origin). Router aggancia URL <-> pannelli via wrapping delle open()/close() esistenti; gestione popstate per tasto Indietro; deep-link applicati dopo login(). Route: /login /profilo /visti /scopri /raccomandazioni /premium. Deep-link protetti (utente non loggato): mostra #ls mantenendo l'URL, apre il pannello dopo l'accesso. Richiede vercel.json con rewrite catch-all -> /index.html. Nessuna modifica a stato/localStorage/OAuth. -->
 <!-- v331 · predisposizione piattaforma RaiPlay. Valore canonico 'RaiPlay'; _safeArr normalizza le varianti ('Rai Play'/'rai play' → 'RaiPlay') via alias, cosi' l'id 581 gia' presente funziona senza toccare il DB. Aggiunta RaiPlay alle 4 liste UI: gruppo filtri g7 (Piattaforma), _plt7 in renderFcp e renderFcpFree (FCK q7/q7b), plt7 in _renderOnbB (onboarding). Nessun contenuto DB modificato: quando l'utente popolera' i record con 'RaiPlay', filtri/FCK/onboarding lo rileveranno automaticamente. -->
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="preconnect" href="https://dhddiepwazmkezyhxahe.supabase.co" crossorigin><link rel="preconnect" href="https://image.tmdb.org" crossorigin><!-- v455 -->
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600&family=Syne:wght@600;800&family=Teko:wght@700&family=Rajdhani:wght@500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
@@ -120,9 +121,9 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
 .logo-tag{color:var(--td);font-size:11px;letter-spacing:3.5px;text-transform:uppercase;margin-bottom:40px;font-family:'Syne',sans-serif}
 .lbs{width:282px;display:flex;flex-direction:column;gap:9px}
 .lb{display:flex;align-items:center;justify-content:center;gap:10px;padding:13px 20px;border-radius:13px;border:1px solid var(--br);background:var(--card);color:var(--tx);font-size:14px;font-weight:500;cursor:pointer;transition:all .2s;width:100%}
-.lb:hover{border-color:var(--bh);background:rgba(255,255,255,.07);transform:translateY(-1px)}
+@media (hover:hover){.lb:hover{border-color:var(--bh);background:rgba(255,255,255,.07);transform:translateY(-1px)}}
 .lb.demo{background:linear-gradient(135deg,var(--or2),#a8651a);border:none;color:#fff;font-family:'Syne',sans-serif;font-weight:800}
-.lb.demo:hover{box-shadow:0 0 30px rgba(255,80,0,.35);transform:translateY(-2px)}
+@media (hover:hover){.lb.demo:hover{box-shadow:0 0 30px rgba(255,80,0,.35);transform:translateY(-2px)}}
 .lsep{height:1px;background:linear-gradient(90deg,transparent,var(--br),transparent);margin:2px 0}
 
 /* HEADER */
@@ -134,7 +135,7 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
 /* ── Nav dropdown ── */
 .nav-drop-wrap{position:relative}
 .nav-drop-btn{display:flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:8px;border:1px solid rgba(255,255,255,.13);background:rgba(255,255,255,.06);color:rgba(255,255,255,.75);cursor:pointer;transition:all .2s;padding:0}
-.nav-drop-btn:hover{background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.25);color:#fff}
+@media (hover:hover){.nav-drop-btn:hover{background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.25);color:#fff}}
 .nav-drop-btn.open{background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.25);color:#fff}
 .nav-drop-btn .hbr-line{display:block;width:16px;height:1.8px;background:currentColor;border-radius:2px;transition:all .22s}
 .nav-drop-btn .hbr-wrap{display:flex;flex-direction:column;gap:4px}
@@ -143,17 +144,17 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
 @keyframes ndrop-in{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
 .nav-drop-item{display:flex;align-items:center;gap:10px;width:100%;padding:13px 18px;background:none;border:none;color:var(--tx);font-size:13px;font-weight:500;cursor:pointer;transition:background .15s,color .15s;text-align:left;font-family:inherit;border-bottom:1px solid rgba(255,255,255,.04)}
 .nav-drop-item:last-child{border-bottom:none}
-.nav-drop-item:hover{background:rgba(255,114,40,.1);color:var(--or)}
+@media (hover:hover){.nav-drop-item:hover{background:rgba(255,114,40,.1);color:var(--or)}}
 .nav-drop-item .nd-icon{font-size:16px;flex-shrink:0}
 .nav-drop-item .nd-star{font-size:9px;color:var(--or);margin-left:auto;opacity:.8}
 .icon-btn{width:32px;height:32px;border-radius:50%;border:1px solid var(--br);background:var(--cb);color:var(--tx);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s}
-.icon-btn:hover{border-color:var(--bh);background:rgba(255,255,255,.08)}
+@media (hover:hover){.icon-btn:hover{border-color:var(--bh);background:rgba(255,255,255,.08)}}
 .lang-btn{display:flex;align-items:center;gap:4px;padding:4px 9px;border-radius:20px;border:1px solid var(--br);background:var(--cb);cursor:pointer;transition:all .2s;font-size:15px}
-.lang-btn:hover{border-color:var(--bh);background:rgba(255,255,255,.07)}
+@media (hover:hover){.lang-btn:hover{border-color:var(--bh);background:rgba(255,255,255,.07)}}
 .lang-btn.active{border-color:var(--boh);background:var(--coa)}
 #lang-bar{position:absolute;left:50%;top:8px;transform:translateX(-50%);display:flex;align-items:center;gap:10px;pointer-events:none}
 .flag-btn{pointer-events:all;background:none;border:2px solid transparent;border-radius:5px;padding:2px;cursor:pointer;transition:all .22s;opacity:.45;filter:grayscale(40%)}
-.flag-btn:hover{opacity:.85;filter:grayscale(0%);border-color:rgba(255,255,255,.18)}
+@media (hover:hover){.flag-btn:hover{opacity:.85;filter:grayscale(0%);border-color:rgba(255,255,255,.18)}}
 .flag-btn.active{opacity:1;filter:grayscale(0%);border-color:rgba(255,255,255,.35);box-shadow:0 0 8px rgba(255,255,255,.12)}
 #desktop-lang-drop{display:none;position:fixed;top:-9999px;left:-9999px;background:rgba(27,28,31,.98);border:1px solid rgba(255,255,255,.08);border-radius:10px;overflow:hidden;z-index:300;/* v383: era 60, sotto la schermata di accesso (z-index 200): il menu si apriva ma restava nascosto */min-width:120px;box-shadow:0 12px 40px rgba(0,0,0,.7)}
 .desk-lang-opt{display:flex;align-items:center;gap:8px;padding:10px 14px;width:100%;background:none;border:none;color:var(--tx);font-size:12px;cursor:pointer;font-family:inherit}
@@ -168,9 +169,9 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
 .fi h2{font-family:'Syne',sans-serif;font-size:22px;font-weight:800;margin-bottom:5px}
 .fi p{color:var(--td);font-size:13px}
 .fgrp{background:var(--card);border:1px solid var(--br);border-radius:14px;margin-bottom:9px;overflow:hidden;position:relative;z-index:2;transition:border-color .2s,box-shadow .2s;backdrop-filter:blur(8px)}
-.fgrp:hover{border-color:var(--bh)}
+@media (hover:hover){.fgrp:hover{border-color:var(--bh)}}
 .fgh{display:flex;align-items:center;justify-content:space-between;padding:13px 17px;cursor:pointer;user-select:none;position:relative}
-.fgh:hover{background:rgba(255,255,255,.03)}
+@media (hover:hover){.fgh:hover{background:rgba(255,255,255,.03)}}
 .fght{font-size:10px;font-weight:700;letter-spacing:3px;text-transform:uppercase;display:flex;align-items:center;gap:6px}
 .fght.bl{color:var(--bl)}.fght.or{color:var(--or)}.fght.red{color:#f07070}
 .fgar{font-size:16px;transition:transform .25s;color:var(--td)}
@@ -180,27 +181,27 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
 .chips{display:flex;flex-wrap:wrap;gap:6px}
 .chip{padding:6px 13px;border-radius:20px;border:1px solid var(--br);background:var(--cb);color:var(--tx);font-size:12.5px;font-weight:500;cursor:pointer;transition:all .16s;user-select:none}
 .chip.chip-sm{padding:4px 10px;font-size:11px;border-radius:16px;opacity:.85}
-.chip:hover{border-color:var(--bh);background:rgba(255,255,255,.07)}
+@media (hover:hover){.chip:hover{border-color:var(--bh);background:rgba(255,255,255,.07)}}
 .reset-btn{display:inline-flex;align-items:center;gap:6px;padding:5px 13px 5px 10px;border-radius:20px;border:1px solid var(--br);background:var(--cb);color:var(--td);font-size:11.5px;font-weight:600;letter-spacing:.5px;cursor:pointer;transition:all .25s;font-family:'Inter',sans-serif}
-.reset-btn:hover{border-color:var(--bh);color:var(--tx);background:rgba(255,255,255,.06)}
+@media (hover:hover){.reset-btn:hover{border-color:var(--bh);color:var(--tx);background:rgba(255,255,255,.06)}}
 .reset-btn:active{transform:scale(.96)}
 .reset-btn.active{border-color:rgba(255,104,32,.7);color:var(--or);background:rgba(255,80,0,.1);box-shadow:0 0 10px rgba(255,80,0,.25)}
 .reset-icon{display:inline-block;font-size:13px;transition:transform .4s ease}
-.reset-btn:hover .reset-icon{transform:rotate(-180deg)}
+@media (hover:hover){.reset-btn:hover .reset-icon{transform:rotate(-180deg)}}
 .chip.on{border-color:var(--bl);background:var(--ca);color:#fff;box-shadow:0 0 10px rgba(255,176,69,.22)}
-.chip.ex:hover{border-color:var(--boh);background:rgba(255,80,0,.07)}
+@media (hover:hover){.chip.ex:hover{border-color:var(--boh);background:rgba(255,80,0,.07)}}
 /* ── PROPOSTE RAPIDE ─────────────────────────────────────────────────────── */
 #proposte-rapide{margin-bottom:28px;background:rgba(38,31,25,.97);border:1px solid rgba(255,80,0,.28);border-radius:18px;padding:16px 20px;position:relative;overflow:hidden}
 #proposte-rapide::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,80,0,.05) 0%,transparent 60%);pointer-events:none}
 .proposte-title{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:3.5px;color:var(--or);text-transform:uppercase;margin-bottom:13px;opacity:.9;position:relative;text-align:center}
 .proposte-pills{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;min-height:34px;align-items:stretch;position:relative}
 .quick-pill{display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;min-width:0;padding:14px 12px;border-radius:16px;border:1px solid rgba(255,80,0,.28);background:rgba(255,80,0,.06);color:var(--tx);cursor:pointer;transition:all .22s;text-align:center;gap:1px}.quick-pill .qp-tag{font-family:'Teko',sans-serif;font-weight:700;font-size:14px;letter-spacing:.06em;text-transform:uppercase;line-height:1.1;color:var(--tx)}.quick-pill .qp-plus{font-family:'Bebas Neue',sans-serif;font-size:17px;color:var(--or);line-height:1;opacity:.75;margin:1px 0}@media(min-width:601px){.quick-pill .qp-tag{font-size:18px}.quick-pill .qp-plus{font-size:22px;margin:2px 0}}
-.quick-pill:hover{background:rgba(255,80,0,.14);border-color:var(--or);transform:translateY(-2px);box-shadow:0 6px 18px rgba(255,80,0,.2)}
+@media (hover:hover){.quick-pill:hover{background:rgba(255,80,0,.14);border-color:var(--or);transform:translateY(-2px);box-shadow:0 6px 18px rgba(255,80,0,.2)}}
 .quick-pill:active{transform:scale(.96)}
 /* ── SWAINZ LAB ──────────────────────────────────────────────────────────── */
 .lab-box{background:rgba(29,30,34,.97);border:1px solid rgba(255,176,69,.18);border-radius:18px;overflow:hidden;margin-bottom:10px}
 .lab-hdr{display:flex;align-items:center;justify-content:flex-end;padding:12px 18px;cursor:pointer;user-select:none;transition:background .2s;position:relative}
-.lab-hdr:hover{background:rgba(255,255,255,.03)}
+@media (hover:hover){.lab-hdr:hover{background:rgba(255,255,255,.03)}}
 .lab-hdr.open{border-bottom:1px solid rgba(255,255,255,.06)}
 .lab-ttl{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:4px;color:var(--td);text-transform:uppercase;position:absolute;left:50%;transform:translateX(-50%);white-space:nowrap;pointer-events:none}
 .lab-ctl{display:flex;align-items:center;gap:8px}
@@ -218,7 +219,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:15px;heigh
 .sv{min-width:26px;text-align:center;font-weight:700;color:var(--or);font-size:15px}
 .cta-w{position:fixed;bottom:0;left:0;right:0;padding:16px 18px;background:linear-gradient(to top,rgba(27,28,31,.98) 55%,rgba(27,28,31,.7) 80%,transparent);z-index:200;display:flex;justify-content:center;align-items:center}
 .cta{padding:14px 62px;border-radius:50px;border:none;background:linear-gradient(135deg,var(--or2),var(--or) 42%,var(--bl) 58%,var(--bl2));background-size:300% 100%;background-position:right;color:#fff;font-family:'Syne',sans-serif;font-size:15px;font-weight:800;letter-spacing:3px;text-transform:uppercase;cursor:pointer;transition:all .45s;box-shadow:0 4px 28px rgba(255,80,0,.2);width:100%;max-width:944px;box-sizing:border-box}@media(min-width:601px){.cta{padding-top:19px;padding-bottom:19px}}
-.cta:hover{background-position:left;transform:translateY(-2px)}
+@media (hover:hover){.cta:hover{background-position:left;transform:translateY(-2px)}}
 @keyframes _glow1{0%,100%{box-shadow:0 4px 28px rgba(255,80,0,.2)}50%{box-shadow:0 4px 38px rgba(255,80,0,.55),0 0 22px rgba(255,80,0,.3)}}
 @keyframes _glow2{0%,100%{box-shadow:0 4px 28px rgba(255,80,0,.25)}50%{box-shadow:0 4px 52px rgba(255,80,0,.78),0 0 34px rgba(255,80,0,.52),0 0 64px rgba(255,80,0,.22)}}
 @keyframes _glow3{0%,100%{box-shadow:0 4px 28px rgba(255,80,0,.3)}50%{box-shadow:0 4px 68px rgba(255,80,0,1),0 0 46px rgba(255,80,0,.75),0 0 90px rgba(255,80,0,.38),0 0 14px rgba(255,200,80,.55)}}
@@ -331,7 +332,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:15px;heigh
 #fcc{display:flex;flex-direction:column;flex:1;min-height:0;overflow:hidden}
 .fch{padding:24px 24px 0;position:relative;flex-shrink:0}
 .fc-x{position:absolute;top:12px;right:12px;width:27px;height:27px;border-radius:50%;border:1px solid var(--br);background:var(--cb);color:var(--td);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:13px;transition:all .2s}
-.fc-x:hover{border-color:var(--bh);color:var(--tx)}
+@media (hover:hover){.fc-x:hover{border-color:var(--bh);color:var(--tx)}}
 .fc-bdg{display:inline-flex;align-items:center;gap:5px;padding:3px 12px;background:rgba(255,80,0,.07);border:1px solid var(--bro);border-radius:20px;color:var(--or);font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:11px}
 .fc-tit{font-family:'Syne',sans-serif;font-size:27px;font-weight:800;line-height:1.2;margin-bottom:6px}
 .fc-sub{color:var(--td);font-size:12px;display:flex;flex-wrap:wrap;gap:9px;margin-bottom:8px}.fc-dir{font-size:14px;color:var(--td);margin-bottom:8px;letter-spacing:.01em}
@@ -350,9 +351,9 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:15px;heigh
 .mc2.b{border-color:var(--br);background:var(--cb);color:var(--bl)}
 .fcact{display:flex;gap:7px;margin-top:4px;flex-wrap:wrap}
 .b1{flex:1;min-width:120px;padding:12px;border-radius:11px;border:none;background:linear-gradient(135deg,var(--or2),var(--or));color:#fff;font-family:'Syne',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:all .2s}
-.b1:hover{transform:translateY(-1px);box-shadow:0 5px 18px var(--gor)}
+@media (hover:hover){.b1:hover{transform:translateY(-1px);box-shadow:0 5px 18px var(--gor)}}
 .b2{padding:11px 15px;border-radius:11px;border:1px solid var(--br);background:var(--cb);color:var(--tx);font-size:12px;cursor:pointer;transition:all .2s}
-.b2:hover{border-color:var(--bh)}
+@media (hover:hover){.b2:hover{border-color:var(--bh)}}
 /* v442 · "Altro gratis" dopo la conferma di un film già visto: pulsazione tenue */
 @keyframes swFreePulse{0%,100%{box-shadow:0 0 0 0 rgba(255,138,46,0);border-color:rgba(255,138,46,.45)}50%{box-shadow:0 0 14px 2px rgba(255,138,46,.38);border-color:#ff8a2e}}
 .b2.free-pulse{color:#ffb45e;border-color:rgba(255,138,46,.6);background:rgba(255,122,24,.08);animation:swFreePulse 2.6s ease-in-out infinite}
@@ -366,7 +367,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:15px;heigh
 .rf-act button{min-width:130px}
 .fc-note{margin-top:8px;font-size:11.5px;color:#d9b48a;text-align:center}
 .b3{padding:11px 15px;border-radius:11px;border:1px solid var(--bro);background:var(--coa);color:var(--or);font-size:12px;font-weight:600;cursor:pointer;transition:all .2s;white-space:nowrap}
-.b3:hover{border-color:var(--boh)}
+@media (hover:hover){.b3:hover{border-color:var(--boh)}}
 .b3.marked{background:rgba(255,80,0,.22);border-color:var(--or);color:#fff}
 
 /* SLIDE PANELS */
@@ -385,7 +386,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:15px;heigh
 #fck-prog-done.show{opacity:1}
 .vph{display:flex;align-items:flex-start;gap:14px;padding:16px 22px;background:rgba(25,26,29,.97);backdrop-filter:blur(28px);border-bottom:1px solid rgba(255,255,255,.06);position:sticky;top:0;z-index:10}
 .vp-back{padding:7px 13px;border-radius:9px;border:1px solid var(--br);background:var(--cb);color:var(--td);font-size:13px;cursor:pointer;transition:all .2s;white-space:nowrap;align-self:center}
-.vp-back:hover{border-color:var(--bh);color:var(--tx)}
+@media (hover:hover){.vp-back:hover{border-color:var(--bh);color:var(--tx)}}
 .vph-t{flex:1}
 .vph-t h2{font-family:'Syne',sans-serif;font-size:18px;font-weight:800}
 .vph-t p{color:var(--td);font-size:11.5px;margin-top:3px;line-height:1.6;max-width:500px}
@@ -420,7 +421,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:15px;heigh
 /* v344 · badge di livello al posto del riquadro avatar */
 .badge-box{display:flex;align-items:center;justify-content:center;margin-bottom:14px}
 .badge-img{width:86%;max-width:230px;height:auto;display:block;filter:drop-shadow(0 6px 18px rgba(0,0,0,.5));transition:transform .25s ease}
-.badge-box:hover .badge-img{transform:translateY(-3px) scale(1.02)}
+@media (hover:hover){.badge-box:hover .badge-img{transform:translateY(-3px) scale(1.02)}}
 /* v347 · scheda 'Il tuo status': badge sopra, dati sotto */
 .prof-avatar-wrap .cs-card{margin-top:0;margin-bottom:0;text-align:center}
 .prof-avatar-wrap .cs-card .badge-box{margin-bottom:8px}  /* v351 */
@@ -446,7 +447,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:15px;heigh
 .storico-lbl{font-size:9.5px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--or);margin-bottom:10px;opacity:.9}
 .storico-btn{display:flex;align-items:center;gap:9px;padding:10px 14px;border-radius:10px;border:1px solid var(--br);background:var(--cb);color:var(--tx);font-size:12.5px;font-weight:600;cursor:pointer;width:100%;transition:all .2s;margin-bottom:8px;font-family:inherit;text-align:left}
 .storico-btn:last-child{margin-bottom:0}
-.storico-btn:hover{border-color:var(--bh);background:rgba(255,255,255,.06)}
+@media (hover:hover){.storico-btn:hover{border-color:var(--bh);background:rgba(255,255,255,.06)}}
 /* ── PANNELLO FILM VISTI ─────────────────────────────────────────────────── */
 #seenp{z-index:325;display:flex;flex-direction:column;background:#303138;overscroll-behavior:contain}
 .seen-item{display:flex;align-items:baseline;gap:10px;padding:9px 0;border-bottom:1px solid rgba(255,255,255,.05);font-size:13px}
@@ -467,13 +468,13 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:15px;heigh
 .vcnt span{color:var(--or);font-weight:700}
 .shr{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:18px}
 .sh{padding:4px 12px;border-radius:20px;border:1px solid var(--br);background:var(--cb);color:var(--td);font-size:11px;cursor:pointer;transition:all .16s}
-.sh:hover{border-color:var(--bh);color:var(--tx)}
+@media (hover:hover){.sh:hover{border-color:var(--bh);color:var(--tx)}}
 .mark-all-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:8px}
 .mark-all-btn{padding:6px 14px;border-radius:9px;border:1px solid var(--bro);background:var(--coa);color:var(--or);font-size:12px;font-weight:600;cursor:pointer;transition:all .2s}
-.mark-all-btn:hover{border-color:var(--boh)}
+@media (hover:hover){.mark-all-btn:hover{border-color:var(--boh)}}
 .flist{display:flex;flex-direction:column;gap:6px}
 .frow{display:flex;align-items:center;gap:12px;padding:12px 15px;background:var(--card);border:1px solid var(--br);border-radius:12px;cursor:pointer;transition:all .18s}
-.frow:hover{border-color:var(--bh)}
+@media (hover:hover){.frow:hover{border-color:var(--bh)}}
 .frow.sn{border-color:var(--bro);background:rgba(255,80,0,.04)}
 .fri{flex:1;min-width:0}
 .frt{font-weight:600;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -483,7 +484,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:15px;heigh
 .vp-empty{color:var(--td);font-size:13px;text-align:center;padding:44px;opacity:.6}
 .autocomplete-box{position:absolute;top:calc(100% + 4px);left:0;right:0;background:var(--card);border:1px solid var(--bh);border-radius:12px;z-index:20;overflow:hidden;box-shadow:0 8px 28px rgba(0,0,0,.35);max-height:220px;overflow-y:auto}
 .ac-item{padding:10px 16px;font-size:13px;cursor:pointer;display:flex;flex-direction:column;gap:2px;transition:background .14s}
-.ac-item:hover{background:rgba(255,255,255,.06)}
+@media (hover:hover){.ac-item:hover{background:rgba(255,255,255,.06)}}
 .ac-name{font-weight:600;color:var(--tx)}
 .ac-role{font-size:10px;color:var(--td);letter-spacing:1px;text-transform:uppercase}
 .prof-row{margin-bottom:14px}
@@ -492,14 +493,14 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:15px;heigh
 .prof-inp:focus{border-color:var(--bh)}
 .prof-inp::placeholder{color:var(--td)}
 .save-btn{padding:12px 32px;border-radius:11px;border:none;background:linear-gradient(135deg,var(--or2),var(--or));color:#fff;font-family:'Syne',sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:all .2s}
-.save-btn:hover{transform:translateY(-1px);box-shadow:0 5px 18px var(--gor)}
+@media (hover:hover){.save-btn:hover{transform:translateY(-1px);box-shadow:0 5px 18px var(--gor)}}
 .save-ok{color:var(--or);font-size:12px;font-weight:600;opacity:0;transition:opacity .3s}
 .save-ok.show{opacity:1}
 .fck-q{background:var(--card);border:1px solid var(--br);border-radius:14px;padding:18px;margin-bottom:12px}
 .fck-qt{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;margin-bottom:12px}
 .fck-opts{display:flex;flex-direction:column;gap:7px}
 .fck-opt{padding:10px 14px;border-radius:10px;border:1px solid var(--br);background:var(--cb);color:var(--tx);font-size:13px;cursor:pointer;transition:all .16s;text-align:left;width:100%}
-.fck-opt:hover{border-color:var(--bh);background:rgba(255,255,255,.06)}
+@media (hover:hover){.fck-opt:hover{border-color:var(--bh);background:rgba(255,255,255,.06)}}
 .fck-opt.sel{border-color:var(--or);background:var(--coa);color:var(--or);font-weight:600}
 .fck-q7b{margin-top:14px;padding:14px 16px;background:rgba(255,255,255,.03);border-radius:10px;border:1px solid rgba(255,255,255,.07)}
 .fck-prem-teaser{display:flex;align-items:flex-start;gap:11px;background:rgba(255,114,40,.07);border:1px solid rgba(255,114,40,.28);border-radius:13px;padding:15px 16px;margin-bottom:12px;font-size:13px;line-height:1.55;color:var(--tx)}
@@ -582,7 +583,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:15px;heigh
 .afp-pill{font-size:10.5px;padding:2px 22px 2px 8px;border-radius:10px;border:1px solid rgba(34,197,94,.35);background:rgba(34,197,94,.1);color:#4ade80;line-height:1.5;position:relative;cursor:default}
 .afp-pill.ex{border-color:rgba(220,38,38,.4);background:rgba(220,38,38,.1);color:#f87171}
 .afp-pill .pill-x{position:absolute;top:1px;right:4px;font-size:9px;line-height:1;color:rgba(255,80,80,.7);cursor:pointer;font-weight:700;transition:color .15s}
-.afp-pill .pill-x:hover{color:#ff4444}
+@media (hover:hover){.afp-pill .pill-x:hover{color:#ff4444}}
 .afp-empty{font-size:10.5px;color:var(--td);font-style:italic}
 .afp-sep{height:1px;background:var(--br);margin:8px 0;display:none}
 #afp.has-excl .afp-sep{display:block}
@@ -671,7 +672,7 @@ body.profp-ads-show #profp-ad-l,body.profp-ads-show #profp-ad-r,body.profp-ads-s
 .cs-next-label{font-size:10px;color:var(--td);margin-top:5px;opacity:.55}
 /* Info button + tooltip */
 .cs-info-btn{position:absolute;bottom:10px;right:10px;width:18px;height:18px;border-radius:50%;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.05);color:rgba(255,255,255,.4);font-size:10px;font-family:'Georgia',serif;font-style:italic;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;z-index:3;line-height:1;padding:0;flex-shrink:0}
-.cs-info-btn:hover{border-color:rgba(255,255,255,.45);background:rgba(255,255,255,.10);color:rgba(255,255,255,.85)}
+@media (hover:hover){.cs-info-btn:hover{border-color:rgba(255,255,255,.45);background:rgba(255,255,255,.10);color:rgba(255,255,255,.85)}}
 #cs-tooltip{position:fixed;z-index:600;max-width:230px;background:rgba(29,30,34,.97);border:1px solid rgba(255,255,255,.12);border-radius:11px;padding:11px 13px;box-shadow:0 8px 32px rgba(0,0,0,.7);pointer-events:none;display:none;font-size:11.5px;line-height:1.55;color:var(--tx)}
 #cs-tooltip.show{display:block;animation:cs-tip-in .15s ease}
 @keyframes cs-tip-in{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
@@ -695,10 +696,10 @@ body.profp-ads-show #profp-ad-l,body.profp-ads-show #profp-ad-r,body.profp-ads-s
 .cs-lu-level{font-family:'Bebas Neue',sans-serif;font-size:38px;letter-spacing:3px;margin-bottom:6px}
 .cs-lu-sub{font-size:13px;color:var(--td);margin-bottom:24px;line-height:1.5;max-width:220px;margin-left:auto;margin-right:auto}
 .cs-lu-btn{padding:12px 28px;border-radius:12px;border:none;background:linear-gradient(135deg,var(--or2),var(--or));color:#fff;font-family:'Syne',sans-serif;font-size:14px;font-weight:800;cursor:pointer;letter-spacing:.5px;transition:transform .15s}
-.cs-lu-btn:hover{transform:scale(1.04)}
+@media (hover:hover){.cs-lu-btn:hover{transform:scale(1.04)}}
 /* ── Share ── */
 .share-btn{display:inline-flex;align-items:center;gap:6px;padding:9px 16px;border-radius:20px;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.07);color:rgba(255,255,255,.85);font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;transition:all .2s}
-.share-btn:hover{background:rgba(255,255,255,.13)}
+@media (hover:hover){.share-btn:hover{background:rgba(255,255,255,.13)}}
 #share-ov{position:fixed;inset:0;z-index:700;display:flex;align-items:flex-end;justify-content:center;background:rgba(0,0,0,.6);opacity:0;pointer-events:none;transition:opacity .25s}
 #share-ov.on{opacity:1;pointer-events:all}
 #share-modal{width:min(480px,100vw);background:#2b2c30;border-radius:20px 20px 0 0;padding:24px 20px 40px;transform:translateY(100%);transition:transform .3s cubic-bezier(.4,0,.2,1);position:relative}
@@ -709,7 +710,7 @@ body.profp-ads-show #profp-ad-l,body.profp-ads-show #profp-ad-r,body.profp-ads-s
 #share-preview-img{height:200px;width:auto;border-radius:10px;object-fit:cover;background:rgba(255,255,255,.05)}
 .share-actions{display:flex;flex-direction:column;gap:8px}
 .share-action-btn{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:10px;border:1px solid var(--br);background:rgba(255,255,255,.04);color:var(--tx);font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;transition:all .2s;width:100%}
-.share-action-btn:hover{background:rgba(255,255,255,.08)}
+@media (hover:hover){.share-action-btn:hover{background:rgba(255,255,255,.08)}}
 .share-action-icon{font-size:18px;width:24px;text-align:center;flex-shrink:0}
 .share-close-btn{position:absolute;top:12px;right:14px;width:26px;height:26px;border-radius:50%;border:1px solid var(--br);background:var(--cb);color:var(--td);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:12px;padding:0}
 body.profp-ads-show #profp{padding-bottom:96px}
@@ -733,13 +734,13 @@ body.profp-ads-show #profp{padding-bottom:96px}
 .optin-sub{font-size:12px;color:var(--td);text-align:center;line-height:1.7}
 .optin-tags{display:flex;flex-direction:column;gap:8px}
 .optin-tag-btn{padding:9px 14px;border-radius:11px;border:1px solid var(--br);background:var(--cb);color:var(--tx);font-size:12px;cursor:pointer;text-align:left;transition:all .18s;display:flex;align-items:center;gap:8px}
-.optin-tag-btn:hover{border-color:var(--bh);background:rgba(255,255,255,.06)}
+@media (hover:hover){.optin-tag-btn:hover{border-color:var(--bh);background:rgba(255,255,255,.06)}}
 .optin-tag-btn.sel{border-color:var(--or);background:rgba(255,104,32,.12);color:var(--or)}
 .optin-actions{display:flex;gap:10px;margin-top:4px}
 .optin-confirm{flex:1;padding:10px;border-radius:12px;border:none;background:linear-gradient(135deg,rgba(255,176,69,.8),rgba(255,176,69,.6));color:#fff;font-family:'Syne',sans-serif;font-size:13px;font-weight:700;cursor:pointer;opacity:.4;pointer-events:none;transition:all .2s}
 .optin-confirm.active{opacity:1;pointer-events:all}
 .optin-back{flex:1;padding:10px;border-radius:12px;border:1px solid var(--br);background:none;color:var(--td);font-size:13px;cursor:pointer;transition:all .2s}
-.optin-back:hover{border-color:var(--bh);color:var(--tx)}
+@media (hover:hover){.optin-back:hover{border-color:var(--bh);color:var(--tx)}}
 /* EXCL NOTICE MODAL */
 #excl-modal{position:fixed;inset:0;z-index:500;background:rgba(23,24,27,.88);backdrop-filter:blur(18px);display:none;align-items:center;justify-content:center;padding:24px}
 #excl-modal.show{display:flex}
@@ -748,7 +749,7 @@ body.profp-ads-show #profp{padding-bottom:96px}
 .excl-modal-title{font-family:'Syne',sans-serif;font-size:18px;font-weight:800;color:var(--tx)}
 .excl-modal-body{font-size:13px;color:var(--td);line-height:1.8;max-width:320px}
 .excl-modal-btn{padding:10px 28px;border-radius:12px;border:none;background:linear-gradient(135deg,rgba(220,38,38,.8),rgba(180,20,20,.9));color:#fff;font-family:'Syne',sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:all .2s}
-.excl-modal-btn:hover{transform:translateY(-1px);box-shadow:0 5px 18px rgba(220,38,38,.3)}
+@media (hover:hover){.excl-modal-btn:hover{transform:translateY(-1px);box-shadow:0 5px 18px rgba(220,38,38,.3)}}
 /* FCK TAG EXCLUDE SEARCH */
 .fck-excl-wrap{display:flex;flex-direction:column;gap:8px;margin-top:4px}
 .fck-excl-input{background:var(--cb);border:1px solid var(--br);border-radius:10px;padding:8px 12px;color:var(--tx);font-size:13px;width:100%;box-sizing:border-box;outline:none}
@@ -756,11 +757,11 @@ body.profp-ads-show #profp{padding-bottom:96px}
 .fck-excl-drop{background:var(--card);border:1px solid var(--bh);border-radius:10px;overflow:hidden;max-height:180px;overflow-y:auto;display:none}
 .fck-excl-drop.open{display:block}
 .fck-excl-opt{padding:8px 14px;font-size:12px;cursor:pointer;color:var(--tx);transition:background .12s}
-.fck-excl-opt:hover{background:rgba(255,255,255,.06)}
+@media (hover:hover){.fck-excl-opt:hover{background:rgba(255,255,255,.06)}}
 .fck-excl-tags{display:flex;flex-wrap:wrap;gap:6px;min-height:0}
 .fck-excl-tag{font-size:11px;padding:3px 8px 3px 10px;border-radius:10px;border:1px solid rgba(220,38,38,.35);background:rgba(220,38,38,.1);color:#f87171;display:flex;align-items:center;gap:5px}
 .fck-excl-tag button{background:none;border:none;color:#f87171;cursor:pointer;font-size:11px;padding:0;line-height:1;opacity:.7}
-.fck-excl-tag button:hover{opacity:1}
+@media (hover:hover){.fck-excl-tag button:hover{opacity:1}}
 /* MAIN PAGE EXCL NOTICE */
 #excl-notice{display:none;margin-bottom:8px;padding:8px 14px 8px 12px;background:rgba(220,38,38,.08);border:1px solid rgba(220,38,38,.25);border-radius:10px;font-size:11.5px;color:#f87171;align-items:center;gap:8px;justify-content:space-between}
 #excl-notice.show{display:flex}
@@ -818,7 +819,7 @@ body.profp-ads-show #profp{padding-bottom:96px}
 .g7ct{font-size:11px;font-weight:600;color:var(--or);text-transform:uppercase;letter-spacing:.4px;margin-bottom:9px}
 .g7col .chips{display:flex;flex-wrap:wrap;gap:6px}
 .g7more{margin-top:10px;font-size:11.5px;color:var(--or);cursor:pointer;user-select:none;display:inline-block}
-.g7more:hover{text-decoration:underline}
+@media (hover:hover){.g7more:hover{text-decoration:underline}}
 .g7empty{font-size:11px;color:var(--td);font-style:italic;padding:3px 0;line-height:1.35}
 /* v339 · sezione GDPR nel profilo */
 .gdpr-box{grid-column:1/-1;grid-row:2;margin:18px 0 6px;padding-top:16px;border-top:1px solid rgba(255,255,255,.09)}  /* v351: a tutta larghezza sotto entrambe le colonne */
@@ -827,10 +828,10 @@ body.profp-ads-show #profp{padding-bottom:96px}
 .gdpr-lbl{font-size:12px;font-weight:600;color:var(--or);margin-bottom:5px}
 .gdpr-desc{font-size:11.5px;color:var(--td);line-height:1.4;margin-bottom:10px}
 .gdpr-btn{display:flex;align-items:center;gap:8px;width:100%;padding:9px 13px;margin-bottom:7px;border-radius:9px;border:1px solid var(--br);background:rgba(255,255,255,.03);color:var(--tx);font-size:12.5px;font-weight:500;cursor:pointer;text-align:left;transition:background .12s}
-.gdpr-btn:hover{background:rgba(255,255,255,.07)}
+@media (hover:hover){.gdpr-btn:hover{background:rgba(255,255,255,.07)}}
 .gdpr-btn:disabled{opacity:.6;cursor:default}
 .gdpr-btn-danger{border-color:rgba(220,60,60,.4);color:#ff8080}
-.gdpr-btn-danger:hover{background:rgba(220,60,60,.12)}
+@media (hover:hover){.gdpr-btn-danger:hover{background:rgba(220,60,60,.12)}}
 /* v339 · checkbox consenso privacy nella schermata di accesso */
 .ls-consent{display:flex;align-items:flex-start;gap:8px;margin:2px 0 12px;cursor:pointer;text-align:left}
 .ls-consent input[type=checkbox]{accent-color:var(--or);width:15px;height:15px;flex-shrink:0;margin-top:1px;cursor:pointer}
@@ -844,7 +845,7 @@ body.profp-ads-show #profp{padding-bottom:96px}
 .cardplt-div{width:1px;background:var(--or);opacity:.5;flex-shrink:0;align-self:stretch}
 .cardplt-ct{font-size:10.5px;font-weight:600;color:var(--or);text-transform:uppercase;letter-spacing:.4px;margin-bottom:6px}
 .hist-btn{display:flex;align-items:center;gap:8px;padding:10px 16px;border-radius:11px;border:1px solid var(--br);background:var(--cb);color:var(--tx);font-size:12px;font-weight:600;cursor:pointer;width:100%;margin-top:12px;transition:all .2s}
-.hist-btn:hover{border-color:var(--bh);background:rgba(255,255,255,.06)}
+@media (hover:hover){.hist-btn:hover{border-color:var(--bh);background:rgba(255,255,255,.06)}}
 .fgrp-prem-badge span{font-size:8.5px;font-weight:800;letter-spacing:2.5px;text-transform:uppercase;color:var(--or);opacity:.65;font-family:'Inter',sans-serif;border:1px solid rgba(255,104,32,.3);border-radius:12px;padding:1px 8px;white-space:nowrap}
 
 /* hide sidebar on narrow viewports, show mobile panel instead */
@@ -893,7 +894,7 @@ body.cat-revealing #afp-mobile,
   .ls-row .lb{flex:1}
 
     #lb-import-btn{display:flex;align-items:center;gap:7px;padding:9px 16px;border-radius:10px;border:1px solid var(--br);background:var(--card);color:var(--tx);font-size:13px;font-weight:500;cursor:pointer;transition:all .2s;width:100%;justify-content:center;margin-bottom:10px;box-sizing:border-box}
-#lb-import-btn:hover{border-color:var(--bh);background:rgba(255,255,255,.07)}
+@media (hover:hover){#lb-import-btn:hover{border-color:var(--bh);background:rgba(255,255,255,.07)}}
 #lb-result{border-radius:10px;padding:10px 13px;font-size:12px;line-height:1.7;display:none;margin-bottom:10px;white-space:pre-line}
 #lb-result.ok{background:rgba(74,222,128,.07);border:1px solid rgba(74,222,128,.25);color:#4ade80}
 #lb-result.warn{background:rgba(251,191,36,.07);border:1px solid rgba(251,191,36,.25);color:#fbbf24}
@@ -930,7 +931,7 @@ body.cat-revealing #afp-mobile,
 
 /* Filter card hover glow */
 .fgrp{transition:border-color .25s,box-shadow .25s!important;}
-.fgrp:hover{border-color:rgba(255,114,40,.35)!important;box-shadow:0 0 22px rgba(255,114,40,.12),inset 0 0 18px rgba(255,114,40,.03)!important;}
+@media (hover:hover){.fgrp:hover{border-color:rgba(255,114,40,.35)!important;box-shadow:0 0 22px rgba(255,114,40,.12),inset 0 0 18px rgba(255,114,40,.03)!important;}}
 
 /* Active chip — neon intenso + pulsa */
 .chip.on{animation:chip-neon 2.5s ease-in-out infinite alternate!important;}
@@ -945,10 +946,10 @@ body.cat-revealing #afp-mobile,
   0%  {box-shadow:0 0 16px rgba(255,114,40,.3),0 0 40px rgba(255,114,40,.10);text-shadow:0 0 8px rgba(255,114,40,.4);}
   100%{box-shadow:0 0 30px rgba(255,114,40,.65),0 0 70px rgba(255,114,40,.25),0 0 120px rgba(255,114,40,.10);text-shadow:0 0 18px rgba(255,114,40,.8);}
 }
-.cta-btn:hover{
+@media (hover:hover){.cta-btn:hover{
   box-shadow:0 0 40px rgba(255,114,40,.85),0 0 90px rgba(255,114,40,.35),0 0 140px rgba(255,114,40,.15)!important;
   text-shadow:0 0 22px rgba(255,114,40,1)!important;
-}
+}}
 
 /* vbtn badge neon */
 .vbtn{animation:vbtn-neon 3.2s ease-in-out infinite alternate;}
@@ -1006,7 +1007,7 @@ body.cat-revealing #afp-mobile,
 .onb-form-group input[readonly]{background:rgba(255,255,255,.025);border-style:dashed;color:rgba(255,255,255,.82);cursor:default}
 .onb-oauth-note{font-size:12px;color:var(--td);line-height:1.5;background:rgba(255,114,40,.07);border:1px solid rgba(255,114,40,.22);border-radius:10px;padding:9px 12px}
 .onb-edit-link{align-self:flex-start;background:none;border:none;color:var(--or);font-size:12px;font-weight:600;cursor:pointer;padding:0;margin-top:-4px}
-.onb-edit-link:hover{text-decoration:underline}
+@media (hover:hover){.onb-edit-link:hover{text-decoration:underline}}
 /* v367 · fumetto di benvenuto dopo l'onboarding (desktop + mobile) */
 #sw-welcome{position:fixed;inset:0;z-index:300;background:rgba(8,8,12,.58);opacity:0;transition:opacity .35s}
 #sw-welcome.show{opacity:1}
@@ -1018,16 +1019,16 @@ body.sw-wel-on #gobtn{pointer-events:none;animation:swWelPulse 1.6s ease-in-out 
 .sww-bub{position:relative;background:linear-gradient(165deg,rgba(45,42,39,.98),rgba(32,33,37,.99));border:1px solid rgba(255,150,60,.5);border-radius:16px;padding:16px 44px 16px 18px;font-family:'Rajdhani',sans-serif;font-size:16px;font-weight:600;color:#ffc878;line-height:1.45;letter-spacing:.2px;box-shadow:0 10px 30px rgba(0,0,0,.55),0 0 22px rgba(255,122,24,.18)}
 .sww-bub::after{content:'';position:absolute;left:50%;bottom:-9px;width:16px;height:16px;transform:translateX(-50%) rotate(45deg);background:rgb(33,34,37);border-right:1px solid rgba(255,150,60,.5);border-bottom:1px solid rgba(255,150,60,.5)}
 .sww-x{position:absolute;top:8px;right:8px;width:28px;height:28px;border-radius:50%;border:1px solid rgba(255,255,255,.22);background:rgba(255,255,255,.06);color:#fff;font-size:15px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center}
-.sww-x:hover{background:rgba(255,114,40,.25);border-color:var(--or)}
+@media (hover:hover){.sww-x:hover{background:rgba(255,114,40,.25);border-color:var(--or)}}
 .sww-arrow{font-size:30px;color:var(--or);margin-top:10px;line-height:1;text-shadow:0 0 12px rgba(255,114,40,.6);animation:swWelArrow 1.1s ease-in-out infinite}
 @keyframes swWelArrow{0%,100%{transform:translateY(0)}50%{transform:translateY(7px)}}
 @media(max-width:600px){.sww-bub{font-size:14.5px;padding:14px 42px 14px 15px}.sww-cat{width:108px;margin-left:10px}}
 .onb-err{font-size:12px;color:#ff5e5e;min-height:16px;margin-top:-6px}
 .onb-actions{display:flex;align-items:center;gap:12px;justify-content:flex-end;padding-top:4px;flex-wrap:wrap}
 .onb-btn-primary{background:var(--or);color:#fff;border:none;border-radius:11px;padding:11px 24px;font-size:13px;font-weight:700;cursor:pointer;transition:opacity .15s}
-.onb-btn-primary:hover{opacity:.88}
+@media (hover:hover){.onb-btn-primary:hover{opacity:.88}}
 .onb-btn-skip{background:transparent;border:1px solid rgba(255,255,255,.18);border-radius:11px;padding:11px 20px;color:var(--td);font-size:13px;cursor:pointer;transition:all .15s}
-.onb-btn-skip:hover{border-color:rgba(255,255,255,.35);color:var(--tx)}
+@media (hover:hover){.onb-btn-skip:hover{border-color:rgba(255,255,255,.35);color:var(--tx)}}
 /* === END ONBOARDING === */
 
 /* ── profilo: basalt hex background ── */
@@ -1071,21 +1072,21 @@ body.sw-wel-on #gobtn{pointer-events:none;animation:swWelPulse 1.6s ease-in-out 
 .vph-prem{display:flex;flex-direction:column;align-items:flex-end;justify-content:center;flex-shrink:0;gap:3px}
 .vph-prem-label{font-size:10px;color:var(--td);white-space:nowrap;text-align:right}
 .vph-prem-btn{background:linear-gradient(135deg,var(--or2),#a8651a);color:#fff;border:none;border-radius:8px;padding:6px 14px;font-family:'Syne',sans-serif;font-size:12px;font-weight:800;cursor:pointer;white-space:nowrap;transition:all .2s}
-.vph-prem-btn:hover{box-shadow:0 0 14px rgba(255,80,0,.4);transform:translateY(-1px)}
+@media (hover:hover){.vph-prem-btn:hover{box-shadow:0 0 14px rgba(255,80,0,.4);transform:translateY(-1px)}}
 .vph-prem-manage{font-size:11px;color:var(--or);font-weight:700;background:none;border:1px solid rgba(255,104,32,.4);border-radius:8px;padding:5px 12px;cursor:pointer;white-space:nowrap;font-family:'Inter',sans-serif;transition:all .2s}
-.vph-prem-manage:hover{background:rgba(255,80,0,.08)}
+@media (hover:hover){.vph-prem-manage:hover{background:rgba(255,80,0,.08)}}
 /* ── upgrade panel ──────────────────────────────────────────────────────── */
 #upgrade-panel{position:fixed;inset:0;z-index:315;background:rgba(27,28,31,.99);transform:translateX(100%);transition:transform .45s cubic-bezier(.77,0,.18,1);overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
 #upgrade-panel.on{transform:translateX(0)}
 .upg-inner{max-width:600px;margin:0 auto;padding:24px 20px 60px}
 .upg-back{display:inline-flex;align-items:center;gap:7px;background:none;border:none;color:var(--td);font-size:13px;cursor:pointer;padding:0;margin-bottom:32px;transition:color .15s;font-family:'Inter',sans-serif}
-.upg-back:hover{color:var(--tx)}
+@media (hover:hover){.upg-back:hover{color:var(--tx)}}
 .upg-logo{font-family:'Bebas Neue',sans-serif;font-size:52px;letter-spacing:6px;text-align:center;margin-bottom:6px;background:linear-gradient(135deg,#ffc24f,var(--or));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
 .upg-tagline{text-align:center;color:var(--td);font-size:13px;margin-bottom:36px;line-height:1.7}
 .upg-plans{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:28px}
 @media(max-width:480px){.upg-plans{grid-template-columns:1fr;gap:20px}}
 .upg-plan{border:1px solid var(--br);border-radius:16px;padding:24px 20px;display:flex;flex-direction:column;gap:12px;position:relative;background:rgba(33,34,38,.8);transition:border-color .2s,transform .2s,box-shadow .2s}
-.upg-plan:hover{border-color:rgba(255,104,32,.45);transform:translateY(-2px);box-shadow:0 8px 28px rgba(255,80,0,.1)}
+@media (hover:hover){.upg-plan:hover{border-color:rgba(255,104,32,.45);transform:translateY(-2px);box-shadow:0 8px 28px rgba(255,80,0,.1)}}
 .upg-plan.best{border-color:rgba(255,104,32,.6);background:rgba(255,80,0,.06)}
 .upg-badge{position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:var(--or);color:#fff;font-size:9px;font-weight:800;letter-spacing:2px;text-transform:uppercase;padding:4px 14px;border-radius:20px;white-space:nowrap}
 .upg-plan-name{font-size:10px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--or)}
@@ -1098,9 +1099,9 @@ body.sw-wel-on #gobtn{pointer-events:none;animation:swWelPulse 1.6s ease-in-out 
 .upg-cta{width:100%;padding:14px;border-radius:11px;border:none;font-family:'Syne',sans-serif;font-size:14px;font-weight:800;cursor:pointer;transition:all .2s;margin-top:auto}
 .upg-cta:disabled{opacity:.5;cursor:not-allowed;transform:none!important}
 .upg-cta-month{background:rgba(255,255,255,.09);color:#fff;border:1px solid rgba(255,255,255,.16)}
-.upg-cta-month:hover:not(:disabled){background:rgba(255,255,255,.15)}
+@media (hover:hover){.upg-cta-month:hover:not(:disabled){background:rgba(255,255,255,.15)}}
 .upg-cta-year{background:linear-gradient(135deg,var(--or2),#a8651a);color:#fff}
-.upg-cta-year:hover:not(:disabled){box-shadow:0 0 24px rgba(255,80,0,.4);transform:translateY(-1px)}
+@media (hover:hover){.upg-cta-year:hover:not(:disabled){box-shadow:0 0 24px rgba(255,80,0,.4);transform:translateY(-1px)}}
 .upg-foot{text-align:center;font-size:11px;color:var(--td);line-height:1.9}
 /* ── payment toast ───────────────────────────────────────────────────────── */
 #payment-toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(20px);background:#0f1f0f;border:1px solid rgba(74,222,128,.35);border-radius:14px;padding:14px 24px;font-size:13px;color:#4ade80;font-weight:600;z-index:800;opacity:0;pointer-events:none;transition:all .35s;white-space:nowrap;box-shadow:0 8px 32px rgba(0,0,0,.5)}
@@ -1125,13 +1126,13 @@ body.sw-wel-on #gobtn{pointer-events:none;animation:swWelPulse 1.6s ease-in-out 
 }
 .vph-prem-btn{padding:6px 14px;font-size:12px;white-space:nowrap}
 .hdr-prem-btn{padding:7px 16px;font-size:12px;white-space:nowrap}
-.vph-prem-btn:hover,.hdr-prem-btn:hover{transform:translateY(-1px);filter:brightness(1.15)}
+@media (hover:hover){.vph-prem-btn:hover,.hdr-prem-btn:hover{transform:translateY(-1px);filter:brightness(1.15)}}
 
 /* ── LEGAL PANELS (Privacy & Terms) ── */
 #privacyp,#termsp,#creditsp{z-index:330;background:#28292c;display:flex;flex-direction:column}
 .legal-inner{max-width:760px;margin:0 auto;width:100%;padding:28px 24px 60px;flex:1;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
 .legal-back{display:flex;align-items:center;gap:8px;background:none;border:none;color:var(--td);font-size:13px;cursor:pointer;padding:16px 24px 0;font-family:'Inter',sans-serif;transition:color .2s}
-.legal-back:hover{color:var(--tx)}
+@media (hover:hover){.legal-back:hover{color:var(--tx)}}
 .legal-logo{font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:5px;color:var(--or);margin-bottom:4px}
 .legal-h1{font-family:'Syne',sans-serif;font-size:26px;font-weight:800;margin-bottom:6px;line-height:1.2}
 .legal-upd{font-size:11px;color:var(--td);margin-bottom:32px;letter-spacing:.5px}
@@ -1147,7 +1148,7 @@ body.sw-wel-on #gobtn{pointer-events:none;animation:swWelPulse 1.6s ease-in-out 
 .legal-sec ul li::marker{color:var(--or)}
 .legal-sec strong{color:var(--tx)}
 .legal-sec a{color:var(--or);text-decoration:none}
-.legal-sec a:hover{text-decoration:underline}
+@media (hover:hover){.legal-sec a:hover{text-decoration:underline}}
 .legal-table{width:100%;border-collapse:collapse;margin:10px 0 14px;font-size:12.5px}
 .legal-table th{text-align:left;padding:8px 12px;background:rgba(255,104,32,.1);color:var(--or);font-weight:600;border:1px solid rgba(255,255,255,.07)}
 .legal-table td{padding:8px 12px;border:1px solid rgba(255,255,255,.06);color:rgba(197,203,214,.8);line-height:1.55;vertical-align:top}
@@ -1158,7 +1159,7 @@ body.sw-wel-on #gobtn{pointer-events:none;animation:swWelPulse 1.6s ease-in-out 
 #sw-footer p{font-size:11px;color:rgba(96,102,111,.6);margin-top:4px}
 .sw-footer-links{display:flex;justify-content:center;align-items:center;gap:8px;margin-bottom:4px;flex-wrap:wrap}
 .sw-footer-link{color:rgba(140,155,175,.7);font-size:12px;cursor:pointer;transition:color .2s}
-.sw-footer-link:hover{color:rgba(190,205,225,.9)}
+@media (hover:hover){.sw-footer-link:hover{color:rgba(190,205,225,.9)}}
 .sw-footer-sep{color:rgba(96,102,111,.4);font-size:12px;user-select:none}
 
 
@@ -1201,7 +1202,7 @@ body::after{
 ::-webkit-scrollbar{width:9px;height:9px}
 ::-webkit-scrollbar-track{background:#212226}
 ::-webkit-scrollbar-thumb{background:linear-gradient(180deg,#8a4a18,var(--or2));border:2px solid #212226;border-radius:5px}
-::-webkit-scrollbar-thumb:hover{background:var(--or)}
+@media (hover:hover){::-webkit-scrollbar-thumb:hover{background:var(--or)}}
 
 /* ── LOGIN: console d'accesso ──────────────────────────────────── */
 .logo-big{filter:drop-shadow(0 0 36px rgba(255,122,24,.38)) drop-shadow(0 0 90px rgba(255,176,69,.14))}
@@ -1226,12 +1227,12 @@ body::after{
   font-family:'Rajdhani',sans-serif;font-weight:600;letter-spacing:.4px;
   background:rgba(40,41,46,.85);
 }
-.lb:hover{box-shadow:inset 0 0 0 1px rgba(255,160,95,.28),inset 0 0 24px rgba(255,122,24,.07)}
+@media (hover:hover){.lb:hover{box-shadow:inset 0 0 0 1px rgba(255,160,95,.28),inset 0 0 24px rgba(255,122,24,.07)}}
 .lb.demo{
   background:linear-gradient(135deg,var(--or2),var(--or));color:#1a1a1a;font-weight:700;
   border-color:transparent;text-transform:uppercase;letter-spacing:1.5px;
 }
-.lb.demo:hover{background:linear-gradient(135deg,var(--or),#ff9a3c);box-shadow:inset 0 0 18px rgba(0,0,0,.22)}
+@media (hover:hover){.lb.demo:hover{background:linear-gradient(135deg,var(--or),#ff9a3c);box-shadow:inset 0 0 18px rgba(0,0,0,.22)}}
 .ls-input{
   border-radius:9px;background:rgba(26,27,30,.9);
   font-family:'Share Tech Mono',monospace;font-size:13px;letter-spacing:.5px;
@@ -1264,22 +1265,26 @@ body::after{
   font-family:'Rajdhani',sans-serif;font-weight:600;font-size:13px;letter-spacing:3.5px;
   text-transform:uppercase;padding-left:11px;border-left:1px solid rgba(255,150,70,.35);line-height:1;
 }
-.hdr-r .nav-drop-btn:hover,.hdr-r .nav-drop-btn.open{
+.hdr-r .nav-drop-btn.open{
   background:linear-gradient(#1c1d21,#1c1d21) padding-box,
              linear-gradient(120deg,#ffa552,#ff7a18 45%,#ffc07a) border-box;
   box-shadow:0 0 16px rgba(255,122,24,.38),inset 0 0 16px rgba(255,122,24,.12);color:#fff;
-}
+}@media (hover:hover){.hdr-r .nav-drop-btn:hover{
+  background:linear-gradient(#1c1d21,#1c1d21) padding-box,
+             linear-gradient(120deg,#ffa552,#ff7a18 45%,#ffc07a) border-box;
+  box-shadow:0 0 16px rgba(255,122,24,.38),inset 0 0 16px rgba(255,122,24,.12);color:#fff;
+}}
 .hdr-r .icon-btn{
   width:36px;height:36px;border:1.5px solid transparent;
   background:linear-gradient(#141518,#141518) padding-box,
              linear-gradient(300deg,#ff7a18,#6d3a14 45%,#ffa552) border-box;
   box-shadow:0 0 10px rgba(255,122,24,.22),inset 0 0 14px rgba(255,122,24,.07);color:#ff8a2e;
 }
-.hdr-r .icon-btn:hover{
+@media (hover:hover){.hdr-r .icon-btn:hover{
   background:linear-gradient(#1c1d21,#1c1d21) padding-box,
              linear-gradient(300deg,#ffa552,#ff7a18 45%,#ffc07a) border-box;
   box-shadow:0 0 16px rgba(255,122,24,.38),inset 0 0 16px rgba(255,122,24,.12);color:#ffb070;
-}
+}}
 .hdr-r .icon-btn svg{width:17px;height:17px}
 @media (max-width:600px){
   .hdr-r .nav-drop-lbl{display:none}
@@ -1300,7 +1305,7 @@ body::after{
 .cta-main #gobtn{width:100%;max-width:none;flex:1;min-height:56px}
 .cta-w #gobtn::before,.cta-w #gobtn::after{content:none} /* v390: tolte le staffe agli angoli */
 .cta-w #gobtn{background:linear-gradient(135deg,#c2410c 0%,#ff7a18 55%,#ffa94d 100%);background-size:100% 100%;background-position:0 0;transition:background .3s,box-shadow .3s,transform .2s}
-.cta-w #gobtn:hover{background:linear-gradient(135deg,#ff7a18 0%,#ff9a3e 55%,#ffc07a 100%);box-shadow:0 6px 34px rgba(255,122,24,.45)}
+@media (hover:hover){.cta-w #gobtn:hover{background:linear-gradient(135deg,#ff7a18 0%,#ff9a3e 55%,#ffc07a 100%);box-shadow:0 6px 34px rgba(255,122,24,.45)}}
 .cta-side{flex:1;min-width:0;display:flex;flex-direction:column;border:1px solid rgba(255,255,255,.1);
   background:rgba(255,255,255,.035);border-radius:12px;overflow:hidden}
 .cta-side-hd{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:6px 10px;
@@ -1350,13 +1355,13 @@ body::after{
 .bdg{
   border-radius:9px;font-family:'Share Tech Mono',monospace;font-size:10.5px;letter-spacing:.5px;
 }
-.icon-btn:hover,.fc-x:hover{color:var(--or);box-shadow:inset 0 0 12px rgba(255,122,24,.18)}
+@media (hover:hover){.icon-btn:hover,.fc-x:hover{color:var(--or);box-shadow:inset 0 0 12px rgba(255,122,24,.18)}}
 .nav-drop-menu{
   border-radius:13px;border:1px solid rgba(255,160,95,.24);
   background:rgba(32,33,37,.97);
 }
 .nav-drop-item{position:relative;font-family:'Rajdhani',sans-serif;font-weight:600;font-size:14px;letter-spacing:.3px}
-.nav-drop-item:hover{box-shadow:inset 3px 0 0 var(--or);background:rgba(255,122,24,.08)}
+@media (hover:hover){.nav-drop-item:hover{box-shadow:inset 3px 0 0 var(--or);background:rgba(255,122,24,.08)}}
 
 /* ── PROPOSTE RAPIDE: pannello quick-deploy ────────────────────── */
 #proposte-rapide{position:relative;border-radius:16px}
@@ -1366,9 +1371,9 @@ body::after{
   box-shadow:inset 3px 0 0 rgba(255,122,24,.5);
   background:linear-gradient(160deg,rgba(255,122,24,.11),rgba(255,122,24,.035) 60%);
 }
-.quick-pill:hover{
+@media (hover:hover){.quick-pill:hover{
   box-shadow:inset 3px 0 0 var(--or),inset 0 0 26px rgba(255,122,24,.1),0 6px 18px rgba(255,122,24,.2);
-}
+}}
 .quick-pill .qp-tag{font-family:'Rajdhani',sans-serif;font-weight:700;letter-spacing:.1em}
 .quick-pill .qp-plus{color:var(--amb);opacity:.9}
 
@@ -1386,22 +1391,22 @@ body::after{
     linear-gradient(var(--amb),var(--amb)) no-repeat 100% calc(100% - 12px)/2px 22px;
 }
 .lab-ttl{font-family:'Rajdhani',sans-serif;font-weight:700;letter-spacing:6px;color:#9aa0a8}
-.lab-hdr.open .lab-ttl,.lab-hdr:hover .lab-ttl{color:var(--amb);text-shadow:0 0 14px rgba(255,122,24,.38)}
+.lab-hdr.open .lab-ttl{color:var(--amb);text-shadow:0 0 14px rgba(255,122,24,.38)}@media (hover:hover){.lab-hdr:hover .lab-ttl{color:var(--amb);text-shadow:0 0 14px rgba(255,122,24,.38)}}
 .fgrp{
   border-radius:13px;
   background:rgba(35,36,40,.9);
 }
-.fgrp:hover{box-shadow:inset 0 0 0 1px rgba(255,160,95,.2)}
+@media (hover:hover){.fgrp:hover{box-shadow:inset 0 0 0 1px rgba(255,160,95,.2)}}
 .reset-btn,.sh{
   border-radius:9px;font-family:'Share Tech Mono',monospace;letter-spacing:.4px;
 }
-.reset-btn:hover{color:var(--or);border-color:var(--bro)}
+@media (hover:hover){.reset-btn:hover{color:var(--or);border-color:var(--bro)}}
 .chip{
   border-radius:9px;
   font-family:'Rajdhani',sans-serif;font-weight:600;font-size:13px;letter-spacing:.3px;
 }
 .chip.chip-sm{border-radius:8px}
-.chip:hover{transform:translateY(-1px)}
+@media (hover:hover){.chip:hover{transform:translateY(-1px)}}
 .chip.on{box-shadow:0 0 12px rgba(255,150,60,.3)}
 .mc2{border-radius:8px}
 input[type=range]{background:linear-gradient(90deg,rgba(255,122,24,.5),rgba(255,176,69,.35));height:2px;border-radius:2px}
@@ -1423,8 +1428,8 @@ input[type=range]::-webkit-slider-thumb{
 .cta::before,.cta::after{content:'';position:absolute;width:14px;height:14px;pointer-events:none;transition:all .35s}
 .cta::before{top:-5px;left:-5px;border-top:2px solid var(--or);border-left:2px solid var(--or);border-top-left-radius:8px}
 .cta::after{bottom:-5px;right:-5px;border-bottom:2px solid var(--amb);border-right:2px solid var(--amb);border-bottom-right-radius:8px}
-.cta:hover::before{top:-8px;left:-8px}
-.cta:hover::after{bottom:-8px;right:-8px}
+@media (hover:hover){.cta:hover::before{top:-8px;left:-8px}}
+@media (hover:hover){.cta:hover::after{bottom:-8px;right:-8px}}
 
 /* ── FILM CARD: dossier olografico ─────────────────────────────── */
 #fc{border-radius:18px;border:1px solid rgba(255,122,24,.42);background:rgba(30,31,35,.97)}
@@ -1455,14 +1460,14 @@ input[type=range]::-webkit-slider-thumb{
 .vp-back{
   border-radius:9px;font-family:'Share Tech Mono',monospace;font-size:12px;
 }
-.vp-back:hover{color:var(--or);border-color:var(--bro);background:rgba(255,122,24,.08)}
+@media (hover:hover){.vp-back:hover{color:var(--or);border-color:var(--bro);background:rgba(255,122,24,.08)}}
 
 /* ── micro-dettagli ────────────────────────────────────────────── */
 .lsep{background:linear-gradient(90deg,transparent,rgba(255,122,24,.45),rgba(255,176,69,.3),transparent)}
 .fdiv{background:linear-gradient(90deg,transparent,rgba(255,160,95,.22),transparent)!important}
 .prof-inp:focus{border-color:var(--or)!important}
 .sw-footer-link{font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:.5px}
-.sw-footer-link:hover{color:var(--or)}
+@media (hover:hover){.sw-footer-link:hover{color:var(--or)}}
 
 @media (prefers-reduced-motion:reduce){
   #deco span{animation:none}
@@ -1480,7 +1485,7 @@ input[type=range]::-webkit-slider-thumb{
 /* ── leggibilità: testi tag più chiari ─────────────────────────── */
 :root{--tx:#dadde2;--td:#989ea8}
 .chip{color:#e9ebf0;font-weight:600;font-size:13.5px}
-.chip:hover{color:#fff}
+@media (hover:hover){.chip:hover{color:#fff}}
 .chip.on{color:#fff;font-weight:700}
 .chip.chip-sm{opacity:1;color:#d6dae1}
 .mc2{color:#ffc878;border-color:rgba(255,160,70,.45);font-weight:600}
@@ -1499,7 +1504,7 @@ input[type=range]::-webkit-slider-thumb{
     radial-gradient(circle,var(--amb) 0 1.2px,transparent 1.8px) no-repeat calc(100% - 8px) calc(100% - 8px)/4px 4px;
   opacity:.45;transition:opacity .25s;
 }
-.fgrp:hover::before{opacity:.95}
+@media (hover:hover){.fgrp:hover::before{opacity:.95}}
 
 /* ── SWAINZ LAB: pannello incassato su ardesia (v375) ───────────────
    Le proposte rapide sporgono (neon caldo); il Lab rientra nella pagina:
@@ -1513,17 +1518,17 @@ input[type=range]::-webkit-slider-thumb{
 }
 .lab-box::before{content:none} /* tolte le staffe arancio/ambra agli angoli del pannello */
 .lab-ttl{color:#dfe7f1}
-.lab-hdr.open .lab-ttl,.lab-hdr:hover .lab-ttl{color:#eef4fb;text-shadow:0 0 12px rgba(150,185,225,.35)}
+.lab-hdr.open .lab-ttl{color:#eef4fb;text-shadow:0 0 12px rgba(150,185,225,.35)}@media (hover:hover){.lab-hdr:hover .lab-ttl{color:#eef4fb;text-shadow:0 0 12px rgba(150,185,225,.35)}}
 .lab-hdr.open{border-bottom-color:rgba(175,200,230,.12)}
-.lab-hdr:hover{background:rgba(175,200,230,.04)}
+@media (hover:hover){.lab-hdr:hover{background:rgba(175,200,230,.04)}}
 .lab-box .fgrp{
   background:#232a35;border-color:rgba(160,185,215,.1);
   box-shadow:0 1px 0 rgba(255,255,255,.04),0 2px 6px rgba(0,0,0,.35);
 }
-.lab-box .fgrp:hover{
+@media (hover:hover){.lab-box .fgrp:hover{
   border-color:rgba(175,200,230,.35)!important;
   box-shadow:0 0 16px rgba(150,185,225,.14),0 2px 6px rgba(0,0,0,.35)!important;
-}
+}}
 
 /* ── PROPOSTE RAPIDE: insegna da cinema (v373) ─────────────────────
    Tabellone a lettere (scanalature orizzontali; linee luminose tolte in v374),
@@ -1591,14 +1596,14 @@ input[type=range]::-webkit-slider-thumb{
   background:linear-gradient(105deg,transparent,rgba(255,150,60,.17),transparent);
   transform:skewX(-14deg);transition:left .45s ease;
 }
-.quick-pill:hover{
+@media (hover:hover){.quick-pill:hover{
   transform:none;
   border-color:rgba(255,122,24,.62);
   background:linear-gradient(180deg,rgba(50,45,40,.95),rgba(36,36,40,.95));
   box-shadow:inset 0 -16px 30px -20px rgba(255,122,24,.55);
-}
-.quick-pill:hover::after{left:118%}
-.quick-pill:hover::before{left:4%;right:4%;opacity:1;box-shadow:0 0 12px rgba(255,122,24,.7)}
+}}
+@media (hover:hover){.quick-pill:hover::after{left:118%}}
+@media (hover:hover){.quick-pill:hover::before{left:4%;right:4%;opacity:1;box-shadow:0 0 12px rgba(255,122,24,.7)}}
 .quick-pill:active{transform:scale(.97)}
 .quick-pill .qp-tag{
   /* v372: Bebas Neue (prima Syne 800 15px). Ha un solo peso: 400 evita il grassetto sintetico */
@@ -1606,15 +1611,15 @@ input[type=range]::-webkit-slider-thumb{
   letter-spacing:.05em;text-transform:none;color:#f1f3f6;
   transition:color .25s;
 }
-.quick-pill:hover .qp-tag{color:#fff}
+@media (hover:hover){.quick-pill:hover .qp-tag{color:#fff}}
 .quick-pill .qp-plus{
   font-family:'Share Tech Mono',monospace;font-size:19px;color:var(--or);
   opacity:.8;transition:transform .4s cubic-bezier(.34,1.4,.64,1),opacity .25s,text-shadow .25s;
 }
-.quick-pill:hover .qp-plus{
+@media (hover:hover){.quick-pill:hover .qp-plus{
   transform:rotate(180deg) scale(1.12);opacity:1;
   text-shadow:0 0 12px rgba(255,122,24,.85);
-}
+}}
 
 /* ── FUMETTI MASCOTTE: console felina ──────────────────────────── */
 #cat-hint-bub{
@@ -1649,8 +1654,8 @@ input[type=range]::-webkit-slider-thumb{
 .fst::after{content:'';flex:1;height:1px;margin-left:10px;
   background:linear-gradient(90deg,rgba(255,160,70,.45),transparent)}
 .fc-poster-col img{transition:transform .35s ease,box-shadow .35s ease}
-.fc-poster-col img:hover{transform:translateY(-4px) scale(1.015);
-  box-shadow:0 16px 44px rgba(0,0,0,.7),0 0 26px rgba(255,122,24,.28)}
+@media (hover:hover){.fc-poster-col img:hover{transform:translateY(-4px) scale(1.015);
+  box-shadow:0 16px 44px rgba(0,0,0,.7),0 0 26px rgba(255,122,24,.28)}}
 
 /* ── slider con tacche di misura ───────────────────────────────── */
 input[type=range]{
@@ -1668,7 +1673,7 @@ input[type=range]{
 /* ── micro-glow sui menu e bottoni icona ───────────────────────── */
 .nav-drop-menu{box-shadow:0 12px 40px rgba(0,0,0,.65),0 0 0 1px rgba(255,150,60,.08),0 0 30px rgba(255,122,24,.07)}
 .icon-btn{transition:all .25s}
-.icon-btn:hover{transform:translateY(-1px)}
+@media (hover:hover){.icon-btn:hover{transform:translateY(-1px)}}
 
 @media (prefers-reduced-motion:reduce){
   .bdg::before{animation:none}
@@ -1828,7 +1833,7 @@ input[type=range]{
 .arx-plan{display:flex;align-items:center;gap:10px;padding:7px 14px 7px 12px;border-radius:999px;cursor:pointer;
   background:rgba(12,13,17,.9);border:1.5px solid #ff8a2e;color:#fff;text-align:left;flex-shrink:0;
   box-shadow:0 0 12px rgba(255,138,46,.35),inset 0 0 12px rgba(255,122,24,.08);transition:box-shadow .2s,transform .2s}
-.arx-plan:hover{box-shadow:0 0 18px rgba(255,138,46,.55),inset 0 0 14px rgba(255,122,24,.12);transform:translateY(-1px)}
+@media (hover:hover){.arx-plan:hover{box-shadow:0 0 18px rgba(255,138,46,.55),inset 0 0 14px rgba(255,122,24,.12);transform:translateY(-1px)}}
 .arx-plan svg{flex-shrink:0}
 .arx-plan-t{display:block;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:14px;line-height:1.1;color:#ffb45e}
 .arx-plan-s{display:block;font-family:'Inter',sans-serif;font-size:10.5px;color:#d9dce1;margin-top:1px}
@@ -1836,14 +1841,14 @@ input[type=range]{
 .arx-back{display:flex;align-items:center;gap:8px;padding:8px 18px;border-radius:999px;cursor:pointer;flex-shrink:0;
   background:transparent;border:1.5px solid #ff8a2e;color:#fff;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:15px;
   box-shadow:0 0 10px rgba(255,138,46,.25);transition:background .2s,box-shadow .2s}
-.arx-back:hover{background:rgba(255,122,24,.12);box-shadow:0 0 16px rgba(255,138,46,.45)}
+@media (hover:hover){.arx-back:hover{background:rgba(255,122,24,.12);box-shadow:0 0 16px rgba(255,138,46,.45)}}
 
 /* barra filtri */
 .arx-filters{display:grid;grid-template-columns:minmax(0,1.7fr) minmax(0,1.15fr) minmax(0,1.2fr) minmax(0,.85fr);gap:12px;padding:16px 0 4px}
 .arx-ctl{position:relative;display:flex;align-items:center;gap:10px;height:46px;padding:0 14px;box-sizing:border-box;width:100%;
   background:rgba(13,15,20,.92);border:1px solid rgba(255,255,255,.13);border-radius:10px;color:#e6e8ec;
   font-family:'Inter',sans-serif;font-size:13px;transition:border-color .2s,box-shadow .2s}
-.arx-ctl:hover{border-color:rgba(255,138,46,.55)}
+@media (hover:hover){.arx-ctl:hover{border-color:rgba(255,138,46,.55)}}
 .arx-ctl:focus-within,.arx-ctl.open{border-color:#ff8a2e;box-shadow:0 0 0 1px rgba(255,122,24,.2),0 0 14px rgba(255,122,24,.15)}
 .arx-ctl svg{flex-shrink:0}
 .arx-search input{flex:1;min-width:0;height:100%;background:transparent;border:none;outline:none;color:#f1f3f6;font-family:'Inter',sans-serif;font-size:13px}
@@ -1864,12 +1869,12 @@ button.arx-ctl{cursor:pointer;text-align:left}
 .arec-ms-search::placeholder{color:#8d949e}
 .arec-ms-list{max-height:260px;overflow-y:auto}
 .arec-ms-opt{display:flex;align-items:center;gap:9px;padding:8px 14px;cursor:pointer;font-family:'Inter',sans-serif;font-size:12.5px;color:#e6e8ec;transition:background .1s}
-.arec-ms-opt:hover{background:rgba(255,122,24,.09)}
+@media (hover:hover){.arec-ms-opt:hover{background:rgba(255,122,24,.09)}}
 .arec-ms-opt input[type=checkbox]{accent-color:#ff7a18;width:14px;height:14px;flex-shrink:0;cursor:pointer}
 .arec-ms-opt.checked{color:#ffb45e;box-shadow:inset 3px 0 0 #ff7a18}
 .arec-ms-empty{padding:12px 14px;font-size:12px;color:#8d949e;text-align:center}
 .arec-ms-clear{display:block;width:100%;padding:9px 14px;border:none;border-top:1px solid rgba(255,255,255,.09);background:none;color:#8d949e;font-size:11.5px;cursor:pointer;text-align:left}
-.arec-ms-clear:hover{color:#fff}
+@media (hover:hover){.arec-ms-clear:hover{color:#fff}}
 
 /* scheda tabella */
 .arx-card{margin:14px 0 30px;padding:12px 16px 16px;border:1px solid rgba(255,122,24,.55);border-radius:16px;
@@ -1880,7 +1885,7 @@ button.arx-ctl{cursor:pointer;text-align:left}
 .arx-head{padding:8px 13px 6px}
 .arx-h{display:flex;align-items:center;gap:5px;background:none;border:none;padding:0;cursor:pointer;
   font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:#aab1bb;text-align:left}
-.arx-h:hover{color:#fff}
+@media (hover:hover){.arx-h:hover{color:#fff}}
 .arx-h.sorted{color:#ff8a2e}
 .arx-sort{display:inline-flex;flex-direction:column;gap:1px;opacity:.7}
 .arx-sort i{display:block;width:0;height:0;border-left:3px solid transparent;border-right:3px solid transparent}
@@ -1890,7 +1895,7 @@ button.arx-ctl{cursor:pointer;text-align:left}
 .arx-h.sorted.asc .arx-sort i:last-child,.arx-h.sorted.desc .arx-sort i:first-child{opacity:.25}
 .arx-row{margin-top:6px;padding:7px 12px;border-radius:10px;cursor:pointer;
   background:rgba(19,22,29,.78);border:1px solid rgba(255,255,255,.075);transition:border-color .15s,background .15s,box-shadow .15s}
-.arx-row:hover,.arx-row:focus-visible{outline:none;border-color:rgba(255,138,46,.7);background:rgba(27,25,24,.9);box-shadow:0 0 14px rgba(255,122,24,.14)}
+.arx-row:focus-visible{outline:none;border-color:rgba(255,138,46,.7);background:rgba(27,25,24,.9);box-shadow:0 0 14px rgba(255,122,24,.14)}@media (hover:hover){.arx-row:hover{outline:none;border-color:rgba(255,138,46,.7);background:rgba(27,25,24,.9);box-shadow:0 0 14px rgba(255,122,24,.14)}}
 .arx-c-title{display:flex;align-items:center;gap:12px;min-width:0}
 .arx-thumb{width:72px;height:46px;flex-shrink:0;border-radius:6px;overflow:hidden;
   background:linear-gradient(135deg,#1c2029,#12151b);border:1px solid rgba(255,255,255,.08);
@@ -1898,7 +1903,7 @@ button.arx-ctl{cursor:pointer;text-align:left}
 .arx-thumb img{width:100%;height:100%;object-fit:cover;object-position:center 22%;display:block}
 .arx-tt{min-width:0}
 .arx-name{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:17.5px;line-height:1.15;color:#f4f5f7;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;transition:color .15s}
-.arx-row:hover .arx-name{color:#ffb56a}
+@media (hover:hover){.arx-row:hover .arx-name{color:#ffb56a}}
 .arx-line{font-family:'Inter',sans-serif;font-size:12px;color:#aab1bb;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .arx-c-year{font-family:'Inter',sans-serif;font-size:13px;color:#d9dce1}
 .arx-c-dir{font-family:'Inter',sans-serif;font-size:13px;color:#9cc3ea;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -1943,14 +1948,14 @@ button.arx-ctl{cursor:pointer;text-align:left}
 .arx-c-wl,.arx-c-sn{display:flex;align-items:center;justify-content:center}
 .arx-wl{display:inline-flex;align-items:center;justify-content:center;width:36px;height:32px;padding:0;border-radius:9px;cursor:pointer;
   background:transparent;border:1px solid rgba(255,255,255,.14);color:#8d949e;transition:color .15s,border-color .15s,background .15s}
-.arx-wl:hover,.arx-wl:focus-visible{outline:none;color:#ffb45e;border-color:rgba(255,138,46,.7)}
+.arx-wl:focus-visible{outline:none;color:#ffb45e;border-color:rgba(255,138,46,.7)}@media (hover:hover){.arx-wl:hover{outline:none;color:#ffb45e;border-color:rgba(255,138,46,.7)}}
 .arx-wl.on{color:#ff8a2e;border-color:#ff8a2e;background:rgba(255,122,24,.14)}
 .arx-wl.on svg path{fill:#ff8a2e}
 .arx-wl.dis{opacity:.28;cursor:default}
-.arx-wl.dis:hover{color:#8d949e;border-color:rgba(255,255,255,.14)}
+@media (hover:hover){.arx-wl.dis:hover{color:#8d949e;border-color:rgba(255,255,255,.14)}}
 .arx-sn{display:inline-flex;align-items:center;justify-content:center;width:36px;height:32px;padding:0;border-radius:9px;cursor:pointer;
   background:transparent;border:1px solid rgba(255,255,255,.14);color:#6f7782;transition:color .15s,border-color .15s,background .15s}
-.arx-sn:hover,.arx-sn:focus-visible{outline:none;color:#ffb45e;border-color:rgba(255,138,46,.7)}
+.arx-sn:focus-visible{outline:none;color:#ffb45e;border-color:rgba(255,138,46,.7)}@media (hover:hover){.arx-sn:hover{outline:none;color:#ffb45e;border-color:rgba(255,138,46,.7)}}
 .arx-sn.on{color:#fff;border-color:#ff8a2e;background:rgba(255,80,0,.22)}
 /* v436 · selezione multipla */
 .arx-c-ck,.arx-h-ck{display:flex;align-items:center;justify-content:center;width:24px;height:32px;cursor:pointer;margin:0}
@@ -1983,12 +1988,12 @@ button.arx-ctl{cursor:pointer;text-align:left}
 .arx-wla-t{flex:1;min-width:200px;line-height:1.4}
 .arx-wla .sx-btn{height:32px;padding:0 12px;font-size:12px;white-space:nowrap}
 .arx-wla-x{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:8px;cursor:pointer;background:transparent;border:1px solid rgba(255,255,255,.16);color:#aab1bb;font-size:13px}
-.arx-wla-x:hover{color:#fff;border-color:rgba(255,138,46,.7)}
+@media (hover:hover){.arx-wla-x:hover{color:#fff;border-color:rgba(255,138,46,.7)}}
 .arx-bulk-n{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:16px;color:#ffb45e;margin-right:4px;white-space:nowrap}
 .arx-bulk .sx-btn{height:32px;padding:0 11px;font-size:12px;white-space:nowrap}
 .arx-bulk-x{margin-left:auto;display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:9px;cursor:pointer;
   background:transparent;border:1px solid rgba(255,255,255,.18);color:#aab1bb;font-size:14px}
-.arx-bulk-x:hover{color:#fff;border-color:rgba(255,138,46,.7)}
+@media (hover:hover){.arx-bulk-x:hover{color:#fff;border-color:rgba(255,138,46,.7)}}
 .arx-bulk-msg{flex-basis:100%;font-family:'Inter',sans-serif;font-size:11.5px;color:#d9b48a}
 .arx-bulk-msg:empty{display:none}
 .arx-wl-seen{font-family:'Inter',sans-serif;font-size:11px;color:#6f7782;white-space:nowrap}
@@ -2076,7 +2081,7 @@ button.arx-ctl{cursor:pointer;text-align:left}
 .sx-card{padding:14px 16px 12px;border-radius:14px;background:rgba(10,12,17,.88);border:1px solid rgba(255,255,255,.1);box-shadow:0 0 18px rgba(0,0,0,.35)}
 .sx-card-h{display:flex;align-items:center;gap:10px;margin-bottom:10px;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:18px;color:#f4f5f7}
 .sx-card-h .sx-more{margin-left:auto;background:none;border:none;cursor:pointer;color:#ff8a2e;font-family:'Inter',sans-serif;font-weight:600;font-size:12.5px;padding:2px 0}
-.sx-card-h .sx-more:hover{color:#ffb45e}
+@media (hover:hover){.sx-card-h .sx-more:hover{color:#ffb45e}}
 .sx-bar-row{display:grid;grid-template-columns:118px minmax(0,1fr) 34px;align-items:center;gap:12px;height:25px;font-family:'Inter',sans-serif;font-size:13px;color:#d9dce1}
 .sx-bar-row .n{text-align:right;color:#f1f3f6}
 .sx-bar-row .l{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -2094,9 +2099,9 @@ button.arx-ctl{cursor:pointer;text-align:left}
 .sx-actions{display:flex;gap:10px;flex-wrap:wrap}
 .sx-btn{display:inline-flex;align-items:center;gap:8px;height:38px;padding:0 14px;border-radius:10px;cursor:pointer;
   background:rgba(13,15,20,.92);border:1px solid rgba(255,255,255,.18);color:#e6e8ec;font-family:'Inter',sans-serif;font-size:13px;transition:border-color .2s,box-shadow .2s}
-.sx-btn:hover{border-color:rgba(255,138,46,.6)}
+@media (hover:hover){.sx-btn:hover{border-color:rgba(255,138,46,.6)}}
 .sx-btn.pri{border:1.5px solid #ff8a2e;color:#ff9d4d;font-weight:600;box-shadow:0 0 10px rgba(255,138,46,.22)}
-.sx-btn.pri:hover{box-shadow:0 0 16px rgba(255,138,46,.45)}
+@media (hover:hover){.sx-btn.pri:hover{box-shadow:0 0 16px rgba(255,138,46,.45)}}
 .sx-msg{margin:8px 0 2px;padding:9px 12px;border-radius:10px;font-family:'Inter',sans-serif;font-size:12.5px;white-space:pre-line;border:1px solid rgba(74,222,128,.35);background:rgba(74,222,128,.07);color:#bbf7d0}
 .sx-msg.warn{border-color:rgba(255,180,60,.45);background:rgba(255,180,60,.08);color:#ffd9a0}
 .sx-grid{display:grid;grid-template-columns:minmax(0,1fr) 44px 108px 146px 96px 80px 66px 24px;column-gap:10px;align-items:center}
@@ -2104,7 +2109,7 @@ button.arx-ctl{cursor:pointer;text-align:left}
 .sx-head .arx-h{font-size:11.5px;letter-spacing:.07em}
 .arx-row.sx-grid .arx-c-tags,.arx-row.sx-grid .arx-c-plt{flex-wrap:nowrap;overflow:hidden}
 .sx-head .sx-h-static{cursor:default}
-.sx-head .sx-h-static:hover{color:#aab1bb}
+@media (hover:hover){.sx-head .sx-h-static:hover{color:#aab1bb}}
 .arx-row.sx-grid .arx-thumb{width:64px;height:42px}
 .sx-plt-n{font-family:'Inter',sans-serif;font-size:10.5px;color:#8d949e;margin-left:4px;align-self:center}
 .sx-rating{font-family:'Inter',sans-serif;font-size:13px;color:#e6e8ec;white-space:nowrap}
@@ -2112,11 +2117,11 @@ button.arx-ctl{cursor:pointer;text-align:left}
 .sx-status{display:flex;align-items:center;gap:7px;font-family:'Inter',sans-serif;font-size:13px;color:#d9dce1;white-space:nowrap}
 .sx-status .ok{width:18px;height:18px;border-radius:50%;flex-shrink:0;display:inline-flex;align-items:center;justify-content:center;background:rgba(255,138,46,.18);color:#ff9d4d;font-size:11px;font-weight:700}
 .sx-menu-btn{width:24px;height:24px;border-radius:6px;border:none;background:none;color:#aab1bb;font-size:16px;line-height:1;cursor:pointer;letter-spacing:1px}
-.sx-menu-btn:hover{background:rgba(255,255,255,.08);color:#fff}
+@media (hover:hover){.sx-menu-btn:hover{background:rgba(255,255,255,.08);color:#fff}}
 #sx-menu{position:fixed;z-index:340;display:none;min-width:190px;padding:6px;border-radius:12px;background:rgba(15,17,22,.98);border:1px solid rgba(255,138,46,.5);box-shadow:0 14px 40px rgba(0,0,0,.7)}
 #sx-menu.open{display:block}
 #sx-menu button{display:flex;align-items:center;gap:9px;width:100%;padding:9px 11px;border:none;border-radius:8px;background:none;color:#e6e8ec;font-family:'Inter',sans-serif;font-size:13px;cursor:pointer;text-align:left}
-#sx-menu button:hover{background:rgba(255,122,24,.1)}
+@media (hover:hover){#sx-menu button:hover{background:rgba(255,122,24,.1)}}
 #sx-menu button.danger{color:#ff8a8a}
 #sx-menu button.danger.armed{background:rgba(220,60,60,.18);color:#ffb0b0}
 .sx-standby{margin:0 0 30px}
@@ -2186,18 +2191,18 @@ button.arx-ctl{cursor:pointer;text-align:left}
 .vpx-sw{position:relative;min-width:0}
 .vpx-sw .arx-search input{font-size:13.5px}
 .vpx-x{display:none;flex-shrink:0;width:24px;height:24px;border:none;border-radius:50%;background:rgba(255,255,255,.08);color:#aab1bb;font-size:11px;cursor:pointer;line-height:1}
-.vpx-x:hover{background:rgba(255,122,24,.2);color:#fff}
+@media (hover:hover){.vpx-x:hover{background:rgba(255,122,24,.2);color:#fff}}
 .vpx-sw.has-q .vpx-x{display:block}
 #vp .autocomplete-box{top:calc(100% + 6px);background:#0f1116;border:1px solid rgba(255,138,46,.5);border-radius:12px;z-index:30;max-height:300px;
   box-shadow:0 14px 44px rgba(0,0,0,.7),0 0 22px rgba(255,122,24,.1)}
 #vp .ac-item{flex-direction:row;align-items:baseline;justify-content:space-between;gap:14px;padding:9px 14px;font-family:'Inter',sans-serif;font-size:13px}
-#vp .ac-item:hover{background:rgba(255,122,24,.1)}
+@media (hover:hover){#vp .ac-item:hover{background:rgba(255,122,24,.1)}}
 #vp .ac-name{color:#e6e8ec}
 #vp .ac-role{color:#8d949e;font-size:10.5px;white-space:nowrap}
 #vp .ac-h{padding:8px 14px 3px;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:#ff8a2e}
 #vp #lb-import-btn{width:auto;margin:0;height:46px;padding:0 16px;border-radius:10px;background:rgba(13,15,20,.92);border:1.5px solid #ff8a2e;color:#ff9d4d;
   font-family:'Inter',sans-serif;font-weight:600;font-size:13px;gap:8px;box-shadow:0 0 10px rgba(255,138,46,.22);white-space:nowrap}
-#vp #lb-import-btn:hover{box-shadow:0 0 16px rgba(255,138,46,.45);background:rgba(20,17,15,.95)}
+@media (hover:hover){#vp #lb-import-btn:hover{box-shadow:0 0 16px rgba(255,138,46,.45);background:rgba(20,17,15,.95)}}
 #vp #lb-result{margin:10px 0 0;font-family:'Inter',sans-serif;font-size:12.5px}
 #vp #lb-standby-box{margin:8px 0 0 2px;font-family:'Inter',sans-serif;font-size:12px;color:#8d949e}
 /* scheda-tabella */
@@ -2207,7 +2212,7 @@ button.arx-ctl{cursor:pointer;text-align:left}
 .vpx-grid{display:grid;grid-template-columns:minmax(0,1fr) 44px 128px 150px 96px 126px;column-gap:12px;align-items:center}
 .vpx-head{padding:8px 13px 6px}
 .vpx-head .arx-h{cursor:default;font-size:11.5px;letter-spacing:.07em}
-.vpx-head .arx-h:hover{color:#aab1bb}
+@media (hover:hover){.vpx-head .arx-h:hover{color:#aab1bb}}
 .arx-row.vpx-grid .arx-thumb{width:64px;height:42px}
 .arx-row.vpx-grid .arx-c-tags,.arx-row.vpx-grid .arx-c-plt{flex-wrap:nowrap;overflow:hidden}
 .arx-row.vpx-grid.sn{border-color:rgba(255,138,46,.38);background:rgba(38,25,16,.8)}
@@ -2215,7 +2220,7 @@ button.arx-ctl{cursor:pointer;text-align:left}
 .vpx-mark{display:inline-flex;align-items:center;justify-content:center;gap:6px;height:32px;min-width:118px;padding:0 12px;border-radius:999px;cursor:pointer;white-space:nowrap;
   border:1.5px solid rgba(255,138,46,.75);background:rgba(255,122,24,.08);color:#ffb56a;font-family:'Inter',sans-serif;font-weight:600;font-size:12.5px;
   transition:background .15s,box-shadow .15s,color .15s}
-.vpx-mark:hover{background:rgba(255,122,24,.18);box-shadow:0 0 12px rgba(255,122,24,.3)}
+@media (hover:hover){.vpx-mark:hover{background:rgba(255,122,24,.18);box-shadow:0 0 12px rgba(255,122,24,.3)}}
 .vpx-mark.on{background:linear-gradient(135deg,#ff7a18,#c2410c);border-color:#ff8a2e;color:#fff;box-shadow:0 0 12px rgba(255,122,24,.35)}
 .vpx-mark .i{font-size:13px;line-height:1}
 .vpx-more{display:flex;margin:14px auto 2px}
@@ -2223,7 +2228,7 @@ button.arx-ctl{cursor:pointer;text-align:left}
 .vpx-chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
 .vpx-chip{height:30px;padding:0 13px;border-radius:999px;cursor:pointer;background:rgba(13,15,20,.85);border:1px solid rgba(255,255,255,.16);
   color:#d9dce1;font-family:'Inter',sans-serif;font-size:12.5px;white-space:nowrap;transition:border-color .15s,color .15s,background .15s}
-.vpx-chip:hover{border-color:rgba(255,138,46,.65);color:#ffb56a}
+@media (hover:hover){.vpx-chip:hover{border-color:rgba(255,138,46,.65);color:#ffb56a}}
 .vpx-chip.on{background:rgba(255,122,24,.16);border-color:#ff8a2e;color:#ffb56a;box-shadow:0 0 10px rgba(255,122,24,.25)}
 @media (max-width:600px){.vpx-chips{gap:6px;margin-top:10px}.vpx-chip{height:28px;padding:0 11px;font-size:12px}}
 @media (min-width:761px) and (max-width:900px){
@@ -2256,7 +2261,7 @@ button.arx-ctl{cursor:pointer;text-align:left}
 
 /* v408 · badge del piano solo visivo per i premium */
 .arx-plan.arx-plan-static{cursor:default}
-.arx-plan.arx-plan-static:hover{box-shadow:0 0 12px rgba(255,138,46,.35),inset 0 0 12px rgba(255,122,24,.08);transform:none}
+@media (hover:hover){.arx-plan.arx-plan-static:hover{box-shadow:0 0 12px rgba(255,138,46,.35),inset 0 0 12px rgba(255,122,24,.08);transform:none}}
 .arx-plan.arx-plan-static{padding-right:16px}
 /* v408 · Profilo: titolo a sinistra, badge al centro, Torna a destra */
 #profp .prof-vph{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);align-items:center;column-gap:16px}
@@ -2295,7 +2300,7 @@ body.sw-sec #privacyp,body.sw-sec #termsp{z-index:332}
 /* v430 · Crediti e attribuzioni (TMDB, JustWatch) */
 .cardplt-src{margin-top:14px;font-size:11px;color:var(--td);opacity:.75;text-align:center} /* v435: in fondo alla scheda, solo testo */
 a.plt-a{display:inline-flex;align-items:center;gap:5px;text-decoration:none;cursor:pointer;transition:border-color .15s,background .15s,color .15s} /* v439 */
-a.plt-a:hover,a.plt-a:focus-visible{outline:none;border-color:#ff8a2e;color:#fff;background:rgba(255,122,24,.16)}
+a.plt-a:focus-visible{outline:none;border-color:#ff8a2e;color:#fff;background:rgba(255,122,24,.16)}@media (hover:hover){a.plt-a:hover{outline:none;border-color:#ff8a2e;color:#fff;background:rgba(255,122,24,.16)}}
 .plt-ext{font-size:10px;opacity:.7}
 .fc-rsrc{font-size:9.5px;letter-spacing:.06em;opacity:.65;margin-left:3px}
 .cred-box{display:flex;align-items:center;gap:18px;flex-wrap:wrap;margin:12px 0 6px;padding:16px 18px;border:1px solid rgba(255,255,255,.1);border-radius:12px;background:rgba(255,255,255,.03)}
@@ -2309,20 +2314,20 @@ a.plt-a:hover,a.plt-a:focus-visible{outline:none;border-color:#ff8a2e;color:#fff
 .fc-media-row{display:flex;gap:8px;width:100%;margin-top:4px}
 .fc-media-row .share-btn{flex:1;justify-content:center}
 .share-btn.trl-btn{border-color:rgba(255,138,46,.55);background:rgba(255,122,24,.12);color:#ffb070}
-.share-btn.trl-btn:hover{background:rgba(255,122,24,.22);color:#ffd1a6}
+@media (hover:hover){.share-btn.trl-btn:hover{background:rgba(255,122,24,.22);color:#ffd1a6}}
 #trl-ov{position:fixed;inset:0;z-index:800;display:flex;align-items:center;justify-content:center;padding:24px;background:rgba(8,9,12,.86);backdrop-filter:blur(6px);opacity:0;pointer-events:none;transition:opacity .25s}
 #trl-ov.on{opacity:1;pointer-events:auto}
 #trl-box{position:relative;width:min(960px,100%);}
 #trl-frame{position:relative;width:100%;aspect-ratio:16/9;background:#000;border-radius:14px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.6);border:1px solid rgba(255,122,24,.35)}
 #trl-frame iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
 #trl-x{position:absolute;top:-46px;right:0;width:38px;height:38px;border-radius:50%;border:1px solid rgba(255,255,255,.25);background:rgba(20,21,24,.9);color:#fff;font-size:18px;cursor:pointer}
-#trl-x:hover{border-color:#ff8a2e;color:#ff8a2e}
+@media (hover:hover){#trl-x:hover{border-color:#ff8a2e;color:#ff8a2e}}
 #trl-cap{margin-top:12px;font-family:'Rajdhani',sans-serif;font-weight:600;font-size:16px;color:#d5d9e0;text-align:center}
 @media (max-width:600px){#trl-ov{padding:12px}#trl-x{top:-44px}}
 @media (prefers-reduced-motion:reduce){#trl-ov{transition:none}}
 /* v432 · recupero password (schermata di accesso) e cambio password (Profilo) */
 .ls-forgot{background:none;border:none;padding:2px 0;margin:-2px 0 0;color:var(--td);font-size:12px;cursor:pointer;align-self:flex-end;font-family:'Inter',sans-serif;text-decoration:underline;text-underline-offset:2px}
-.ls-forgot:hover,.ls-forgot:focus-visible{color:#ff8a2e}
+.ls-forgot:focus-visible{color:#ff8a2e}@media (hover:hover){.ls-forgot:hover{color:#ff8a2e}}
 .ls-forgot:disabled{opacity:.5;cursor:default;text-decoration:none}
 #ls-rec,#ls-rec-act{display:none;flex-direction:column;gap:9px;width:100%}
 #ls.rec #ls-rec,#ls.rec #ls-rec-act{display:flex}
@@ -2357,7 +2362,7 @@ a.plt-a:hover,a.plt-a:focus-visible{outline:none;border-color:#ff8a2e;color:#fff
   background:radial-gradient(120% 70% at 50% 0%,rgba(255,122,24,.16),rgba(255,122,24,0) 60%),linear-gradient(180deg,#1f1a16,#141518)!important;
   box-shadow:0 0 18px rgba(255,100,20,.10),inset 0 0 0 1px rgba(255,255,255,.02);container-type:size;overflow:hidden;
   transition:border-color .2s,box-shadow .2s;text-align:center;color:#f1f3f6;font-family:'Inter',sans-serif;outline:none}
-.sw-hads:hover,.sw-hads:focus-visible{border-color:rgba(255,160,80,.75)!important;box-shadow:0 0 26px rgba(255,110,30,.25)}
+.sw-hads:focus-visible{border-color:rgba(255,160,80,.75)!important;box-shadow:0 0 26px rgba(255,110,30,.25)}@media (hover:hover){.sw-hads:hover{border-color:rgba(255,160,80,.75)!important;box-shadow:0 0 26px rgba(255,110,30,.25)}}
 .sw-hads .ha-in{width:100%;height:100%;box-sizing:border-box;display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:22px 14px 18px;gap:12px}
 .sw-hads .ha-kick{font-family:'Bebas Neue',sans-serif;font-size:15px;letter-spacing:.12em;color:#ff8a2e;line-height:1.15}
 .sw-hads .ha-kick b{color:#ffc061;font-weight:400}
@@ -2517,7 +2522,7 @@ html.sw-seclock .hdr{padding-right:calc(24px + var(--sw-sbw,0px))}
 .vpx-reload .i{font-size:15px;line-height:1;color:#ff9d4d}
 .vpx-reload.has{border-color:rgba(255,138,46,.75);color:#ffb56a;box-shadow:0 0 10px rgba(255,122,24,.2)}
 .vpx-reload:disabled{opacity:.45;cursor:default;box-shadow:none}
-.vpx-reload:disabled:hover{border-color:rgba(255,255,255,.18)}
+@media (hover:hover){.vpx-reload:disabled:hover{border-color:rgba(255,255,255,.18)}}
 .vpx-foot{display:flex;justify-content:center;flex-wrap:wrap;gap:10px;margin:14px 0 2px}
 .vpx-foot .vpx-more{margin:0}
 @media (max-width:600px){ .vpx-foot .sx-btn{flex:1 1 auto;justify-content:center} }
@@ -2532,7 +2537,7 @@ html.sw-seclock .hdr{padding-right:calc(24px + var(--sw-sbw,0px))}
 .arec-ex-drop.open{display:block}
 .arec-ex-h{padding:6px 10px 8px;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12.5px;letter-spacing:.08em;text-transform:uppercase;color:#ff8a2e;border-bottom:1px solid rgba(255,255,255,.08);margin-bottom:4px}
 .arec-ex-opt{display:flex;align-items:center;gap:11px;width:100%;padding:9px 10px;border:none;border-radius:8px;background:none;cursor:pointer;text-align:left;color:#e6e8ec;font-family:'Inter',sans-serif}
-.arec-ex-opt:hover{background:rgba(255,122,24,.1)}
+@media (hover:hover){.arec-ex-opt:hover{background:rgba(255,122,24,.1)}}
 .arec-ex-opt:disabled{opacity:.4;cursor:default;background:none}
 .arec-ex-opt .ic{font-size:18px;width:24px;text-align:center;flex-shrink:0}
 .arec-ex-opt .b{display:block;font-weight:600;font-size:13px;color:#f4f5f7}
@@ -2838,6 +2843,24 @@ html.sw-seclock .hdr{padding-right:calc(24px + var(--sw-sbw,0px))}
   .cta-w #pool-count{margin-bottom:4px;padding-top:2px;padding-bottom:2px}
   .cta-w .afp,.cta-w #afp{max-height:56px;overflow:auto}
   #fc{max-height:calc(100vh - 16px)}
+}
+
+/* ═══ v455 · liste su telefono in orizzontale e tablet touch (601–960px) ═══
+   La griglia da computer lasciava al titolo circa 100px: via la colonna "Caratteristiche" (o "Genere"),
+   colonne fisse piu' strette, miniature piu' piccole. */
+@media (min-width:601px) and (max-width:960px) and (hover:none) and (pointer:coarse){
+  #allrecsp .arx-grid{grid-template-columns:minmax(0,1fr) 40px 104px 132px 44px 62px 34px;column-gap:8px}
+  #allrecsp .arx-head [data-col="tags"],#allrecsp .arx-row .arx-c-tags{display:none}
+  #allrecsp .arx-h{font-size:12px;letter-spacing:1px}
+  .sx-grid{grid-template-columns:minmax(0,1fr) 40px 100px 120px 74px 60px 24px;column-gap:8px}
+  #sx-head [data-col="genre"],.arx-row.sx-grid .arx-c-tags{display:none}
+  .vpx-grid{grid-template-columns:minmax(0,1fr) 40px 110px 96px 120px;column-gap:10px}
+  .vpx-grid .arx-c-tags,.vpx-head .vpx-h-gen{display:none}
+  .arx-thumb,#allrecsp .arx-thumb,.arx-row.sx-grid .arx-thumb,.arx-row.vpx-grid .arx-thumb{width:48px;height:34px}
+  .arx-c-title{gap:9px}
+  .arx-name{font-size:14px;line-height:1.2;white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  .arx-line{font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .arx-sn,.arx-wl{width:40px;height:40px}
 }
 </style></head>
 <body>
@@ -3257,7 +3280,7 @@ try{if(localStorage.getItem('sw3_session')&&(location.hash||'').indexOf('access_
           <div class="cs-card lv0" id="cs-card">
             <div class="cs-card-label" data-i18n="cs_card_label">IL TUO STATUS</div>
             <div class="badge-box">
-              <img id="prof-badge-img" class="badge-img" src="cat/badges/badge_apprendista.png" alt="Badge livello">
+              <img id="prof-badge-img" class="badge-img" src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" alt="Badge livello" decoding="async">
             </div>
             <div class="cs-ring-wrap lv0" id="cs-ring-wrap" style="display:none"><div class="cs-badge lv0" id="cs-badge-icon">🎬</div></div>
             <div class="cs-level-name lv0" id="cs-level-name">Apprendista</div>
@@ -3313,7 +3336,7 @@ try{if(localStorage.getItem('sw3_session')&&(location.hash||'').indexOf('access_
           </div>
           <!-- avatar visibile solo su mobile (su desktop usa prof-avatar-wrap) -->
           <div class="prof-avatar-mob">
-            <img id="prof-badge-img-mob" class="badge-img-mob" src="cat/badges/badge_apprendista.png" alt="Badge livello">
+            <img id="prof-badge-img-mob" class="badge-img-mob" src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" alt="Badge livello" decoding="async">
           </div>
         </div>
         <!-- CINE-SCORE BADGE CARD (prima dello storico su mobile) -->
@@ -3734,6 +3757,12 @@ function _swLayoutCard(){
 window.addEventListener('resize',function(){var f=document.getElementById('fc');if(f&&f.classList.contains('on'))_swLayoutCard();});
 try{if(document.fonts&&document.fonts.ready)document.fonts.ready.then(function(){_swLayoutCard();});}catch(e){}
 function _swPosterUrlAlt(u){u=String(u||'');return u+(u.indexOf('?')<0?'?':'&')+'cors=1';}
+// v455: miniature delle liste su telefoni e tablet: w185 al posto di w342 (la miniatura e' larga 64-72px)
+function _swThumb(u){
+  u=String(u||'');
+  try{if(window.matchMedia&&window.matchMedia('(max-width:600px),(hover:none) and (pointer:coarse)').matches)return u.replace('/t/p/w342/','/t/p/w185/');}catch(e){}
+  return u;
+}
 function _swPosterRetry(img,removeOnFail){
   if(!img)return;
   if(!img.dataset.retry){img.dataset.retry='1';img.src=_swPosterUrlAlt(img.getAttribute('src'));return;}
@@ -4079,7 +4108,7 @@ function _arecRenderTable(entries){
   rows.innerHTML=entries.map(e=>{
     const f=e.film;
     const title=_arecTitle(f),line=_arecLine(f);
-    const thumb=f.poster?'<img src="'+_arecEsc(f.poster)+'" alt="" loading="lazy" crossorigin="anonymous" onerror="_swPosterRetry(this,true)">':''; // v395: crossorigin come la scheda, altrimenti la cache senza CORS la rompe
+    const thumb=f.poster?'<img src="'+_arecEsc(_swThumb(f.poster))+'" alt="" loading="lazy" decoding="async" crossorigin="anonymous" onerror="_swPosterRetry(this,true)">':''; // v395: crossorigin come la scheda, altrimenti la cache senza CORS la rompe
     const tg=e.tags.map(tTag),nT=_arecFit(tg,bT,_arecTagW);
     const tagsHTML=tg.length
       ?tg.slice(0,nT).map(x=>'<span class="arx-tag">'+_arecEsc(x)+'</span>').join('')+
@@ -6821,7 +6850,7 @@ function _vpAllLbl(){
 function _vpMarkBtn(on){return on?'<span class="i" aria-hidden="true">✓</span>'+_arecEsc(t('vp_marked')):'<span class="i" aria-hidden="true">＋</span>'+_arecEsc(t('vp_mark'));}
 function _vpRow(f,bG){
   var title=_arecTitle(f),line=_swPubLine(f),sn=_swSeen(f.id); // v421: cast al posto del verdetto
-  var thumb=f.poster?'<img src="'+_arecEsc(f.poster)+'" alt="" loading="lazy" crossorigin="anonymous" onerror="_swPosterRetry(this,true)">':'';
+  var thumb=f.poster?'<img src="'+_arecEsc(_swThumb(f.poster))+'" alt="" loading="lazy" decoding="async" crossorigin="anonymous" onerror="_swPosterRetry(this,true)">':'';
   var tg=_sxGenres(f).map(tTag),nT=_arecFit(tg,bG,_arecTagW);
   var gHTML=tg.length?tg.slice(0,nT).map(function(x){return '<span class="arx-tag">'+_arecEsc(x)+'</span>';}).join('')+
     (tg.length>nT?'<span class="arx-more" title="'+_arecEsc(tg.join(', '))+'">+'+(tg.length-nT)+'</span>':''):'<span class="arx-none">—</span>';
@@ -7480,7 +7509,7 @@ function _sxRender(){
       var bG=mob?Math.max(SX_GEN_BUDGET,rows.clientWidth-44):SX_GEN_BUDGET;
       rows.innerHTML=list.map(function(e){
         var f=e.film,title=_arecTitle(f),line=_swPubLine(f); // v421: cast al posto del verdetto
-        var thumb=f.poster?'<img src="'+_arecEsc(f.poster)+'" alt="" loading="lazy" crossorigin="anonymous" onerror="_swPosterRetry(this,true)">':'';
+        var thumb=f.poster?'<img src="'+_arecEsc(_swThumb(f.poster))+'" alt="" loading="lazy" decoding="async" crossorigin="anonymous" onerror="_swPosterRetry(this,true)">':'';
         var tg=e.gen.map(tTag),nT=_arecFit(tg,bG,_arecTagW);
         var gHTML=tg.length?tg.slice(0,nT).map(function(x){return '<span class="arx-tag">'+_arecEsc(x)+'</span>';}).join('')+
           (tg.length>nT?'<span class="arx-more" title="'+_arecEsc(tg.join(', '))+'">+'+(tg.length-nT)+'</span>':''):'<span class="arx-none">—</span>';
@@ -8919,6 +8948,13 @@ function renderNews(lang){
     const chip=e.target.closest('.chip');if(!chip)return;
     tip.style.display='none';itip.style.display='none';
   });
+  // v455: con il dito non arriva mai il mouseout, il suggerimento restava aperto: si chiude da solo
+  var _tipT=null;
+  document.addEventListener('pointerdown',function(e){
+    if(e.pointerType!=='touch')return;
+    clearTimeout(_tipT);
+    _tipT=setTimeout(function(){tip.style.display='none';itip.style.display='none';},2600);
+  },{passive:true});
   document.addEventListener('scroll',function(){tip.style.display='none';itip.style.display='none';},{passive:true});
 })();
 
@@ -10097,7 +10133,9 @@ function _updateCompatibility(){
         ang:0.07+Math.random()*0.05
       });
     }
+    var ls=document.getElementById('ls');
     function draw(){
+      if(ls&&ls.classList.contains('out')){ctx.clearRect(0,0,c.width,c.height);return;} // v455: schermata chiusa → animazione ferma
       ctx.clearRect(0,0,c.width,c.height);
       drops.forEach(function(d){
         ctx.beginPath();
